@@ -1,5 +1,7 @@
 # Oracle A1에 leneu 설치하기
 
+> 2026-10-06 실제 배포: Cloudflare Tunnel을 통해 앱·공유·호스팅을 연결했다. GitHub 검증과 Oracle의 배포 조회 방식, 영구 자료 경로 및 현재 제한은 [실운영 연결](ORACLE_LIVE_DEPLOYMENT.md)을 먼저 확인한다. 아래는 최초 설치 절차 기록이다.
+
 기준: 2026-10-04. Ubuntu Server 24.04 LTS ARM64, A1 2 OCPU / RAM 12GB, Docker Compose. 이 문서는 설치 절차다. VM 생성·SSH 확인은 완료했지만 앱 배포는 아직 하지 않았다. 실제 단계별 상태는 [Oracle 운영 기록](ORACLE_OPERATIONS.md)을 확인한다. 오프라인 기능의 단계별 구현·검증 상태는 [실행 기록](../.omo/evidence/offline-workspace/PROGRESS.md)을 확인한다.
 
 > 2026-10-04 업데이트: 개인 비밀번호+TOTP 인증을 구현했다. 먼저 [AUTHENTICATION.md](AUTHENTICATION.md)의 계정 설정·키 보관·HTTPS 절차를 수행한다. 아래 Tailscale 절차는 기존 운영 선택지이며, Vercel 화면/Oracle API의 same-origin 프록시 배포는 아직 실행하지 않았다.

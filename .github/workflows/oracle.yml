@@ -1,4 +1,4 @@
-name: Verify and deploy Oracle
+name: Verify Oracle release
 on:
   push:
     branches: [main]
@@ -23,24 +23,3 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm test
-  deploy:
-    needs: verify
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    environment: production
-    steps:
-      - name: Deploy verified main commit
-        env:
-          DEPLOY_HOST: ${{ secrets.ORACLE_DEPLOY_HOST }}
-          DEPLOY_KEY: ${{ secrets.ORACLE_DEPLOY_KEY }}
-          DEPLOY_KNOWN_HOSTS: ${{ secrets.ORACLE_DEPLOY_KNOWN_HOSTS }}
-          DEPLOY_COMMIT: ${{ github.sha }}
-        run: |
-          set -eu
-          umask 077
-          mkdir -p ~/.ssh
-          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/anotar-deploy
-          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          trap 'rm -f ~/.ssh/anotar-deploy' EXIT
-          ssh -i ~/.ssh/anotar-deploy -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 "anotar-deploy@$DEPLOY_HOST" "deploy $DEPLOY_COMMIT"

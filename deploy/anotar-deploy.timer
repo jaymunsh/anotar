@@ -1,0 +1,11 @@
+[Unit]
+Description=Check GitHub for verified Anotar releases
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=2min
+RandomizedDelaySec=10s
+Unit=anotar-deploy.service
+
+[Install]
+WantedBy=timers.target

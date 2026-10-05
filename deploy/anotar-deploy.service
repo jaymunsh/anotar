@@ -1,0 +1,12 @@
+[Unit]
+Description=Deploy verified Anotar main release
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/anotar/oracle-poll.py
+StateDirectory=anotar-deploy
+StateDirectoryMode=0700
+UMask=0077
+TimeoutStartSec=1800
