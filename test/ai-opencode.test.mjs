@@ -57,6 +57,9 @@ test('OpenCode pins model, denies tools, passes prompt via stdin, isolates crede
   const result = await runner.run({ job, materials: [] }, new AbortController().signal);
   assert.equal(result.markdown, '# 정리');
   const info = JSON.parse(await readFile(bin + '.probe', 'utf8'));
+  assert.equal(info.config.default_agent, 'anotar');
+  assert.equal(info.config.agent.anotar.permission['*'], 'deny');
+  assert.match(info.config.agent.anotar.prompt, /supplied materials/);
   assert.equal(info.config.model, 'opencode/fixture');
   assert.equal(info.config.small_model, 'opencode/fixture');
   assert.equal(info.config.permission['*'], 'deny');

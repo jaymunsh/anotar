@@ -1,0 +1,249 @@
+{
+  "title": "주간 공유 문서를 짧게 만드는 실험",
+  "icon": "📝",
+  "document": {
+    "schemaVersion": 1,
+    "blocks": [
+      {
+        "id": "f89c8ebe-2ae8-4d28-8ce2-ec5423f314ae",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "작성 구조를 보여 주는 가상 기획 예시다. 아직 실행하지 않은 실험이며 아래 기준은 제안이다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "94987777-4f40-4d15-9b9c-35b79bb8e202",
+        "type": "callout",
+        "props": {
+          "icon": "lightbulb",
+          "border": true,
+          "backgroundColor": "default"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "제안: 다음 주에는 팀 공유 문서를 “결론 · 바뀐 점 · 다음 행동” 세 부분으로 작성한다. 자세한 근거는 접는 블록에 둔다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "ba21086b-b431-46ae-9cb1-52c9dcbedfeb",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "왜 바꾸려는가",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "d09d6200-c217-4a9b-97b0-1069db7671ca",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "주간 기록이 길어지면 독자는 지금 결정해야 할 내용과 지난 과정을 구분하기 어렵다. 글의 양을 일괄 줄이기보다, 읽는 순서를 고정해 필요한 내용을 먼저 찾게 하려 한다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "7d25fc31-c488-43d6-900c-87743251288b",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "이번 주에 정할 것",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "0a33da6b-7a09-4914-852b-e133920f445f",
+        "type": "bulletListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "첫 화면에 결론 한 문단과 다음 행동을 둔다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "f444cfd8-55ca-4eb9-8633-b440088c5d68",
+        "type": "bulletListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "진행 과정은 바뀐 점을 중심으로 세 항목 이내로 정리한다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "b5f3053e-635c-43ab-ba67-2f15d96e5b23",
+        "type": "bulletListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "결정을 이해하는 데 필요한 근거는 링크와 짧은 설명으로 남긴다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "b7c4414d-5f10-4389-82eb-b647b4114534",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "완료 기준",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "290d602e-ada4-4caf-b82a-00eafe56df7d",
+        "type": "checkListItem",
+        "props": {
+          "checked": false
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "공유 대상 한 명에게 결론과 다음 행동을 찾아 달라고 요청한다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "239b6afb-5096-42af-8bf8-77d7e38e6d72",
+        "type": "checkListItem",
+        "props": {
+          "checked": false
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "빠진 근거 때문에 생긴 질문을 기록한다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "5ce4fb4a-7f75-4932-a5a0-20502f23c4ad",
+        "type": "checkListItem",
+        "props": {
+          "checked": false
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "실험 후 유지할 구조와 다시 늘릴 내용을 구분한다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "512ac8b4-8aa8-4c0a-a79e-eb577ed4e3bc",
+        "type": "toggleListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "보충: 분량을 줄일 때 남겨야 할 정보",
+            "styles": {}
+          }
+        ],
+        "children": [
+          {
+            "id": "ea565634-6796-4853-8263-3dfdeaef5d49",
+            "type": "paragraph",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "결정 이유, 실패한 시도, 되돌릴 조건은 삭제하지 않는다. 본문에서 접어 둘 수는 있지만 다음 판단에 필요한 기록이기 때문이다.",
+                "styles": {}
+              }
+            ],
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "927e94f4-b513-4f4e-8b27-9490a6d19f10",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "아직 모르는 것",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "0fce5976-c81c-4d9d-90bc-febca48add4f",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "얼마나 짧아져야 읽기 편한지는 아직 확인하지 않았다. 글자 수만으로 성공을 판단하지 않고 독자가 결론을 찾았는지와 추가 질문의 내용을 함께 본다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "dba23208-00f2-4f70-8233-376058cea8d6",
+        "type": "quote",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "좋은 요약은 근거를 없애는 것이 아니라, 근거를 읽을 순서를 정하는 것이다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      }
+    ]
+  }
+}
