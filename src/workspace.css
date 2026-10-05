@@ -1,0 +1,327 @@
+/* Shared workspace rhythm. Route-specific form and state styles remain local. */
+.sidebar {
+  --sidebar-inline-padding: 8px;
+  padding: 0 var(--sidebar-inline-padding) 12px;
+}
+.sidebar .brand {
+  text-decoration: none;
+}
+.sidebar .brand-line,
+.sidebar .sidebar-footer {
+  flex: none;
+}
+.sidebar-scroll {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  scrollbar-width: thin;
+  scrollbar-color: #5c7565 transparent;
+  padding-bottom: 16px;
+}
+.sidebar .sidebar-pages-slot {
+  flex: none;
+}
+.sidebar-scroll .sidebar-pages-list {
+  max-height: none;
+  overflow: visible;
+}
+.sidebar .sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-top: 13px;
+}
+.content-area
+  :is(
+    .memo-workspace,
+    .trash-workspace,
+    .prompt-workspace,
+    .task-workspace-full,
+    .backup-workspace
+  ) {
+  max-width: 1120px;
+  margin-inline: auto;
+  padding: 28px clamp(20px, 3vw, 40px) 110px;
+}
+.content-area :is(.memo-heading, .activity-heading, .prompt-workspace-heading, .task-heading) h1,
+.content-area .trash-workspace h1 {
+  font-size: 27px;
+  line-height: 1.3;
+  letter-spacing: -0.03em;
+}
+.content-area .prompt-workspace-heading p {
+  font-size: 13px;
+}
+.content-area .capture-list {
+  gap: 0;
+  border: 1px solid var(--theme-line);
+  border-radius: 12px;
+  background: var(--theme-surface);
+}
+.content-area .capture-list .capture-card {
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.content-area .capture-list .capture-card:first-child {
+  border-radius: 11px 11px 0 0;
+}
+.content-area .capture-list .capture-card:last-child {
+  border-radius: 0 0 11px 11px;
+}
+.content-area .capture-list .capture-card:only-child {
+  border-radius: 11px;
+}
+.content-area
+  .capture-list
+  > :is(.capture-row, .capture-select-row)
+  + :is(.capture-row, .capture-select-row) {
+  border-top: 1px solid var(--theme-line);
+}
+.content-area .capture-list .capture-card:hover {
+  background: var(--theme-raised);
+}
+.content-area .capture-card:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--theme-accent);
+  outline-offset: -2px;
+}
+@media (max-width: 760px) {
+  .content-area > .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--theme-canvas);
+  }
+  .content-area
+    :is(
+      .memo-workspace,
+      .trash-workspace,
+      .prompt-workspace,
+      .task-workspace-full,
+      .backup-workspace
+    ) {
+    padding: 20px 16px 110px;
+  }
+  .content-area :is(.memo-heading, .activity-heading, .prompt-workspace-heading, .task-heading) h1,
+  .content-area .trash-workspace h1 {
+    font-size: 25px;
+  }
+  .sidebar {
+    height: 100dvh;
+    min-height: 0;
+  }
+}
+
+/* One navigation scroller beneath a compact brand header. */
+.sidebar .brand {
+  font-size: 20px;
+}
+.sidebar .brand-mark {
+  width: 22px;
+  height: 22px;
+}
+.sidebar .brand {
+  min-height: 28px;
+}
+@media (max-width: 760px) {
+  .sidebar .brand {
+    min-height: 44px;
+  }
+}
+.sidebar .brand-line {
+  justify-content: space-between;
+  min-height: 40px;
+  gap: 8px;
+  margin-bottom: 0;
+}
+.sidebar .brand-line .today-label {
+  margin-left: auto;
+  color: #c3d1c3;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.sidebar-primary-navigation {
+  padding-bottom: 8px;
+}
+.sidebar .nav-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+.sidebar .nav-shortcuts .nav-item {
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  height: 52px;
+  min-width: 0;
+  padding: 5px 2px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  line-height: 16px;
+  text-align: center;
+}
+.sidebar .nav-shortcuts .nav-icon svg {
+  width: 17px;
+  height: 17px;
+}
+.sidebar .nav-shortcuts .nav-label {
+  white-space: nowrap;
+}
+.sidebar .nav-shortcuts .nav-item:focus-visible {
+  outline: 2px solid #d8e6b5;
+  outline-offset: -2px;
+}
+.sidebar .sidebar-footer {
+  width: 100%;
+  min-height: 40px;
+  padding: 4px;
+  border: 0;
+  border-top: 1px solid #3b5146;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+.sidebar-settings-button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+}
+.sidebar-settings-button:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #e9eee7;
+}
+.sidebar-settings-button:focus-visible {
+  outline: 2px solid #d8e6b5;
+  outline-offset: -2px;
+}
+@media (max-width: 760px) {
+  .sidebar .brand-line {
+    min-height: 44px;
+  }
+  .sidebar .sidebar-footer {
+    min-height: 53px;
+  }
+  .sidebar-settings-button {
+    width: 44px;
+    height: 44px;
+  }
+}
+.sidebar-profile {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  object-fit: cover;
+  border-radius: 5px;
+}
+.sidebar-scroll {
+  /* Keep the scrollbar at the outer edge independently of content density. */
+  margin-right: calc(-1 * var(--sidebar-inline-padding));
+  padding-right: var(--sidebar-inline-padding);
+  scrollbar-gutter: stable;
+}
+.sidebar-scroll:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: -2px;
+}
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  background: transparent;
+}
+.sidebar:hover .sidebar-scroll::-webkit-scrollbar-thumb,
+.sidebar:focus-within .sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #5c7565;
+}
+.sidebar .workspace-quick-section h2,
+.sidebar .workspace-quick-section p,
+.sidebar .workspace-quick-link {
+  padding-inline: 4px;
+}
+.sidebar .workspace-quick-link {
+  gap: 7px;
+}
+.sidebar .workspace-quick-icon {
+  width: 18px;
+  justify-content: center;
+}
+.sidebar .sidebar-pages-heading {
+  margin-inline: 4px;
+}
+/* Dense navigation for a mouse; touch layouts retain their larger targets. */
+@media (min-width: 761px) and (pointer: fine) {
+  .sidebar .nav-item {
+    height: 28px;
+  }
+  .sidebar .sidebar-pages {
+    margin-top: 8px;
+  }
+  .sidebar .workspace-quick-section {
+    margin-bottom: 10px;
+  }
+  .sidebar .workspace-quick-section h2 {
+    margin-bottom: 4px;
+  }
+  .sidebar .workspace-quick-section p {
+    line-height: 1.5;
+  }
+  .sidebar .workspace-quick-link {
+    min-height: 28px;
+    padding-block: 4px;
+    font-size: 12.5px;
+    line-height: 20px;
+  }
+  .sidebar .workspace-navigation .sidebar-page-row,
+  .sidebar .workspace-navigation .sidebar-page-item {
+    min-height: 28px;
+  }
+  .sidebar .workspace-navigation .sidebar-page-toggle,
+  .sidebar .workspace-navigation .workspace-row-action {
+    width: 24px;
+    height: 28px;
+    flex-basis: 24px;
+  }
+  .sidebar .workspace-navigation .sidebar-page-toggle {
+    margin-right: 1px;
+  }
+  .sidebar .workspace-navigation .sidebar-page-row {
+    padding-right: 4px;
+  }
+  .sidebar .workspace-navigation .sidebar-pages-heading button {
+    min-width: 28px;
+    min-height: 28px;
+  }
+}
+
+/* Toolbar owns route titles; body begins with local filters or editable content. */
+.workspace-hint {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--theme-muted);
+}
+.memo-workspace > .ai-activity {
+  margin-top: 0;
+}
+@media (min-width: 1101px) {
+  .memo-split .memo-detail-host {
+    top: calc(var(--workspace-toolbar-height) + 16px);
+    max-height: calc(100dvh - var(--workspace-toolbar-height) - 32px);
+  }
+}

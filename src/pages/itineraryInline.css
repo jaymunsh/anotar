@@ -1,0 +1,286 @@
+.itinerary-block .itinerary-inline-hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: var(--theme-muted);
+}
+.itinerary-inline-field {
+  min-width: 0;
+}
+.itinerary-inline-field > [role='button'] {
+  display: inline-block;
+  max-width: 100%;
+  border-radius: 3px;
+  cursor: text;
+  outline-offset: 2px;
+}
+.itinerary-inline-field > [role='button']:hover,
+.itinerary-inline-field > [role='button']:focus-visible {
+  background: var(--theme-soft);
+}
+.itinerary-inline-field > [role='button']:focus-visible,
+.itinerary-row-menu > summary:focus-visible,
+.itinerary-plan-menu > summary:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
+.itinerary-inline-field.is-multiline,
+.itinerary-inline-field.is-multiline > [role='button'],
+.itinerary-entry-title strong .itinerary-inline-field,
+.itinerary-entry-title strong .itinerary-inline-field > [role='button'] {
+  display: block;
+  width: 100%;
+}
+.itinerary-inline-field input,
+.itinerary-inline-field textarea,
+.itinerary-inline-field select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 2px 3px;
+  margin: -2px -3px;
+  border: 1px solid var(--theme-accent);
+  border-radius: 4px;
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  font: inherit;
+  line-height: inherit;
+  outline: none;
+}
+.itinerary-inline-field textarea {
+  display: block;
+  resize: none;
+  overflow: hidden;
+}
+.itinerary-empty-note .itinerary-inline-field > [role='button'] {
+  min-height: 0;
+}
+.itinerary-inline-field[data-field='category'] select {
+  min-width: 74px;
+}
+.itinerary-inline-field input[aria-invalid='true'],
+.itinerary-inline-field textarea[aria-invalid='true'] {
+  border-color: #bb6048;
+}
+.itinerary-inline-error {
+  display: block;
+  margin: 5px 0;
+  color: #b55239;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.itinerary-time .itinerary-inline-error {
+  width: 180px;
+  padding: 5px 8px;
+  background: var(--theme-surface);
+  position: relative;
+  z-index: 2;
+}
+.itinerary-inline-placeholder {
+  color: var(--theme-muted);
+  opacity: 0.65;
+  font-weight: 400;
+}
+.itinerary-plan-menu {
+  position: relative;
+}
+.itinerary-row-menu {
+  position: absolute;
+  right: 0;
+  top: 8px;
+  z-index: 4;
+}
+.itinerary-row-menu:not([open]) {
+  opacity: 0;
+}
+.itinerary-timeline > li:hover .itinerary-row-menu,
+.itinerary-timeline > li:focus-within .itinerary-row-menu {
+  opacity: 1;
+}
+.itinerary-row-menu > summary,
+.itinerary-plan-menu > summary {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  list-style: none;
+  cursor: pointer;
+  color: var(--theme-muted);
+}
+.itinerary-row-menu > summary::-webkit-details-marker,
+.itinerary-plan-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.itinerary-row-menu > summary:hover,
+.itinerary-plan-menu > summary:hover {
+  background: var(--theme-soft);
+}
+.itinerary-property-menu {
+  position: absolute;
+  right: 0;
+  top: 32px;
+  width: 260px;
+  max-width: calc(100vw - 60px);
+  max-height: min(440px, 70vh);
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid var(--theme-line);
+  border-radius: 8px;
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  box-shadow: 0 8px 24px #10251a18;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+  z-index: 5;
+}
+.itinerary-property-row {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  padding: 7px 3px;
+}
+.itinerary-property-row > span:first-child {
+  color: var(--theme-muted);
+}
+.itinerary-property-row [role='button'] {
+  overflow-wrap: anywhere;
+}
+.itinerary-coordinate-options {
+  border-top: 1px solid var(--theme-line);
+  margin-top: 6px;
+  padding-top: 6px;
+}
+.itinerary-coordinate-options > summary {
+  cursor: pointer;
+  padding: 5px 3px;
+  color: var(--theme-muted);
+}
+.itinerary-coordinate-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 8px 3px;
+}
+.itinerary-coordinate-fields label {
+  display: grid;
+  gap: 4px;
+}
+.itinerary-coordinate-fields input {
+  width: 100%;
+  min-width: 0;
+  padding: 5px;
+  border: 1px solid var(--theme-line);
+  border-radius: 4px;
+  background: var(--theme-bg);
+  color: inherit;
+  font: inherit;
+}
+.itinerary-row-actions {
+  display: grid;
+  border-top: 1px solid var(--theme-line);
+  margin-top: 8px;
+  padding-top: 5px;
+}
+.itinerary-row-actions button,
+.itinerary-coordinate-options > button,
+.itinerary-inline-add,
+.itinerary-recovered-draft button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  padding: 6px 8px;
+  color: var(--theme-muted);
+  font-size: 12px;
+}
+.itinerary-row-actions button {
+  width: 100%;
+}
+.itinerary-row-actions button:hover,
+.itinerary-coordinate-options > button:hover,
+.itinerary-inline-add:hover {
+  background: var(--theme-soft);
+  color: var(--theme-ink);
+}
+.itinerary-row-actions .itinerary-row-delete {
+  color: #b55239;
+}
+.itinerary-inline-add {
+  margin: 8px 0 0 var(--plan-inset);
+}
+.itinerary-recovered-draft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px;
+  margin-top: 8px;
+  background: var(--theme-soft);
+  border-radius: 6px;
+  font-size: 12px;
+}
+.itinerary-recovered-draft > span {
+  flex: 1 1 220px;
+}
+.itinerary-recovered-draft button {
+  border: 1px solid var(--theme-line);
+}
+.itinerary-block .itinerary-number {
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+.itinerary-block .itinerary-entry-title {
+  padding-right: 30px;
+}
+@media (max-width: 600px) {
+  .itinerary-inline-field input,
+  .itinerary-inline-field textarea,
+  .itinerary-inline-field select {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .itinerary-inline-field > [role='button'] {
+    min-height: 32px;
+  }
+  .itinerary-time .itinerary-inline-field > [role='button'] {
+    min-height: 24px;
+  }
+  .itinerary-row-menu {
+    opacity: 1;
+    top: 8px;
+  }
+  .itinerary-row-menu > summary,
+  .itinerary-plan-menu > summary {
+    width: 32px;
+    height: 44px;
+  }
+  .itinerary-property-menu {
+    width: 236px;
+    top: 44px;
+  }
+  .itinerary-row-actions button,
+  .itinerary-coordinate-options > button,
+  .itinerary-inline-add {
+    min-height: 44px;
+  }
+  .itinerary-coordinate-fields input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .itinerary-time .itinerary-inline-field input {
+    width: 72px;
+    position: relative;
+    z-index: 2;
+  }
+  .itinerary-block .itinerary-inline-hint {
+    font-size: 11px;
+    line-height: 1.6;
+  }
+}

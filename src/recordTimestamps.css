@@ -1,0 +1,21 @@
+.record-timestamps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 12px 0 0;
+  color: var(--theme-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+}
+.record-timestamps > div {
+  display: flex;
+  gap: 6px;
+  white-space: nowrap;
+}
+.record-timestamps dt {
+  font-weight: 500;
+}
+.record-timestamps dd {
+  margin: 0;
+}

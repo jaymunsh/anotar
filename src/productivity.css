@@ -1,0 +1,248 @@
+/* Productivity surfaces inherit the existing leneu color and type tokens. */
+.dashboard-grid > .dashboard-continue {
+  grid-column: 1 / -1;
+  min-width: 0;
+  width: 100%;
+}
+.dashboard-continue:empty {
+  display: none;
+}
+.home-dashboard .dashboard-intro h1 {
+  font-size: clamp(28px, 2.4vw, 34px);
+}
+.today-label,
+.sidebar-footer,
+.composer-subtitle,
+.composer-hint,
+.capture-date,
+.capture-type,
+.capture-secondary,
+.record-timestamps,
+.home-dashboard .task-date {
+  font-size: 12px;
+}
+.capture-row,
+.capture-select-row {
+  min-width: 0;
+}
+.capture-row > .capture-card,
+.capture-select-row > .capture-card {
+  width: 100%;
+}
+.capture-select-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.capture-select-control {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  min-height: 44px;
+  flex-shrink: 0;
+}
+.capture-select-control input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--theme-accent);
+}
+.memo-selection-bar,
+.memo-batch-recovery {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  font-size: 12px;
+  color: var(--theme-muted);
+}
+.memo-selection-bar button,
+.memo-batch-recovery button,
+.memo-detail-navigation button {
+  min-height: 34px;
+  padding: 6px 11px;
+  border: 1px solid var(--theme-line);
+  border-radius: 7px;
+  color: var(--theme-accent);
+  background: var(--theme-surface);
+  font-size: 12px;
+  font-weight: 600;
+}
+.memo-selection-bar button[aria-pressed='true'] {
+  background: var(--theme-soft);
+}
+.memo-batch-recovery {
+  padding: 10px;
+  border: 1px solid var(--theme-line);
+  border-radius: 8px;
+  background: var(--theme-soft);
+}
+.memo-detail-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px;
+  color: var(--theme-muted);
+  font-size: 12px;
+}
+.memo-edit-guidance {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--theme-muted);
+  margin: 0 0 12px;
+}
+.memo-detail-host {
+  display: none;
+  min-width: 0;
+}
+.detail-panel.ai-capture-detail:not(.capture-import-panel) {
+  width: min(820px, 100vw);
+  padding: 22px 26px;
+}
+.ai-capture-detail .detail-top { margin-bottom: 14px; }
+.ai-capture-detail :is(.detail-icon,.detail-type) { display: none; }
+.ai-capture-detail .detail-eyebrow { font-size: 12px; letter-spacing: 0; }
+.ai-capture-detail .record-timestamps { margin-top: 8px; }
+@media (min-width: 1101px) {
+  .memo-workspace.memo-split:has(.ai-capture-detail) {
+    grid-template-columns: minmax(240px, .65fr) minmax(0, 1.35fr);
+    gap: 18px;
+    max-width: 1460px;
+  }
+  .memo-detail-frame .detail-panel.ai-capture-detail { width: 100%; padding: 20px; }
+}
+@media (max-width: 760px) {
+  .detail-panel.ai-capture-detail:not(.capture-import-panel) { padding: 18px; }
+}
+.command-error {
+  margin: 12px 24px;
+  padding: 12px;
+  border: 1px solid var(--theme-line);
+  border-radius: 8px;
+  color: var(--theme-ink);
+  background: var(--theme-soft);
+}
+@media (min-width: 1101px) {
+  .memo-workspace.memo-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 420px);
+    gap: 24px;
+    max-width: 1380px;
+    align-items: start;
+  }
+  .memo-split .memo-detail-host {
+    display: block;
+    position: sticky;
+    top: calc(var(--workspace-toolbar-height) + 16px);
+  }
+  .memo-detail-frame .detail-panel {
+    position: static;
+    width: 100%;
+    height: auto;
+    min-height: 420px;
+    max-height: calc(100dvh - var(--workspace-toolbar-height) - 32px);
+    overflow-y: auto;
+    padding: 22px;
+    border: 1px solid var(--theme-line);
+    border-radius: 10px;
+    box-shadow: none;
+    background: var(--theme-surface);
+  }
+  .memo-detail-frame .detail-icon {
+    margin-top: 24px;
+  }
+  .memo-detail-frame .detail-top {
+    gap: 8px;
+  }
+  .memo-split .memo-heading {
+    align-items: start;
+  }
+  .memo-split .filter-bar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .memo-split .search-box {
+    width: 100%;
+  }
+}
+@media (max-width: 760px) {
+  .memo-selection-bar button,
+  .memo-batch-recovery button,
+  .memo-detail-navigation button {
+    min-height: 44px;
+  }
+  .memo-selection-bar {
+    gap: 6px;
+  }
+  .memo-selection-bar > span {
+    width: 100%;
+  }
+  .capture-select-control {
+    width: 30px;
+  }
+}
+.command-error {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+.command-error button {
+  min-height: 32px;
+  padding: 5px 9px;
+  border: 1px solid var(--theme-line);
+  border-radius: 6px;
+  background: var(--theme-surface);
+  color: var(--theme-accent);
+  font-size: 12px;
+}
+.activity-row-time,
+.activity-organized {
+  font-size: 12px;
+}
+@media (max-width: 1100px) {
+  .dashboard-grid > .dashboard-continue {
+    order: 0;
+  }
+  .dashboard-primary > .dashboard-memos {
+    order: 6;
+  }
+  .dashboard-primary > .dashboard-pages {
+    order: 7;
+  }
+  .dashboard-secondary > .comments-attention {
+    order: 8;
+  }
+}
+@media (max-width: 760px) {
+  .command-error button {
+    min-height: 44px;
+  }
+}
+.capture-card[aria-current='true'] {
+  border-color: var(--theme-accent);
+  background: var(--theme-soft);
+  box-shadow: inset 3px 0 var(--theme-accent);
+}
+.memo-workspace .memo-collection .capture-date,
+.memo-workspace .memo-collection .capture-type,
+.memo-workspace .memo-collection .capture-secondary,
+.home-dashboard .memo-recent .capture-card-top,
+.home-dashboard .memo-recent .capture-date,
+.home-dashboard .memo-recent .capture-secondary,
+.home-dashboard .memo-recent .capture-type,
+.memo-collection .memo-request-state,
+.task-workspace .task-due,
+.task-workspace .task-saving,
+.task-workspace .task-tabs button,
+.task-panel .task-due,
+.task-panel .task-saving,
+.task-panel .task-tabs button,
+.ai-activity .activity-row-time,
+.activity-compact .activity-row-time,
+.ai-activity .activity-organized,
+.activity-compact .activity-organized {
+  font-size: 12px;
+}

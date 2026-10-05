@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>anotar · 타임박싱 일지 예시</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./timeboxing-preview.css" />
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <defs>
+        <symbol id="i-calendar" viewBox="0 0 24 24">
+          <path d="M8 2v4M16 2v4M3 10h18" />
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+        </symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+        <symbol id="i-left" viewBox="0 0 24 24"><path d="m14 6-6 6 6 6" /></symbol>
+        <symbol id="i-right" viewBox="0 0 24 24"><path d="m10 6 6 6-6 6" /></symbol>
+        <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6" /></symbol>
+        <symbol id="i-sun" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" />
+        </symbol>
+      </defs>
+    </svg>
+    <header class="topbar">
+      <a class="brand" href="/"><img src="/favicon.png" alt="" />anotar</a>
+      <span class="crumb"><span>/</span>일지<span>/</span>타임박싱</span>
+      <div class="top-actions">
+        <a href="journal-preview.html">연속 일지 예시</a
+        ><button id="theme" class="icon-button" aria-label="어두운 화면으로 전환">
+          <svg><use href="#i-sun" /></svg>
+        </button>
+      </div>
+    </header>
+    <main class="sheet">
+      <div class="page-head">
+        <div>
+          <h1 id="dayTitle">10월 5일 월요일</h1>
+          <p class="day-summary" id="daySummary"></p>
+          <p id="saveStatus" class="journal-save-status" role="status">이 브라우저에 저장</p>
+        </div>
+        <nav class="day-controls" aria-label="일지 날짜">
+          <button id="prev" class="icon-button" aria-label="이전 날짜">
+            <svg><use href="#i-left" /></svg>
+          </button>
+          <input
+            id="date"
+            type="date"
+            value="2026-10-05"
+            min="2020-01-01"
+            max="2099-12-31"
+            aria-label="일지 날짜 선택"
+          />
+          <button id="next" class="icon-button" aria-label="다음 날짜">
+            <svg><use href="#i-right" /></svg>
+          </button>
+          <button id="today" class="button" aria-label="예시 오늘">오늘</button>
+        </nav>
+        <aside id="calendarRail" class="calendar-rail" aria-label="작성한 날짜 달력">
+          <div class="month-heading">
+            <h2 id="calendarTitle"></h2>
+            <button id="calendarPrev" class="icon-button" aria-label="이전 달 달력">
+              <svg><use href="#i-left" /></svg>
+            </button>
+            <button id="calendarNext" class="icon-button" aria-label="다음 달 달력">
+              <svg><use href="#i-right" /></svg>
+            </button>
+          </div>
+          <div id="calendar" class="calendar"></div>
+        </aside>
+      </div>
+      <p id="storageError" role="alert" hidden></p>
+      <div class="view-bar">
+        <nav class="view-tabs" aria-label="일지 보기">
+          <button data-view="day" aria-pressed="true">일간</button
+          ><button data-view="week" aria-pressed="false">주간</button
+          ><button data-view="month" aria-pressed="false">월간</button
+          ><button data-view="review" aria-pressed="false">되짚어보기</button>
+        </nav>
+        <button
+          id="calendarToggle"
+          class="button"
+          aria-expanded="false"
+          aria-controls="calendarRail"
+        >
+          <svg><use href="#i-calendar" /></svg>달력
+        </button>
+      </div>
+      <div class="journal-layout">
+        <div class="view-content">
+          <div class="workspace" id="dailyView">
+            <aside class="day-notes">
+              <section class="priorities" aria-labelledby="priorityHeading">
+                <div class="section-head">
+                  <h2 id="priorityHeading">오늘 꼭 할 일</h2>
+                  <button
+                    id="addPriority"
+                    class="priority-add"
+                    type="button"
+                    aria-label="할 일 추가"
+                  >
+                    + 추가
+                  </button>
+                </div>
+                <div id="priorityList"></div>
+                <p class="priority-hint">할 일을 시간표로 끌어 놓거나 시간 잡기를 눌러요.</p>
+                <div id="priorityUndo" hidden>
+                  <span role="status">할 일을 지웠어요.</span
+                  ><button id="undoPriority" type="button">되돌리기</button>
+                </div>
+              </section>
+              <div class="notes">
+                <section class="note-section">
+                  <h2><label for="feedback">하루 돌아보기</label></h2>
+                  <textarea
+                    id="feedback"
+                    maxlength="10000"
+                    placeholder="잘된 점 · 계획이 달라진 이유 · 내일 바꿀 것"
+                  ></textarea>
+                </section>
+                <section class="note-section">
+                  <h2><label for="idea">아이디어</label></h2>
+                  <textarea
+                    id="idea"
+                    maxlength="10000"
+                    placeholder="나중에 꺼내볼 아이디어"
+                  ></textarea>
+                </section>
+                <section class="note-section">
+                  <h2><label for="brain">머릿속 생각</label></h2>
+                  <textarea
+                    id="brain"
+                    maxlength="10000"
+                    placeholder="해야 할 일, 떠오른 생각을 우선 적어두세요."
+                  ></textarea>
+                </section>
+              </div>
+            </aside>
+            <section class="schedule" aria-labelledby="scheduleHeading">
+              <div class="schedule-toolbar">
+                <h2 id="scheduleHeading">하루 시간표</h2>
+                <nav class="schedule-actions" aria-label="시간표 보기">
+                  <button data-schedule="axis" aria-pressed="true">하루</button
+                  ><button data-schedule="list" aria-pressed="false">목록</button>
+                </nav>
+              </div>
+              <div class="time-lists" id="timeLists" hidden>
+                <section>
+                  <div class="column-heading">
+                    <h3>계획 <small id="planTotal"></small></h3>
+                    <button id="addPlan" class="icon-button" aria-label="계획 추가">
+                      <svg><use href="#i-plus" /></svg>
+                    </button>
+                  </div>
+                  <div id="planList"></div>
+                </section>
+              </div>
+              <p id="dragStatus" role="status" aria-live="polite"></p>
+              <div id="axisView">
+                <div class="day-sheet-heading">
+                  <span>시간</span>
+                  <div>
+                    계획<button id="axisAddPlan" class="icon-button" aria-label="시간표 계획 추가">
+                      <svg><use href="#i-plus" /></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="minute-heading" aria-hidden="true">
+                  <span></span>
+                  <div>
+                    <span>00</span><span>10</span><span>20</span><span>30</span><span>40</span
+                    ><span>50</span><span>60</span>
+                  </div>
+                </div>
+                <div id="daySheet" role="region" aria-label="하루 전체 24시간 계획"></div>
+                <div class="day-sheet-end">24:00 · 다음 날</div>
+              </div>
+            </section>
+          </div>
+          <section id="reviewView" hidden aria-label="미이행 계획 되짚어보기">
+            <h2>미이행 계획</h2>
+            <p class="review-hint">
+              직접 × 표시한 계획을 날짜별로 모았어요. 다시 계획하면 이전 기록을 남긴 채 새 시간에 잡아요.
+            </p>
+            <div id="reviewList"></div>
+          </section>
+          <section id="periodView" hidden aria-labelledby="periodHeading">
+            <div class="section-head">
+              <h2 id="periodHeading"></h2>
+              <span id="periodCount"></span>
+            </div>
+            <p class="summary-hint">계획 시간과 미이행으로 표시한 항목을 돌아봐요.</p>
+            <div id="periodTable"></div>
+            <section class="period-reflections">
+              <h2>남겨둔 회고</h2>
+              <div id="periodReflections"></div>
+            </section>
+          </section>
+        </div>
+      </div>
+    </main>
+    <dialog id="entryDialog" aria-labelledby="dialogTitle">
+      <form id="entryForm">
+        <div class="dialog-head">
+          <h2 id="dialogTitle">계획 추가</h2>
+          <button type="button" id="closeDialog" class="icon-button" aria-label="닫기">
+            <svg><use href="#i-close" /></svg>
+          </button>
+        </div>
+        <div class="dialog-body">
+          <label id="entryDateField" hidden>다시 계획할 날짜<input id="entryDate" type="date" min="2020-01-01" max="2099-12-31" /></label>
+          <p id="entryLink" class="dialog-hint" hidden></p>
+          <label
+            >내용<input
+              id="entryTitle"
+              maxlength="160"
+              required
+              autocomplete="off"
+              placeholder="이 시간에 할 일"
+          /></label>
+          <div class="time-fields">
+            <label>시작<input id="start" type="time" step="600" required /></label
+            ><label>종료<input id="end" type="time" step="600" required /></label>
+          </div>
+          <p class="dialog-hint">시작을 정하면 30분 뒤로 맞춰요. 00:00은 다음 날 자정이에요.</p>
+          <label class="missed-field"
+            ><span class="missed-copy"
+              ><strong>미이행으로 남기기</strong
+              ><small>되짚어보기에서 다시 확인할 수 있어요.</small></span
+            ><input type="checkbox" id="entryMissed" role="switch"
+          /></label>
+          <p id="formError" role="alert" hidden></p>
+          <div class="dialog-actions">
+            <button type="button" id="remove" class="button" hidden>삭제</button
+            ><button type="button" id="cancel" class="button">취소</button
+            ><button type="submit" class="button primary">저장</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+    <script type="module" src="./timeboxing-preview.mjs"></script>
+  </body>
+</html>

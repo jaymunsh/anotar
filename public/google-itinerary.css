@@ -1,0 +1,84 @@
+.itinerary-google-map {
+  color-scheme: light;
+  background: #edf0e8;
+}
+.itinerary-google-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 9px;
+  font-size: 12px;
+}
+.itinerary-google-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 9px;
+  border: 1px solid var(--theme-line, #d9e3d8);
+  border-radius: 6px;
+  background: var(--theme-surface, #fff);
+  color: var(--theme-ink, #21352c);
+  font: inherit;
+  cursor: pointer;
+}
+.itinerary-google-pin {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  padding: 3px;
+  cursor: pointer;
+  font:
+    600 12px 'DM Sans',
+    'Noto Sans KR',
+    system-ui,
+    sans-serif;
+  color: #21352c;
+}
+.itinerary-google-pin-number {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #315843;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.itinerary-google-pin-label {
+  background: #fff;
+  border-radius: 6px;
+  padding: 5px 8px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.itinerary-google-pin.is-selected .itinerary-google-pin-number {
+  background: #20322d;
+  outline: 3px solid #d8e6b5;
+}
+.itinerary-google-pin.is-selected .itinerary-google-pin-label {
+  background: #d8e6b5;
+}
+.itinerary-google-pin:focus-visible,
+gmp-advanced-marker:focus-visible .itinerary-google-pin {
+  outline: 3px solid #315843;
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+@media (max-width: 480px) {
+  .itinerary-google-toolbar button,
+  .itinerary-google-pin {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .itinerary-google-pin-label {
+    max-width: 100px;
+    font-size: 11px;
+  }
+}

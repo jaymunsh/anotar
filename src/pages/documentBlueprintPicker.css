@@ -1,0 +1,172 @@
+.document-blueprint-picker {
+  width: min(560px, calc(100vw - 24px));
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 24px);
+  padding: 0;
+  border: 1px solid var(--theme-line);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.document-blueprint-picker::backdrop {
+  background: #14201b66;
+}
+.blueprint-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--theme-line);
+}
+.blueprint-heading h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.document-blueprint-picker button {
+  min-height: 44px;
+  border: 1px solid var(--theme-line);
+  border-radius: 6px;
+  color: var(--theme-ink);
+  background: var(--theme-surface);
+  font: inherit;
+  cursor: pointer;
+}
+.blueprint-heading button {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  border: 0;
+}
+.blueprint-body {
+  padding: 20px;
+}
+.blueprint-intro {
+  margin: 0 0 16px;
+  color: var(--theme-muted);
+}
+.blueprint-options {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+.blueprint-options button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  text-align: left;
+  border-color: transparent;
+}
+.blueprint-options svg {
+  flex-shrink: 0;
+}
+.blueprint-options strong,
+.blueprint-options span span {
+  display: block;
+}
+.blueprint-options strong {
+  font-weight: 600;
+}
+.blueprint-options span span {
+  margin-top: 3px;
+  color: var(--theme-muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.blueprint-options button[aria-pressed='true'] {
+  background: var(--theme-raised);
+  border-color: var(--theme-line);
+  color: var(--theme-accent);
+}
+.document-blueprint-picker button:hover:not(:disabled) {
+  background: var(--theme-raised);
+}
+.document-blueprint-picker :is(button, input, select):focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
+.document-blueprint-picker :disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.blueprint-field {
+  display: block;
+  font-weight: 500;
+  min-width: 0;
+}
+.blueprint-optional {
+  color: var(--theme-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.blueprint-field input,
+.blueprint-field select {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--theme-line);
+  border-radius: 6px;
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  font-family: inherit;
+  font-size: 16px;
+}
+.blueprint-field input::placeholder {
+  color: var(--theme-muted);
+}
+.blueprint-travel-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+.blueprint-travel-fields p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--theme-muted);
+  font-size: 13px;
+}
+.blueprint-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--theme-line);
+}
+.blueprint-footer button {
+  padding: 8px 14px;
+}
+.blueprint-footer .blueprint-submit {
+  background: var(--theme-accent);
+  color: var(--theme-accent-ink);
+  border-color: var(--theme-accent);
+}
+.blueprint-footer .blueprint-submit:hover:not(:disabled) {
+  background: var(--theme-accent);
+  filter: brightness(0.94);
+}
+.blueprint-error {
+  color: var(--theme-error-ink);
+}
+@media (max-width: 400px) {
+  .blueprint-body {
+    padding: 16px;
+  }
+  .blueprint-heading,
+  .blueprint-footer {
+    padding: 12px 16px;
+  }
+  .blueprint-travel-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

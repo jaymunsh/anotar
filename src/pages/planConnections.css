@@ -1,0 +1,366 @@
+.plan-connections {
+  margin: 8px 0 4px 48px;
+  min-width: 0;
+  color: var(--theme-ink);
+}
+.plan-connections button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--theme-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  padding: 5px 7px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.plan-connections button:hover {
+  background: var(--theme-soft);
+  color: var(--theme-accent);
+}
+.plan-connections-toggle {
+  font-size: 11px !important;
+  padding-left: 0 !important;
+}
+.plan-connections-toggle > span {
+  color: var(--theme-accent);
+  font-size: 10px;
+}
+.plan-connections-panel {
+  border-top: 1px solid var(--theme-line);
+  margin-top: 6px;
+  padding-top: 9px;
+}
+.plan-connections-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.plan-connections-head strong {
+  font-size: 12px;
+  flex: 1;
+}
+.plan-connections-panel p {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 8px 0;
+  color: var(--theme-muted);
+}
+.plan-connections-panel [role='alert'] {
+  color: var(--theme-error-ink);
+}
+.plan-connections-items,
+.plan-connections-options {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.plan-connections-items > li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--theme-line);
+}
+.plan-connections-items > li > input {
+  margin: 3px 0 0;
+  accent-color: var(--theme-accent);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.plan-connections-item-text {
+  flex: 1;
+  min-width: 0;
+}
+.plan-connections-item-text > a {
+  font-size: 13px;
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow-wrap: anywhere;
+  color: var(--theme-ink);
+  text-underline-offset: 3px;
+}
+.plan-connections-item-text > small {
+  display: block;
+  margin: 2px 0;
+  font-size: 10px;
+  color: var(--theme-muted);
+}
+.plan-connections-share {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--theme-muted);
+  margin: 5px 0;
+}
+.plan-connections-share input {
+  accent-color: var(--theme-accent);
+  margin: 0;
+  width: 14px;
+  height: 14px;
+}
+.plan-connections-unavailable {
+  font-size: 12px;
+  color: var(--theme-muted);
+}
+.plan-connections-add,
+.plan-connections-select {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+.plan-connections input:not([type='checkbox']),
+.plan-connections select {
+  font: inherit;
+  font-size: 13px;
+  color: var(--theme-ink);
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-line);
+  border-radius: 6px;
+  padding: 7px 8px;
+  min-width: 0;
+}
+.plan-connections-add > input,
+.plan-connections-select > input {
+  flex: 1;
+  width: 100%;
+}
+.plan-connections-add > button {
+  background: var(--theme-soft);
+  min-width: 32px;
+  justify-content: center;
+}
+.plan-connections-select > select {
+  width: 106px;
+  flex-shrink: 0;
+}
+.plan-connections-options {
+  max-height: 170px;
+  overflow: auto;
+  margin-top: 6px !important;
+  scrollbar-width: thin;
+}
+.plan-connections-options button {
+  width: 100%;
+  text-align: left;
+  padding: 7px 4px;
+  min-height: 32px;
+}
+.plan-connections-options button > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.plan-connections-options button > small {
+  font-size: 10px;
+}
+.plan-connections-note {
+  font-size: 10px !important;
+  margin-top: 10px !important;
+}
+.plan-connections button:focus-visible,
+.plan-connections input:focus-visible,
+.plan-connections select:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
+.plan-connections button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+@media (max-width: 650px) {
+  .plan-connections {
+    margin-left: 0;
+  }
+  .plan-connections button {
+    min-height: 44px;
+  }
+  .plan-connections input:not([type='checkbox']),
+  .plan-connections select {
+    font-size: 16px;
+    min-height: 44px;
+  }
+  .plan-connections-select {
+    flex-wrap: wrap;
+  }
+  .plan-connections-select > select {
+    width: 100%;
+  }
+  .plan-connections-toggle {
+    min-height: 44px;
+  }
+  .plan-connections-share {
+    min-height: 34px;
+  }
+  .plan-connections-share input {
+    width: 18px;
+    height: 18px;
+  }
+}
+.plan-orphan-manager {
+  margin: 20px 0;
+  padding: 14px 0;
+  border-top: 1px solid var(--theme-line);
+  color: var(--theme-ink);
+  font-size: 13px;
+  outline: none;
+}
+.plan-orphan-manager .plan-connections-head {
+  gap: 8px;
+}
+.plan-orphan-manager .plan-connections-head strong {
+  font-size: 14px;
+}
+.plan-orphan-manager button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  min-height: 34px;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  background: var(--theme-soft);
+  color: var(--theme-muted);
+  cursor: pointer;
+}
+.plan-orphan-manager button:hover {
+  color: var(--theme-accent);
+}
+.plan-orphan-manager button:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
+.plan-orphan-manager button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.plan-orphan-manager p {
+  font-size: 12px;
+  color: var(--theme-muted);
+  line-height: 1.7;
+  margin: 8px 0;
+}
+.plan-orphan-manager [role='alert'] {
+  color: var(--theme-error-ink);
+}
+.plan-orphan-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+.plan-orphan-list > li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--theme-line);
+}
+.plan-orphan-list > li > div {
+  flex: 1;
+  min-width: 0;
+}
+.plan-orphan-list strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.plan-orphan-list small {
+  display: block;
+  font-size: 11px;
+  color: var(--theme-muted);
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+.plan-orphan-list button {
+  flex-shrink: 0;
+}
+@media (max-width: 650px) {
+  .plan-orphan-manager button {
+    min-height: 44px;
+  }
+  .plan-orphan-list > li {
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .plan-orphan-list button span {
+    display: none;
+  }
+}
+
+/* Actual preparations stay readable; connection controls live in the row menu. */
+.plan-connections-summary {
+  margin: 10px 0 0 var(--plan-inset, 48px);
+}
+.plan-connections-reading-list {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+.plan-connections-reading-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.plan-connections-reading-list li > input {
+  margin: 3px 0 0;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--theme-accent);
+  flex-shrink: 0;
+}
+.plan-connections-reading-list li > svg {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+.plan-connections-reading-list li > div {
+  min-width: 0;
+}
+.plan-connections-reading-list a {
+  color: var(--theme-ink);
+  overflow-wrap: anywhere;
+  text-underline-offset: 3px;
+}
+.plan-connections-reading-list small {
+  display: block;
+  color: var(--theme-muted);
+  font-size: 10px;
+}
+.plan-connections-summary > p {
+  margin: 4px 0;
+  font-size: 12px;
+  color: var(--theme-muted);
+}
+.itinerary-property-menu > .plan-connections {
+  margin: 6px 0;
+  padding-top: 6px;
+  border-top: 1px solid var(--theme-line);
+}
+.itinerary-property-menu .plan-connections-select {
+  flex-wrap: wrap;
+}
+.itinerary-property-menu .plan-connections-select select {
+  width: 100%;
+}
+@media (max-width: 650px) {
+  .plan-connections-summary {
+    margin-left: var(--plan-inset, 0);
+  }
+  .plan-connections-reading-list li {
+    min-height: 44px;
+    align-items: center;
+  }
+}

@@ -1,0 +1,11 @@
+export const MAX_FILE_BYTES: number;
+export const MAX_TOTAL_BYTES: number;
+export type ShareContent = { text?: string; title?: string; url?: string; files?: File[] };
+export type PendingShare = { id: string; text: string; url: string; files: File[]; createdAt: number; state: 'pending' };
+export type ImportableInput = { kind: 'note' | 'link' | 'image' | 'file'; text: string; url: string; aiEnabled: boolean; aiAdditional: string; shareImportIds?: string[] };
+export function inferCaptureUrl(value: string): string | null;
+export function validateShare(value: ShareContent): { text: string; url: string; files: File[] };
+export function mergeReviewedShare<T extends ImportableInput>(draft: { input: T; files: File[] }, share: ShareContent & { id: string }): { input: T; files: File[] };
+export function putPendingShare(value: ShareContent, id?: string): Promise<string>;
+export function listPendingShares(): Promise<PendingShare[]>;
+export function finishPendingShare(id: string): Promise<boolean>;

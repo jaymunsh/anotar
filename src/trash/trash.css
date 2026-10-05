@@ -1,0 +1,330 @@
+.trash-workspace {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 30px clamp(18px, 4vw, 48px) 125px;
+  color: var(--theme-ink);
+}
+.trash-workspace h1 {
+  margin: 0 0 9px;
+  font-size: 28px;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+}
+.trash-workspace header p,
+.trash-help {
+  color: var(--theme-muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.trash-workspace header p {
+  margin: 0 0 24px;
+}
+.trash-tabs {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--theme-line);
+}
+.trash-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 0 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--theme-muted);
+  font-size: 13px;
+}
+.trash-tabs button[aria-selected='true'] {
+  border-bottom-color: var(--theme-accent);
+  color: var(--theme-accent);
+  font-weight: 600;
+}
+.trash-tabs button span {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.trash-help {
+  margin: 16px 0;
+  font-size: 12px;
+}
+.trash-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--theme-line);
+}
+.trash-row-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: var(--theme-soft);
+  color: var(--theme-accent);
+  font-size: 20px;
+}
+.trash-row-main {
+  flex: 1;
+  min-width: 0;
+}
+.trash-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  color: var(--theme-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.trash-row-meta > span {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.trash-row-label {
+  margin: 4px 0 0;
+  color: var(--theme-ink);
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.trash-row-preview {
+  margin: 4px 0 0;
+  color: var(--theme-muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.trash-restore,
+.trash-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: none;
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--theme-line);
+  border-radius: 8px;
+  background: var(--theme-surface);
+  color: var(--theme-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+.trash-restore:hover,
+.trash-more:hover {
+  background: var(--theme-soft);
+}
+.trash-more {
+  margin: 22px auto 0;
+  min-width: 120px;
+}
+.trash-restore-error,
+.trash-list-error,
+.trash-action-error {
+  color: var(--theme-error-ink);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.trash-restore-error {
+  flex-basis: 100%;
+  margin: 0 0 0 52px;
+}
+.trash-list-error {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  margin: 16px 0;
+  border-radius: 8px;
+  background: var(--theme-error-surface);
+}
+.trash-list-error button,
+.trash-action-error button {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-decoration: underline;
+  font-size: 12px;
+}
+.trash-empty,
+.trash-loading {
+  margin: 32px 0;
+  font-size: 13px;
+  color: var(--theme-muted);
+}
+.trash-restored {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0;
+  font-size: 12px;
+  color: var(--theme-accent);
+}
+.trash-restored a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  color: inherit;
+}
+.trash-action {
+  margin-top: 18px;
+  padding-top: 12px;
+  border-top: 1px solid var(--theme-line);
+}
+.trash-action button {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+}
+.trash-action button:disabled,
+.trash-workspace button:disabled,
+.trash-notice button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.trash-action .trash-move-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0;
+  background: transparent;
+  color: var(--theme-error-ink);
+  font-size: 12px;
+}
+.trash-move-button:hover:not(:disabled) {
+  text-decoration: underline;
+}
+.trash-action-menu {
+  margin-top: 10px;
+  padding-top: 8px;
+}
+.trash-action-help {
+  margin: 0;
+  color: var(--theme-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.trash-action-error {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+.trash-confirm p {
+  margin: 0;
+  color: var(--theme-ink);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.trash-confirm > div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+.page-info .trash-action .trash-confirm button {
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: var(--theme-soft);
+  color: var(--theme-ink);
+  font-size: 12px;
+}
+.page-info .trash-action .trash-confirm button:last-child {
+  background: var(--theme-error-surface);
+  color: var(--theme-error-ink);
+}
+.trash-notice {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 80;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  width: min(460px, calc(100vw - 36px));
+  padding: 12px 14px;
+  border: 1px solid var(--theme-line);
+  border-radius: 8px;
+  background: var(--theme-raised);
+  color: var(--theme-ink);
+  font-size: 13px;
+}
+.trash-notice > div {
+  flex: 1;
+  min-width: 0;
+}
+.trash-notice small {
+  display: block;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--theme-muted);
+  font-size: 11px;
+}
+.trash-notice button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.trash-undo {
+  color: var(--theme-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+.trash-notice-close {
+  width: 44px;
+  padding: 0;
+  color: var(--theme-muted);
+}
+.trash-notice-error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--theme-error-ink);
+  font-size: 12px;
+  line-height: 1.7;
+}
+@media (max-width: 760px) {
+  .trash-workspace {
+    padding: 22px 18px 125px;
+  }
+  .trash-workspace h1 {
+    font-size: 25px;
+  }
+  .trash-row {
+    gap: 10px;
+  }
+  .trash-row-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .trash-restore {
+    padding: 0 10px;
+  }
+  .trash-restore-error {
+    margin-left: 42px;
+  }
+  .trash-notice {
+    right: 18px;
+    bottom: calc(105px + env(safe-area-inset-bottom));
+  }
+}

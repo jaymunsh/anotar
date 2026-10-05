@@ -1,0 +1,46 @@
+name: Verify and deploy Oracle
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: oracle-production
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+  deploy:
+    needs: verify
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - name: Deploy verified main commit
+        env:
+          DEPLOY_HOST: ${{ secrets.ORACLE_DEPLOY_HOST }}
+          DEPLOY_KEY: ${{ secrets.ORACLE_DEPLOY_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.ORACLE_DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_COMMIT: ${{ github.sha }}
+        run: |
+          set -eu
+          umask 077
+          mkdir -p ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/anotar-deploy
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          trap 'rm -f ~/.ssh/anotar-deploy' EXIT
+          ssh -i ~/.ssh/anotar-deploy -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 "anotar-deploy@$DEPLOY_HOST" "deploy $DEPLOY_COMMIT"

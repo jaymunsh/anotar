@@ -1,0 +1,24 @@
+services:
+  storage:
+    build:
+      context: .
+      dockerfile: Dockerfile.oracle
+    mem_limit: 3g
+    cpus: 1.5
+    pids_limit: 192
+    tmpfs:
+      - /tmp:size=768m,mode=1777
+  share:
+    build:
+      context: .
+      dockerfile: Dockerfile.oracle
+    mem_limit: 512m
+    cpus: 0.5
+    pids_limit: 64
+  sites:
+    build:
+      context: .
+      dockerfile: Dockerfile.oracle
+    mem_limit: 256m
+    cpus: 0.25
+    pids_limit: 64

@@ -1,0 +1,124 @@
+:root {
+  color-scheme: light;
+  --share-surface: #fff;
+  --share-ink: #21352c;
+  --share-muted: #60766a;
+  --share-line: #dfe7dc;
+  --share-accent: #315b41;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  background: #202422;
+  color: #f2f1eb;
+  --share-surface: #272b29;
+  --share-ink: #f2f1eb;
+  --share-muted: #bdc5bc;
+  --share-line: #424a43;
+  --share-accent: #b5cca5;
+}
+body > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--share-surface);
+  border-color: var(--share-line);
+}
+.share-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.share-theme-select {
+  font: inherit;
+  font-size: 12px;
+  min-height: 36px;
+  padding: 6px 8px;
+  border: 1px solid var(--share-line);
+  border-radius: 6px;
+  color: var(--share-muted);
+  background: var(--share-surface);
+  cursor: pointer;
+}
+.share-theme-select[hidden] {
+  display: none;
+}
+.share-theme-select:focus-visible {
+  outline: 2px solid var(--share-accent);
+  outline-offset: 3px;
+}
+/* Preserve the authored colors of map previews and uploaded images in either mode. */
+body img {
+  color-scheme: light;
+}
+:root[data-theme='dark'] a,
+:root[data-theme='dark'] .map-card summary {
+  color: var(--share-accent);
+}
+:root[data-theme='dark']
+  :is(
+    .meta,
+    figcaption,
+    footer,
+    .map-card small,
+    .private-link,
+    .table-hint,
+    .list-item > span[aria-hidden]
+  ) {
+  color: var(--share-muted);
+}
+:root[data-theme='dark'] blockquote {
+  color: #d2dbd0;
+  border-color: var(--share-accent);
+}
+:root[data-theme='dark'] pre {
+  background: #2e3330;
+}
+:root[data-theme='dark'] :is(th, td, .map-card, hr) {
+  border-color: var(--share-line);
+}
+@media (max-width: 600px) {
+  .share-theme-select {
+    min-height: 44px;
+  }
+  .share-brand {
+    gap: 12px;
+  }
+}
+
+/* Keep Korean title words together while retaining long-title fallback wrapping. */
+main > h1 {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+/* Match the document's reading rhythm in the editor and exported copy. */
+main .block > h2 {
+  font-size: 24px;
+  line-height: 1.4;
+  margin: 28px 0 10px;
+  word-break: keep-all;
+}
+main .block > h3 {
+  font-size: 20px;
+  line-height: 1.4;
+  margin: 24px 0 8px;
+}
+main .block > :is(p, blockquote) {
+  line-height: 1.65;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* The shared/exported document uses the same reading rhythm as the editor. */
+main > h1,
+main .block > :is(h2, h3, h4, h5, h6) {
+  letter-spacing: -0.015em;
+}
+main .block > :is(p, blockquote),
+main .list-item-content {
+  line-height: 1.7;
+  letter-spacing: normal;
+}
+main .block > p {
+  margin-block: 12px;
+}

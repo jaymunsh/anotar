@@ -1,0 +1,28 @@
+FROM node:24-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY index.html tsconfig.json vite.config.ts ./
+COPY src ./src
+COPY shared ./shared
+COPY public ./public
+COPY docs/architecture-overview.html ./docs/architecture-overview.html
+COPY docs/design ./docs/design
+COPY scripts/build-offline-manifest.mjs ./scripts/build-offline-manifest.mjs
+RUN npm run build
+
+FROM node:24-bookworm-slim
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=8787 DATA_DIR=/data PATH=/root/.local/bin:$PATH
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl unzip && rm -rf /var/lib/apt/lists/*
+RUN npm install -g opencode-ai@1.18.34
+RUN curl -fsSL https://cli.devin.ai/install.sh -o /tmp/devin-install.sh && sed -i '/^"$VERSION_DIR\/bin\/$COMPILED_BIN_NAME" setup$/d' /tmp/devin-install.sh && bash /tmp/devin-install.sh && devin version && rm /tmp/devin-install.sh
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && mkdir -p /data
+COPY server ./server
+COPY shared ./shared
+COPY scripts/backup-data.mjs scripts/auth-setup.mjs scripts/host-site.mjs ./scripts/
+COPY --from=build /app/dist ./dist
+EXPOSE 8787
+VOLUME /data
+CMD ["node", "server/index.mjs"]

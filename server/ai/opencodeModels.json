@@ -1,0 +1,608 @@
+{
+  "source": "https://opencode.ai/zen/v1/models",
+  "checkedAt": "2026-10-05",
+  "models": [
+    {
+      "id": "opencode/big-pickle",
+      "name": "big-pickle",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/fledge-alpha-free",
+      "name": "fledge-alpha-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/jev-1.13-free",
+      "name": "jev-1.13-free",
+      "pricing": "free",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/ling-3.0-flash-fin-free",
+      "name": "ling-3.0-flash-fin-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/ling-3.1-flash-free",
+      "name": "ling-3.1-flash-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/longcat-2.5-preview-free",
+      "name": "longcat-2.5-preview-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/mimo-v2.5-free",
+      "name": "mimo-v2.5-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/mimo-v2.6-flash-free",
+      "name": "mimo-v2.6-flash-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/muse-spark-1.3-contributor-free",
+      "name": "muse-spark-1.3-contributor-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/nemotron-3-ultra-free",
+      "name": "nemotron-3-ultra-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/nemotron-3.5-lightning-free",
+      "name": "nemotron-3.5-lightning-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/space-bunny-free",
+      "name": "space-bunny-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-fable-5",
+      "name": "claude-fable-5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-fable-5-1",
+      "name": "claude-fable-5-1",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-haiku-4-5",
+      "name": "claude-haiku-4-5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-opus-4-5",
+      "name": "claude-opus-4-5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-opus-4-6",
+      "name": "claude-opus-4-6",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-opus-4-7",
+      "name": "claude-opus-4-7",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-opus-4-8",
+      "name": "claude-opus-4-8",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-opus-5",
+      "name": "claude-opus-5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-opus-5-5",
+      "name": "claude-opus-5-5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-sonnet-4",
+      "name": "claude-sonnet-4",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-sonnet-4-5",
+      "name": "claude-sonnet-4-5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-sonnet-4-6",
+      "name": "claude-sonnet-4-6",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-sonnet-5",
+      "name": "claude-sonnet-5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-sonnet-5-5",
+      "name": "claude-sonnet-5-5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/deepseek-v4-flash",
+      "name": "deepseek-v4-flash",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/deepseek-v4-flash-free",
+      "name": "deepseek-v4-flash-free",
+      "pricing": "unknown",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/deepseek-v4-flash-vision-exp",
+      "name": "deepseek-v4-flash-vision-exp",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/deepseek-v4-pro",
+      "name": "deepseek-v4-pro",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/deepseek-v4.1-flash",
+      "name": "deepseek-v4.1-flash",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gemini-3-flash",
+      "name": "gemini-3-flash",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gemini-3.1-pro",
+      "name": "gemini-3.1-pro",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gemini-3.5-flash",
+      "name": "gemini-3.5-flash",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gemini-3.5-flash-lite",
+      "name": "gemini-3.5-flash-lite",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gemini-3.6-flash",
+      "name": "gemini-3.6-flash",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gemini-3.7-flash",
+      "name": "gemini-3.7-flash",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gemini-3.8-flash",
+      "name": "gemini-3.8-flash",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/glm-5",
+      "name": "glm-5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/glm-5.1",
+      "name": "glm-5.1",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/glm-5.2",
+      "name": "glm-5.2",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/glm-5.3",
+      "name": "glm-5.3",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/glm-5.3-flash",
+      "name": "glm-5.3-flash",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5",
+      "name": "gpt-5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5-codex",
+      "name": "gpt-5-codex",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5-nano",
+      "name": "gpt-5-nano",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.1",
+      "name": "gpt-5.1",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.1-codex",
+      "name": "gpt-5.1-codex",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.1-codex-max",
+      "name": "gpt-5.1-codex-max",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.1-codex-mini",
+      "name": "gpt-5.1-codex-mini",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.2",
+      "name": "gpt-5.2",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.2-codex",
+      "name": "gpt-5.2-codex",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.3-codex",
+      "name": "gpt-5.3-codex",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.3-codex-spark",
+      "name": "gpt-5.3-codex-spark",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.4",
+      "name": "gpt-5.4",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.4-mini",
+      "name": "gpt-5.4-mini",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.4-nano",
+      "name": "gpt-5.4-nano",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.4-pro",
+      "name": "gpt-5.4-pro",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.5",
+      "name": "gpt-5.5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.5-pro",
+      "name": "gpt-5.5-pro",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.6-luna",
+      "name": "gpt-5.6-luna",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.6-sol",
+      "name": "gpt-5.6-sol",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.6-terra",
+      "name": "gpt-5.6-terra",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-6-astra",
+      "name": "gpt-6-astra",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-6-luna",
+      "name": "gpt-6-luna",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-6-sol",
+      "name": "gpt-6-sol",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-6.1-sol",
+      "name": "gpt-6.1-sol",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/grok-4.5",
+      "name": "grok-4.5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/grok-4.6",
+      "name": "grok-4.6",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/grok-4.7",
+      "name": "grok-4.7",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/grok-build-0.1",
+      "name": "grok-build-0.1",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/jev-1.13",
+      "name": "jev-1.13",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/kimi-k2.5",
+      "name": "kimi-k2.5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/kimi-k2.6",
+      "name": "kimi-k2.6",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/kimi-k2.7-code",
+      "name": "kimi-k2.7-code",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/kimi-k3",
+      "name": "kimi-k3",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/minimax-m2.5",
+      "name": "minimax-m2.5",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/minimax-m2.7",
+      "name": "minimax-m2.7",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/minimax-m3",
+      "name": "minimax-m3",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/muse-spark-1.2",
+      "name": "muse-spark-1.2",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/muse-spark-1.2-contributor-free",
+      "name": "muse-spark-1.2-contributor-free",
+      "pricing": "unknown",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/muse-spark-1.3",
+      "name": "muse-spark-1.3",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/qwen3.5-plus",
+      "name": "qwen3.5-plus",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/qwen3.6-plus",
+      "name": "qwen3.6-plus",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/qwen3.8-flash",
+      "name": "qwen3.8-flash",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/qwen3.8-max",
+      "name": "qwen3.8-max",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    }
+  ]
+}

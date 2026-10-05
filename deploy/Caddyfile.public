@@ -1,0 +1,10 @@
+# Public services only. Run Caddy on the host OS alongside compose.yaml.
+# Set matching PUBLIC_SHARE_ORIGIN / PUBLIC_SITES_ORIGIN in the server .env.
+# Add DNS records pointing both names to the server before enabling TLS.
+share.leneu.store {
+	reverse_proxy 127.0.0.1:8790
+}
+
+host.leneu.store {
+	reverse_proxy 127.0.0.1:8792
+}

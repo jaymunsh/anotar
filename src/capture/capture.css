@@ -1,0 +1,19 @@
+.capture-import { margin-block: 0 16px; padding: 14px 0 16px; border-bottom: 1px solid var(--theme-line); color: var(--theme-ink); font-size: 13px; line-height: 1.6; min-width: 0; }
+.capture-import-heading { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.capture-import-heading strong { font-size: 14px; }
+.capture-import-heading span, .capture-import-files span { color: var(--theme-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.capture-import p { margin: 8px 0; overflow-wrap: anywhere; }
+.capture-import-text { max-height: 180px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; background: var(--theme-raised); padding: 10px; border-radius: 6px; margin: 10px 0; }
+.capture-import-url { color: var(--theme-accent); }
+.capture-import-files { padding-inline-start: 18px; overflow-wrap: anywhere; margin-block: 10px; }
+.capture-import-files li { padding-block: 2px; }
+.capture-import-error { color: var(--theme-error-ink); }
+.capture-import-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.capture-import button, .capture-install-help button { min-height: 44px; max-width: 100%; padding: 9px 12px; border: 1px solid var(--theme-line); border-radius: 6px; background: var(--theme-surface); color: var(--theme-ink); font: inherit; cursor: pointer; }
+.capture-import .capture-import-apply { color: var(--theme-accent-ink); background: var(--theme-accent); border-color: var(--theme-accent); }
+.capture-import button:disabled, .capture-install-help button:disabled { opacity: .55; cursor: default; }
+.capture-import button:focus-visible, .capture-install-help button:focus-visible, .capture-install-help summary:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 3px; }
+.capture-install-help { margin-block: 16px; color: var(--theme-muted); font-size: 13px; line-height: 1.65; }
+.capture-install-help summary { cursor: pointer; min-height: 44px; padding-block: 10px; color: var(--theme-ink); }
+.capture-install-help p { margin-block: 8px; overflow-wrap: anywhere; }
+@media (max-width: 760px) { .capture-import-actions button { flex: 1 1 auto; } }

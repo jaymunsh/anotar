@@ -1,0 +1,27 @@
+{
+  "id": "/capture",
+  "name": "anotar — 빠른 메모",
+  "short_name": "anotar",
+  "lang": "ko",
+  "description": "링크, 메모와 파일을 검토한 뒤 개인 보관함에 저장합니다.",
+  "start_url": "/capture",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f7f2",
+  "theme_color": "#203b32",
+  "icons": [
+    { "src": "/capture-icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/capture-icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "share_target": {
+    "action": "/capture/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [{ "name": "files", "accept": ["image/png", "image/jpeg", "image/webp", "image/gif", "image/heic", "image/heif", "image/avif", "application/pdf", "text/plain", "text/markdown", "text/csv", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".heic", ".heif", ".avif", ".pdf", ".txt", ".md", ".csv"] }]
+    }
+  }
+}

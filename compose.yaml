@@ -1,0 +1,109 @@
+services:
+  storage:
+    build: .
+    image: ${LENEU_IMAGE:-leneu-storage:local}
+    environment:
+      AUTH_MODE: ${AUTH_MODE:-required}
+      AUTH_SECRET_KEY: ${AUTH_SECRET_KEY:-}
+      AUTH_COOKIE_SECURE: "true"
+      PRIVATE_ALLOWED_ORIGINS: ${PRIVATE_ALLOWED_ORIGINS:-}
+      PUBLIC_SHARE_ORIGIN: ${PUBLIC_SHARE_ORIGIN:-http://127.0.0.1:8790}
+      GOOGLE_MAPS_DEMO_KEY: ${GOOGLE_MAPS_DEMO_KEY:-}
+      GEOAPIFY_API_KEY: ${GEOAPIFY_API_KEY:-}
+      BACKUP_DIR: /backups
+      HOSTED_SITES_DIR: /sites
+      PUBLIC_SITES_ORIGIN: ${PUBLIC_SITES_ORIGIN:-http://127.0.0.1:8792}
+      COMMENT_SOCKET_PATH: /run/leneu/share-comments.sock
+      AI_RUNNER_KIND: ${AI_RUNNER_KIND:-disabled}
+      AI_RUNNER_URL: ${AI_RUNNER_URL:-}
+      AI_RUNNER_TOKEN: ${AI_RUNNER_TOKEN:-}
+      HIVE_API_KEY: ${HIVE_API_KEY:-}
+      HIVE_BASE_URL: ${HIVE_BASE_URL:-https://api-cdn.thehive.ai/api/v3}
+      HIVE_MODEL: ${HIVE_MODEL:-}
+      AI_OPENCODE_ENABLED: ${AI_OPENCODE_ENABLED:-false}
+      AI_OPENCODE_BIN: ${AI_OPENCODE_BIN:-opencode}
+      AI_OPENCODE_MODEL: ${AI_OPENCODE_MODEL:-}
+      AI_OPENCODE_AUTH_FILE: ${AI_OPENCODE_AUTH_FILE:-}
+      SERVICE_TELEGRAM_ENABLED: ${SERVICE_TELEGRAM_ENABLED:-false}
+      SERVICE_TELEGRAM_BOT_TOKEN: ${SERVICE_TELEGRAM_BOT_TOKEN:-}
+      SERVICE_TELEGRAM_CHAT_ID: ${SERVICE_TELEGRAM_CHAT_ID:-}
+      SERVICE_TELEGRAM_PREVIEW: ${SERVICE_TELEGRAM_PREVIEW:-false}
+      SERVICE_TELEGRAM_APP_URL: ${SERVICE_TELEGRAM_APP_URL:-}
+      AI_DEVIN_BIN: ${AI_DEVIN_BIN:-devin}
+      AI_DEVIN_MODEL: ${AI_DEVIN_MODEL:-swe-2-high}
+      AI_DEVIN_CREDENTIALS_FILE: ${AI_DEVIN_CREDENTIALS_FILE:-}
+      OCR_RUNNER_URL: ${OCR_RUNNER_URL:-}
+      OCR_RUNNER_TOKEN: ${OCR_RUNNER_TOKEN:-}
+    ports:
+      - '127.0.0.1:${LENEU_PRIVATE_PORT:-8787}:8787'
+    volumes:
+      - ${LENEU_DATA_DIR:-./data}:/data
+      - ${LENEU_BACKUP_DIR:-./backups}:/backups
+      - ${LENEU_SITES_DIR:-./hosted-sites}:/sites
+      - comment-ipc:/run/leneu
+    networks:
+      - owner
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:8787/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    restart: unless-stopped
+  share:
+    build: .
+    image: ${LENEU_IMAGE:-leneu-storage:local}
+    command: ['node', 'server/public.mjs']
+    depends_on:
+      storage:
+        condition: service_healthy
+    environment:
+      PUBLIC_HOST: 0.0.0.0
+      PUBLIC_PORT: 8790
+      PUBLIC_SHARE_ORIGIN: ${PUBLIC_SHARE_ORIGIN:-http://127.0.0.1:8790}
+      COMMENT_SOCKET_PATH: /run/leneu/share-comments.sock
+    ports:
+      - '127.0.0.1:${LENEU_SHARE_PORT:-8790}:8790'
+    volumes:
+      - ${LENEU_DATA_DIR:-./data}:/data:ro
+      - comment-ipc:/run/leneu:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    networks:
+      - public
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:8790/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+  sites:
+    build: .
+    image: ${LENEU_IMAGE:-leneu-storage:local}
+    command: ['node', 'server/sites.mjs']
+    environment:
+      SITES_HOST: 0.0.0.0
+      SITES_PORT: 8792
+      HOSTED_SITES_DIR: /sites
+    ports:
+      - '127.0.0.1:${LENEU_SITES_PORT:-8792}:8792'
+    volumes:
+      - ${LENEU_SITES_DIR:-./hosted-sites}:/sites:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    networks:
+      - public
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:8792/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+networks:
+  owner:
+  public:
+volumes:
+  comment-ipc:

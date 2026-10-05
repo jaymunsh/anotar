@@ -1,0 +1,26 @@
+import type { StoredAiRequest } from '../../shared/aiRequests.ts';
+import type { AiJobSummary } from '../ai/types';
+export type Kind = 'note' | 'link' | 'image' | 'file';
+export type Filter = 'all' | Kind;
+export type MemoScope = 'memo' | 'ai';
+export type Organization = 'inbox' | 'organized';
+export type StoredFile = { id: string; key: string; name: string; mime: string; size: number; localUrl?: string };
+export type Capture = {
+  id: string;
+  syncState?: 'pending' | 'synced';
+  clientCreatedAt?: string | null;
+  kind: Kind;
+  text: string;
+  url: string | null;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+  organizedAt: string | null;
+  organizedPageId: string | null;
+  organizedOperationId: string | null;
+  deletedAt?: string | null;
+  files: StoredFile[];
+  aiRequest: StoredAiRequest | null;
+  latestAiJob: AiJobSummary | null;
+  isSample: boolean;
+};

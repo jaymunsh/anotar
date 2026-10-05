@@ -1,0 +1,782 @@
+.prompt-workspace {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 46px clamp(30px, 4.4vw, 68px) 90px;
+  color: var(--theme-ink);
+}
+.prompt-workspace-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+.prompt-workspace h1 {
+  margin: 0 0 9px;
+  font-size: 32px;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+}
+.prompt-workspace-heading p {
+  margin: 0;
+  color: var(--theme-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.prompt-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prompt-transfer {
+  position: relative;
+}
+.prompt-transfer > summary {
+  list-style: none;
+}
+.prompt-transfer > summary::-webkit-details-marker {
+  display: none;
+}
+.prompt-transfer-menu {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  top: calc(100% + 8px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 190px;
+  padding: 8px;
+  border: 1px solid var(--theme-line);
+  border-radius: 10px;
+  background: var(--theme-surface);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--theme-ink) 12%, transparent);
+}
+.prompt-transfer-menu .prompt-button {
+  justify-content: flex-start;
+  border-color: transparent;
+}
+.prompt-migration-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--theme-line);
+  border-radius: 8px;
+  background: var(--theme-raised);
+  color: var(--theme-ink);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.prompt-button,
+.prompt-text-button,
+.prompt-icon-button,
+.prompt-variable {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--theme-line);
+  border-radius: 8px;
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.prompt-button {
+  min-height: 38px;
+  padding: 8px 13px;
+  white-space: nowrap;
+}
+.prompt-button.primary {
+  border-color: transparent;
+  background: var(--theme-accent);
+  color: var(--theme-accent-ink);
+}
+.prompt-button.quiet,
+.prompt-text-button,
+.prompt-icon-button {
+  border-color: transparent;
+  background: transparent;
+  color: var(--theme-muted);
+}
+.prompt-text-button {
+  min-height: 32px;
+  padding: 4px 0;
+}
+.prompt-icon-button {
+  width: 34px;
+  height: 34px;
+}
+.prompt-button:hover:not(:disabled),
+.prompt-icon-button:hover:not(:disabled),
+.prompt-variable:hover {
+  background: var(--theme-soft);
+  color: var(--theme-accent);
+}
+.prompt-button.primary:hover:not(:disabled) {
+  background: var(--theme-accent);
+  color: var(--theme-accent-ink);
+  filter: brightness(0.94);
+}
+.prompt-text-button:hover {
+  color: var(--theme-accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.prompt-button:disabled,
+.prompt-icon-button:disabled,
+.prompt-text-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.prompt-preview-note {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 18px;
+  color: var(--theme-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.prompt-status {
+  flex: 0 0 auto;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--theme-soft);
+  color: var(--theme-accent);
+  font-size: 10px;
+  font-weight: 650;
+}
+.prompt-board {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  min-height: 630px;
+  border: 1px solid var(--theme-line);
+  border-radius: 14px;
+  background: var(--theme-surface);
+  overflow: hidden;
+}
+.prompt-library {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 20px 13px;
+  border-right: 1px solid var(--theme-line);
+  background: var(--theme-raised);
+}
+.prompt-library-tabs,
+.prompt-editor-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.prompt-library-tabs {
+  margin-bottom: 15px;
+}
+.prompt-library-tabs button,
+.prompt-editor-tabs button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--theme-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.prompt-library-tabs button[aria-selected='true'],
+.prompt-editor-tabs button[aria-selected='true'] {
+  background: var(--theme-soft);
+  color: var(--theme-accent);
+}
+.prompt-library-tabs button span {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.prompt-template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.prompt-template-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 15px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--theme-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.prompt-template-item:hover,
+.prompt-template-item.selected {
+  background: var(--theme-soft);
+}
+.prompt-template-kind {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--theme-muted);
+  font-size: 10px;
+}
+.prompt-template-item strong {
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.prompt-template-description {
+  color: var(--theme-muted);
+  font-size: 11px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.prompt-library-footnote,
+.prompt-library-empty {
+  padding: 12px;
+  color: var(--theme-muted);
+  font-size: 11px;
+  line-height: 1.75;
+}
+.prompt-library-footnote {
+  margin: auto 0 0;
+  padding-top: 36px;
+}
+.prompt-mobile-select {
+  display: none !important;
+}
+.prompt-editor {
+  min-width: 0;
+}
+.prompt-editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 25px;
+  border-bottom: 1px solid var(--theme-line);
+}
+.prompt-editor-actions {
+  display: flex;
+  gap: 2px;
+}
+.prompt-edit-form,
+.prompt-test-area {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+  padding: 24px 29px;
+}
+.prompt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  color: var(--theme-ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+.prompt-field > span {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.prompt-field small {
+  color: var(--theme-muted);
+  font-size: 10px;
+  font-weight: 400;
+}
+.prompt-field input,
+.prompt-field textarea,
+.prompt-field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 41px;
+  padding: 10px 12px;
+  border: 1px solid var(--theme-line);
+  border-radius: 7px;
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.65;
+  caret-color: var(--theme-accent);
+}
+.prompt-field select {
+  padding-right: 25px;
+}
+.prompt-field textarea {
+  resize: vertical;
+}
+.prompt-field :is(input, textarea)::placeholder {
+  color: var(--theme-muted);
+  opacity: 1;
+}
+.prompt-field :is(input, textarea, select):focus {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
+.prompt-field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px;
+  gap: 16px;
+}
+.prompt-metadata-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+}
+.prompt-metadata > summary,
+.prompt-mobile-actions {
+  display: none;
+}
+.prompt-body-field textarea {
+  min-height: 290px;
+  font-size: 14px;
+  line-height: 1.85;
+}
+.prompt-variable-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: -8px;
+  color: var(--theme-muted);
+  font-size: 10px;
+}
+.prompt-variable {
+  min-height: 28px;
+  padding: 4px 8px;
+  background: var(--theme-raised);
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-weight: 400;
+}
+.prompt-character-count {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+.prompt-editor-footer,
+.prompt-use-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.prompt-save-state {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--theme-muted);
+  font-size: 11px;
+}
+.prompt-use-row {
+  padding: 18px 29px;
+  border-top: 1px solid var(--theme-line);
+  background: var(--theme-raised);
+}
+.prompt-use-row > span {
+  color: var(--theme-muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.prompt-test-description {
+  margin: 0;
+  color: var(--theme-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.prompt-preview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--theme-muted);
+  font-size: 11px;
+}
+.prompt-preview-heading strong {
+  color: var(--theme-ink);
+  font-size: 12px;
+}
+.prompt-result {
+  max-width: 100%;
+  margin: 0;
+  padding: 18px 20px;
+  border-radius: 8px;
+  background: var(--theme-raised);
+  color: var(--theme-ink);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.85;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 2;
+}
+.prompt-result::selection {
+  background: var(--theme-soft);
+  color: var(--theme-ink);
+}
+.prompt-input-hint,
+.prompt-error {
+  margin: 0;
+  color: var(--theme-muted);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.prompt-error {
+  color: var(--theme-error-ink);
+}
+.prompt-feedback {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin: 0 0 15px;
+  padding: 10px 13px;
+  border-radius: 8px;
+  background: var(--theme-success-surface);
+  color: var(--theme-success-ink);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.prompt-feedback.error {
+  background: var(--theme-error-surface);
+  color: var(--theme-error-ink);
+}
+.prompt-editor-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-width: 0;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--theme-muted);
+}
+.prompt-editor-empty h2 {
+  margin: 0;
+  color: var(--theme-ink);
+  font-size: 20px;
+  line-height: 1.5;
+}
+.prompt-editor-empty p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+/* Request controls expand inside the capture's scrollable input area. */
+.capture-ai-fields {
+  margin-top: 15px;
+}
+.capture-ai-options {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.85fr) minmax(0, 1.4fr);
+  gap: 12px;
+}
+.capture-ai-description {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+.capture-ai-description p {
+  margin: 0;
+  color: var(--theme-muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+.capture-ai-description button {
+  flex: 0 0 auto;
+  font-size: 11px;
+}
+.capture-ai-preview {
+  margin-top: 10px;
+  border-top: 1px solid var(--theme-line);
+}
+.capture-ai-preview summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 10px 0;
+  color: var(--theme-accent);
+  font-size: 12px;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+.capture-ai-preview summary::-webkit-details-marker {
+  display: none;
+}
+.prompt-chevron {
+  margin-left: auto;
+}
+.capture-ai-preview[open] .prompt-chevron {
+  transform: rotate(180deg);
+}
+.capture-ai-preview .prompt-result {
+  max-height: 250px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-muted) var(--theme-raised);
+}
+.prompt-preview-content {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.capture-ai-boundary {
+  margin: 9px 0 0;
+  color: var(--theme-muted);
+  font-size: 10px;
+  line-height: 1.7;
+}
+@media (max-width: 1050px) {
+  .prompt-board {
+    grid-template-columns: 195px minmax(0, 1fr);
+  }
+  .prompt-editor-toolbar {
+    padding: 14px 18px;
+  }
+  .prompt-edit-form,
+  .prompt-test-area {
+    padding: 22px 20px;
+  }
+  .prompt-use-row {
+    padding: 16px 20px;
+  }
+  .prompt-use-row > span {
+    max-width: 160px;
+  }
+}
+@media (max-width: 760px) {
+  .prompt-workspace {
+    padding: 26px 16px calc(130px + env(safe-area-inset-bottom));
+  }
+  .prompt-workspace-heading {
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .prompt-workspace h1 {
+    font-size: 26px;
+  }
+  .prompt-workspace-heading p {
+    max-width: 180px;
+    font-size: 12px;
+  }
+  .prompt-heading-actions > button {
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+  .prompt-transfer > summary {
+    width: 40px;
+    min-height: 40px;
+    padding: 8px;
+  }
+  .prompt-transfer > summary span {
+    display: none;
+  }
+  .prompt-migration-note {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 11px;
+  }
+  .prompt-preview-note {
+    align-items: flex-start;
+    gap: 7px;
+    font-size: 11px;
+  }
+  .prompt-board {
+    display: block;
+    min-height: 0;
+  }
+  .prompt-library {
+    padding: 12px 16px 16px;
+    border-right: 0;
+    border-bottom: 1px solid var(--theme-line);
+  }
+  .prompt-library-tabs {
+    margin-bottom: 11px;
+  }
+  .prompt-template-list,
+  .prompt-library-footnote {
+    display: none;
+  }
+  .prompt-mobile-select {
+    display: flex !important;
+  }
+  .prompt-editor-toolbar {
+    padding: 12px 10px;
+    gap: 4px;
+  }
+  .prompt-editor-tabs {
+    gap: 1px;
+  }
+  .prompt-editor-tabs button {
+    min-height: 40px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  .prompt-icon-button {
+    width: 34px;
+    height: 40px;
+  }
+  .prompt-edit-form,
+  .prompt-test-area {
+    gap: 19px;
+    padding: 20px 16px;
+  }
+  .prompt-field-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 17px;
+  }
+  .prompt-field :is(input, textarea, select) {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .prompt-body-field textarea {
+    height: 270px;
+    min-height: 240px;
+    line-height: 1.8;
+  }
+  .prompt-body-field {
+    order: -2;
+  }
+  .prompt-variable-row {
+    order: -1;
+  }
+  .prompt-metadata > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    list-style: none;
+    color: var(--theme-muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .prompt-metadata > summary::-webkit-details-marker {
+    display: none;
+  }
+  .prompt-metadata[open] > summary svg {
+    transform: rotate(180deg);
+  }
+  .prompt-metadata-fields {
+    padding-top: 12px;
+  }
+  .prompt-editor-footer {
+    display: none;
+  }
+  .prompt-mobile-actions {
+    position: fixed;
+    z-index: 15;
+    right: 0;
+    bottom: var(--prompt-toolbar-bottom, 0px);
+    left: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--theme-line);
+    background: var(--theme-surface);
+  }
+  .prompt-mobile-actions .prompt-button {
+    min-height: 44px;
+  }
+  .app-shell.menu-open .prompt-mobile-actions {
+    display: none;
+  }
+  .prompt-character-count {
+    width: 100%;
+    margin-left: 0;
+    padding-top: 3px;
+  }
+  .prompt-use-row {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 16px;
+    gap: 12px;
+  }
+  .prompt-use-row > span {
+    max-width: none;
+  }
+  .prompt-use-row button {
+    min-height: 42px;
+  }
+  .prompt-result {
+    padding: 15px;
+    font-size: 13px;
+  }
+  .prompt-editor-empty {
+    min-height: 320px;
+  }
+  .capture-ai-options {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  .capture-ai-description {
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+  .capture-ai-fields .prompt-field input {
+    font-size: 16px;
+  }
+  .capture-ai-fields .prompt-field select {
+    font-size: 16px;
+  }
+  .capture-ai-preview summary {
+    min-height: 44px;
+  }
+}
+
+.prompt-history {padding:16px 0;border-bottom:1px solid var(--theme-line);font-size:13px;}
+.prompt-history p {color:var(--theme-muted);line-height:1.6;}
+.prompt-history select {max-width:100%;background:var(--theme-surface);color:var(--theme-ink);border:1px solid var(--theme-line);padding:8px;font:inherit;}
+.prompt-history pre {white-space:pre-wrap;overflow-wrap:anywhere;max-height:250px;overflow:auto;font:inherit;padding:12px;background:var(--theme-soft);}
+.prompt-history button {font:inherit;padding:8px 10px;border:1px solid var(--theme-line);background:var(--theme-surface);color:var(--theme-accent);border-radius:6px;cursor:pointer;}
+@media(max-width:600px) {.prompt-history button,.prompt-history select {min-height:44px;}}
+
+.ai-connection-summary {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--theme-line);
+  font-size: 12px;
+  color: var(--theme-muted);
+}
+.ai-connection-summary > div { display: flex; align-items: center; gap: 7px; }
+.ai-connection-summary strong { color: var(--theme-ink); font-weight: 600; overflow-wrap: anywhere; }
+.ai-connection-summary button {
+  display: grid; place-items: center; flex: none;
+  width: 32px; min-height: 32px; margin-left: auto;
+  border: 0; border-radius: 6px;
+  background: transparent; color: var(--theme-muted);
+}
+.ai-connection-summary button:hover { background: var(--theme-soft); color: var(--theme-accent); }
+.ai-connection-summary p { margin: 5px 0 0; line-height: 1.65; }
+.ai-connection-summary .ai-capability-warning { color: var(--theme-error-ink); }
+.capture-ai-input-summary { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-bottom: 12px; font-size: 12px; line-height: 1.6; }
+.capture-ai-input-summary strong { color: var(--theme-ink); font-weight: 600; }
+.capture-ai-input-summary span { color: var(--theme-muted); }
+@media (max-width: 760px) { .ai-connection-summary button { width: 44px; min-height: 44px; } }

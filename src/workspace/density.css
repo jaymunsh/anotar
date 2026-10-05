@@ -1,0 +1,256 @@
+/* Pointer density: reduce surrounding space, keep copy size and reading leading. */
+@media (min-width: 761px) {
+  .content-area
+    :is(
+      .memo-workspace,
+      .trash-workspace,
+      .prompt-workspace,
+      .task-workspace-full,
+      .backup-workspace
+    ) {
+    padding-top: 18px;
+  }
+  .content-area .home-dashboard {
+    padding-top: 16px;
+  }
+  .content-area .dashboard-intro {
+    margin-bottom: 12px;
+  }
+  .content-area .home-dashboard .dashboard-intro h1 {
+    font-size: 30px;
+  }
+  .content-area .dashboard-grid,
+  .content-area .dashboard-primary,
+  .content-area .dashboard-secondary {
+    gap: 16px;
+  }
+  .content-area .workspace-continue {
+    padding-bottom: 12px;
+    margin-bottom: 0;
+  }
+  .content-area .workspace-continue h2 {
+    margin-bottom: 6px;
+  }
+  .content-area .workspace-continue-group {
+    margin-top: 4px;
+  }
+  .content-area .workspace-continue-group h3 {
+    margin-top: 5px;
+  }
+  .content-area .workspace-continue-links a {
+    min-height: 28px;
+    padding-block: 2px;
+  }
+  .content-area .home-dashboard .composer-heading {
+    padding: 6px 16px;
+  }
+  .content-area .home-dashboard .composer-heading-icon {
+    width: 24px;
+    height: 24px;
+  }
+  .content-area .home-dashboard .composer-tab {
+    min-height: 30px;
+    padding-bottom: 4px;
+  }
+  .content-area .home-dashboard .composer-body {
+    padding: 8px 16px 5px;
+  }
+  .content-area .home-dashboard .composer-body textarea {
+    min-height: 52px;
+  }
+  .content-area .home-dashboard .composer-footer {
+    padding: 6px 16px;
+  }
+  .content-area .home-dashboard .save-button {
+    height: 32px;
+  }
+  .content-area .home-dashboard .capture-ai-toggle {
+    min-height: 28px;
+  }
+  .content-area .home-dashboard .memo-heading,
+  .content-area .dashboard-section-heading {
+    margin-bottom: 6px;
+  }
+  .content-area .home-dashboard :is(.shortcut-button, .dashboard-section-heading button) {
+    min-height: 28px;
+    padding-block: 3px;
+  }
+  .content-area .memo-collection .capture-card {
+    --capture-icon-size: 32px;
+    --capture-thumb-size: 36px;
+    min-height: 64px;
+    padding: 9px 12px;
+    gap: 2px 12px;
+  }
+  .content-area .memo-collection .capture-icon {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    border-radius: 8px;
+  }
+  .content-area .memo-collection .capture-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+  .content-area .memo-collection .capture-thumb {
+    width: 36px;
+    height: 36px;
+  }
+  .content-area .dashboard-page-row {
+    min-height: 48px;
+    padding: 5px 12px;
+    gap: 10px;
+  }
+  .content-area .dashboard-page-icon {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+    border-radius: 7px;
+    font-size: 17px;
+  }
+  .content-area .dashboard-page-copy {
+    gap: 2px;
+  }
+  .content-area .home-dashboard .task-panel {
+    padding: 12px;
+  }
+  .content-area .home-dashboard .task-tabs {
+    margin-top: 8px;
+  }
+  .content-area .home-dashboard .task-tabs button {
+    min-height: 30px;
+    padding-bottom: 4px;
+  }
+  .content-area .home-dashboard .task-row {
+    padding-block: 4px;
+  }
+  .content-area .home-dashboard .task-add {
+    margin-top: 6px;
+  }
+  .content-area .home-dashboard .activity-compact {
+    padding: 12px 12px 5px;
+  }
+  .content-area .home-dashboard .activity-row {
+    padding-block: 6px;
+  }
+  .content-area .home-dashboard .activity-filters a {
+    min-height: 30px;
+  }
+  .content-area .home-dashboard .comments-attention {
+    margin-top: 0;
+    padding: 12px 12px 4px;
+  }
+  .content-area .home-dashboard .comments-heading {
+    margin-bottom: 8px;
+  }
+  .content-area .home-dashboard .comments-counters a {
+    min-height: 30px;
+  }
+  .content-area .memo-tabs {
+    min-height: 36px;
+    margin-bottom: 12px;
+  }
+  .content-area .memo-tabs button {
+    min-height: 36px;
+  }
+  .content-area .memo-organization-filter select {
+    min-height: 32px;
+    padding-block: 4px;
+  }
+  .content-area .filter-bar {
+    margin-bottom: 12px;
+  }
+  .content-area .filter-chip {
+    padding-block: 6px;
+  }
+  .content-area .activity-filters button,
+  .content-area .comments-filters button {
+    min-height: 36px;
+  }
+  .content-area .task-workspace-full .task-tabs {
+    margin-top: 0;
+  }
+  .content-area .task-workspace-full .task-tabs button {
+    min-height: 34px;
+    padding-bottom: 6px;
+  }
+  .content-area .task-board-cards {
+    gap: 6px;
+    padding-top: 8px;
+  }
+  .content-area .task-board-column-heading {
+    padding-bottom: 8px;
+  }
+  .content-area .task-board .task-row {
+    padding: 10px 12px;
+  }
+  .content-area .page-document {
+    padding-top: 14px;
+  }
+  .content-area .page-document .page-title-input {
+    margin-top: 8px;
+    margin-bottom: 10px;
+  }
+  .content-area .page-document .page-document-dates {
+    margin-bottom: 12px;
+  }
+}
+
+/* Readable copy at a compact rhythm; document typography has its own scale. */
+.content-area {
+  --workspace-body-size: 14px;
+  --workspace-meta-size: 12px;
+}
+.content-area .memo-collection .capture-preview,
+.content-area .dashboard-page-copy strong,
+.content-area .task-panel .task-title-button,
+.content-area .activity-preview {
+  font-size: var(--workspace-body-size);
+  line-height: 1.55;
+}
+.content-area :is(.dashboard-page-copy time, .comments-row-meta, .task-text-button) {
+  font-size: var(--workspace-meta-size);
+}
+.content-area :is(.memo-tabs, .activity-filters, .comments-filters) {
+  column-gap: 22px;
+}
+.content-area :is(.memo-tabs button, .activity-filters button, .comments-filters button) {
+  font-size: 13px;
+}
+.content-area .workspace-continue-links a {
+  font-size: var(--workspace-body-size);
+  background: var(--theme-surface);
+}
+.content-area .workspace-continue-links a:hover {
+  background: var(--theme-soft);
+}
+.workspace-empty-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  margin-top: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--theme-line);
+  border-radius: 7px;
+  background: var(--theme-surface);
+  color: var(--theme-accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+.workspace-empty-action:hover {
+  background: var(--theme-soft);
+}
+.workspace-empty-action:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 3px;
+}
+@media (max-width: 760px) {
+  .workspace-empty-action {
+    min-height: 44px;
+  }
+  .content-area :is(.memo-tabs, .activity-filters, .comments-filters) {
+    column-gap: 16px;
+  }
+}
