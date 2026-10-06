@@ -19,5 +19,9 @@ test
 examples
 
 hosted-sites
+.local-workspace
 !docs/design/
 !docs/design/**
+!docs/examples/
+docs/examples/*
+!docs/examples/anotar-architecture.page.json
