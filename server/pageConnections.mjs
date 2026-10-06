@@ -64,28 +64,34 @@ export function visibleAsset(db, id) {
   );
 }
 
-export function syncPageReferences(db, pageId, document, previous = null, validate = true) {
+export function validatePageReferences(db, document, previous = null, { newPageId = null } = {}) {
   const old = new Set(previous ? references(previous).map((ref) => JSON.stringify(ref)) : []);
   const refs = references(document);
-  if (validate)
-    for (const ref of refs) {
-      if (old.has(JSON.stringify(ref))) continue;
-      const table = { capture: 'captures', asset: 'assets', page: 'pages' }[ref.type];
-      const target =
-        ref.type === 'asset'
-          ? visibleAsset(db, ref.id)
+  for (const ref of refs) {
+    if (old.has(JSON.stringify(ref))) continue;
+    const table = { capture: 'captures', asset: 'assets', page: 'pages' }[ref.type];
+    const target =
+      ref.type === 'asset'
+        ? visibleAsset(db, ref.id)
+        : ref.type === 'page' && ref.id === newPageId
+          ? { id: newPageId }
           : db.prepare(`SELECT id FROM ${table} WHERE id = ? AND deleted_at IS NULL`).get(ref.id);
-      if (ref.imageOnly && target && !/^image\/(png|jpeg|webp|gif|avif)$/.test(target.mime))
-        throw new PageValidationError('지도 미리보기에는 이미지 파일을 선택해 주세요.');
-      if (!target)
-        throw new PageValidationError(
-          {
-            capture: '원본 메모를 찾을 수 없습니다.',
-            asset: '첨부 파일을 찾을 수 없습니다.',
-            page: '연결할 페이지를 찾을 수 없습니다.',
-          }[ref.type],
-        );
-    }
+    if (ref.imageOnly && target && !/^image\/(png|jpeg|webp|gif|avif)$/.test(target.mime))
+      throw new PageValidationError('지도 미리보기에는 이미지 파일을 선택해 주세요.');
+    if (!target)
+      throw new PageValidationError(
+        {
+          capture: '원본 메모를 찾을 수 없습니다.',
+          asset: '첨부 파일을 찾을 수 없습니다.',
+          page: '연결할 페이지를 찾을 수 없습니다.',
+        }[ref.type],
+      );
+  }
+  return refs;
+}
+
+export function syncPageReferences(db, pageId, document, previous = null, validate = true) {
+  const refs = validate ? validatePageReferences(db, document, previous) : references(document);
   db.prepare('DELETE FROM page_references WHERE page_id = ?').run(pageId);
   const insert = db.prepare(
     'INSERT INTO page_references (page_id, block_id, target_type, target_id) VALUES (?, ?, ?, ?)',
@@ -307,6 +313,9 @@ export function createPageConnections(db, getStore) {
   }
   return {
     ...backlinks,
+    validatePageReferences(document, previous = null, options) {
+      return validatePageReferences(db, document, previous, options);
+    },
     organizeCaptures(value) {
       if (!value || typeof value !== 'object' || Array.isArray(value))
         throw new PageValidationError('정리할 메모를 선택해 주세요.');

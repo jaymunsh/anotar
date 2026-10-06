@@ -292,3 +292,22 @@ Tailscale Serve 등 개인 HTTPS 프록시를 사용하기 전 Git에서 제외�
 ### OpenCode 모델 선택
 
 **설정 → AI → OpenCode CLI**에서 모델 목록과 기본 모델을 관리한다. 초기에는 무료로 확인된 Zen 텍스트 모델 11개만 등록하며 목록의 추가·수정·삭제·사용 여부 변경과 공식 목록 갱신을 지원한다. 실제 CLI 실행은 서버 설치·인증과 명시 활성화가 필요하다. [설정·Oracle 준비 절차](docs/AI_CONFIGURATION.md#oracle의-opencode-cli-준비)를 참고한다.
+
+
+## Oracle 개발 사본과 일반 페이지 구조 문서 (2026-10-06)
+
+`docs/examples/anotar-architecture.page.json`은 제목·목차·표·코드·콜아웃으로 작성한 일반 페이지입니다. 명시적으로 `node scripts/seed-architecture.mjs <data-dir>`를 실행해 설치하며 시작 시 자동으로 시드하지 않습니다. 기존 문서나 휴지통의 같은 ID는 보존합니다. 설치한 뒤 설정 → 서비스 정보의 기술 아키텍처가 이 편집 가능한 페이지를 엽니다. 아직 설치하지 않은 환경에서는 이전 HTML 안내를 엽니다.
+
+Oracle의 SQLite **온라인 백업과 참조 첨부**를 내려받고 `backup verify` → `backup restore`로 `.local-workspace/`의 새 경로에 복원합니다. 실행 중인 DB/WAL을 단순 파일 복사하지 않습니다. `.local-workspace/current.json`에 `{ "dataDirectory": "oracle-YYYYMMDD" }`처럼 복원 경로를 기록한 뒤 `npm run dev:oracle`을 실행합니다. 개발 화면 5174·API 8788·로컬 공유 8791은 모두 루프백이며 기존 5173·8787의 `data/`와 분리됩니다. 운영 `.env`를 읽지 않고 AI·OCR·예약 백업을 실행하지 않습니다. 이 디렉터리는 Git에서 제외합니다. 호스팅 사이트 원본은 DB 백업에 포함되지 않습니다.
+
+페이지 본문을 옮길 때는 전체 DB를 덮어쓰지 않고 아래 도구를 사용합니다. 기준 사본은 복원 전 검증한 백업이며 파일은 개인 정보가 있을 수 있어 Git에 넣지 않습니다.
+
+```bash
+node scripts/page-transfer.mjs export <baseline-backup-dir> <local-data-dir> <page-id> <new-change.json>
+node scripts/page-transfer.mjs check <target-data-dir> <change.json>
+node scripts/page-transfer.mjs import <target-data-dir> <change.json>
+```
+
+`check`는 본문을 반영하지 않으며 `import`는 정상 저장 메서드와 `expectedVersion`으로 한 페이지만 반영합니다. 서버가 먼저 바뀌었다면 충돌로 중단하고, 같은 내용을 재전송하면 버전을 늘리지 않습니다. 기존 수정 이력과 다른 페이지는 유지합니다. 새 첨부 바이트·새 메모 원본·계층 변경을 함께 자동 이관하는 도구는 아닙니다. 서버에 없는 첨부는 먼저 올려야 하고 상위 페이지도 존재해야 합니다. 운영 적용 전에 온라인 백업을 생성·검증합니다. 원격 실행은 본인 SSH 관리 경로로 하며 웹에 별도 관리자 우회 API를 추가하지 않습니다.
+
+`BACKGROUND_WORKERS_ENABLED=false`는 별도 개발 사본의 시작 시 AI/OCR 큐 소비·실행 중 작업 중단 표시·예약 백업을 막습니다. 정상 운영 기본값은 켜짐입니다. 개발용 사용자 인증 해제는 `dev:oracle`의 루프백 사본에만 적용하며 운영 인증 설정과 비밀 키를 옮기거나 변경하지 않습니다.

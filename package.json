@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "dev:oracle": "node scripts/dev-local-copy.mjs",
     "dev": "node --env-file-if-exists=.env scripts/dev.mjs",
     "build": "tsc --noEmit && vite build && node scripts/build-offline-manifest.mjs",
     "start": "node --env-file-if-exists=.env server/index.mjs",

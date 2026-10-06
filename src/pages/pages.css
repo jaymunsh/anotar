@@ -811,7 +811,24 @@
   max-height: 260px;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-line) transparent;
+  padding-inline: 4px 8px;
   overscroll-behavior: none;
+}
+.page-icon-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.page-icon-scroll::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: var(--theme-line);
+}
+.page-icon-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-subtle);
+}
+.page-icon-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
 .page-icon-group {
   position: sticky;
@@ -831,10 +848,12 @@
 }
 .page-icon-grid {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
+  grid-template-columns: repeat(9, minmax(0, 1fr));
   gap: 2px;
 }
 .page-icon-grid button {
+  min-width: 0;
+  padding: 0;
   aspect-ratio: 1;
   border: 0;
   border-radius: 7px;
@@ -1147,6 +1166,12 @@
   .page-icon-popover {
     width: 296px;
     max-width: calc(100vw - 30px);
+  }
+  .page-icon-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .page-icon-grid button {
+    min-height: 44px;
   }
   .page-title-input {
     margin-top: 8px;

@@ -20,6 +20,23 @@ import {
   X,
 } from 'lucide-react';
 import './settings.css';
+import { architecturePageId } from '../../shared/architecturePage';
+import { usePageResource } from '../pages/usePageResource';
+
+function ArchitectureResource() {
+  const { item } = usePageResource<{ id: string }>(`/api/pages/${architecturePageId}`);
+  return <>
+    <nav aria-label="서비스 문서">
+      <a href={item ? `/pages/${item.id}` : '/architecture.html'}
+        {...(!item ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+        <Network size={18} aria-hidden="true" />
+        <span><strong>기술 아키텍처</strong><small>기술 스택, 파일 진입점, 저장·동기화와 운영 구조</small></span>
+        {item ? <ChevronRight size={16} aria-hidden="true" /> : <ExternalLink size={16} aria-hidden="true" />}
+      </a>
+    </nav>
+    <p className="settings-save-note">{item ? '일반 페이지에서 내용을 수정하고 공유할 수 있어요.' : '문서는 새 탭에서 열립니다.'}</p>
+  </>;
+}
 
 const sections = [
   { id: 'appearance', label: '화면', Icon: Palette },
@@ -214,17 +231,7 @@ export default function WorkspaceSettings({
               <p className="settings-description">
                 anotar는 개인 서버에 두고 쓰는 메모·문서 작업 공간이에요.
               </p>
-              <nav aria-label="서비스 문서">
-                <a href="/architecture.html" target="_blank" rel="noopener noreferrer">
-                  <Network size={18} aria-hidden="true" />
-                  <span>
-                    <strong>기술 아키텍처</strong>
-                    <small>기술 스택, 파일 진입점, 저장·동기화와 운영 구조</small>
-                  </span>
-                  <ExternalLink size={16} aria-hidden="true" />
-                </a>
-              </nav>
-              <p className="settings-save-note">문서는 새 탭에서 열립니다.</p>
+              <ArchitectureResource />
             </section>
           )}
         </div>

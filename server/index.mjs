@@ -1022,9 +1022,15 @@ const server = createServer(async (request, response) => {
 });
 
 server.listen(port, host, () => {
-  aiWorker.start();
-  ocrWorker.start();
-  void backups.start().catch((error) => console.error('백업 초기화 실패:', error.message));
+  // A restored development copy must not consume copied jobs or run scheduled backups.
+  if (process.env.BACKGROUND_WORKERS_ENABLED !== 'false') {
+    aiWorker.start();
+    ocrWorker.start();
+    void backups.start().catch((error) => console.error('백업 초기화 실패:', error.message));
+  } else {
+    void aiWorker.stop();
+    void ocrWorker.stop();
+  }
   console.log(`Storage API: http://${host}:${port}`);
 });
 let closing = false;

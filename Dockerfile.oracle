@@ -21,7 +21,8 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && mkdir -p /data
 COPY server ./server
 COPY shared ./shared
-COPY scripts/backup-data.mjs scripts/auth-setup.mjs scripts/host-site.mjs ./scripts/
+COPY scripts/backup-data.mjs scripts/auth-setup.mjs scripts/host-site.mjs scripts/seed-architecture.mjs scripts/page-transfer.mjs ./scripts/
+COPY docs/examples/anotar-architecture.page.json ./docs/examples/anotar-architecture.page.json
 COPY --from=build /app/dist ./dist
 EXPOSE 8787
 VOLUME /data

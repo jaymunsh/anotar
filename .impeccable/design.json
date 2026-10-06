@@ -1,0 +1,681 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-30T02:11:23Z",
+  "title": "Design System: anotar",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "따뜻한 종이",
+        "canonical": "#f6f5f0"
+      },
+      "forest-rail": {
+        "role": "primary",
+        "displayName": "짙은 숲색",
+        "canonical": "#20322d"
+      },
+      "forest-action": {
+        "role": "primary",
+        "displayName": "동작 숲색",
+        "canonical": "#3d6349"
+      },
+      "lime": {
+        "role": "secondary",
+        "displayName": "작은 라임 강조",
+        "canonical": "#d8e6b5"
+      },
+      "dark-canvas": {
+        "role": "neutral",
+        "displayName": "차콜 작업 영역",
+        "canonical": "#1b1e1d"
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "차콜 입력 표면",
+        "canonical": "#272b29"
+      },
+      "dark-raised": {
+        "role": "neutral",
+        "displayName": "차콜 보조 표면",
+        "canonical": "#2e3330"
+      },
+      "dark-rail": {
+        "role": "neutral",
+        "displayName": "차콜 사이드바",
+        "canonical": "#171b19"
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "어두운 화면의 본문",
+        "canonical": "#f2f1eb"
+      },
+      "dark-muted-ink": {
+        "role": "neutral",
+        "displayName": "어두운 화면의 보조 글자",
+        "canonical": "#bdc5bc"
+      },
+      "dark-line": {
+        "role": "neutral",
+        "displayName": "어두운 화면의 경계",
+        "canonical": "#424a43"
+      },
+      "dark-accent": {
+        "role": "primary",
+        "displayName": "세이지 강조",
+        "canonical": "#b5cca5"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "입력함 첫 제목",
+        "purpose": "빠른 입력 영역의 한눈에 읽히는 제목"
+      },
+      "headline": {
+        "displayName": "페이지 제목",
+        "purpose": "여러 줄로 접히는 직접 편집 제목"
+      },
+      "body": {
+        "displayName": "페이지 본문",
+        "purpose": "긴 블록 문서의 읽기와 편집"
+      }
+    },
+    "shadows": [
+      {
+        "name": "composer",
+        "value": "0 12px 38px #2b463b0b",
+        "purpose": "입력 영역을 종이 배경에서 조용히 분리"
+      },
+      {
+        "name": "capture-rest",
+        "value": "0 2px 8px #35443806",
+        "purpose": "목록 카드의 낮은 깊이"
+      },
+      {
+        "name": "capture-hover",
+        "value": "0 5px 18px #35443812",
+        "purpose": "가리킨 항목을 약하게 들어 올림"
+      },
+      {
+        "name": "detail-panel",
+        "value": "-14px 0 35px #17251e1c",
+        "purpose": "상세 패널과 작업 영역 구분"
+      }
+    ],
+    "motion": [
+      {
+        "name": "mobile-menu",
+        "value": "transform 0.2s ease",
+        "purpose": "모바일 사이드바 열고 닫기"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "one-column",
+        "value": "1100px"
+      },
+      {
+        "name": "mobile-shell",
+        "value": "760px"
+      },
+      {
+        "name": "compact-mobile",
+        "value": "520px"
+      }
+    ],
+    "itinerarySharing": {
+      "mode": "read",
+      "activityLabel": "활동 유형",
+      "metadataFontPx": 11,
+      "mobileFieldFontPx": 16,
+      "mobileControlMinPx": 44,
+      "publicMap": "static image and Google Maps links",
+      "privatePreview": "collapsed",
+      "fallbackImage": "own SVG visit diagram, not road map",
+      "routeLinks": {
+        "source": "shared itineraryRoutes",
+        "maxPlaces": 5,
+        "encodedUrlMax": 2048,
+        "group": "date; scheduled order; exclude travel",
+        "fontPx": 12,
+        "desktopMinPx": 32,
+        "mobileMinPx": 44,
+        "loading": "external navigation only; no key or SDK"
+      },
+      "staticImageGeneration": {
+        "provider": "Geoapify server-only",
+        "defaultStyle": "klokantech-basic",
+        "desktopControlMinHeightPx": 32,
+        "mobileControlMinHeightPx": 44,
+        "mobileFieldFontSizePx": 16,
+        "scrollPosition": "normal flow",
+        "generatedImage": "1800x1120 PNG with numbered pins, visit-order arrows and attribution",
+        "updates": "explicit only; stale-coordinate notice",
+        "provenance": "preserved when reselecting an image in the current document",
+        "regionalContext": {
+          "fitZoomOffset": -0.8,
+          "neighborhoodLabelSizePx": 16,
+          "majorRoadLabelSizePx": 13,
+          "buildingTop": "flat buildings; no extrusion layer",
+          "neighborhoodFont": "provider Noto Sans Regular",
+          "neighborhoodTrackingEm": 0,
+          "poiLabelSizePx": 12,
+          "fontCustomization": "style-defined; API supports size and color",
+          "language": "ko",
+          "names": "provider map data"
+        },
+        "landscapePalette": {
+          "background": "#faf8f3",
+          "park": "#d7e7c8",
+          "wood": "#c8dfbe",
+          "water": "#bcdcf1",
+          "primaryRoad": "#f6dfa7",
+          "markers": "#315843"
+        }
+      },
+      "readingLayout": {
+        "columns": 1,
+        "mapLegend": "saved coordinate-stop numbers, names, times and Google links; 44px targets",
+        "settings": "collapsed after image save; expanded for missing image, busy or stale state",
+        "credits": "provider text in PNG preserved; supplementary links in details",
+        "order": [
+          "full-width map",
+          "timetable"
+        ],
+        "imageSizing": "natural aspect ratio; no 360px cap",
+        "surfaces": [
+          "private",
+          "public",
+          "offline"
+        ]
+      }
+    },
+    "predeployment": {
+      "itinerary": {
+        "desktop": "1000px 이상 이미지와 시간표 2열; 지도/이미지 우선",
+        "mobile": "이미지 → 시간표; 수정 항목은 접기; 모든 동작 44px",
+        "type": "시간/제목 16px, 본문14px, 유형/소요12px"
+      },
+      "operations": "댓글은 개인 저장; OCR 이력/정확한 작업 선택; 결과 Task는 명시 선택; 도구/메타데이터는 기존 보조 패널"
+    },
+    "commentUx": {
+      "panelWidth": 340,
+      "breakpoint": 1240,
+      "sheetHeights": [
+        0.62,
+        0.88
+      ],
+      "bodyFont": 14,
+      "metaFont": 12,
+      "inputFont": 16,
+      "mobileTarget": 44,
+      "counts": "server summary; actual replies included",
+      "composer": "fixed flex footer; Enter newline / Ctrl+Cmd Enter submit; IME excluded",
+      "audiences": "private / shared; separate drafts and server tables",
+      "author": "guest name initial / owner profile with server-issued owner badge",
+      "quote": "compact 1px line / two line excerpt",
+      "public": "small standalone vanilla JS/CSS; same-origin named guest create/reply"
+    },
+    "publicReading": {
+      "themeDefault": "light",
+      "themeChoices": [
+        "light",
+        "dark",
+        "system"
+      ],
+      "themeStorage": "leneu:share-theme:v1; independent from owner app",
+      "darkSurface": "#272b29",
+      "darkCanvas": "#202422",
+      "commentGutterGap": {
+        "desktop": 16,
+        "mobile": 12
+      },
+      "contentRightPadding": 84,
+      "imageColorScheme": "light",
+      "commentPanelWidth": 360,
+      "desktopCommentRail": 402,
+      "commentPanelHeight": "content-sized; max680px / viewport; conversation scrolls, composer fixed in flex flow",
+      "commentBodyPadding": 20,
+      "commentToggleLayout": "main block bounds and scroll position unchanged"
+    },
+    "commentInbox": {
+      "route": "/comments",
+      "home": "secondary column after tasks and AI",
+      "states": [
+        "unread guest messages",
+        "open conversations",
+        "resolved conversations"
+      ],
+      "readPolicy": "mark through the last guest message actually loaded in selected thread",
+      "poll": "visible home card and active tab only; 30 seconds",
+      "pageBodyOnHome": false
+    },
+    "mobileCollection": {
+      "route": "/capture",
+      "manifest": "/capture.webmanifest",
+      "shareTarget": "POST /capture/share",
+      "storage": "IndexedDB pending imports plus existing capture drafts",
+      "reviewBeforeImport": true,
+      "preserveExistingDraft": true,
+      "offlineAppCache": false,
+      "deployedOrigin": "private HTTPS",
+      "unsupported": "iOS Safari OS share target; use paste/attachment"
+    },
+    "planConnections": {
+      "private": [
+        "task",
+        "page",
+        "memo"
+      ],
+      "public": "explicit selected task title/status only",
+      "defaultShared": false,
+      "taskState": "existing Task source",
+      "sourceSchemaVersion": 1,
+      "noPublicPrivateRelationIds": true,
+      "reading": {
+        "summary": "Actual titles and task checkboxes only; hide empty preparation tools.",
+        "management": "Per-entry ellipsis menu retains existing mutations and share opt-in.",
+        "richLists": "Single inline content container; escaped explicit line breaks preserved."
+      }
+    },
+    "workspaceNavigation": {
+      "recentVisited": "home only; up to 3",
+      "sidebar": "favorites and page tree",
+      "taskBoardStatus": "column header; edit title/date/stage; no bottom card selector",
+      "shortcuts": {
+        "layout": "3 columns / 2 rows",
+        "height": "52px",
+        "gap": "4px",
+        "totalHeight": "108px",
+        "label": "11.5px / 16px",
+        "focus": "2px #d8e6b5, outline-offset -2px",
+        "active": "background + aria-current=page",
+        "source": "src/main.tsx, src/workspace.css",
+        "items": [
+          "search",
+          "memo",
+          "tasks",
+          "ai",
+          "comments"
+        ],
+        "homeEntry": "brand link /"
+      }
+    },
+    "brand": {
+      "name": "anotar",
+      "mark": "손글씨 소문자 a",
+      "icon": "public/capture-icons/icon-192.png",
+      "favicon": "public/favicon.png",
+      "source": "docs/branding/anotar-icon-source.png",
+      "compatibility": "기존 leneu 저장·인증 식별자 유지"
+    },
+    "taskPageReference": {
+      "source": "src/tasks/TaskWorkspace.tsx",
+      "field": "pageId: UUID | null",
+      "placement": "inline task edit; secondary one-line page link",
+      "mobileTarget": "44px",
+      "missingTarget": "preserve reference, never erase automatically"
+    },
+    "aiReading": {
+      "source": "src/ai/AiResultContent.tsx, src/ai/AiRequestSummary.tsx, src/ai/markdownReading.ts",
+      "defaultView": "rendered Markdown",
+      "sourceView": true,
+      "template": "immutable request snapshot name/version/type/instruction",
+      "font": "14px / 1.75",
+      "html": "escaped",
+      "remoteImages": "not fetched",
+      "links": "HTTP(S) only"
+    },
+    "journalPreview": {
+      "source": "docs/design/journal-preview.html",
+      "status": "interactive design prototype only",
+      "model": "all entries of the month, grouped by date; older history prepended above; new records appended to today below",
+      "storage": "anotar:journal-design:v1 only",
+      "productPersistence": false,
+      "navigation": "calendar jumps to a date in the stream, never filters the stream or changes the writing date",
+      "composer": "fixed within the layout below the scroller; today draft survives history navigation and edit/cancel",
+      "history": "preview data only; preserves visible position when prepended",
+      "initialPosition": "latest record",
+      "sourceView": false
+    },
+    "timeboxingPreview": {
+      "source": "docs/design/timeboxing-preview.html",
+      "status": "interactive design prototype only",
+      "sourceReference": "user-supplied 타임박싱2.pdf; three priorities, brain dump, idea, feedback, 24-hour grid",
+      "purpose": "plan the day and revisit explicitly missed plans",
+      "model": "plan-only 24-hour worksheet with six ten-minute slots, list secondary; missed flag and all-date review",
+      "storage": "anotar:timeboxing-design:v1 only",
+      "productPersistence": false,
+      "range": "00:00–24:00; review groups all saved missed plans by date",
+      "axis": "00–60 minute ruler; clipped hourly intervals; full range in tooltip, accessible name and edit dialog",
+      "responsive": "1280px max; upper calendar; desktop notes/planner about28:72; mobile calendar, planner, notes without horizontal scroll",
+      "preserves": "journal-preview.html and journal-design.md unchanged",
+      "brief": "docs/design/timeboxing-design.md",
+      "defaultEnd": "new start +30min until end manually edited; existing edit preserves duration; capped at midnight",
+      "color": "no category fills; one accent for selection/actions",
+      "evidence": ".omo/evidence/timeboxing-plan-only/REPORT.md",
+      "entryForm": "title/start/end and optional missed checkbox; legacy actual/kind/note preserved",
+      "density": "Centered hour labels; titles ellipsize in short slots, detail modal; mobile44px schedule height"
+    }
+  },
+  "components": [
+    {
+      "name": "Persistent block comments",
+      "kind": "panel",
+      "refersTo": "page-comment-panel",
+      "description": "개인/공유 탭·가벼운 인용과 위치 이동·실제 개수 말풍선·이름/작성자 표시·스크롤 대화·고정 입력. PC340px/모바일62·88%. 공개 이름 댓글은 링크별 허용 시에만 사용.",
+      "html": "<aside class=\"page-comment-panel has-selection\" aria-label=\"블록 댓글\"><header><h2>블록 대화</h2></header><p>개인 댓글 · 나에게만 표시돼요</p></aside>",
+      "css": ".page-comment-panel{position:fixed;right:20px;top:82px;width:340px;height:min(680px,calc(100dvh - 104px));border:1px solid var(--theme-line);border-radius:14px;background:var(--theme-surface);color:var(--theme-ink)}@media(max-width:1239px){.page-comment-panel{top:auto;right:0;bottom:var(--comment-keyboard-bottom,0px);width:min(480px,100vw);height:min(calc(var(--comment-visible-height,100dvh)*.62),650px)}}"
+    },
+    {
+      "name": "Primary save button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "홈 입력 카드의 주요 동작. 일반 입력은 저장, AI 선택 시 저장하고 AI 요청으로 표시한다. 모바일에서는 최소 높이 42px·12px 글자를 쓴다.",
+      "html": "<button class=\"ds-save\">저장</button>",
+      "css": ".ds-save{height:39px;padding:0 15px;border:1px solid #3d6349;border-radius:8px;background:#3d6349;color:#fff;font:700 11px 'DM Sans','Noto Sans KR',sans-serif;box-shadow:0 4px 9px #3d634920;cursor:pointer}.ds-save:hover{background:#31543c}.ds-save:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}@media(max-width:760px){.ds-save{height:auto;min-height:42px;font-size:12px}}"
+    },
+    {
+      "name": "Capture card",
+      "kind": "card",
+      "refersTo": "capture-card",
+      "description": "종류·시간과 원문 한 줄을 담는 최근 목록 항목. NEW는 시간 줄 오른쪽 끝에, 화살표는 그 아래에 배치한다. 별도 예시 표시는 없다. 메모 목록과 홈 최근 메모에서는 하나의 12px 표면 안에 행을 묶고 얇은 구분선으로 나눈다. NEW의 시간 행·우측 고정 여백과 말줄임표를 유지한다.",
+      "html": "<button class=\"ds-capture\"><small>메모 · 오늘 오후 12:30</small><strong>떠오른 생각을 먼저 저장한다</strong></button>",
+      "css": ".ds-capture{display:flex;flex-direction:column;gap:4px;width:320px;min-height:72px;padding:12px 16px;border:1px solid #e8ebe4;border-radius:11px;background:#fff;color:#202b29;text-align:left;box-shadow:0 2px 8px #35443806;cursor:pointer}.ds-capture small{color:#698573;font:700 10px 'DM Sans','Noto Sans KR',sans-serif}.ds-capture strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 12px 'DM Sans','Noto Sans KR',sans-serif}.ds-capture:hover{border-color:#c5d6c5;box-shadow:0 5px 18px #35443812;transform:translateY(-1px)}.ds-capture:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}"
+    },
+    {
+      "name": "Capture detail editor",
+      "kind": "form",
+      "refersTo": "detail-edit-form",
+      "description": "입력함 상세에서 기존 내용·링크·설명을 명시적으로 수정하는 폼. 원문 자리에 입력을 보여주고 저장·취소를 아래에 둔다. 충돌해도 초안을 보존하고 최신 내용 불러오기를 별도 동작으로 제공한다",
+      "html": "<form class=\"detail-edit-form\"><label class=\"detail-edit-field\"><span>내용</span><textarea aria-label=\"보관한 내용\">떠오른 생각</textarea></label><div class=\"detail-edit-actions\"><button type=\"button\">취소</button><button type=\"submit\">변경 저장</button></div></form>",
+      "css": ".detail-edit-form{display:flex;flex-direction:column;gap:16px;margin-top:28px}.detail-edit-field{display:flex;flex-direction:column;gap:8px;color:var(--theme-muted);font-size:12px;font-weight:600}.detail-edit-field textarea{min-height:180px;padding:12px;border:1px solid var(--theme-line);border-radius:9px;background:var(--theme-surface);color:var(--theme-ink);font-size:14px;line-height:1.7}.detail-edit-actions{display:flex;justify-content:flex-end;gap:8px}.detail-edit-actions button[type='submit']{background:var(--theme-accent);color:var(--theme-accent-ink)}"
+    },
+    {
+      "name": "Selected sidebar item",
+      "kind": "nav",
+      "refersTo": "sidebar-selected",
+      "description": "Icon and label shortcut in a 3-column, 2-row navigation. The active link uses its background and aria-current; keyboard focus stays inside the item. Navigation and the page tree share one scroller.",
+      "html": "<a class=\"ds-nav\" href=\"#\" aria-current=\"page\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M17 7 7 17M7 7v10h10\"/></svg><span>메모</span></a>",
+      "css": ".ds-nav{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:70px;height:52px;padding:5px 2px;border-radius:6px;background:#3b5548;color:#f7fbf3;text-decoration:none;font:600 11.5px/16px 'DM Sans','Noto Sans KR',sans-serif}.ds-nav:hover{background:#3b5548}.ds-nav:focus-visible{outline:2px solid #d8e6b5;outline-offset:-2px}"
+    },
+    {
+      "name": "Sidebar page item",
+      "kind": "nav",
+      "refersTo": "sidebar-page-item",
+      "description": "내 페이지 목록의 촘촘한 행 — 대표 이모지·문서 아이콘이 행 맨 왼쪽에 오고, 행 hover·접기 펼침 시 그 자리를 ▸ 화살표가 대체한다. 펼친 잎 페이지는 '하위 페이지 없음'을 보여주고, 하위 페이지는 단계별 19px 들여쓰기. 행을 드래그해 순서를 바꾸거나 다른 페이지 안에 넣는다 — 경계 드롭 위치는 #5b9bd5 2px 실선, 안쪽 드롭은 옅은 파란 배경으로 표시한다",
+      "html": "<a class=\"ds-page-item\" href=\"#\"><span class=\"ds-page-icon\">🗺️</span><span>교토 여행</span></a>",
+      "css": ".ds-page-item{display:flex;align-items:center;gap:7px;width:220px;min-height:29px;padding:0 8px 0 3px;border-radius:4px;background:#3b5548;color:#f7fbf3;text-decoration:none;font:500 12.5px 'DM Sans','Noto Sans KR',sans-serif}.ds-page-item .ds-page-icon{display:inline-flex;align-items:center;justify-content:center;flex:none;width:18px;font-size:14px;line-height:1}.ds-page-item>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-page-item:hover{background:#30483c}.ds-page-item:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}"
+    },
+    {
+      "name": "Page icon picker",
+      "kind": "popover",
+      "refersTo": "page-icon",
+      "description": "제목 위 대표 이모지 버튼과 이모지 선택 패널 — emoji-mart 전체 이모지(국기 포함)를 카테고리별로 세로 스크롤, 검색 입력 제공",
+      "html": "<button class=\"ds-page-icon\" aria-label=\"페이지 아이콘 변경\">🗺️</button>",
+      "css": ".ds-page-icon{padding:2px 4px;border:0;border-radius:10px;background:transparent;font-size:32px;line-height:1;cursor:pointer}.ds-page-icon:hover{background:#ecefe2}.ds-page-icon:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}"
+    },
+    {
+      "name": "Secondary page action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "작은 아이콘으로 제공하는 문서의 Markdown·Mermaid 도구. 이름은 aria-label·title로 유지하며 모바일 조작 높이는 44px.",
+      "html": "<button class=\"ds-secondary\" aria-label=\"Markdown 복사\" title=\"Markdown 복사\">⎘</button>",
+      "css": ".ds-secondary{display:inline-flex;align-items:center;justify-content:center;width:30px;min-height:30px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--theme-muted);cursor:pointer}.ds-secondary:hover{background:var(--theme-soft);color:var(--theme-ink)}.ds-secondary:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}@media(max-width:760px){.ds-secondary{width:36px;min-height:44px}}"
+    },
+    {
+      "name": "Page title",
+      "kind": "input",
+      "refersTo": "page-title",
+      "description": "문서 안에서 여러 줄로 보이는 직접 편집 제목",
+      "html": "<textarea class=\"ds-page-title\" rows=\"2\" aria-label=\"페이지 제목\">교토의 3일, 많이 보기보다 오래 머무르기</textarea>",
+      "css": ".ds-page-title{display:block;width:100%;padding:0;border:0;outline:0;overflow:hidden;resize:none;background:transparent;color:#22302a;font:700 clamp(29px,3vw,36px)/1.25 'DM Sans','Noto Sans KR',sans-serif;letter-spacing:-.035em;word-break:keep-all;overflow-wrap:anywhere}.ds-page-title:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}"
+    },
+    {
+      "name": "Page breadcrumb row",
+      "kind": "nav",
+      "refersTo": "page-crumb",
+      "description": "문서 맨 위의 작은 경로·저장 상태·아이콘 도구. parentId를 따라 만든 상위 경로는 아이콘·제목으로 이동하며 4단계 이상이면 가운데 …로 줄인다. 생성일·최종 수정일은 제목 아래에 표시하고 도움말은 페이지 정보 메뉴에 접는다.",
+      "html": "<nav class=\"ds-crumbs\" aria-label=\"페이지 경로\"><a class=\"ds-crumb\" href=\"#\">🗺️ 교토 여행</a><span class=\"ds-crumb-sep\">/</span><span class=\"ds-crumb ds-crumb-current\">맛집 목록</span></nav>",
+      "css": ".ds-crumbs{display:flex;align-items:center;gap:3px;min-width:0;overflow:hidden;font:500 11px 'DM Sans','Noto Sans KR',sans-serif;color:#9aab9e}.ds-crumb{display:inline-flex;align-items:center;gap:4px;max-width:150px;padding:3px 6px;border-radius:4px;color:#7d8f80;text-decoration:none;white-space:nowrap}a.ds-crumb:hover{background:#e4ece2;color:#45594a}.ds-crumb-current{color:#5f7263;font-weight:600}.ds-crumb-sep{color:#c2cfc4;padding:0 1px}"
+    },
+    {
+      "name": "Theme selector",
+      "kind": "select",
+      "refersTo": "theme-select",
+      "description": "사이드바 leneu. 로고 오른쪽 같은 줄의 시스템·밝음·어두움 화면 모드 선택. 한국 날짜 YYYY-MM-DD (요일)는 다음 줄에 오른쪽 정렬한다. 모바일에서는 메뉴 안에서 고르며 조작 높이 44px·선택란 높이 42px·글자 16px를 쓴다. 기본은 운영체제 설정이고 직접 고른 값은 브라우저에 저장한다.",
+      "html": "<div class=\"ds-brand-header\"><div class=\"ds-brand-line\"><span class=\"ds-brand\"><span class=\"ds-brand-mark\" aria-hidden=\"true\"><i></i><i></i><i></i><i></i></span><span>leneu<span class=\"ds-brand-dot\">.</span></span></span><label class=\"ds-theme\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"2\" y=\"3\" width=\"20\" height=\"14\" rx=\"2\"></rect><path d=\"M8 21h8M12 17v4\"></path></svg><select aria-label=\"화면 모드\"><option>시스템</option><option>밝음</option><option>어두움</option></select></label></div><time class=\"ds-brand-date\" datetime=\"2026-09-29\">2026-09-29 (화)</time></div>",
+      "css": ".ds-brand-header{width:214px;padding:22px 16px 0;background:var(--theme-sidebar,#20322d);color:#e9eee7;font-family:'DM Sans','Noto Sans KR',sans-serif}.ds-brand-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 4px}.ds-brand{display:flex;align-items:center;gap:10px;flex-shrink:0;font-size:24px;font-weight:700;letter-spacing:-1.7px;line-height:1}.ds-brand-mark{width:26px;height:26px;display:grid;grid-template-columns:repeat(2,1fr);gap:3px;transform:rotate(-9deg)}.ds-brand-mark i{background:#d8e6b5;border-radius:3px}.ds-brand-mark i:nth-child(2){opacity:.65}.ds-brand-mark i:nth-child(3){opacity:.4}.ds-brand-mark i:nth-child(4){border-radius:3px 9px 3px 3px}.ds-brand-dot{color:#c4d880}.ds-theme{display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:0 5px;border:1px solid #40564d;border-radius:7px;background:#2b4038;color:#e3ece1}.ds-theme select{max-width:72px;border:0;background:transparent;color:inherit;font-size:11px;cursor:pointer}.ds-theme select:focus-visible{outline-offset:4px}.ds-theme select option{background:var(--theme-surface,#fff);color:var(--theme-ink,#202b29)}.ds-brand-date{display:flex;justify-content:flex-end;margin:10px 8px 21px;color:#c3d1c3;font-size:10px;white-space:nowrap}:host-context([data-theme='dark']) .ds-brand-header{color:#e5e9e2}:host-context([data-theme='dark']) .ds-theme{background:var(--theme-soft,#343b35);border-color:var(--theme-line,#424a43);color:var(--theme-ink,#f2f1eb)}:host-context([data-theme='dark']) .ds-brand-date{color:var(--theme-muted,#bdc5bc)}@media(max-width:760px){.ds-theme{min-height:44px}.ds-theme select{min-height:42px;font-size:16px}}"
+    },
+    {
+      "name": "Page search palette",
+      "kind": "dialog",
+      "refersTo": "page-search",
+      "description": "사이드바 '검색' 항목이나 페이지 화면의 ⌘K로 여는 상단 팔레트 — 현재는 페이지 제목 필터, 방향키·Enter·마우스로 이동. 입력함 화면의 ⌘K는 기존 입력함 검색 상자에 집중한다",
+      "html": "<div class=\"ds-search\"><label><span>🔍</span><input placeholder=\"페이지 제목으로 검색\" /></label><button class=\"ds-search-hit\">🗺️ 교토 여행</button></div>",
+      "css": ".ds-search{display:flex;flex-direction:column;width:min(560px,100%);max-height:62vh;overflow:hidden;border:1px solid #dfe7dc;border-radius:10px;background:#fdfcf9;box-shadow:0 18px 50px #2b362e33}.ds-search label{display:flex;align-items:center;gap:9px;padding:13px 15px;border-bottom:1px solid #eef1ea;color:#8fa192}.ds-search input{flex:1;border:0;background:none;font:inherit;font-size:14px;color:#2f3a31;outline:none}.ds-search-hit{display:flex;align-items:center;gap:9px;margin:6px;padding:8px 10px;border:0;border-radius:6px;background:#eef4ea;font:500 13px 'DM Sans','Noto Sans KR',sans-serif;color:#33403a;text-align:left;cursor:pointer}"
+    },
+    {
+      "name": "Home dashboard",
+      "kind": "workspace",
+      "refersTo": "home-dashboard",
+      "description": "Operate: PC는 입력·최근 메모 3개·최근 페이지 4개를 주 열에, 할 일·AI 현황을 보조 열에 둔다. 1100px 이하에는 입력·AI·할 일·메모·페이지 순서로 한 열을 쓴다. 모바일에는 인라인 입력을 표시하고 홈 기록 도크는 숨긴다. 최근 페이지는 사이드바와 같은 메타데이터를 사용해 수정 시각순으로 보여주며 첫 로드에 본문·편집기를 읽지 않는다. PC 본문 최대 폭 1160px·제목 32px·모듈 간격 16px·입력 최소 높이 56px·페이지 행 최소 높이 56px과 홈의 17px 모듈 제목·13px 목록 제목·17/12/9px 카드·패널·페이지 목록·아이콘 모서리는 전역 토큰을 바꾸지 않는 지역 값이다. 보조 열은 304px이며 최근 메모는 하나의 목록 표면 안에 구분선으로 나눈다. 소개 오른쪽 검색 버튼은 기존 통합 검색을 연다. 2026-10-04: 홈 입력은 그림자 없는 12px 모서리다. 모바일 최근 열람/즐겨찾기는 그룹별 한 줄 가로 스크롤, 링크 높이44px·최대260px·내부 초점 표시로 입력을 밀어내지 않는다.",
+      "html": "<main class=\"ds-home\"><header><h1>생각을, 놓아두세요.</h1><p>지금 떠오른 것은 빠르게 담고, 정리는 필요할 때 해요.</p></header><div class=\"ds-home-grid\"><div class=\"ds-home-primary\"><section class=\"ds-home-composer\"><strong>새로 담기</strong><button>크게 쓰기</button><textarea aria-label=\"메모 내용\" placeholder=\"무슨 생각이 떠올랐나요?\"></textarea><button class=\"ds-home-save\">저장</button></section><section class=\"ds-home-memos\"><h2>최근 메모</h2><p>떠오른 생각을 먼저 저장한다</p></section><section class=\"ds-home-pages\"><h2>최근 페이지</h2><p>교토 여행 계획</p></section></div><aside class=\"ds-home-secondary\"><section class=\"ds-home-tasks\"><h2>할 일</h2></section><section class=\"ds-home-ai\"><h2>AI 요청</h2></section></aside></div></main>",
+      "css": ".ds-home{max-width:1160px;padding:22px clamp(24px,3vw,40px) 96px;color:var(--theme-ink)}.ds-home h1{font-size:32px;letter-spacing:-.035em}.ds-home h2{font-size:17px}.ds-home-grid{display:grid;grid-template-columns:minmax(0,1fr) 304px;gap:16px}.ds-home-primary,.ds-home-secondary{display:flex;min-width:0;flex-direction:column;gap:16px}.ds-home-composer{border:1px solid var(--theme-line);border-radius:12px;background:var(--theme-surface)}.ds-home-composer textarea{width:100%;min-height:56px;font-size:14px}.ds-home-pages{border:1px solid var(--theme-line);border-radius:12px;background:var(--theme-surface)}.ds-home-pages p,.ds-home-memos p{font-size:13px}.ds-home-pages a{min-height:56px}.ds-home-ai h2{font-size:16px}@media(max-width:1100px){.ds-home{padding-top:32px}.ds-home h1{font-size:clamp(29px,2.9vw,40px)}.ds-home-grid{display:flex;flex-direction:column;gap:20px}.ds-home-primary,.ds-home-secondary{display:contents}.ds-home-composer{order:1}.ds-home-ai{order:2}.ds-home-tasks{order:3}.ds-home-memos{order:4}.ds-home-pages{order:5}}@media(max-width:760px){.ds-home{padding:20px 15px 80px}.ds-home h1{font-size:clamp(25px,8vw,31px)}.ds-home-composer textarea{font-size:16px}.ds-home-save{min-height:42px}}"
+    },
+    {
+      "name": "Recent pages",
+      "kind": "list",
+      "refersTo": "dashboard-page-section",
+      "description": "홈 주 열의 최근 페이지. PageWorkspace와 같은 목록 메타데이터에서 수정순 최대 4개를 선택한다. 제목 13px·한국 수정 시각 11px, 목록 모서리 14px·아이콘 모서리 9px, 행 최소 64px·모바일 66px이다. 새 페이지 만들기와 로딩·빈 목록·오류 재시도를 제공한다.",
+      "html": "<section class=\"ds-recent-pages\" aria-label=\"최근 페이지\"><header><h2>최근 페이지</h2><button>새 페이지 만들기</button></header><div class=\"ds-recent-page-list\"><a class=\"ds-recent-page-row\" href=\"#\"><span class=\"ds-recent-page-icon\">📄</span><span><strong>교토 여행 계획</strong><small>수정 오늘 오후 12:30</small></span><span aria-hidden=\"true\">→</span></a></div></section>",
+      "css": ".ds-recent-pages{color:var(--theme-ink)}.ds-recent-pages header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.ds-recent-pages h2{margin:0;font-size:17px}.ds-recent-pages button{min-height:36px;border:0;background:transparent;color:var(--theme-muted);font-size:12px}.ds-recent-page-list{overflow:hidden;border:1px solid var(--theme-line);border-radius:12px;background:var(--theme-surface)}.ds-recent-page-row{display:flex;align-items:center;gap:12px;min-height:64px;padding:10px 15px;color:var(--theme-ink);text-decoration:none}.ds-recent-page-row:hover{background:var(--theme-raised)}.ds-recent-page-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:9px;background:var(--theme-soft);color:var(--theme-accent)}.ds-recent-page-row>span:nth-child(2){display:flex;min-width:0;flex:1;flex-direction:column;gap:3px}.ds-recent-page-row strong,.ds-recent-page-row small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-recent-page-row strong{font-size:13px;font-weight:600}.ds-recent-page-row small{font-size:11px;color:var(--theme-muted)}.ds-recent-page-row:focus-visible,.ds-recent-pages button:focus-visible{outline:2px solid var(--theme-accent);outline-offset:2px}@media(max-width:760px){.ds-recent-page-row{min-height:66px}}"
+    },
+    {
+      "name": "Task workspace",
+      "kind": "list",
+      "refersTo": "task-workspace",
+      "description": "홈 보조 열의 할 일 패널은 304px을 확보하고 PC 14px 안쪽 여백·12px 모서리를 쓴다. 1100px 이하에는 AI 현황 다음·최근 메모 앞에 배치한다. PC 5개·모바일 3개를 먼저 보여준다. 진행 중·완료 탭, 행 체크·직접 편집·선택적 기한, 한 줄 추가, 실패 재시도·충돌 초안, /tasks 전체 보기와 50개 단위 더 보기를 제공한다. Optional page reference in existing task edit, shown as a compact secondary link, 44px on touch.",
+      "html": "<section class=\"task-panel\" aria-label=\"할 일\"><h2>할 일</h2><button>전체 보기</button><ul class=\"task-list\"><li class=\"task-row\"><input type=\"checkbox\" aria-label=\"항공권 확인 완료\" /><span>항공권 확인</span></li></ul><input aria-label=\"새 할 일\" placeholder=\"할 일 추가…\" /></section>",
+      "css": ".task-panel{padding:20px;border:1px solid var(--theme-line);border-radius:15px;background:var(--theme-surface);color:var(--theme-ink)}.task-panel h2{font-size:16px}.task-list{list-style:none;padding:0}.task-row{display:grid;grid-template-columns:30px minmax(0,1fr);padding:10px 0;border-bottom:1px solid var(--theme-line);font-size:13px}.task-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.task-panel input{accent-color:var(--theme-accent)}.home-dashboard .task-panel{padding:14px;border-radius:12px}"
+    },
+    {
+      "name": "Prompt workspace",
+      "kind": "workspace",
+      "refersTo": "prompt-workspace",
+      "description": "Operate: /prompts의 서버 템플릿 관리. 왼쪽 목록·오른쪽 작성/요청 미리보기, 추가·수정·복제·보관·꺼내기. 모바일은 본문 먼저·접힌 템플릿 설정·16px 입력·전용 44px 하단 미리보기/저장 줄을 사용하며 공통 기록 도크는 숨긴다. 메뉴를 열면 전용 저장 줄도 숨긴다. 미저장 초안은 같은 탭에서 새로고침 시 복구한다. 서버 저장·불변 수정본·브라우저 이관·JSON 교환이 있다. 실패·충돌에는 초안 유지·재시도를 제공하며 늦은 응답은 새 입력을 지우지 않는다. 최근 선택·미저장 초안은 기기에 남는다. 템플릿 미리보기 자체는 URL 수집·AI 실행을 하지 않으며 AI 체크 후 원본 저장은 별도 대기 작업을 등록한다.",
+      "html": "<main class=\"prompt-workspace\"><h1>프롬프트</h1><div class=\"prompt-board\"><aside>URL 리서치 · 자유 요청</aside><section><label>프롬프트 본문<textarea>{{content}}</textarea></label><button>템플릿 저장</button></section></div></main>",
+      "css": ".prompt-board{display:grid;grid-template-columns:230px minmax(0,1fr);border:1px solid var(--theme-line);border-radius:14px;background:var(--theme-surface);color:var(--theme-ink)}.prompt-board aside{background:var(--theme-raised);border-right:1px solid var(--theme-line)}"
+    },
+    {
+      "name": "Capture AI request preview",
+      "kind": "form",
+      "refersTo": "capture-ai",
+      "description": "입력함 AI 요청 체크 줄. 선택할 때만 템플릿·추가 요청·요청 미리보기·관리 버튼을 펼친다. 리서치·메모별 최근 템플릿을 기억한다. 메모·AI 설정·첨부 초안은 같은 탭의 새로고침에서 복구하며 첨부 진행/오류를 작게 표시한다. 모바일 홈의 인라인 입력 카드에 있으며 크게 쓰기를 눌렀을 때 전체 화면 작성 화면에도 유지된다. 원본 Capture·당시 입력/템플릿/요청문 사본·UUID 제출 기록·대기 작업을 함께 보관한다. 미리보기 자체는 실행하지 않고 저장하고 AI 요청 뒤 백그라운드로 처리한다. localStorage의 최초 선택·UUID와 순서별 파일 바이트 지문을 유지해 응답 유실/새로고침 뒤 같은 제출을 확인한다. 미연결은 연결 필요로 표시하며 기존 prepared·예시를 자동 실행하지 않는다. 선택한 템플릿을 최초 조회에서 확인하지 못하면 선택과 초안을 유지하고 보관을 막는다. 기존 오류 영역의 다시 불러오기·직접 요청으로 작성으로 재조회하거나 직접 요청을 명시적으로 선택하며, 템플릿 요청을 조용히 대체하지 않는다.",
+      "html": "<div class=\"capture-ai\"><label><input type=\"checkbox\" />AI 요청</label><span>미리보기</span><label>템플릿<select><option>직접 요청</option><option>URL 리서치</option></select></label><details><summary>요청 미리보기</summary><pre>작성한 요청문</pre></details></div>",
+      "css": ".capture-ai{margin-top:14px;padding-top:14px;border-top:1px solid var(--theme-line);color:var(--theme-muted)}.capture-ai input{accent-color:var(--theme-accent)}.capture-ai pre{background:var(--theme-raised);color:var(--theme-ink);white-space:pre-wrap;overflow-wrap:anywhere}"
+    },
+    {
+      "name": "Memo collection",
+      "kind": "list",
+      "refersTo": "memo-collection",
+      "description": "기존 목록 카드를 재사용하는 /memo 관리 화면. 제목·기록 동작 다음 줄에 안내를 두고, 보관한 메모·AI 요청 전체 개수 탭과 종류 필터·검색을 바로 보여준다. 홈은 최근 일반 메모 3개·모두 보기이며 인라인 입력·AI 현황·할 일 다음에 둔다. 모바일 필터는 검색 위에 놓고 검색 입력은 16px, 하단 기록 도크는 메뉴를 열 때 숨긴다. 28/25px 제목과 보조 글자는 이 컴포넌트의 값이며 전역 글자 역할을 바꾸지 않는다. NEW는 시간 줄 오른쪽 끝에 고정하고 화살표는 그 아래에 둔다. 썸네일 유무와 무관하게 위치·카드 높이를 유지하며 별도 예시 표시는 붙이지 않는다.",
+      "html": "<section class=\"ds-memo\"><header class=\"ds-memo-heading\"><h1>메모</h1><button class=\"ds-memo-create\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>기록하기</button><p>메모와 링크, 이미지와 파일을 한곳에서 찾아보세요.</p></header><div class=\"ds-memo-tabs\" role=\"tablist\" aria-label=\"보관 목록\"><button role=\"tab\" aria-selected=\"true\">보관한 메모 <span>4</span></button><button role=\"tab\" aria-selected=\"false\">AI 요청 <span>2</span></button></div><div class=\"ds-memo-toolbar\"><div class=\"ds-memo-filters\"><button class=\"ds-memo-filter ds-memo-filter-active\">전체</button><button class=\"ds-memo-filter\">메모</button><button class=\"ds-memo-filter\">링크</button><button class=\"ds-memo-filter\">이미지</button><button class=\"ds-memo-filter\">파일</button></div><label class=\"ds-memo-search\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input aria-label=\"보관함 검색\" placeholder=\"보관함 검색\" /></label></div><button class=\"ds-memo-card\"><span class=\"ds-memo-icon\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v6h6\"/></svg></span><span class=\"ds-memo-main\"><span class=\"ds-memo-meta\"><span class=\"ds-memo-type\">메모</span><time class=\"ds-memo-date\">오늘 오후 12:30</time></span><span class=\"ds-memo-preview\">교토 여행 준비: 숙소 예약 번호와 체크인 시간을 확인하기.</span></span><span class=\"ds-memo-new\">NEW</span><svg class=\"ds-memo-arrow\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M7 7h10v10M7 17 17 7\"/></svg></button></section>",
+      "css": ".ds-memo{width:100%;max-width:1120px;margin:0 auto;padding:30px clamp(18px,4vw,48px) 120px;color:var(--theme-ink,#202b29);font-family:'DM Sans','Noto Sans KR',sans-serif}.ds-memo button,.ds-memo input{font-family:inherit}.ds-memo button{cursor:pointer}.ds-memo-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:16px;row-gap:9px;margin-bottom:22px}.ds-memo-heading h1{grid-column:1;grid-row:1;margin:0;font-size:28px;line-height:1.3;letter-spacing:-.025em}.ds-memo-heading p{grid-column:1/-1;grid-row:2;margin:0;color:var(--theme-muted,#637568);font-size:13px;line-height:1.7}.ds-memo-create{grid-column:2;grid-row:1;display:inline-flex;align-items:center;gap:7px;min-height:39px;padding:0 13px;border:1px solid var(--theme-accent,#315843);border-radius:8px;background:var(--theme-accent,#315843);color:var(--theme-accent-ink,#f7fbf3);font-size:12px;font-weight:600}.ds-memo-create:hover{filter:brightness(.95)}.ds-memo-tabs{display:flex;gap:24px;min-height:45px;margin:0 0 20px;border-bottom:1px solid var(--theme-line,#e2e9e0)}.ds-memo-tabs button{display:inline-flex;align-items:center;gap:7px;min-height:44px;margin-bottom:-1px;padding:0 1px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--theme-muted,#637568);font-size:13px;font-weight:600}.ds-memo-tabs button[aria-selected='true']{border-bottom-color:var(--theme-accent,#315843);color:var(--theme-ink,#202b29)}.ds-memo-tabs button span{color:var(--theme-muted,#637568);font-size:11px;font-variant-numeric:tabular-nums}.ds-memo-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.ds-memo-filters{display:flex;align-items:center;gap:6px;overflow:auto;scrollbar-width:none}.ds-memo-filter{white-space:nowrap;border:1px solid transparent;border-radius:7px;padding:8px 12px;background:transparent;color:#8b988c;font-size:11px;font-weight:600}.ds-memo-filter:hover{color:#4c7050}.ds-memo-filter-active{background:#e7eee3;border-color:#dce8d7;color:#426b4a}.ds-memo-search{display:flex;align-items:center;gap:8px;min-width:163px;width:240px;height:35px;padding:0 10px;border:1px solid #e6e9e2;border-radius:8px;background:#fff;color:#9dad9d}.ds-memo-search input{min-width:0;width:100%;outline:0;border:0;background:transparent;font-size:11px;color:#2d3c31}.ds-memo-search input::placeholder{color:#a8b5a8}.ds-memo-search:focus-within{border-color:#94ac91;box-shadow:0 0 0 3px #a9c09e33}.ds-memo-card{display:grid;grid-template-columns:43px minmax(0,1fr) max-content;grid-template-rows:auto auto;align-items:center;gap:4px 15px;width:100%;min-height:72px;padding:12px 16px;border:1px solid #e8ebe4;border-radius:11px;background:#fff;color:inherit;text-align:left;box-shadow:0 2px 8px #35443806}.ds-memo-card:hover{border-color:#c5d6c5;box-shadow:0 5px 18px #35443812;transform:translateY(-1px)}.ds-memo-icon{grid-column:1;grid-row:1/-1;display:grid;place-items:center;flex:0 0 43px;width:43px;height:43px;border-radius:10px;background:#e7eee5;color:#6d8a68}.ds-memo-main{display:contents}.ds-memo-meta{grid-column:2;grid-row:1;min-height:17px;display:flex;align-items:center;gap:8px;min-width:0;font-size:10px;color:#8e9e92}.ds-memo-type{flex-shrink:0;white-space:nowrap;font-weight:700;color:#698573}.ds-memo-date{min-width:0;overflow:hidden;text-overflow:ellipsis;color:#a3aea4;white-space:nowrap}.ds-memo-new{grid-column:-2;grid-row:1;justify-self:end;padding:3px 6px;border-radius:5px;background:#e7efdf;color:#426747;font-size:9px;font-weight:800;letter-spacing:.5px;line-height:1.2}.ds-memo-preview{grid-column:2;grid-row:2;min-width:0;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:500;line-height:1.55}.ds-memo-arrow{grid-column:-2;grid-row:2/-1;justify-self:end;color:#a2b1a5;margin-left:3px}.ds-memo button:focus-visible,.ds-memo input:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}.ds-memo-search input:focus-visible{outline:0}:host-context([data-theme='dark']) .ds-memo-filter,:host-context([data-theme='dark']) .ds-memo-date,:host-context([data-theme='dark']) .ds-memo-arrow{color:var(--theme-muted,#bdc5bc)}:host-context([data-theme='dark']) .ds-memo-type,:host-context([data-theme='dark']) .ds-memo-filter:hover{color:var(--theme-accent,#b5cca5)}:host-context([data-theme='dark']) .ds-memo-filter-active,:host-context([data-theme='dark']) .ds-memo-new{background:var(--theme-soft,#343b35);border-color:#607961;color:#d2e1c8}:host-context([data-theme='dark']) .ds-memo-card,:host-context([data-theme='dark']) .ds-memo-search{border-color:var(--theme-line,#424a43);background:var(--theme-surface,#272b29);color:var(--theme-ink,#f2f1eb)}:host-context([data-theme='dark']) .ds-memo-search input{color:var(--theme-ink,#f2f1eb)}:host-context([data-theme='dark']) .ds-memo-search input::placeholder{color:var(--theme-muted,#bdc5bc)}:host-context([data-theme='dark']) .ds-memo-search:focus-within{border-color:#b5cda7;box-shadow:0 0 0 3px #b5cda733}:host-context([data-theme='dark']) .ds-memo-card:hover{border-color:#839b82;box-shadow:0 5px 18px #07090838}:host-context([data-theme='dark']) .ds-memo-icon{background:#354139;color:#d1e4c5}@media(max-width:760px){.ds-memo{padding:22px 18px 125px}.ds-memo-heading h1{font-size:25px}.ds-memo-heading p{font-size:12px}.ds-memo-create{min-height:44px;padding:0 11px}.ds-memo-toolbar{flex-direction:column;align-items:stretch;gap:12px}.ds-memo-filter{min-height:40px;padding:8px 11px}.ds-memo-search{width:100%;height:44px}.ds-memo-search input{font-size:16px}.ds-memo-card{grid-template-columns:40px minmax(0,1fr) max-content;column-gap:11px;padding:12px}.ds-memo-icon{width:40px;height:40px;flex-basis:38px}.ds-memo-arrow{display:none}}"
+    },
+    {
+      "name": "Prepared AI request detail",
+      "kind": "custom",
+      "refersTo": "prepared-request-detail",
+      "description": "기존 HTML/CSS는 실행 연결 전 요청문 보관 형태의 정적 예시로 유지한다. 현재 상세는 원문 아래 AI 결과 영역에 준비/대기/처리/결과/연결 필요/실패와 이전 내용 기준을 글자로 표시한다. 기존 테마 경계·28px 위 간격·22px 위 여백, 16px 제목·12px 상태/시각·13px 설명, 일반 앱 글꼴의 14px·1.8 행간 Markdown 텍스트와 13px 보관 요청문을 쓴다. 결과·요청문 복사, 현재 내용 요청·이전 실패 요청 재시도와 접힌 이전 이력을 제공한다. 조작/summary는 최소44px, 버튼은8px 모서리·8px 11px 여백·13px 글자, 키보드 초점은 테마 강조색2px·간격3px이며 좁은 화면에서 줄바꿈한다. test 응답·첨부 제외·본문 확인 출처/미확인 링크를 구분하고 결과는 원문/시간을 바꾸지 않는다. 상세와 목록 상태는 지연 로딩하며 보이는 진행 작업만2초·목록최대20개 요약으로 조회하고 닫힘/hidden/terminal에 멈춘다. 전역 토큰과 기존 패널·NEW·카드 높이는 유지한다. 현재 규칙은 DESIGN.md의 AI 결과와 보관한 요청문 절을 따른다.",
+      "html": "<section class=\"ds-request\" aria-label=\"보관한 AI 요청\"><div class=\"ds-request-heading\"><h2>보관한 요청문</h2><span>실행 전</span></div><p class=\"ds-request-template\">여행 계획 초안 · 보관 시점의 입력으로 만든 요청문이에요. 원본을 수정해도 이 요청문은 유지돼요.</p><pre class=\"ds-request-prompt\">교토에서 2박 3일을 보낼 예정입니다.\n아침 산책과 카페 시간을 남기고, 하루의 중요한 일정은 하나씩 제안해주세요.</pre><button><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/></svg>요청문 복사</button><p class=\"ds-request-status\" role=\"status\">요청문을 복사했어요</p></section>",
+      "css": ".ds-request{margin-top:30px;padding-top:22px;border-top:1px solid var(--theme-line,#e2e9e0);color:var(--theme-ink,#202b29);font-family:'DM Sans','Noto Sans KR',sans-serif}.ds-request-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.ds-request-heading h2{margin:0;font-size:15px}.ds-request-heading span{color:var(--theme-muted,#637568);font-size:11px}.ds-request-template{color:var(--theme-muted,#637568);font-size:12px;line-height:1.7}.ds-request-prompt{max-height:45vh;overflow:auto;padding:14px;border-radius:8px;background:var(--theme-raised,#f8f7f3);color:var(--theme-ink,#202b29);white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:13px;line-height:1.8}.ds-request button{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 12px;border:1px solid var(--theme-line,#e2e9e0);border-radius:8px;background:var(--theme-surface,#fff);color:var(--theme-ink,#202b29);font:inherit;font-size:12px;cursor:pointer}.ds-request button:hover{cursor:pointer}.ds-request button:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}.ds-request-status{margin:8px 0;color:var(--theme-muted,#637568);font-size:12px}@media(max-width:760px){.ds-request button{min-height:44px}}"
+    },
+    {
+      "name": "Capture page import picker",
+      "kind": "custom",
+      "refersTo": "capture-page-import",
+      "description": "메모 상세를 같은 min(480px, 100vw)·100dvh 패널 안의 목적지 선택 화면으로 전환한다. 기존/새 페이지, 제목 검색·전체 상위 경로, 원문·URL 복사와 첨부별 재사용 선택, 46px 확인 버튼을 사용한다. 응답 유실·같은 탭 새로고침에는 제출 스냅샷을 유지한 확인 화면을 복구하고 키보드 집중·Tab 순환을 패널 안에 둔다. 성공한 문서의 상위 사이드바 항목은 자동으로 펼친다. 라이트 본체·양쪽 모드의 아래 확인 영역은 --theme-canvas, 다크 본체는 기존 상세의 --theme-surface다.",
+      "html": "<section class=\"ds-import\" aria-label=\"내 페이지에 정리\"><header class=\"ds-import-heading\"><button aria-label=\"메모로 돌아가기\"><svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m12 19-7-7 7-7M5 12h14\"/></svg></button><h2>내 페이지에 정리</h2></header><p class=\"ds-import-help\">메모는 보관하고, 필요한 내용을 페이지에 담아요.</p><div class=\"ds-import-modes\" aria-label=\"담을 위치\"><button aria-pressed=\"true\">기존 페이지</button><button aria-pressed=\"false\">새 페이지</button></div><section><h3>담을 페이지</h3><p class=\"ds-import-selected\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m20 6-11 11-5-5\"/></svg><span>주말 여행 정리 / 예약과 교통</span></p><label class=\"ds-import-search\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input aria-label=\"정리할 페이지 검색\" placeholder=\"페이지 제목으로 찾기\"/></label><div class=\"ds-import-results\"><button class=\"ds-import-result is-selected\" aria-pressed=\"true\" title=\"주말 여행 정리 / 예약과 교통\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h8\"/></svg><span><strong>예약과 교통</strong><small>주말 여행 정리</small></span><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m20 6-11 11-5-5\"/></svg></button></div></section><section class=\"ds-import-options\"><h3>담을 내용</h3><p><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"m20 6-11 11-5-5\"/></svg>원본 메모 참조를 함께 남겨요</p><label><input type=\"checkbox\" checked/><span>내용 복사<small>페이지에서 고쳐도 메모는 그대로예요</small></span></label><label><input type=\"checkbox\" checked/><span title=\"준비물.txt\">준비물.txt</span></label></section><footer class=\"ds-import-footer\"><button class=\"ds-import-submit\">페이지에 담기<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M7 7h10v10M7 17 17 7\"/></svg></button></footer></section>",
+      "css": ".ds-import{width:min(480px,100vw);height:100dvh;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:20px;background:var(--theme-canvas);color:var(--theme-ink);font-family:'DM Sans','Noto Sans KR',sans-serif}.ds-import button{border:0;cursor:pointer;font:inherit}.ds-import button:focus-visible,.ds-import input:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}.ds-import button:disabled{cursor:default;opacity:.5}.ds-import-heading{display:flex;align-items:center;gap:10px}.ds-import-heading h2{margin:0;font-size:20px;letter-spacing:-.02em}.ds-import-heading button{display:grid;place-items:center;width:38px;height:40px;flex-shrink:0;border-radius:8px;background:transparent;color:var(--theme-muted)}.ds-import-heading button:hover{background:var(--theme-soft)}.ds-import-help{margin:-10px 0 0;font-size:13px;line-height:1.7;color:var(--theme-muted)}.ds-import-modes{display:flex;gap:22px;border-bottom:1px solid var(--theme-line)}.ds-import-modes button{min-height:42px;padding:0 2px;border-bottom:2px solid transparent;background:transparent;color:var(--theme-muted);font-size:14px}.ds-import-modes button[aria-pressed='true']{color:var(--theme-accent);border-bottom-color:var(--theme-accent);font-weight:600}.ds-import h3{margin:0 0 10px;font-size:14px;font-weight:600}.ds-import-selected{display:flex;align-items:flex-start;gap:8px;margin:0 0 10px;color:var(--theme-accent);font-size:12px;line-height:1.6;overflow-wrap:anywhere}.ds-import-selected svg{flex-shrink:0;margin-top:2px}.ds-import-search{display:flex;align-items:center;gap:9px;min-height:44px;padding:0 12px;border:1px solid var(--theme-line);border-radius:8px;background:var(--theme-surface);color:var(--theme-muted)}.ds-import-search input{width:100%;min-width:0;padding:10px 0;border:0;outline:0;background:transparent;color:var(--theme-ink);font:inherit;font-size:16px}.ds-import-search input:focus-visible{outline:0}.ds-import-search input::placeholder{color:var(--theme-muted);opacity:1}.ds-import-search:focus-within{outline:2px solid var(--theme-accent);outline-offset:2px}.ds-import-results{max-height:250px;overflow-y:auto;margin-top:10px;overscroll-behavior:contain;scrollbar-color:var(--theme-subtle) transparent}.ds-import-result{display:flex;align-items:center;gap:10px;width:100%;min-height:57px;padding:9px 10px;border-radius:8px;background:transparent;text-align:left;color:var(--theme-ink)}.ds-import-result:hover,.ds-import-result.is-selected{background:var(--theme-soft)}.ds-import-result>svg{flex-shrink:0}.ds-import-result>span{flex:1;min-width:0}.ds-import-result strong,.ds-import-result small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-import-result strong{font-size:14px;font-weight:500}.ds-import-result small{margin-top:3px;font-size:12px;color:var(--theme-muted)}.ds-import-options{border-top:1px solid var(--theme-line);padding-top:18px}.ds-import-options p{display:flex;align-items:center;gap:8px;margin:0 0 8px;color:var(--theme-muted);font-size:12px}.ds-import-options label{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px}.ds-import-options input{width:18px;height:18px;flex-shrink:0;accent-color:var(--theme-accent)}.ds-import-options label span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-import-options small{display:block;margin-top:4px;color:var(--theme-muted);font-size:12px}.ds-import-footer{position:sticky;bottom:-24px;margin:auto -24px -24px;padding:16px 24px max(20px,env(safe-area-inset-bottom));background:var(--theme-canvas);border-top:1px solid var(--theme-line)}.ds-import .ds-import-submit{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:46px;border-radius:8px;background:var(--theme-accent);color:var(--theme-accent-ink);font-size:14px;font-weight:600}.ds-import-submit:hover{filter:brightness(1.06)}:host-context([data-theme='dark']) .ds-import{background:var(--theme-surface)}@media(max-width:760px){.ds-import{gap:18px}.ds-import-heading button{width:42px;height:44px}.ds-import-results{max-height:min(250px,28dvh)}}"
+    },
+    {
+      "name": "Original capture reference card",
+      "kind": "card",
+      "refersTo": "capture-reference",
+      "description": "페이지 안의 개인용 captureRef. 전체 폭·최소 68px, 12px 14px 여백·8px 모서리이며 원본 유형·한국 생성 시각·첨부 수는 12px, 한 줄 원문 미리보기는 14px이다. /captures/:id 원본 상세를 연다. 조회 중·누락·연결 실패는 해당 블록에 표시하며 연결 실패에는 다시 불러오기를 둔다.",
+      "html": "<a class=\"ds-capture-ref\" href=\"/captures/00000000-0000-4000-8000-000000000000\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h8\"/></svg><span class=\"ds-capture-ref-copy\"><span class=\"ds-capture-ref-meta\">원본 이미지 · <time>오늘 오전 11:16</time> · 첨부 2</span><span class=\"ds-capture-ref-preview\">여행 메모 — 예약 번호 확인, 쉬는 시간을 남겨두기</span></span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M7 7h10v10M7 17 17 7\"/></svg></a>",
+      "css": ".ds-capture-ref{display:flex;align-items:center;gap:12px;width:100%;min-height:68px;padding:12px 14px;border:1px solid var(--theme-line);border-radius:8px;background:var(--theme-raised);color:var(--theme-ink);text-decoration:none;font-family:'DM Sans','Noto Sans KR',sans-serif}.ds-capture-ref:hover{background:var(--theme-soft)}.ds-capture-ref:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}.ds-capture-ref>svg{flex-shrink:0;color:var(--theme-accent)}.ds-capture-ref-copy{display:grid;gap:5px;flex:1;min-width:0}.ds-capture-ref-meta{font-size:12px;line-height:1.6;color:var(--theme-muted)}.ds-capture-ref-preview{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:14px;line-height:1.6}"
+    },
+    {
+      "name": "Reused page asset row",
+      "kind": "custom",
+      "refersTo": "page-asset-row",
+      "description": "Asset ID로 기존 첨부를 재사용한다. 파일·이미지의 공통 파일명/크기/다운로드 행은 전체 폭·최소 46px, 10px 12px 여백·8px 모서리·10px 내부 간격이다. 파일명 14px은 한 줄 말줄임표, 크기 12px은 줄바꿈 없이 표시한다. 이미지 표시가 가능한 원본은 최대 폭 100%·높이 620px·object-fit:contain·8px 모서리이고 파일 행과 8px 간격이다. 이미지 열기·다운로드는 /api/assets/:id를 사용한다. Markdown 보기·복사 때만 참조 ID·파일 바이트 제외 안내를 표시한다.",
+      "html": "<figure class=\"ds-asset ds-asset-file\"><figcaption><a href=\"/api/assets/00000000-0000-4000-8000-000000000000\" target=\"_blank\" rel=\"noopener noreferrer\" download=\"준비물.txt\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6\"/></svg><span title=\"준비물.txt\">준비물.txt</span><small>1 KB</small><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3\"/></svg></a></figcaption></figure>",
+      "css": ".ds-asset{margin:8px 0;width:100%;font-family:'DM Sans','Noto Sans KR',sans-serif}.ds-asset-image img{display:block;max-width:100%;max-height:620px;object-fit:contain;border-radius:8px}.ds-asset figcaption a{display:flex;align-items:center;gap:10px;min-height:46px;padding:10px 12px;border:1px solid var(--theme-line);border-radius:8px;background:var(--theme-raised);color:var(--theme-ink);text-decoration:none}.ds-asset figcaption a:hover{background:var(--theme-soft)}.ds-asset a:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}.ds-asset figcaption span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.ds-asset figcaption svg{flex-shrink:0;color:var(--theme-accent)}.ds-asset figcaption small{font-size:12px;color:var(--theme-muted);white-space:nowrap}.ds-asset-image figcaption{margin-top:8px}"
+    },
+    {
+      "name": "Record timestamps",
+      "kind": "custom",
+      "refersTo": "record-timestamps",
+      "description": "메모 상세 유형 아래·페이지 제목 아래에 생성일과 최종 수정일을 항상 표시한다. 한국 시간의 기존 형식을 따르며 저장 성공 시에만 수정일을 갱신한다. 두 일시는 화면 폭에 따라 일시 단위로 줄바꿈한다.",
+      "html": "<dl class=\"record-timestamps\" aria-label=\"기록 일시\"><div><dt>생성일</dt><dd><time datetime=\"2026-09-26T03:30:00Z\">2026-09-26 12:30</time></dd></div><div><dt>최종 수정일</dt><dd><time datetime=\"2026-09-28T05:10:00Z\">2026-09-28 14:10</time></dd></div></dl>",
+      "css": ".record-timestamps {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 6px 18px;\n  margin: 12px 0 0;\n  color: var(--theme-muted);\n  font-size: 12px;\n  line-height: 1.6;\n  font-variant-numeric: tabular-nums;\n}\n.record-timestamps > div {\n  display: flex;\n  gap: 6px;\n  white-space: nowrap;\n}\n.record-timestamps dt {\n  font-weight: 500;\n}\n.record-timestamps dd {\n  margin: 0;\n}"
+    },
+    {
+      "name": "Trash workspace",
+      "kind": "custom",
+      "refersTo": "trash-workspace",
+      "description": "기존 종이·숲색과 차콜·세이지를 따르는 /trash의 평평한 복원 목록. 전체·메모·페이지 탭 개수는 이동 묶음 수이고 하위 문서 수는 행·페이지 확인에 따로 표시한다. 메모는 원문·URL·파일명 한 줄을 쓰며 제목을 추론하지 않는다. 최대 1120px, 28/25px 제목, 14px 원문, 11px 유형·한국 이동 시각, 12~13px 보조 글자는 이 컴포넌트 값이며 전역 토큰을 바꾸지 않는다. 1px 아래 경계·18px 행 여백·14/10px 간격, 38/32px 아이콘 면·8px 모서리, 최소 44px 복원 조작을 사용한다. 복원 후 현재 탭의 목록·개수를 다시 조회하고 열기 링크에 집중한다. 페이지 정보 안의 확인은 활성 하위 문서 수, 12px 안내, 최소 44px·6px 모서리의 취소/이동을 제공한다. 저장 중·오류·충돌·복구 때 이동을 막으며 확인 중 편집을 잠근다. 이동 성공 안내는 13px 상태·11px 원문·최소 44px 되돌리기와 닫기, 8px 모서리·12px 14px 여백이다. 모바일에서는 기록 도크 위의 calc(105px + env(safe-area-inset-bottom))에 둔다. 실패는 해당 행·동작·안내 안의 기존 오류색으로 표시하고 응답 미확인은 같은 요청 다시 확인을 제공한다. 원문·첨부·생성일·최종 수정일을 보존하며 영구 삭제·자동 비우기는 없다.",
+      "html": "<main class=\"ds-trash\"><header><h1>휴지통</h1><p>옮겨둔 메모와 페이지를 다시 꺼내세요.</p></header><div class=\"ds-trash-tabs\" role=\"tablist\" aria-label=\"휴지통 목록\"><button role=\"tab\" aria-selected=\"true\" aria-controls=\"ds-trash-items\">전체 <span>2</span></button><button role=\"tab\" aria-selected=\"false\" aria-controls=\"ds-trash-items\" tabindex=\"-1\">메모 <span>1</span></button><button role=\"tab\" aria-selected=\"false\" aria-controls=\"ds-trash-items\" tabindex=\"-1\">페이지 <span>1</span></button></div><p class=\"ds-trash-help\">페이지는 묶인 하위 문서와 함께 복원돼요. 상위 페이지가 휴지통에 있으면 최상위에 복원돼요.</p><section id=\"ds-trash-items\" role=\"tabpanel\" aria-label=\"전체\"><article class=\"ds-trash-row\"><span class=\"ds-trash-icon\" aria-hidden=\"true\"><svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/></svg></span><div class=\"ds-trash-main\"><div class=\"ds-trash-meta\"><span>페이지</span><span>이동 <time datetime=\"2026-09-29T07:19:00Z\">오늘 오후 4:19</time></span></div><p class=\"ds-trash-label\" title=\"여행 기록 — 이동과 예약을 천천히 정리하는 페이지\">여행 기록 — 이동과 예약을 천천히 정리하는 페이지</p><p class=\"ds-trash-preview\" title=\"하위 페이지 1개 포함\">하위 페이지 1개 포함</p></div><button class=\"ds-trash-restore\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/></svg>복원</button></article><article class=\"ds-trash-row\"><span class=\"ds-trash-icon\" aria-hidden=\"true\"><svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/></svg></span><div class=\"ds-trash-main\"><div class=\"ds-trash-meta\"><span>메모</span><span>이동 <time datetime=\"2026-09-29T07:19:00Z\">오늘 오후 4:19</time></span></div><p class=\"ds-trash-label\" title=\"여행에서 챙길 것들을 적어둔 메모. 예약 번호를 확인하고 쉬는 시간을 남겨두기\">여행에서 챙길 것들을 적어둔 메모. 예약 번호를 확인하고 쉬는 시간을 남겨두기</p></div><button class=\"ds-trash-restore\"><svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/></svg>복원</button></article></section></main>",
+      "css": ".ds-trash{width:100%;max-width:1120px;margin:0 auto;padding:30px clamp(18px,4vw,48px) 125px;color:var(--theme-ink);font-family:'DM Sans','Noto Sans KR',sans-serif}.ds-trash h1{margin:0 0 9px;font-size:28px;line-height:1.3;letter-spacing:-0.025em}.ds-trash header p{margin:0 0 24px;color:var(--theme-muted);font-size:13px;line-height:1.7}.ds-trash-tabs{display:flex;gap:24px;border-bottom:1px solid var(--theme-line)}.ds-trash-tabs button{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 0 10px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--theme-muted);font-family:inherit;font-size:13px;cursor:pointer}.ds-trash-tabs button[aria-selected='true']{border-bottom-color:var(--theme-accent);color:var(--theme-accent);font-weight:600}.ds-trash-tabs button span{font-size:11px;font-variant-numeric:tabular-nums}.ds-trash-help{margin:16px 0;color:var(--theme-muted);font-size:12px;line-height:1.7}.ds-trash-row{display:flex;align-items:center;flex-wrap:wrap;gap:14px;padding:18px 0;border-bottom:1px solid var(--theme-line)}.ds-trash-icon{display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:8px;background:var(--theme-soft);color:var(--theme-accent)}.ds-trash-main{flex:1;min-width:0}.ds-trash-meta{display:flex;flex-wrap:wrap;gap:4px 10px;color:var(--theme-muted);font-size:11px;line-height:1.6}.ds-trash-meta>span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-trash-label{margin:4px 0 0;color:var(--theme-ink);font-size:14px;line-height:1.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-trash-preview{margin:4px 0 0;color:var(--theme-muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-trash-restore{display:flex;align-items:center;justify-content:center;gap:6px;flex:none;min-height:44px;padding:0 13px;border:1px solid var(--theme-line);border-radius:8px;background:var(--theme-surface);color:var(--theme-accent);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}.ds-trash-restore:hover{background:var(--theme-soft)}.ds-trash button:focus-visible{outline:3px solid #8eaa95;outline-offset:3px}.ds-trash button:disabled{cursor:default;opacity:.55}@media(max-width:760px){.ds-trash{padding:22px 18px 125px}.ds-trash h1{font-size:25px}.ds-trash-row{gap:10px}.ds-trash-icon{width:32px;height:32px}.ds-trash-restore{padding:0 10px}}"
+    },
+    {
+      "name": "Unified search palette",
+      "kind": "custom",
+      "refersTo": "unified-search-palette",
+      "description": "현재 전역 검색의 Operate 팔레트. 모든 화면의 사이드바 검색·⌘K·Ctrl+K에서 지연 로딩하고 메모·보관 AI 요청·Page 제목/본문·파일명을 찾는다. 패널 최대680px·10px 모서리, 44px 입력/닫기/탭/재시도/더 보기·6px 조작 모서리, 좌우12px 모바일 여백과 결과 스크롤을 사용한다. PC 최대min(740px,80dvh)·모바일100dvh-40px, 결과 최소68px, 원문14px·미리보기12px·조작13px(모바일 탭12px)·출처11px는 이 컴포넌트의 값이다. 기존 --theme-*와70%본문/표면 혼합 보조색·2px 강조색 포커스, 원문·출처·미리보기 한 줄 말줄임표를 따른다. 최근·짧은 입력·조합·로딩·빈 결과·실패/재시도·더 보기·변경 리셋, 키보드 선택·초점 복귀와 뒤의 초안을 유지한다. Page는 저장된 대표 이모지, 나머지는 Lucide 선 아이콘이며 AI 요청은 실행 전으로 표시한다. 편집기·Mermaid 의존성을 추가하지 않는다. 네이티브 IME 전체 동작은 미검증이며 조합Escape닫힘 M1은 CURRENT_IMPLEMENTATION.md에 기록한다. 이전 Page search palette 항목은 역사적 제목 전용 예시다. 전역 토큰·다른 컴포넌트는 유지한다.",
+      "html": "<section class=\"ds-unified-frame\"><div class=\"ds-unified-panel\" role=\"dialog\" aria-modal=\"true\" aria-label=\"통합 검색\"><div class=\"ds-unified-input\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input role=\"combobox\" aria-label=\"통합 검색어\" aria-expanded=\"true\" aria-autocomplete=\"list\" aria-controls=\"ds-unified-results\" aria-activedescendant=\"ds-unified-memo\" value=\"교토\" placeholder=\"메모, 페이지, 파일 찾기\" maxlength=\"160\"/><button class=\"ds-unified-close\" type=\"button\" aria-label=\"검색 닫기\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"m18 6-12 12M6 6l12 12\"/></svg></button></div><div class=\"ds-unified-filters\" role=\"tablist\" aria-label=\"검색 범위\"><button type=\"button\" role=\"tab\" aria-selected=\"true\">전체</button><button type=\"button\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">메모</button><button type=\"button\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">페이지</button><button type=\"button\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">파일</button><button type=\"button\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">AI 요청</button></div><div class=\"ds-unified-scroll\"><div class=\"ds-unified-results\" id=\"ds-unified-results\" role=\"listbox\" aria-label=\"검색 결과\"><button id=\"ds-unified-memo\" type=\"button\" role=\"option\" aria-selected=\"true\" tabindex=\"-1\" class=\"ds-unified-row\"><span class=\"ds-unified-icon\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8\"/></svg></span><span class=\"ds-unified-copy\"><span class=\"ds-unified-meta\"><strong>메모</strong></span><span class=\"ds-unified-label\">교토에 도착하면 예약 번호부터 확인하고 쉬는 시간을 남겨두기</span></span><svg class=\"ds-unified-open\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 7h10v10M7 17 17 7\"/></svg></button><button type=\"button\" role=\"option\" aria-selected=\"false\" tabindex=\"-1\" class=\"ds-unified-row\"><span class=\"ds-unified-icon\" aria-hidden=\"true\">🧭</span><span class=\"ds-unified-copy\"><span class=\"ds-unified-meta\"><strong>페이지</strong><span class=\"ds-unified-context\">여행 기록</span></span><span class=\"ds-unified-label\">교토의 3일</span><span class=\"ds-unified-snippet\">교토역에서 숙소까지 이동하고 다음 날의 산책 경로를 정리하기</span></span><svg class=\"ds-unified-open\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M7 7h10v10M7 17 17 7\"/></svg></button></div><div class=\"ds-unified-status\" role=\"status\" aria-live=\"polite\"></div><button class=\"ds-unified-more\" type=\"button\">더 보기</button></div><p class=\"ds-unified-foot\">메모 · 페이지 본문 · 파일명<span>↑↓ 선택 · Enter 열기 · Esc 닫기</span></p></div></section>",
+      "css": ".ds-unified-frame{display:flex;justify-content:center;align-items:flex-start;padding:16px 12px 24px;background:rgb(20 28 24 / 40%);font-family:'DM Sans','Noto Sans KR',sans-serif}.ds-unified-panel{display:flex;flex-direction:column;width:min(680px,100%);max-height:min(740px,80dvh);overflow:hidden;border:0;border-radius:10px;background:var(--theme-surface);color:var(--theme-ink);box-shadow:0 16px 48px rgb(12 22 16 / 24%);--ds-unified-muted:color-mix(in srgb,var(--theme-ink) 70%,var(--theme-surface))}.ds-unified-input{display:flex;align-items:center;gap:9px;min-height:64px;padding:8px 12px 8px 20px;border-bottom:1px solid var(--theme-line);color:var(--ds-unified-muted)}.ds-unified-input input{flex:1;min-width:0;height:44px;padding:0;border:0;background:transparent;color:var(--theme-ink);caret-color:var(--theme-accent);font-family:inherit;font-size:16px}.ds-unified-input input::placeholder{color:var(--ds-unified-muted);opacity:1}.ds-unified-close{display:grid;place-items:center;flex:none;width:44px;height:44px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--ds-unified-muted)}.ds-unified-filters{display:flex;flex:none;gap:4px;padding:4px 12px;border-bottom:1px solid var(--theme-line)}.ds-unified-filters button{min-height:44px;padding:0 12px;border:0;border-radius:6px;background:transparent;color:var(--ds-unified-muted);font-family:inherit;font-size:13px;white-space:nowrap}.ds-unified-filters button[aria-selected='true']{background:var(--theme-soft);color:var(--theme-ink);font-weight:600}.ds-unified-scroll{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:var(--theme-line) transparent}.ds-unified-results{padding:6px}.ds-unified-row{display:flex;align-items:center;min-height:68px;width:100%;gap:12px;padding:10px 14px;border:0;border-radius:6px;background:transparent;color:var(--theme-ink);font-family:inherit;text-align:left}.ds-unified-row[aria-selected='true']{background:var(--theme-soft)}.ds-unified-icon{display:flex;align-items:center;justify-content:center;flex:none;width:24px;color:var(--ds-unified-muted)}.ds-unified-copy{display:flex;flex:1;flex-direction:column;min-width:0;gap:3px}.ds-unified-meta{display:flex;align-items:center;min-width:0;gap:10px;color:var(--ds-unified-muted);font-size:11px;line-height:1.45}.ds-unified-meta strong{flex:none;font-weight:600}.ds-unified-label,.ds-unified-context,.ds-unified-snippet{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.ds-unified-label{font-size:14px;line-height:1.6}.ds-unified-snippet{color:var(--ds-unified-muted);font-size:12px;line-height:1.5}.ds-unified-open{flex:none;color:var(--ds-unified-muted)}.ds-unified-status p{margin:0;padding:24px 16px;color:var(--ds-unified-muted);font-size:13px;text-align:center}.ds-unified-error{padding:16px;text-align:center;color:var(--theme-ink)}.ds-unified-error p{padding:4px 0;color:var(--theme-ink)}.ds-unified-error button,.ds-unified-more{min-height:44px;border:0;border-radius:6px;background:transparent;color:var(--theme-ink);font-family:inherit;font-size:13px}.ds-unified-more{display:block;width:calc(100% - 12px);margin:0 6px 6px}.ds-unified-panel button{cursor:pointer}.ds-unified-panel button:hover{background:var(--theme-soft)}.ds-unified-panel button:active{background:var(--theme-soft)}.ds-unified-panel button:disabled{cursor:wait;opacity:.65}.ds-unified-panel :focus-visible{outline:2px solid var(--theme-accent);outline-offset:-2px}.ds-unified-panel ::selection{background:var(--theme-soft);color:var(--theme-ink)}.ds-unified-foot{display:flex;justify-content:space-between;gap:12px;margin:0;padding:10px 16px;border-top:1px solid var(--theme-line);color:var(--ds-unified-muted);font-size:11px}@media(max-width:760px){.ds-unified-panel{max-height:calc(100dvh - 40px)}.ds-unified-input{padding-left:16px}.ds-unified-filters{gap:0;padding:4px 8px}.ds-unified-filters button{flex:1;min-width:0;padding:0 8px;font-size:12px}.ds-unified-row{padding:10px;gap:10px}.ds-unified-foot>span{display:none}}"
+    },
+    {
+      "name": "Page tools menu",
+      "kind": "menu",
+      "refersTo": "page-info",
+      "description": "공유·댓글·AI·더보기 한 줄. 더보기에는 보기 설정·목차·되돌리기·Mermaid·Markdown·출처·휴지통을 둔다. 넓게 보기1220px·작은 글씨14px은 브라우저 표시 설정에만 저장한다. 바깥 클릭·Escape로 닫는다. PC34px·모바일44px 주요 조작. 페이지 복제·파일 첨부·템플릿·선택 블록 이동·수정 이력도 같은 더보기에 이름 있는 동작으로 둔다.",
+      "html": "<details class=\"page-info\"><summary aria-label=\"페이지 정보\">⋯</summary><div class=\"page-info-panel\"><label>넓게 보기<input type=\"checkbox\"></label><button>목차 열기</button><button>Markdown 복사</button></div></details>",
+      "css": ".page-info{position:relative}.page-info-panel{position:absolute;right:0;top:calc(100% + 6px);width:min(292px,calc(100vw - 36px));padding:8px;border:1px solid var(--theme-line);border-radius:8px;background:var(--theme-surface);color:var(--theme-ink)}"
+    },
+    {
+      "name": "Page inspector",
+      "kind": "panel",
+      "refersTo": "page-inspector",
+      "description": "현재 편집기에서 실시간 목차를 읽거나 기존 페이지 AI 요청·결과를 표시한다. AI·목차·공유·댓글은 배타적으로 연다. 1440px 이상 오른쪽340px·그 미만65dvh 하단 패널. 패널 내부 스크롤·닫기·Escape·포커스 복귀와 모바일 도크 숨김. 템플릿·선택 블록 이동·수정 이력도 같은 보조 패널에 열고 수정본은 읽기 전용으로 확인한 뒤 새 버전으로 복원한다.",
+      "html": "<aside class=\"page-inspector\" aria-label=\"목차\"><header><strong>목차</strong><button aria-label=\"목차 닫기\">×</button></header><nav aria-label=\"페이지 목차\"><button>여행의 기준</button></nav></aside>",
+      "css": ".page-inspector{position:fixed;top:24px;right:16px;bottom:24px;width:340px;border:1px solid var(--theme-line);border-radius:12px;background:var(--theme-surface);color:var(--theme-ink)}@media(max-width:1439px){.page-inspector{top:auto;right:12px;bottom:12px;width:min(460px,calc(100vw - 24px));max-height:65dvh}}"
+    },
+    {
+      "name": "Management workspace rhythm",
+      "kind": "workspace",
+      "refersTo": "workspace-rhythm",
+      "description": "메모·할 일·AI·프롬프트·휴지통에 최대1120px·PC28px 위 여백·clamp(20px,3vw,40px) 좌우·27px 제목을 공유한다. 모바일20px 16px 여백·25px 제목. 전역 서체·색·타이포그래피 ramp를 바꾸지 않는 지역 값이다.",
+      "html": "<main class=\"workspace-rhythm\"><header><h1>메모</h1><p>메모와 링크, 이미지와 파일을 한곳에서 찾아보세요.</p></header></main>",
+      "css": ".workspace-rhythm{max-width:1120px;margin-inline:auto;padding:28px clamp(20px,3vw,40px) 110px;color:var(--theme-ink)}.workspace-rhythm h1{font-size:27px;line-height:1.3;letter-spacing:-.03em}@media(max-width:760px){.workspace-rhythm{padding:20px 16px 110px}.workspace-rhythm h1{font-size:25px}}"
+    },
+    {
+      "name": "Connected itinerary",
+      "kind": "custom",
+      "refersTo": "itinerary-block",
+      "description": "한국시간 일정·활동·소요시간·방문 번호와 정적 이미지. 날짜별 외부 Google Maps 경로 링크는 최대 5곳으로 나누며 공개는 SDK/타일을 로드하지 않는다. 개인 실지도는 명시적으로 펼칠 때만 로드한다.",
+      "html": "<section class=\"ds-itinerary\"><div class=\"ds-itinerary-heading\"><strong>서울, 천천히 걷는 토요일</strong><small>한국시간</small></div><p class=\"ds-itinerary-date\">2026-10-03</p><button class=\"ds-itinerary-stop\" type=\"button\" aria-pressed=\"true\"><time>09:30</time><span class=\"ds-itinerary-number\">1</span><span><strong>경복궁역에서 만나기</strong><small>경복궁역 3번 출구</small></span></button><button class=\"ds-itinerary-map\" type=\"button\" aria-expanded=\"false\">장소 지도 보기</button></section>",
+      "css": ".ds-itinerary{border:1px solid var(--theme-line,#e6e8e1);border-radius:12px;padding:18px;color:var(--theme-ink,#202b29);font-family:\"DM Sans\",\"Noto Sans KR\",sans-serif}.ds-itinerary-heading{display:flex;align-items:center;gap:9px}.ds-itinerary-heading strong{font-size:16px;flex:1;overflow-wrap:anywhere}.ds-itinerary-heading small{font-size:11px;color:var(--theme-muted,#637568)}.ds-itinerary-date{font-size:12px;color:var(--theme-muted,#637568);font-weight:600;margin:17px 0 8px}.ds-itinerary-stop{display:grid;grid-template-columns:58px 26px minmax(0,1fr);gap:10px;width:100%;text-align:left;padding:10px 7px;border:0;border-radius:8px;background:var(--theme-soft,#edf2e9);color:inherit;font:inherit}.ds-itinerary-stop time{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}.ds-itinerary-number{display:grid;place-items:center;width:22px;height:22px;border:1px solid var(--theme-line,#e6e8e1);border-radius:50%;background:var(--theme-surface,#fff);color:var(--theme-accent,#3d6349);font-size:11px}.ds-itinerary-stop strong{display:block;font-size:14px}.ds-itinerary-stop small{display:block;font-size:13px;color:var(--theme-muted,#637568)}.ds-itinerary-map{margin-top:12px;border:1px solid var(--theme-line,#e6e8e1);border-radius:6px;padding:6px 9px;background:var(--theme-surface,#fff);color:var(--theme-muted,#637568);font:inherit;font-size:12px}.ds-itinerary button:hover{background:var(--theme-raised,#edf2e9)}.ds-itinerary button:focus-visible{outline:2px solid var(--theme-accent,#3d6349);outline-offset:2px}"
+    },
+    {
+      "name": "Page tools and revision preview",
+      "kind": "custom",
+      "refersTo": "page-tools-panel",
+      "description": "복제·템플릿·첨부·블록 이동·최신 100개 수정 이력을 기존 보조 패널에서 다룬다. 미저장·충돌·미확인 제출은 초안/선택을 유지하고 문서 변경을 막는다. 복원은 현재 계층을 유지한 새 버전이다.",
+      "html": "<section class=\"ds-page-tools\"><h3>수정 이력</h3><label>저장한 수정본<select><option>v12 · 2026-09-30 15:00</option></select></label><div class=\"ds-page-tools-preview\"><h4>여행 계획</h4><p>v12 · 읽기 전용 내용</p><p>준비물을 확인하고 천천히 출발해요.</p></div><button type=\"button\">이 수정본으로 복원</button></section>",
+      "css": ".ds-page-tools{color:var(--theme-ink,#202b29);font:13px/1.65 \"DM Sans\",\"Noto Sans KR\",sans-serif}.ds-page-tools h3{font-size:13px;margin:0 0 8px}.ds-page-tools label{display:grid;gap:6px;font-size:12px;font-weight:600}.ds-page-tools select,.ds-page-tools button{min-height:40px;padding:8px 11px;border:1px solid var(--theme-line,#e6e8e1);border-radius:7px;background:var(--theme-surface,#fff);font:inherit}.ds-page-tools select{color:var(--theme-ink,#202b29);width:100%}.ds-page-tools button{color:var(--theme-accent,#3d6349);font-size:12px;font-weight:600}.ds-page-tools button:hover{background:var(--theme-soft,#edf2e9)}.ds-page-tools button:active{background:var(--theme-raised,#edf2e9)}.ds-page-tools :is(button,select):focus-visible{outline:3px solid var(--theme-accent,#3d6349);outline-offset:3px}.ds-page-tools-preview{margin:18px 0 14px;padding-top:16px;border-top:1px solid var(--theme-line,#e6e8e1);overflow-wrap:anywhere}.ds-page-tools-preview h4{font-size:16px;margin:0 0 8px}.ds-page-tools-preview p{margin:8px 0}.ds-page-tools-preview p:first-of-type{color:var(--theme-muted,#637568);font-size:12px}@media(max-width:760px){.ds-page-tools :is(select,button){min-height:44px}.ds-page-tools select{font-size:16px}}"
+    },
+    {
+      "name": "Backup workspace",
+      "kind": "custom",
+      "refersTo": "backup-workspace",
+      "description": "개인 /backups의 상태·일일 한국시간 설정·수동 실행·최근 실행. 기본 꺼짐·04:00·7개 보관이며 검증 후 관리 사본만 정리한다. 복원 방법은 새 경로 CLI 안내로 접어 둔다.",
+      "html": "<section class=\"ds-backup\"><header><div><h2>백업</h2><p>페이지·메모와 첨부 파일을 함께 보관해요.</p></div><button type=\"button\">지금 백업</button></header><div class=\"ds-backup-section\"><h3>자동 백업 설정</h3><label class=\"ds-backup-enable\"><input type=\"checkbox\">매일 자동으로 백업</label><div class=\"ds-backup-fields\"><label>실행 시각 · 한국시간<input type=\"time\" value=\"04:00\"></label><label>보관 개수<input type=\"number\" value=\"7\" min=\"1\" max=\"60\"></label></div></div></section>",
+      "css": ".ds-backup{color:var(--theme-ink,#202b29);font:13px/1.7 \"DM Sans\",\"Noto Sans KR\",sans-serif}.ds-backup header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:20px}.ds-backup h2{margin:0 0 8px;font-size:27px;line-height:1.3;letter-spacing:-.03em}.ds-backup p{margin:0;color:var(--theme-muted,#637568)}.ds-backup button{min-height:44px;padding:7px 14px;border:1px solid var(--theme-accent,#3d6349);border-radius:8px;background:var(--theme-accent,#3d6349);color:var(--theme-accent-ink,#fff);font:600 13px \"DM Sans\",\"Noto Sans KR\",sans-serif}.ds-backup button:hover{filter:brightness(1.08)}.ds-backup :is(button,input):focus-visible{outline:2px solid var(--theme-accent,#3d6349);outline-offset:3px}.ds-backup-section{padding:22px 0;border-top:1px solid var(--theme-line,#e6e8e1)}.ds-backup h3{margin:0 0 16px;font-size:16px}.ds-backup-enable{display:flex;align-items:center;gap:10px;min-height:44px;font-size:14px}.ds-backup-enable input{width:18px;height:18px;accent-color:var(--theme-accent,#3d6349)}.ds-backup-fields{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0}.ds-backup-fields label{display:grid;gap:6px;color:var(--theme-muted,#637568);font-size:12px}.ds-backup-fields input{width:145px;min-height:44px;padding:0 11px;border:1px solid var(--theme-line,#e6e8e1);border-radius:8px;background:var(--theme-surface,#fff);color:var(--theme-ink,#202b29);font-size:16px;font-variant-numeric:tabular-nums}.ds-backup-fields input[type=number]{width:100px}@media(max-width:760px){.ds-backup h2{font-size:25px}}"
+    },
+    {
+      "name": "AI result reading",
+      "kind": "panel",
+      "refersTo": "ai-result-reading",
+      "description": "Immutable template snapshot with a reading/source toggle. Desktop result column is widened. Only whitelisted elements and safe links are rendered.",
+      "html": "<section class=\"ai-job-panel\"><dl class=\"ai-request-summary\"><div><dt>템플릿</dt><dd>회의록 정리 <small>v2</small></dd></div><div><dt>추가 지시</dt><dd>결정과 다음 할 일을 구분해 주세요.</dd></div></dl><div class=\"ai-result-view\"><button aria-pressed=\"true\">읽기</button><button aria-pressed=\"false\">Markdown 원문</button></div><article class=\"ai-result-reading\"><h2>결정 사항</h2><p>요청 맥락과 읽기 순서를 먼저 개선합니다.</p><ul><li>템플릿과 추가 지시 표시</li><li>결과는 문서 형태로 읽기</li></ul></article></section>",
+      "css": ".ai-job-panel {\n  border-top: 1px solid var(--theme-line);\n  margin-top: 28px;\n  padding-top: 22px;\n  color: var(--theme-ink);\n}\n.ai-request-summary {\n  display: grid;\n  gap: 7px;\n  margin: 12px 0 20px;\n  padding: 12px 0;\n  border-block: 1px solid var(--theme-line);\n  font-size: 12px;\n  line-height: 1.6;\n}\n.ai-request-summary > div { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; }\n.ai-request-summary dt { color: var(--theme-muted); }\n.ai-request-summary dd { margin: 0; overflow-wrap: anywhere; }\n.ai-request-summary small { margin-left: 8px; color: var(--theme-muted); font-size: inherit; }\n.ai-request-additional dd { white-space: pre-wrap; }\n.ai-result-view { display: flex; gap: 4px; margin: 8px 0 16px; }\n.ai-job-panel .ai-result-view button,\n.page-ai-panel .ai-result-view button {\n  min-height: 30px;\n  padding: 4px 9px;\n  border: 0;\n  border-radius: 5px;\n  color: var(--theme-muted);\n  background: transparent;\n  font-size: 12px;\n}\n.ai-job-panel .ai-result-view button[aria-pressed='true'],\n.page-ai-panel .ai-result-view button[aria-pressed='true'] { color: var(--theme-accent); background: var(--theme-soft); font-weight: 600; }\n.ai-result-reading { font-size: 14px; line-height: 1.75; overflow-wrap: anywhere; }\n.ai-result-reading > :first-child { margin-top: 0; }\n.ai-result-reading h1 { font-size: 23px; }\n.ai-result-reading h2 { font-size: 19px; }\n.ai-result-reading h3 { font-size: 16px; }\n.ai-result-reading :is(h1,h2,h3,h4,h5,h6) { margin: 24px 0 10px; line-height: 1.4; font-weight: 650; word-break: keep-all; }\n.ai-result-reading p { margin: 10px 0; }\n.ai-result-reading :is(ul,ol) { padding-left: 24px; margin: 10px 0; }\n.ai-result-reading li { padding-left: 2px; margin: 5px 0; }\n.ai-result-reading a { color: var(--theme-accent); text-underline-offset: 3px; }\n.ai-result-reading blockquote { margin: 14px 0; padding: 8px 12px; border: 1px solid var(--theme-line); border-radius: 6px; color: var(--theme-muted); }\n.ai-result-reading code { font-family: ui-monospace, monospace; font-size: .9em; background: var(--theme-raised); padding: 2px 4px; border-radius: 4px; }\n.ai-result-reading pre { padding: 14px; border-radius: 6px; background: var(--theme-raised); overflow-x: auto; }\n.ai-result-reading pre code { padding: 0; background: transparent; }\n.ai-result-reading hr { border: 0; border-top: 1px solid var(--theme-line); margin: 20px 0; }\n.ai-result-table { overflow-x: auto; max-width: 100%; }\n.ai-result-reading table { border-collapse: collapse; width: 100%; font-size: 13px; }\n.ai-result-reading :is(th,td) { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--theme-line); min-width: 80px; }\n.ai-result-reading th { background: var(--theme-raised); }\n.ai-result-check-item { list-style: none; position: relative; }\n.ai-result-check-item > input { position: absolute; left: -21px; top: 7px; accent-color: var(--theme-accent); }\n.ai-result-image-label { color: var(--theme-muted); font-style: italic; }\n@media (max-width: 760px) {\n  .ai-job-panel .ai-result-view button,\n  .page-ai-panel .ai-result-view button { min-height: 44px; }\n}\n"
+    },
+    {
+      "name": "Page icon picker scrolling",
+      "kind": "popover",
+      "refersTo": "page-icon-scroll",
+      "description": "안정적 scrollbar gutter, 좌4px·우8px 여백, theme-line/transparent thin scrollbar; PC9열 minmax(0,1fr), 모바일5열·최소44px. 기존 선택·검색·포커스 유지.",
+      "html": "<div class=\"page-icon-scroll\"><div class=\"page-icon-grid\"></div></div>",
+      "css": ".page-icon-scroll{scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:var(--theme-line) transparent;padding-inline:4px 8px}.page-icon-grid{grid-template-columns:repeat(9,minmax(0,1fr))}.page-icon-grid button{min-width:0;padding:0}"
+    }
+  ],
+  "narrative": {
+    "northStar": "조용한 작업대",
+    "overview": "생각은 빠르게 내려놓고, 페이지에서는 방해 없이 길게 읽고 고친다. 밝은 화면의 숲색·종이색과 어두운 화면의 차콜·세이지가 각각 내용을 앞에 둔다. 모든 개인 화면은 PC 44px·모바일 48px sticky 상단바에 현재 위치와 핵심 도구를 배치한다. 사이드바는 로고와 오른쪽 한국 날짜, 하단 프로필·설정만 고정한다. 입력함은 빠른 입력과 현황, 메모는 원본 관리, 페이지는 직접 편집을 맡는다.",
+    "keyCharacteristics": [
+      "빠른 입력과 차분한 읽기",
+      "숲색 경계와 따뜻한 종이 배경",
+      "어두운 화면의 차콜 표면과 세이지 동작",
+      "작은 상태 표시와 낮은 깊이"
+    ],
+    "rules": [
+      {
+        "name": "화면 모드와 편집기 규칙",
+        "body": "기본은 운영체제 설정을 따르고 수동 선택은 브라우저에 저장한다. 앱 배경, BlockNote 본문, Mermaid 도형과 연결선은 같은 밝은·어두운 모드에서 충분한 대비를 유지한다.",
+        "section": "colors"
+      },
+      {
+        "name": "홈의 기록 흐름",
+        "section": "layout",
+        "body": "데스크톱 홈은 주 열의 입력·최근 메모·최근 페이지와 보조 열의 할 일·AI 현황을 사용한다. 1100px 이하에는 입력·AI 현황·할 일·메모·페이지로 이어진다. 모바일 홈은 인라인 입력을 보여주고 기록 도크를 숨기며 크게 쓰기로만 전체 화면을 연다."
+      },
+      {
+        "name": "모바일 작업 영역과 저장",
+        "body": "모바일에는 메뉴·현재 화면·핵심 도구를 한 줄의 48px 상단바에 둔다. 버튼 조작 영역은 44px이며 생략한 글자도 접근성 이름을 유지한다. 메모 검색은 아이콘으로 펼치되 입력 노드를 유지한다. 프롬프트는 본문 먼저, 접힌 설정, visualViewport와 safe area에 맞춘 하단 저장을 사용한다. 프롬프트 화면의 기록 도크와 메뉴 아래 전용 저장 줄은 숨긴다.",
+        "section": "layout"
+      },
+      {
+        "name": "문서 공간과 이전 진입 주소",
+        "section": "layout",
+        "body": "문서는 최대 960px·위 여백 18px이며 제목은 PC 최대 36px·모바일 29px다. 경로·저장 상태·아이콘 도구를 작게 배치하고 생성일·최종 수정일은 제목 아래에 표시한다. /pages·/temp의 이전 목록 주소는 /memo로 연결하고 기존 임시 정리 문서는 일반 페이지로 보존한다. 메모 상세에서 기존 페이지·새 하위 페이지에 담을 수 있다. 페이지 간 블록 분배는 후속 단계다."
+      },
+      {
+        "name": "통합검색의 현재 컴포넌트",
+        "body": "모든 화면의 전역 검색은 Unified search palette와 DESIGN.md의 통합검색 절을 따른다. 보존된 Page search palette 항목은 이전 제목 전용 예시다. 검색의 680px 패널·10px 모서리·6px 조작·44px 조작 높이·로컬 글자 크기를 전역 색·글자·모서리 ramp로 확대하지 않는다.",
+        "section": "layout"
+      },
+      {
+        "name": "공통 작업 상단바",
+        "section": "layout",
+        "body": "각 화면 소유의 React 도구를 공통 셸 대상으로 portal 렌더링한다. 입력함 검색·새 페이지, 메모 검색·선택·기록하기, 할 일 목록/보드·추가, AI 확인시각·새로고침·새 요청, 댓글 미확인 수·새로고침, 프롬프트 가져오기/내보내기·새 템플릿, 백업 수동실행, 휴지통 새로고침. 상태 탭과 필터는 본문에 두고 큰 관리 제목은 중복하지 않는다. 상단바 높이는 PC 44px·모바일 48px, 조작은 PC 30px·모바일 44px. PC density.css는 카드·필터·섹션의 여백만 줄이고 본문 16px·1.75 행간은 유지한다. 최근 페이지 최소 48px, 메모 최소 56px·위아래 6px·32px 아이콘. 페이지 더보기 버튼은 PC 28px 정사각형·안쪽 여백0으로 중앙 정렬하고 모바일44px 조작 영역은 유지한다. 페이지 더보기 드롭다운은 폭232px·안쪽6px·PC 항목30px, 모바일 항목44px이며 긴 항목/출처는 줄바꿈과 내부 스크롤로 보존한다. 페이지 메뉴 하단 안내·출처는 페이지 정보·도움말로 접고 펼칠 때만 조회하며 휴지통 행은 동일 간격으로 정렬한다. 즐겨찾기는 문서에서 지정하고 사이드바 상단 목록에 표시한다. 일반 페이지 행의 별 버튼과 관리 도구 그룹은 없으며 프롬프트·백업·휴지통은 설정의 작업 공간에서 연다. 본문·사이드바·팝업의 스크롤 끝단은 overscroll-behavior:none으로 튕김과 스크롤 전달을 막고 일반 스크롤·드래그 편집은 유지한다. 즐겨찾기 빈 안내는 한 줄로 표시한다. 사이드바 이동 버튼은 PC hover/focus-within 때 표시하고 자리 폭을 유지한다. 모바일·터치 환경은 상시 표시한다. 사이드바 로고 행은 상단 여백 없이 공통 상단바와 같은 높이와 수직 중앙을 공유한다. PC에서 숨겨진 즐겨찾기 행 뒤 첫 메뉴 그룹에는 구분선을 두지 않는다."
+      },
+      {
+        "name": "문서와 설정의 읽기 보정",
+        "section": "layout",
+        "body": "2026-10-04: 문서 본문과 목록의 텍스트 최대72ch, H3 위 여백18px. 편집기 표는 셀8px 12px·행간1.65·상단 정렬·테마 헤더 표면이며 지도·일정 전체 폭은 유지한다. 설정 PC 헤더48px·메뉴38px/14px·문서 미리보기16px/1.7·작업 공간 링크72px, 모바일 헤더56px·조작44px를 유지한다. 밝은 선택/커서는 테마 토큰이며 어두운 선택 색은 기존 규칙이다."
+      }
+    ],
+    "dos": [
+      "실제 한국어 문장과 긴 제목으로 모바일 줄바꿈을 검증한다.",
+      "페이지 본문과 입력 안내의 대비를 라이트·다크 시스템 설정에서 확인한다."
+    ],
+    "donts": [
+      "페이지 본문을 비활성 상태처럼 희미하게 만들지 않는다.",
+      "모바일 메뉴와 빠른 입력 도크가 서로 겹치게 두지 않는다."
+    ]
+  }
+}

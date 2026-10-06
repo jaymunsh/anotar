@@ -21,6 +21,8 @@ COPY shared ./shared
 COPY scripts/backup-data.mjs ./scripts/backup-data.mjs
 COPY scripts/auth-setup.mjs ./scripts/auth-setup.mjs
 COPY scripts/host-site.mjs ./scripts/host-site.mjs
+COPY scripts/seed-architecture.mjs scripts/page-transfer.mjs ./scripts/
+COPY docs/examples/anotar-architecture.page.json ./docs/examples/anotar-architecture.page.json
 COPY --from=build /app/dist ./dist
 EXPOSE 8787
 VOLUME /data

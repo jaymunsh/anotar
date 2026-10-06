@@ -11,3 +11,4 @@ dist/
 !.env.example
 
 /hosted-sites/
+/.local-workspace/

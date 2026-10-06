@@ -30,8 +30,8 @@ export default defineConfig({
   ],
   server: {
     host: '127.0.0.1',
-    port: 5173,
+    port: Number(process.env.DEV_PORT || 5173),
     // Keep the browser's Host/Origin pair intact for the private request guard.
-    proxy: { '/api': { target: 'http://127.0.0.1:8787', changeOrigin: false } },
+    proxy: { '/api': { target: `http://127.0.0.1:${process.env.DEV_API_PORT || 8787}`, changeOrigin: false } },
   },
 });
