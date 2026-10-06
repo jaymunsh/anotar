@@ -147,7 +147,7 @@ AI 체크 후 저장은 원본·첨부 메타데이터·불변 요청 사본·UU
 
 응답 `{markdown, sources?, usage?}`를 공통 검증한 뒤 작업에 저장한다. 리서치 출처는 서버 수집 URL과 대조하고 자유 요청 링크는 본문 미확인으로 표시한다. 사용량 미보고는 null이며 현재 비용 집계는 없다. HTTP 호출은 deadline/abort로 제한하지만 이미 진행 중인 제공자 작업·과금 취소를 보장하지 않는다. 키·프롬프트·원문·공급자 오류 본문은 로그/클라이언트 오류에 노출하지 않는다.
 
-실행기는 기본 비활성이다. 미연결은 원본 저장 성공 뒤 runner_unavailable 실패로 표시한다. 상태 API의 `researchModes`는 비활성 `[]`·HTTP `['url']`·Devin `['url', 'keyword']`다. 일반 테스트는 임시 HTTP 응답·가짜 CLI를, 설정된 결과 UI QA와 `scripts/qa-keyword-research.mjs`는 임시 DB·로컬 HTTP fixture를 사용한다. `scripts/ai-devin-smoke.mjs`만 명시적인 합성 입력 실호출이며 일반 검증에 포함되지 않는다. `DEVIN_SMOKE_RESEARCH=1`의 공개 주제 smoke는 실행당 앱 작업 하나·CLI 2회와 외부 계정 사용량·요금을 발생시킬 수 있다. 이전 키워드 증거에는 최초 검색 probe·키워드 작업 2개가 포함된다. 현재 Page AI 작업의 실호출 검증 기록은 아니다. 기록된 실호출은 result_ready·원본 보존·usage null이며 제공자의 정확한 비용/내부 호출 수는 확인하지 않았다. [검증 기록](.omo/evidence/keyword_research.md)을 따른다.
+실행기는 기본 비활성이다. 미연결은 원본 저장 성공 뒤 runner_unavailable 실패로 표시한다. 상태 API의 `researchModes`는 비활성 `[]`·Hive/HTTP `['url']`·OpenCode/Devin `['url', 'keyword']`다. 실제 adapter의 discover 함수에서 지원 여부를 계산한다. 일반 테스트는 임시 HTTP 응답·가짜 CLI를, 설정된 결과 UI QA와 `scripts/qa-keyword-research.mjs`는 임시 DB·로컬 HTTP fixture를 사용한다. `scripts/ai-devin-smoke.mjs`만 명시적인 합성 입력 실호출이며 일반 검증에 포함되지 않는다. `DEVIN_SMOKE_RESEARCH=1`의 공개 주제 smoke는 실행당 앱 작업 하나·CLI 2회와 외부 계정 사용량·요금을 발생시킬 수 있다. 이전 키워드 증거에는 최초 검색 probe·키워드 작업 2개가 포함된다. 현재 Page AI 작업의 실호출 검증 기록은 아니다. 기록된 실호출은 result_ready·원본 보존·usage null이며 제공자의 정확한 비용/내부 호출 수는 확인하지 않았다. [검증 기록](.omo/evidence/keyword_research.md)을 따른다.
 
 ### 후속 처리·격리 목표
 
@@ -155,7 +155,7 @@ OCR 단일 큐·외부 HTTP 게이트웨이 계약, 선택한 AI 결과의 Task 
 
 ## 5. URL과 조사 흐름
 
-현재 `kind: research`는 URL이 있으면 공개 HTTP·HTTPS URL 하나의 HTML/평문을 수집하고 URL 없는 비어 있지 않은 주제는 Devin의 선택적 `discover`로 검색한다. URL/DNS와 리다이렉트마다 비공개·예약 주소를 거절하고 검사한 IP로 연결을 고정한다. 한 URL의 한도는 10초·리다이렉트 3회·2MiB·추출 텍스트 50,000자다. 키워드는 검색 1회·240자 이하 질의·최대 5개 후보를 지시하며 1MiB 이하 ATIF의 실제 `web_search` 1개·연결된 관측 URL과 최종 후보를 검사한다. 256KiB 출력·검색 export 검사는 호출 후 검증이며 과금 상한·OS 샌드박스가 아니다. 고유 후보 최대 5개를 순차 수집해 고유 최종 URL 본문 최대 3개·각 16,666자/합계 49,998자를 사용한다. 실패 후보는 건너뛰고 본문이 없으면 요약 전에 `research_no_sources`로 실패하며 부분 수집은 결과에 안내한다. 원본을 보존하고 주제·URL 수정이나 재시도는 명시적으로 요청한다. 자유 요청은 검색하지 않는다. 아래 무제한 웹 탐색·자동 제목 추출 등은 후속 목표다.
+현재 `kind: research`는 URL이 있으면 공개 HTTP·HTTPS URL 하나의 HTML/평문을 수집하고 URL 없는 비어 있지 않은 주제는 OpenCode·Devin의 선택적 `discover`로 검색한다. URL/DNS와 리다이렉트마다 비공개·예약 주소를 거절하고 검사한 IP로 연결을 고정한다. 한 URL의 한도는 10초·리다이렉트 3회·2MiB·추출 텍스트 50,000자다. 키워드는 검색 1회·240자 이하 질의·최대 5개 후보를 지시하며 1MiB 이하 ATIF의 실제 `web_search` 1개·연결된 관측 URL과 최종 후보를 검사한다. 256KiB 출력·검색 export 검사는 호출 후 검증이며 과금 상한·OS 샌드박스가 아니다. 고유 후보 최대 5개를 순차 수집해 고유 최종 URL 본문 최대 3개·각 16,666자/합계 49,998자를 사용한다. 실패 후보는 건너뛰고 본문이 없으면 요약 전에 `research_no_sources`로 실패하며 부분 수집은 결과에 안내한다. 원본을 보존하고 주제·URL 수정이나 재시도는 명시적으로 요청한다. 자유 요청은 검색하지 않는다. 아래 무제한 웹 탐색·자동 제목 추출 등은 후속 목표다.
 
 - URL 입력은 AI 사용과 관계없이 주소와 제목/기본 메타데이터를 보존한다.
 - 서버 작업자가 공개 HTTP/HTTPS URL의 본문을 가져올 수 있다. 내부망·로컬 주소와 리다이렉트 우회를 막고, 응답 시간·크기를 제한한다.

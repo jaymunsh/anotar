@@ -145,12 +145,34 @@ test('legacy HTTP configuration without KIND stays selectable', async (t) => {
   assert.equal(service.info.label, 'Fixture gateway');
 });
 
-test('a saved blank Devin model never silently executes the fallback model', async t => {
-  const {store}=await fixture(t);
-  const service=createAiExecutionService({store,env:{AI_RUNNER_KIND:'hive',AI_DEVIN_BIN:'/usr/bin/true',AI_DEVIN_MODEL:'swe-2-high'}});
-  service.update({expectedVersion:0,defaultProfile:'devin',models:{hive:'',devin:''}});
-  assert.equal(service.settings().profiles.find(p=>p.id==='devin').enabled,false);
-  const pinned=service.resolveExecution({profileId:'devin',model:''});
-  assert.equal(service.forJob({request:{execution:pinned}}).enabled,false);
-  assert.equal(pinned.model,'');
+test('a saved blank Devin model never silently executes the fallback model', async (t) => {
+  const { store } = await fixture(t);
+  const service = createAiExecutionService({
+    store,
+    env: { AI_RUNNER_KIND: 'hive', AI_DEVIN_BIN: '/usr/bin/true', AI_DEVIN_MODEL: 'swe-2-high' },
+  });
+  service.update({ expectedVersion: 0, defaultProfile: 'devin', models: { hive: '', devin: '' } });
+  assert.equal(service.settings().profiles.find((p) => p.id === 'devin').enabled, false);
+  const pinned = service.resolveExecution({ profileId: 'devin', model: '' });
+  assert.equal(service.forJob({ request: { execution: pinned } }).enabled, false);
+  assert.equal(pinned.model, '');
+});
+
+test('OpenCode keyword capability follows the actual runner and respects global disable', async (t) => {
+  const { store } = await fixture(t);
+  const env = {
+    AI_RUNNER_KIND: 'opencode',
+    AI_OPENCODE_ENABLED: 'true',
+    AI_OPENCODE_BIN: '/usr/bin/true',
+    AI_OPENCODE_MODEL: 'opencode/big-pickle',
+  };
+  const service = createAiExecutionService({ store, env });
+  assert.deepEqual(service.settings().profiles.find((p) => p.id === 'opencode').researchModes, [
+    'url',
+    'keyword',
+  ]);
+  assert.equal(service.discover, true);
+  const disabled = createAiExecutionService({ store, env: { ...env, AI_RUNNER_KIND: 'disabled' } });
+  assert.deepEqual(disabled.settings().profiles.find((p) => p.id === 'opencode').researchModes, []);
+  assert.equal(disabled.discover, undefined);
 });

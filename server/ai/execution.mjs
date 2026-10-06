@@ -100,7 +100,11 @@ export function createAiExecutionService({ store, env = process.env }) {
           ...(id === 'opencode' ? { catalog: s.opencodeModels, catalogCheckedAt } : {}),
           enabled: r.enabled && status !== 'login_required',
           status,
-          researchModes: r.enabled ? (id === 'devin' ? ['url', 'keyword'] : ['url']) : [],
+          researchModes: r.enabled
+            ? typeof r.discover === 'function'
+              ? ['url', 'keyword']
+              : ['url']
+            : [],
           configured: r.enabled,
           credentialsConfigured:
             id === 'hive'
@@ -179,7 +183,9 @@ export function createAiExecutionService({ store, env = process.env }) {
       return make(s.defaultProfile, s.models[s.defaultProfile] || '').info;
     },
     get discover() {
-      return state().defaultProfile === 'devin' ? true : undefined;
+      const s = state(),
+        r = make(s.defaultProfile, s.models[s.defaultProfile] || '');
+      return r.enabled && typeof r.discover === 'function' ? true : undefined;
     },
   };
 }

@@ -24,7 +24,7 @@ export const AI_ERRORS = {
   research_failed: '링크의 본문을 가져오지 못했어요. 원문 접근 가능 여부를 확인해 주세요.',
   research_too_large: '리서치 자료가 크기 제한을 초과했어요.',
   research_search_unavailable:
-    '현재 실행기는 키워드 검색을 지원하지 않아요. URL을 입력하거나 검색 가능한 Devin 실행기를 연결해 주세요.',
+    '현재 실행기는 키워드 검색을 지원하지 않아요. URL을 입력하거나 검색 가능한 OpenCode·Devin 실행기를 선택해 주세요.',
   research_no_sources:
     '검색한 자료의 본문을 확인하지 못했어요. 주제를 구체적으로 적거나 공개 URL로 다시 요청해 주세요.',
   invalid_result: 'AI 응답 형식이 올바르지 않아 결과를 저장하지 않았어요.',
