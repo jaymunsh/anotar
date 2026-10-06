@@ -248,7 +248,17 @@ function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [aiSettingsRequested, setAiSettingsRequested] = useState(false);
-  const [, setAiAvailable] = useState(false);
+  const [aiAvailable, setAiAvailable] = useState(false);
+  const [online, setOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    const update = () => setOnline(navigator.onLine);
+    window.addEventListener('online', update);
+    window.addEventListener('offline', update);
+    return () => {
+      window.removeEventListener('online', update);
+      window.removeEventListener('offline', update);
+    };
+  }, []);
   useEffect(() => {
     const open = () => { setAiSettingsRequested(true); setSettingsOpen(true); };
     window.addEventListener('anotar:open-ai-settings', open);
@@ -634,8 +644,11 @@ function App() {
       setKind(next.every((file) => file.type.startsWith('image/')) ? 'image' : 'file');
   }
 
-  async function save() {
-    if (busy || !filesReady || aiTemplateUnresolved || (aiEnabled && !aiExecution)) return;
+  async function save(includeAi = aiEnabled) {
+    if (
+      busy || !filesReady ||
+      (includeAi && (aiTemplateUnresolved || !aiExecution || (!aiAvailable && navigator.onLine)))
+    ) return;
     if (kind === 'note' && !text.trim() && !files.length) {
       textInput.current?.focus();
       return;
@@ -651,13 +664,13 @@ function App() {
     setBusy(true);
     setError('');
     const submitted = snapshot();
-    const withAi = submitted.input.aiEnabled;
+    const withAi = includeAi;
     if (withAi) rememberChoice(requestKind, activeTemplateId);
     try {
       const receipt = await prepareCaptureSubmission({
         storage: window.localStorage,
         key: submissionKey,
-        input: submitted.input,
+        input: { ...submitted.input, aiEnabled: withAi },
         files: submitted.files,
         selection: withAi
           ? {
@@ -1359,6 +1372,16 @@ function App() {
                           />
                         </React.Suspense>
                       )}
+                      {aiEnabled && aiExecution && !aiAvailable && online && (
+                        <button
+                          type="button"
+                          className="prompt-text-button"
+                          disabled={busy || !filesReady}
+                          onClick={() => void save(false)}
+                        >
+                          메모만 저장
+                        </button>
+                      )}
                     </div>
                     {(draftWarning || recovered || !filesReady || fileSaving) && (
                       <p
@@ -1415,7 +1438,7 @@ function App() {
                     <button
                       className="save-button"
                       onClick={() => void save()}
-                      disabled={busy || (aiEnabled && !aiExecution) || !filesReady || aiTemplateUnresolved}
+                      disabled={busy || (aiEnabled && (!aiExecution || (!aiAvailable && online))) || !filesReady || aiTemplateUnresolved}
                     >
                       <span>
                         {busy

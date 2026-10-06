@@ -116,8 +116,8 @@ export default function AiExecutionPicker({
         <p role="status">모델 설정이 바뀌었어요. 실행기를 다시 선택해 주세요.</p>
       ) : unsupported ? (
         <p role="status">
-          키워드 자료 조사는 Devin CLI가 필요해요. 현재 실행기에서는 URL을 입력하거나 직접 요청을
-          선택해 주세요.
+          {profile?.label}는 키워드 검색이 연결되지 않았어요. URL을 입력해 자료를 읽거나,
+          ‘직접 요청’으로 작성한 글을 정리할 수 있어요.
         </p>
       ) : profile && !profile.enabled ? (
         <p role="status">

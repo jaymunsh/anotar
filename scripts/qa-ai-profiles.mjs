@@ -100,6 +100,31 @@ try {
     await page.getByRole('combobox', { name: 'AI 실행기와 모델' }).textContent(),
     /fixture\/second/,
   );
+  const templates = (await (await fetch(base + '/api/prompt-templates')).json()).items;
+  const researchTemplate = templates.find((item) => item.id === 'research-keyword' && !item.archived);
+  assert.ok(researchTemplate);
+  await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption(researchTemplate.id);
+  await page.waitForTimeout(100);
+  assert.equal(await page.getByRole('button', { name: '저장하고 AI 요청', exact: true }).isDisabled(), true, 'unsupported keyword research must not be queued');
+  await context.setOffline(true);
+  await page.waitForFunction(() => !document.querySelector('.save-button').disabled, null, { timeout: 2000 });
+  await context.setOffline(false);
+  await page.waitForFunction(() => document.querySelector('.save-button').disabled);
+  await page.screenshot({ path: evidence + '/unsupported-keyword-1440.png' });
+  await page.getByRole('button', { name: '메모만 저장', exact: true }).click();
+  await page.getByText(/기기에 저장했어요|보관함에 저장했어요/).waitFor();
+  let memos = [];
+  for (let i = 0; i < 100; i++) {
+    memos = (await (await fetch(base + '/api/captures')).json()).items;
+    if (memos.length) break;
+    await page.waitForTimeout(100);
+  }
+  assert.equal(memos.length, 1);
+  assert.equal(memos[0].aiRequest, null);
+  assert.equal(calls.length, 0, 'memo-only save must never call provider');
+  await page.getByRole('textbox', { name: '메모 내용', exact: true }).fill('오늘 작업의 우선순위를 정리해줘.');
+  await page.getByRole('checkbox', { name: 'AI 요청', exact: true }).check();
+  await page.getByRole('combobox', { name: 'AI 실행기와 모델' }).selectOption('hive');
   await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption('direct');
   await page.screenshot({ path: evidence + '/request-1440.png' });
   await page.getByRole('button', { name: '저장하고 AI 요청', exact: true }).click();
@@ -157,6 +182,12 @@ try {
     await page.goto(base + '/ai');
     await page.getByRole('button', { name: '새 AI 요청', exact: true }).click();
     await page.getByRole('combobox', { name: 'AI 실행기와 모델' }).waitFor();
+    await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption(researchTemplate.id);
+    await page.waitForTimeout(100);
+    assert.equal(await page.getByRole('button', { name: '저장하고 AI 요청', exact: true }).isDisabled(), true);
+    await page.getByRole('button', { name: '메모만 저장', exact: true }).waitFor();
+    await page.screenshot({ path: evidence + `/unsupported-keyword-${width}.png` });
+    await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption('direct');
     await page.screenshot({ path: evidence + `/request-${width}.png` });
     assert.ok(
       await page
@@ -179,7 +210,7 @@ try {
   }
   assert.deepEqual(errors, []);
   console.log(
-    'PASS: settings persisted; Hive selection submitted once; result-first + original editing; 1440/390/320 and dark layout; temporary DB/provider only.',
+    'PASS: unsupported keyword research blocked; memo-only save makes no AI call; direct request still works; settings persisted; result-first + original editing; 1440/390/320 and dark layout; temporary DB/provider only.',
   );
 } finally {
   await browser?.close();
