@@ -808,7 +808,7 @@ PC의 AI 메모 상세는 결과 열을 넓히고 큰 아이콘과 반복 실행
 
 설정 → AI에 OpenCode CLI를 추가했다. 공식 Zen 86개 사본 중 사용자 요청에 따라 무료 텍스트 모델 11개만 초기 등록하며 공식 목록 갱신도 확인된 무료 지원 모델로 제한한다. 모델 ID·표시 이름·가격 안내·사용 여부·기본 모델을 개인 DB에 저장하고 요청별로 사용 중 모델을 선택한다. 갱신은 초안 미리보기이며 기존 수정과 과거 요청을 보존한다. 직접 등록한 다른 제공자는 인증·CLI 지원이 별도로 필요하다. `GET /api/ai/models/opencode`는 개인 인증 경로이며 고정 공식 URL만 읽는다.
 
-실행은 `AI_OPENCODE_ENABLED=false`가 기본이고 기존 전체 disabled 스위치가 우선한다. 설치된 CLI의 stdin·도구 제한·임시 XDG 저장소·제공자별 인증 복사·JSON 완료 검증을 구현했다. 자동 Hive 전환은 없다. Oracle ARM64 설치와 실제 외부 모델 응답은 미검증이다. 무료 표시를 비용 강제 제한으로 해석하지 않는다. 자세한 절차와 약관 구분은 [AI 설정 문서](docs/AI_CONFIGURATION.md)를 따른다.
+실행은 `AI_OPENCODE_ENABLED=false`가 기본이고 기존 전체 disabled 스위치가 우선한다. 설치된 CLI의 stdin·도구 제한·임시 XDG 저장소·제공자별 인증 복사·JSON 완료 검증을 구현했다. 자동 Hive 전환은 없다. Oracle ARM64의 OpenCode 1.18.34·`opencode/big-pickle` 응답과 파일·셸 권한 거절을 확인했다. 전역/agent 권한은 `ask`이며 비대화형 CLI의 자동 거절을 사용하고 자동 승인 옵션은 전달하지 않는다. 검증된 CLI 버전만 요청 전에 허용한다. 전체 무료 모델 응답을 확인한 것은 아니다. 무료 표시를 비용 강제 제한으로 해석하지 않는다. 자세한 절차와 약관 구분은 [AI 설정 문서](docs/AI_CONFIGURATION.md)를 따른다.
 
 ### 서비스 Telegram 알림 (2026-10-05)
 

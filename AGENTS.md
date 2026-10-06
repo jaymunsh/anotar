@@ -231,8 +231,10 @@ node scripts/benchmark-search.mjs                 # 임시 1만·10만 혼합 �
 
 ## OpenCode 모델 관리 (2026-10-05)
 
-`server/ai/opencode.mjs`는 도구를 거절한 CLI의 stdin·고정 모델·XDG 기록 정리를 맡고 `cliProcess.mjs`는 Devin과 공통 프로세스 종료를 맡는다. `modelCatalog.mjs`·`opencodeModels.json`은 공식 Zen 86개 사본과 고정 주소 조회/검증을 맡으며 사용자 요청으로 초기 등록·공식 갱신은 확인된 무료 텍스트 모델 11개로 제한한다. `shared/aiModels.ts`·`src/settings/OpenCodeModels.tsx`는 사용자 편집 보존·기본 모델·명시 갱신/저장을 맡는다. 전체 AI disabled 및 기본 OpenCode 별도 disabled를 유지한다. 과거 job 모델을 목록 갱신으로 바꾸거나 자동 다른 제공자 전환을 추가하지 않는다. 가격 필드는 안내값이고 비용 한도가 아니다. 가짜 CLI 검증과 실제 제공자 호출/Oracle 설치를 구분한다. [AI 설정 문서](docs/AI_CONFIGURATION.md)를 따른다.
+`server/ai/opencode.mjs`는 검증된 OpenCode 1.18.34 비대화형 CLI의 stdin·고정 모델·XDG 기록 정리를 맡고 `cliProcess.mjs`는 Devin과 공통 프로세스 종료를 맡는다. `modelCatalog.mjs`·`opencodeModels.json`은 공식 Zen 86개 사본과 고정 주소 조회/검증을 맡으며 사용자 요청으로 초기 등록·공식 갱신은 확인된 무료 텍스트 모델 11개로 제한한다. `shared/aiModels.ts`·`src/settings/OpenCodeModels.tsx`는 사용자 편집 보존·기본 모델·명시 갱신/저장을 맡는다. 전체 AI disabled 및 기본 OpenCode 별도 disabled를 유지한다. 과거 job 모델을 목록 갱신으로 바꾸거나 자동 다른 제공자 전환을 추가하지 않는다. 가격 필드는 안내값이고 비용 한도가 아니다. 가짜 CLI 검증과 실제 제공자 호출/Oracle 설치를 구분한다. [AI 설정 문서](docs/AI_CONFIGURATION.md)를 따른다.
 
 ### 서비스 알림 계약 (2026-10-05)
 
 `server/serviceNotifications.mjs`는 개인 서버 AI 실행 시작/확정 실패의 best effort Telegram 전송을 맡는다. 기본 비활성/미리보기 꺼짐이며 `.env.service-alerts`는 자동 로딩하지 않는다. 비밀정보는 잘라내기 전에 정제하되 완전한 개인정보 탐지로 설명하지 않는다. 실패 원문·봇 토큰 URL·키를 로그/클라이언트/공개 Compose 환경에 넣지 않는다. 알림 실패로 AI 작업을 실패 처리하거나 대기시키지 않는다. 모델/템플릿 사본·고정 사유와 당시 작업 링크를 유지한다. [서비스 알림 문서](docs/SERVICE_NOTIFICATIONS.md)를 따른다.
+
+OpenCode 도구 실행은 전역/agent `ask` + 비대화형 CLI의 권한 자동 거절로 차단한다. `--auto`·`--yolo`·`--dangerously-skip-permissions`는 전달하지 않는다. CLI 버전 확인은 요청 전송보다 먼저 하며 미검증 버전을 허용하지 않는다. 버전 변경 시 공식 run 소스와 실제 파일·셸 거절을 확인한다.

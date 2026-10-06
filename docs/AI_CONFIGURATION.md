@@ -1,6 +1,6 @@
 # AI 실행기·모델 설정과 요청 운영
 
-2026-10-05 로컬 구현: Hive, Devin CLI, OpenCode CLI와 사이트 내 모델 목록 관리. Oracle 설치·배포·ARM64 실행 검증은 아직 하지 않았다.
+2026-10-05 로컬 구현: Hive, Devin CLI, OpenCode CLI와 사이트 내 모델 목록 관리. Oracle 배포 현황은 [운영 기록](ORACLE_LIVE_DEPLOYMENT.md)을 따른다.
 
 ## 서버 환경
 
@@ -70,11 +70,11 @@ Hive와 OpenCode는 직접 요청과 URL 본문 조사를 지원한다. URL 없�
 
 ## Oracle의 OpenCode CLI 준비
 
-아직 Oracle 설치·ARM64 실실행은 하지 않았다. 아래는 반영할 때 쓰는 절차다.
+Oracle ARM64 이미지에는 1.18.34를 설치했다. 같은 버전에서 정상 무료 응답과 파일·셸 권한 자동 거절을 확인했다. 아래는 worker 실행 환경의 설치 절차다.
 
 ```sh
-# 실제 AI worker 환경에서 설치한다. 확인한 로컬 CLI 버전은 1.18.32다.
-npm install -g opencode-ai@1.18.32
+# 실제 AI worker 환경에서 설치한다. 검증된 비대화형 권한 거절 동작을 위해 1.18.34로 고정한다.
+npm install -g opencode-ai@1.18.34
 opencode --version
 opencode run --help
 opencode auth login
@@ -94,7 +94,9 @@ AI_OPENCODE_AUTH_FILE=/absolute/private/path/auth.json
 
 작업마다 별도 XDG config/data/cache/state를 사용한다. 해당 제공자의 인증 항목만 임시 `auth.json`에 0600 권한으로 복사하고 원본 인증은 유지한다. 프롬프트는 셸 명령·프로세스 인자 대신 stdin으로 전달한다. `--pure`, 도구 전부 거절, 공유·자동 업데이트·자동 요약 꺼짐과 고정된 주/보조 모델을 사용한다. 홈 Claude 지침·외부 스킬도 로딩하지 않는다. 프로세스가 닫힌 뒤 정상·실패·취소의 임시 기록을 삭제하며 앱 DB의 요청·결과는 보존한다. 정전·SIGKILL이나 제공자 서버 기록 삭제는 보장하지 않는다.
 
-Zen의 선택 모델은 고정 API 주소와 허용한 SDK로 실행 시 다시 선언한다. CLI 내부 목록 갱신이 늦어도 새 모델 ID를 전달할 수 있다. Claude는 Messages, GPT/Muse는 Responses, 나머지는 Chat Completions 규격이다. 새로운 모델이 다른 규격을 요구하면 adapter 변경이 필요하다. 다른 제공자의 ID는 해당 CLI 제공자 지원과 인증이 필요하다.
+Zen 모델은 공식 CLI의 제공자 정의·SDK·요청 헤더를 그대로 사용한다. 별도 API/SDK 재선언이나 제공자 제한 우회는 하지 않는다. 다른 제공자의 ID는 해당 CLI 제공자 지원과 인증이 필요하다.
+
+2026-10-06 권한 호환 수정: `permission: {"*":"ask"}`를 전역과 Anotar agent에 적용한다. `run --format json`은 **1.18.34에서 `--auto` 없이 권한 요청을 자동 거절**한다. `deny`로 도구 정의까지 제외하면 무료 제공자가 403을 반환하는 문제를 피하면서 도구 실행은 허용하지 않는다. 요청마다 CLI 버전을 확인하고 검증되지 않은 버전은 입력을 전송하기 전에 거절한다. 버전 업그레이드에는 공식 `run.ts`의 자동 거절 동작과 실제 파일·셸 거절 검증이 필요하다. 설치/모델 정의 변경만으로 임의 버전을 허용하지 않는다.
 
 JSON 이벤트의 종료 표시·텍스트가 없거나, 길이 제한·도구 호출·오류 이벤트면 성공으로 저장하지 않는다. CLI 내부의 동일 제공자 재시도·보조 처리 횟수를 앱 작업 수로 단정하지 않는다. Hive나 유료 대체 모델로 자동 전환하는 기능은 없다.
 
