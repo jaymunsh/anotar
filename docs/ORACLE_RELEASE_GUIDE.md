@@ -153,5 +153,5 @@ node scripts/page-transfer.mjs import TARGET_DATA_DIR NEW_CHANGE_JSON
 - [실운영 구성](ORACLE_LIVE_DEPLOYMENT.md): 주소·Cloudflare 경로·현재 서비스/AI 상태.
 - [최초 설치](ORACLE_INSTALLATION.md): VM·Docker·인증의 최초 준비 기록.
 - [Oracle 운영 기록](ORACLE_OPERATIONS.md): 날짜별 설정·감시·비용 경계 이력. 과거 “미배포” 표시는 당시 기록이다.
-- [인증 안내](AUTHENTICATION.md), [백업 안내](../CURRENT_IMPLEMENTATION.md#자동-백업): 각 기능 운영 계약.
+- [인증 안내](AUTHENTICATION.md), [백업 안내](../CURRENT_IMPLEMENTATION.md#자동-백업-화면과-예약): 각 기능 운영 계약.
 - 이번 배포의 SHA·GitHub 실행 번호·백업·health·문서 반영 여부는 별도 날짜별 검증 기록으로 남긴다. 토큰·계정 비밀정보·개인 본문은 포함하지 않는다.
