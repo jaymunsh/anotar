@@ -35,7 +35,7 @@ function State({ item }: { item: AiActivityItem }) {
   return (
     <span className={`activity-state activity-state-${item.status}`}>
       <Icon size={14} aria-hidden="true" />
-      {aiStatusLabel(item)}
+      {item.status === 'result_ready' ? '확인할 결과' : aiStatusLabel(item)}
     </span>
   );
 }
@@ -108,14 +108,10 @@ export default function AiActivity({
   const counts = data?.counts;
   const allCount = counts ? Object.values(counts).reduce((a, b) => a + b, 0) : undefined;
   const groups = [
-    {
-      id: 'all',
-      label: '전체',
-      count: allCount,
-    },
     { id: 'active', label: '진행 중', count: counts ? counts.queued + counts.running : undefined },
-    { id: 'result_ready', label: '결과 준비', count: counts?.result_ready },
+    { id: 'result_ready', label: '확인할 결과', count: counts?.result_ready },
     { id: 'failed', label: '실패', count: counts?.failed },
+    { id: 'all', label: '전체', count: allCount },
   ] as const;
   function follow(event: MouseEvent<HTMLAnchorElement>, href: string) {
     if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -162,6 +158,12 @@ export default function AiActivity({
             <span>새 AI 요청</span>
           </button>
         </WorkspaceToolbar>
+      )}
+      {!compact && (
+        <p className="activity-help">
+          진행 상황을 확인하고 준비된 결과를 이어서 사용하세요. 실패한 요청에서 같은 조건 재시도와
+          요청 수정을 선택할 수 있어요.
+        </p>
       )}
       <div
         className="activity-filters"
@@ -252,9 +254,10 @@ export default function AiActivity({
                     {item.ownerKind === 'page' ? '페이지' : '메모'}
                   </span>
                   <span className="activity-template">
-                    {item.templateName}{item.templateVersion ? ` · v${item.templateVersion}` : ''}
+                    {item.templateName}
+                    {item.templateVersion ? ` · v${item.templateVersion}` : ''}
                   </span>
-                  {item.organized && <span className="activity-organized">정리 완료</span>}
+                  {item.organized && <span className="activity-organized">원본 정리 완료</span>}
                 </span>
                 <State item={item} />
                 <span className="activity-preview">{item.preview || '저장된 요청'}</span>
@@ -263,14 +266,21 @@ export default function AiActivity({
                     {item.status === 'result_ready'
                       ? '결과 보기'
                       : item.status === 'failed'
-                        ? '오류 확인'
+                        ? '재시도·요청 수정'
                         : '진행 보기'}
                   </span>
                   <ArrowUpRight size={14} aria-hidden="true" />
                 </span>
                 {!compact && (
                   <span className="activity-row-time">
-                    {item.executionLabel && <span>{item.executionLabel}{item.model && !item.executionLabel.includes(item.model) ? ` · ${item.model}` : ''}</span>}
+                    {item.executionLabel && (
+                      <span>
+                        {item.executionLabel}
+                        {item.model && !item.executionLabel.includes(item.model)
+                          ? ` · ${item.model}`
+                          : ''}
+                      </span>
+                    )}
                     <time dateTime={item.createdAt}>요청 {formatKoreanTime(item.createdAt)}</time>
                     {item.startedAt && !item.finishedAt && (
                       <time dateTime={item.startedAt}>시작 {formatKoreanTime(item.startedAt)}</time>

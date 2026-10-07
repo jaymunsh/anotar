@@ -1,8 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { Settings2 } from 'lucide-react';
+import { ChevronDown, Settings2 } from 'lucide-react';
 import type { AiExecution } from '../../shared/aiRequests';
 import { useAiProfiles } from './useAiProfiles';
+import { describeExecution } from './executionPresentation';
 import './ai.css';
+import '../prompts/aiRequestFields.css';
 export default function AiExecutionPicker({
   value,
   onChange,
@@ -19,20 +21,8 @@ export default function AiExecutionPicker({
   const { settings, error, reload } = useAiProfiles();
   const callbacks = useRef({ onChange, onAvailability });
   callbacks.current = { onChange, onAvailability };
-  const profile = settings?.profiles.find(
-    (p) => p.id === (value?.profileId || settings.defaultProfile),
-  );
-  const stale = Boolean(
-    value &&
-    profile &&
-    (profile.id === 'opencode'
-      ? !profile.catalog?.some((m) => m.id === value.model && m.enabled)
-      : value.model !== profile.model),
-  );
-  const unsupported = Boolean(
-    research && profile && !profile.researchModes.includes(hasUrl ? 'url' : 'keyword'),
-  );
-  const usable = Boolean(value && profile?.enabled && !stale && !unsupported);
+  const { profile, stale, unsupported, reason, usable: configured } = describeExecution(settings, value, research, hasUrl);
+  const usable = configured && !error;
   useEffect(() => {
     if (!value && profile)
       callbacks.current.onChange({ profileId: profile.id, model: profile.model });
@@ -41,8 +31,19 @@ export default function AiExecutionPicker({
     callbacks.current.onAvailability?.(usable);
   }, [usable]);
   return (
-    <div className="ai-execution-picker">
-      <div className="ai-execution-controls">
+    <div className="ai-execution-picker ai-execution-compact">
+      <div className="ai-execution-overview">
+        <div className="ai-execution-current" title={`${profile?.label || ''} · ${value?.model || profile?.model || ''}`}>
+          <strong>{profile?.label || 'AI 연결 확인 중'}</strong>
+          <span>{value?.model || profile?.model || '모델 설정 필요'}</span>
+        </div>
+        <span className={`ai-execution-state ${usable ? 'ready' : ''}`} role="status">{usable ? '실행 가능' : !settings && !error ? '확인 중' : '연결 확인 필요'}</span>
+        <button type="button" className="ai-settings-link" aria-label="AI 설정 열기" title="AI 설정 열기"
+          onClick={() => window.dispatchEvent(new Event('anotar:open-ai-settings'))}><Settings2 size={16} /></button>
+      </div>
+      <details className="ai-execution-options">
+        <summary>모델 변경 <ChevronDown size={14} aria-hidden="true" /></summary>
+        <div className="ai-execution-controls">
         <label>
           <span>실행기 · 모델</span>
           <select
@@ -96,15 +97,8 @@ export default function AiExecutionPicker({
             )}
           </select>
         </label>
-        <button
-          type="button"
-          className="ai-settings-link"
-          aria-label="AI 설정 열기"
-          onClick={() => window.dispatchEvent(new Event('anotar:open-ai-settings'))}
-        >
-          <Settings2 size={16} />
-        </button>
-      </div>
+        </div>
+      </details>
       {error ? (
         <p role="status">
           {error}{' '}
@@ -129,9 +123,7 @@ export default function AiExecutionPicker({
               ? '서버에서 Devin 로그인이 필요해요.'
               : '서버의 키·모델 또는 CLI 설정을 확인해 주세요.'}
         </p>
-      ) : (
-        <p>첨부 파일은 전송하지 않아요. 요청 후 설정을 바꿔도 이 요청의 모델은 유지돼요.</p>
-      )}
+      ) : reason === 'model' ? <p role="status">사용할 모델을 선택해 주세요. 설정에서 모델을 등록할 수 있어요.</p> : null}
     </div>
   );
 }

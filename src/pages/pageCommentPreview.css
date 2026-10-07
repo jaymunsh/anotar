@@ -65,11 +65,11 @@
 }
 .page-block-editor {
   position: relative;
-  padding-right: 56px;
 }
 .page-comment-gutter {
   position: absolute;
   inset: 0;
+  inset-inline-end: calc(-1 * var(--page-comment-gutter));
   pointer-events: none;
 }
 .page-comment-gutter-button {

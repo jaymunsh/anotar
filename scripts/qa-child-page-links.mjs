@@ -1,0 +1,67 @@
+import assert from 'node:assert/strict';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { offlineApp } from './fixtures/offline-app.mjs';
+import { openStore } from '../server/store.mjs';
+
+const out = '.omo/evidence/child-page-links';
+await mkdir(out, { recursive: true });
+const app = await offlineApp();
+try {
+  const store = openStore(app.dir);
+  const parent = store.createPage({ title: 'Shared Pages', icon: '🌐' });
+  const one = store.createPage({ title: '사용법과 기술 구조', icon: '🧭', parentId: parent.id });
+  const two = store.createPage({ title: '모든 기능 작성 가이드', icon: '📖', parentId: parent.id });
+  const lockedParent = store.createPage({ title: '잠긴 상위', icon: '🔒' });
+  const lockedChild = store.createPage({ title: '잠겨도 보이는 하위', parentId: lockedParent.id });
+  const locked = store.setPageLock({ id: lockedParent.id, locked: true, expectedLockVersion: 0, expectedVersion: lockedParent.version });
+  const recovering = store.createPage({ title: '복구 대기 문서' });
+  const recoveredChild = store.createPage({ title: '복구 문서의 하위', parentId: recovering.id });
+  store.close();
+  const page = await app.browser.newPage({ viewport: { width: 1440, height: 950 } });
+  const errors = [];
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto(app.base + '/pages/' + parent.id);
+  await page.locator('.bn-editor').waitFor();
+  await page.waitForTimeout(300);
+  assert.equal(await page.locator(`.page-block-editor .page-link-block[href="/pages/${one.id}"]`).count(), 1, 'First child automatically appears in the body');
+  assert.equal(await page.locator(`.page-block-editor .page-link-block[href="/pages/${two.id}"]`).count(), 1, 'Second child automatically appears in the body');
+  await page.screenshot({ path: out + '/desktop-children.png' });
+  // Native block removal must not leave a direct child absent from the body.
+  await page.locator(`[data-id="child-page-${two.id}"] .bn-block-content`).hover();
+  await page.getByRole('button', { name: '블록 메뉴 열기', exact: true }).click();
+  await page.getByRole('menuitem', { name: '삭제', exact: true }).click();
+  await page.locator(`.page-block-editor .page-link-block[href="/pages/${two.id}"]`).waitFor();
+  assert.equal(await page.locator(`.page-block-editor .page-link-block[href="/pages/${two.id}"]`).count(), 1);
+  // New child while the parent remains open, and hierarchy removal, use record events.
+  const third = (await app.request('/api/pages', { title: '새로 만든 하위', parentId: parent.id })).item;
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('leneu:records-changed', { detail: 'qa' })));
+  await page.locator(`.page-block-editor .page-link-block[href="/pages/${third.id}"]`).waitFor();
+  await app.request('/api/pages/' + third.id, { parentId: null, position: 4 }, 'PATCH');
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent('leneu:records-changed', { detail: 'qa' })));
+  await page.locator(`.page-block-editor .page-link-block[href="/pages/${third.id}"]`).waitFor({ state: 'detached' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForFunction(() => document.querySelector('.sidebar').getBoundingClientRect().right <= 1);
+  await page.screenshot({ path: out + '/mobile-children.png' });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.goto(app.base + '/pages/' + lockedParent.id);
+  await page.locator('.page-read-mode').waitFor();
+  await page.locator(`.page-block-editor .page-link-block[href="/pages/${lockedChild.id}"]`).waitFor();
+  const persisted = (await (await fetch(app.base + '/api/pages/' + lockedParent.id)).json()).item;
+  assert.deepEqual(persisted.document, locked.document, 'Read-only navigation does not mutate a locked document');
+  assert.equal(persisted.version, locked.version);
+  const draftKey = 'leneu:page-draft:' + recovering.id;
+  const draft = { title: '보존할 초안', icon: recovering.icon, baseVersion: recovering.version, document: { schemaVersion: 1, blocks: [{ id: 'unsaved', type: 'paragraph', props: {}, content: [{ type: 'text', text: 'UNSAVED USER BODY', styles: {} }], children: [] }] } };
+  await page.evaluate(({ draftKey, draft }) => localStorage.setItem(draftKey, JSON.stringify(draft)), { draftKey, draft });
+  await page.goto(app.base + '/pages/' + recovering.id);
+  await page.getByRole('button', { name: '초안 복원', exact: true }).waitFor();
+  await page.locator(`.page-block-editor .page-link-block[href="/pages/${recoveredChild.id}"]`).waitFor();
+  await page.waitForTimeout(800);
+  assert.deepEqual(await page.evaluate(key => JSON.parse(localStorage.getItem(key)), draftKey), draft, 'Automatic child navigation must preserve unresolved recovery');
+  await page.reload();
+  await page.getByRole('button', { name: '초안 복원', exact: true }).click();
+  await page.locator('.bn-editor').getByText('UNSAVED USER BODY', { exact: true }).waitFor();
+  await page.locator(`.page-block-editor .page-link-block[href="/pages/${recoveredChild.id}"]`).waitFor();
+  assert.deepEqual(errors, []);
+  await writeFile(out + '/RESULT.json', JSON.stringify({ children: [one.id, two.id], liveCreation: true, moveRemovesFallback: true, lockedDocumentUnchanged: true, recoveryPreserved: true, errors }, null, 2));
+  console.log('PASS child links visible at first open, live create/move, mobile and locked page');
+} finally { await app.close(); }

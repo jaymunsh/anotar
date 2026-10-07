@@ -30,6 +30,8 @@ import type { PromptEditorDraft } from './usePromptDrafts';
 import { rebasePromptDrafts } from './migration';
 import type { PromptImportResult } from './api';
 import './prompts.css';
+import './templateUsability.css';
+import { templatePresentation } from './requestPresentation';
 
 type Props = {
   visible: boolean;
@@ -107,6 +109,7 @@ export default function PromptWorkspace({
   const dirty =
     !current ||
     (['name', 'description', 'kind', 'body'] as const).some((key) => draft[key] !== current[key]);
+  const presentation = templatePresentation(draft);
   let preview = '';
   let previewError = '';
   let missing: string[] = [];
@@ -611,7 +614,7 @@ export default function PromptWorkspace({
               >
                 <span className="prompt-template-kind">
                   {item.kind === 'research' ? <Link2 size={14} /> : <MessageSquareText size={14} />}
-                  {item.kind === 'research' ? '리서치' : '자유 요청'}
+                  {templatePresentation(item).inputLabel}
                 </span>
                 <strong>{item.name}</strong>
                 <span className="prompt-template-description">
@@ -658,9 +661,8 @@ export default function PromptWorkspace({
             </select>
           </label>
           <p className="prompt-library-footnote">
-            리서치는 정해진 틀로,
-            <br />
-            나머지는 자유롭게 요청해요.
+            자료 조사는 URL·키워드로 출처를 찾고,
+            글 정리는 입력한 내용을 활용해요.
           </p>
         </aside>
         {selectedId && (current || selectedId === 'new' || drafts[selectedId]) ? (
@@ -720,6 +722,15 @@ export default function PromptWorkspace({
                   )}
                 </div>
               )}
+            </div>
+            <div className="prompt-purpose-summary">
+              <strong>{draft.name || '새 템플릿'}</strong>
+              <p>{draft.description || '어떤 입력을 받아 어떤 결과를 만들지 설명을 적어 주세요.'}</p>
+              <dl>
+                <div><dt>사용할 자료</dt><dd>{presentation.inputLabel}</dd></div>
+                <div><dt>결과 형식</dt><dd>{presentation.outline.length ? presentation.outline.join(' · ') : '아래 요청 본문에서 지정한 형식'}</dd></div>
+              </dl>
+              {tab === 'edit' && <button type="button" className="prompt-text-button" onClick={() => setTab('preview')}>예시 입력으로 요청문 확인 <ArrowRight size={14} /></button>}
             </div>
             {historyOpen && current && (
               <PromptHistory
@@ -788,7 +799,7 @@ export default function PromptWorkspace({
                         value={draft.description}
                         maxLength={200}
                         onChange={(event) => edit({ description: event.target.value })}
-                        placeholder="어떻게 쓰는 템플릿인지 짧게 적어두세요"
+                          placeholder="예: 회의 메모 → 결정 사항과 담당자별 할 일 정리"
                       />
                     </label>
                   </div>
@@ -848,10 +859,14 @@ export default function PromptWorkspace({
             ) : (
               <div className="prompt-test-area">
                 <p className="prompt-test-description">
-                  입력값이 들어간 요청문을 확인해 보세요. URL을 열거나 AI를 실행하지 않아요.
+                  예시 자료를 넣어 실제로 전달할 요청문을 확인해요. URL 조회·AI 실행·요금 발생 없이 미리볼 수 있어요.
                 </p>
+                <button type="button" className="prompt-text-button prompt-example-fill" onClick={() => {
+                  setSampleUrl(presentation.sample.url);
+                  setSampleContent(presentation.sample.content);
+                }}>이 유형의 예시 입력 넣기</button>
                 <label className="prompt-field">
-                  <span>테스트 URL</span>
+                  <span>예시 URL <small>선택 · 실제로 열지 않아요</small></span>
                   <input
                     aria-label="미리보기 URL"
                     type="url"
@@ -862,7 +877,7 @@ export default function PromptWorkspace({
                   />
                 </label>
                 <label className="prompt-field">
-                  <span>테스트 메모</span>
+                  <span>예시 자료 <small>템플릿 본문과 별도로 보관해요</small></span>
                   <textarea
                     aria-label="미리보기 메모"
                     value={sampleContent}
@@ -872,7 +887,7 @@ export default function PromptWorkspace({
                   />
                 </label>
                 <div className="prompt-preview-heading">
-                  <strong>전달할 요청문</strong>
+                  <strong>전달할 요청문 <small>AI 결과가 아닌 입력 미리보기</small></strong>
                   <CopyRequestButton text={preview} onError={setError} />
                 </div>
                 {previewError && (

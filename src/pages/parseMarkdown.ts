@@ -1,11 +1,12 @@
 import { BlockNoteEditor, BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import type { PageDocument } from './types';
+import { createDocumentHeadingBlockSpec } from './HeadingBlock';
 
 // Loaded only when the user explicitly turns a result into a page.
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     paragraph: defaultBlockSpecs.paragraph,
-    heading: defaultBlockSpecs.heading,
+    heading: createDocumentHeadingBlockSpec(),
     bulletListItem: defaultBlockSpecs.bulletListItem,
     numberedListItem: defaultBlockSpecs.numberedListItem,
     checkListItem: defaultBlockSpecs.checkListItem,

@@ -25,6 +25,11 @@ try {
     const page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
     await page.goto(app.base + '/pages/' + document.id);
     await page.locator('.bn-editor').waitFor();
+    assert.equal(await page.locator('.bn-editor .page-toc').count(), 1);
+    await page.locator('summary[aria-label="페이지 정보"]').click();
+    await page.getByRole('button',{name:'목차 열기',exact:true}).click();
+    assert.ok(await page.getByRole('navigation',{name:'페이지 목차',exact:true}).isVisible());
+    await page.getByRole('button',{name:'목차 닫기',exact:true}).click();
     await page.locator('.page-icon-button').click();
     const search = page.locator('.page-icon-search input'); await search.fill('s');
     await page.locator('.page-icon-grid button').first().waitFor();
@@ -53,8 +58,8 @@ try {
     await page.getByRole('button',{name:'설정 닫기',exact:true}).click();
     await page.screenshot({path:join(evidence,name+'-document.png')});
     await page.goto(publicBase+'/s/'+token);
-    await page.getByRole('heading',{name:'1. 현재 운영 구조',exact:true}).waitFor();
-    assert.ok(await page.getByRole('navigation',{name:'목차',exact:true}).isVisible());
+    await page.getByRole('heading',{name:'2. 전체 구조',exact:true}).waitFor();
+    assert.equal(await page.getByRole('navigation',{name:'목차',exact:true}).count(), 1);
     assert.ok(await page.locator('body').innerText().then(s=>s.includes('server/index.mjs')));
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     await page.screenshot({path:join(evidence,name+'-share.png')});

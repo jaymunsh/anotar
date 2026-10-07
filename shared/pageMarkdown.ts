@@ -28,6 +28,14 @@ export function renderPageMarkdown(
       out.push(
         `첨부 ${block.props.display === 'image' ? '이미지' : '파일'} (앱 전용 참조, 파일 바이트 제외): ${block.props.assetId}`,
       );
+      if (block.props.caption) {
+        const caption = String(block.props.caption)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/([\\`*_{}\[\]()#+.!|~-])/g, '\\$1');
+        out.push(`설명: ${caption}`);
+      }
     } else if (options.includeAppReferences && block.type === 'page') {
       out.push(`[${block.props.title || '제목 없음'}](/pages/${block.props.pageId})`);
     } else if (!privateTypes.has(block.type)) {
@@ -42,7 +50,10 @@ export function renderPageMarkdown(
         toggleListItem: '- ',
       };
       if (block.type === 'bookmark')
-        out.push(`[${String(block.props.title || block.props.url).replace(/[\[\]\\]/g, '\\$&')}](${block.props.url})` + (block.props.description ? '\n\n' + block.props.description : ''));
+        out.push(
+          `[${String(block.props.title || block.props.url).replace(/[\[\]\\]/g, '\\$&')}](${block.props.url})` +
+            (block.props.description ? '\n\n' + block.props.description : ''),
+        );
       else if (block.type === 'heading')
         out.push('#'.repeat(Math.min(6, block.props.level || 1)) + ' ' + text);
       else if (block.type === 'divider') out.push('---');
@@ -79,7 +90,12 @@ export function renderPageMarkdown(
         rows.splice(1, 0, '| ' + block.content.rows[0].cells.map(() => '---').join(' | ') + ' |');
         out.push(rows.join('\n'));
       } else if (block.type === 'callout' && text)
-        out.push(text.split('\n').map(line => indent + '> ' + line).join('\n'));
+        out.push(
+          text
+            .split('\n')
+            .map((line) => indent + '> ' + line)
+            .join('\n'),
+        );
       else if (text) out.push(indent + (prefixes[block.type] || '') + text);
     }
     if (block.children?.length)

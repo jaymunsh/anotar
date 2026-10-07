@@ -639,3 +639,40 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+.settings-row select { font:inherit; color:var(--theme-ink); background:var(--theme-surface); border:1px solid var(--theme-line); border-radius:6px; padding:8px 10px; min-height:40px; }
+
+.settings-document-type { margin-top: 24px; border-top: 1px solid var(--theme-line); padding-top: 20px; }
+.settings-document-type > h4 { margin: 0 0 6px; font-size: 14px; font-weight: 600; }
+.settings-document-type .settings-description { margin: 0 0 16px; font-size: 12px; line-height: 1.6; }
+.document-type-preset-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-bottom: 16px; }
+.document-type-presets { display: flex; flex-wrap: wrap; gap: 4px; }
+.document-type-reset { margin-inline-start: auto; border: 1px solid var(--theme-line); border-radius: 5px; padding: 6px 10px; background: transparent; color: var(--theme-muted); font: inherit; font-size: 12px; min-height: 32px; cursor: pointer; }
+.document-type-reset:hover { background: var(--theme-soft); color: var(--theme-ink); }
+.document-type-reset:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 3px; }
+.document-type-presets button { border: 1px solid var(--theme-line); border-radius: 5px; padding: 6px 10px; background: transparent; color: var(--theme-muted); font: inherit; font-size: 12px; min-height: 32px; cursor: pointer; }
+.document-type-presets button[aria-pressed='true'] { background: var(--theme-soft); color: var(--theme-accent); border-color: var(--theme-accent); font-weight: 600; }
+.document-type-presets button:hover { color: var(--theme-ink); }
+.document-type-control { display: grid; grid-template-columns: 80px minmax(0,1fr) 58px; align-items: center; gap: 12px; min-height: 44px; font-size: 12px; }
+.document-type-control input { width: 100%; min-width: 0; height: 24px; padding: 0; accent-color: var(--theme-accent); cursor: pointer; }
+.document-type-control output { text-align: end; font-variant-numeric: tabular-nums; color: var(--theme-ink); }
+.document-type-control output small { display: block; font-size: 11px; color: var(--theme-muted); }
+.document-type-ratios { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--theme-line); }
+.document-type-ratios summary { font-size: 12px; cursor: pointer; color: var(--theme-ink); padding: 4px 0; }
+.document-type-ratios > p { font-size: 12px; line-height: 1.6; color: var(--theme-muted); margin: 8px 0; }
+.document-type-sample { font-family:var(--font-ui); margin-top: 20px; padding: 18px; border: 1px solid var(--theme-line); border-radius: 6px; color: var(--theme-ink); overflow-wrap: anywhere; word-break: keep-all; font-size: var(--page-type-body,15px); line-height: var(--page-type-leading,1.65); }
+.document-type-sample p { margin: var(--page-type-paragraph-space,5px) 0; }
+.document-type-sample-title { font-size: var(--page-type-title,32px); font-weight: 700; line-height: 1.25; margin-bottom: 16px; }
+.document-type-sample-h1, .document-type-sample-h2, .document-type-sample-h3, .document-type-sample-h4 { font-weight: 600; line-height: 1.4; margin-top: var(--page-type-heading-space,20px); margin-bottom: 8px; }
+.document-type-sample-h1 { font-size: var(--page-type-heading-1,24px); }
+.document-type-sample-h2 { font-size: var(--page-type-heading-2,20px); }
+.document-type-sample-h3 { font-size: var(--page-type-heading-3,17px); }
+.document-type-sample-h4 { font-size: var(--page-type-heading-4,15.12px); }
+.document-type-control input:focus-visible, .document-type-ratios summary:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 3px; border-radius: 3px; }
+@media (max-width:760px) {
+  .document-type-presets button, .document-type-reset { min-height:44px; }
+  .document-type-control { grid-template-columns:70px minmax(0,1fr) 50px; gap:8px; }
+  .document-type-control input { height:44px; }
+  .document-type-ratios summary { min-height:44px; display:list-item; padding-block:12px; }
+  .document-type-sample { padding:14px; }
+  .document-type-sample-title { font-size:calc(var(--page-type-title,32px) * .875); }
+}

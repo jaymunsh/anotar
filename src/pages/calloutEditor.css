@@ -1,4 +1,5 @@
 .page-callout { display:flex; align-items:flex-start; gap:12px; width:100%; min-width:0; }
+.page-callout[data-icon=none] > .callout-marker { display:none; }
 .page-callout .callout-content { flex:1; min-width:0; min-height:1.65em; line-height:inherit; }
 .callout-icon-button { display:grid; place-items:center; width:28px; height:28px; margin:-2px; padding:0; border:0; border-radius:5px; background:transparent; color:inherit; cursor:pointer; }
 .callout-icon-button:hover,.callout-icon-button[aria-expanded=true] { background:var(--theme-soft); }

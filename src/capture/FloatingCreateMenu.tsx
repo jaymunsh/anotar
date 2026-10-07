@@ -44,7 +44,8 @@ export default function FloatingCreateMenu({ hasDraft, onMemo, onPage }: {
   return <>
     <button className="mobile-create-button" hidden={keyboardOpen || fullscreen}
       type="button" aria-label="작성 메뉴 열기" aria-haspopup="dialog"
-      title={hasDraft ? '작성 중인 메모 이어쓰기' : '새로 작성'}
+      aria-description={hasDraft ? '보관하지 않은 메모 초안이 있어요' : undefined}
+      title={hasDraft ? '작성 중인 메모 있음 · 이어쓰기' : '새로 작성'}
       onClick={() => dialog.current?.showModal()}>
       <Pencil size={20} aria-hidden="true" />
       {hasDraft && <span className="mobile-create-draft" aria-label="작성 중인 초안 있음" />}
@@ -55,7 +56,7 @@ export default function FloatingCreateMenu({ hasDraft, onMemo, onPage }: {
         <header><h2>새로 작성</h2><button type="button" aria-label="작성 메뉴 닫기" onClick={() => dialog.current?.close()}><X size={19} /></button></header>
         <button type="button" aria-label="빠른 메모" onClick={() => choose(onMemo)}>
           <Pencil size={21} aria-hidden="true" />
-          <span><strong>빠른 메모</strong><small>{hasDraft ? '작성 중인 메모를 이어서 적어요' : '떠오른 생각부터 가볍게 적어요'}</small></span>
+          <span><strong>{hasDraft ? '메모 이어쓰기' : '빠른 메모'}</strong><small>{hasDraft ? '보관하지 않은 메모 초안이 있어요' : '떠오른 생각부터 가볍게 적어요'}</small></span>
         </button>
         <button type="button" aria-label="새 페이지" onClick={() => choose(onPage)}>
           <FileText size={21} aria-hidden="true" />

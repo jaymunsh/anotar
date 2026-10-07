@@ -349,3 +349,33 @@
 .activity-list .activity-row:focus-visible {
   outline-offset: -2px;
 }
+.activity-help {
+  margin: 0 0 12px;
+  color: var(--theme-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.activity-filters button[aria-selected='true'] span {
+  background: var(--theme-soft);
+  color: var(--theme-accent);
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+.activity-row:has(.activity-state-failed) .activity-action {
+  color: var(--theme-error-ink);
+}
+.activity-filters button,
+.activity-filters a {
+  white-space: nowrap;
+}
+@media (max-width: 480px) {
+  .activity-filters {
+    column-gap: 14px;
+  }
+  .activity-filters button {
+    font-size: 12px;
+  }
+  .activity-row-meta {
+    flex-wrap: wrap;
+  }
+}

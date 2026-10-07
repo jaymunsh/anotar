@@ -1,0 +1,5186 @@
+{
+  "schemaVersion": 1,
+  "blocks": [
+    {
+      "id": "45be217e-77dd-4606-9780-bab358f34b35",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Anotar에서 쓸 수 있는 Markdown 문법과 문서 블록을 모았습니다. 각 절의 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 복사할 원문이고, ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 편집기에서 보이는 결과입니다. 문서를 작성할 때 옆에 열어 두고 필요한 절만 참고하세요.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "31556e4b-c1f2-4042-a439-2e090656411a",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "이 안내는 2026년 10월 7일 로컬 구현 기준입니다. Markdown 전체 표준을 지원하는 것은 아니며, 현재 지원 범위와 변환 시 빠지는 정보를 마지막 절에 정리했습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "5f533215-93de-4aa9-b1f1-022dd4556b18",
+      "type": "tableOfContents",
+      "props": {
+        "compact": false,
+        "maxLevel": 1
+      },
+      "children": []
+    },
+    {
+      "id": "51947e63-9bce-4911-9c33-fe975cfca2c9",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "1. 먼저 알아둘 입력 방식",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "f47e0771-7049-4979-8ddc-20b73509018b",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "1.1 직접 입력과 붙여넣기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "fadcdf84-ad33-4065-839a-4c934f86990f",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "빈 줄에서 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "#",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "-",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "1.",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": " 같은 기호를 입력하고 스페이스를 누르면 해당 블록으로 바뀝니다. 이미 작성한 여러 줄의 Markdown은 한꺼번에 붙여넣어도 됩니다. 기호를 외우기 어렵다면 빈 줄에서 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "/",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "를 입력하고 블록 이름을 검색하세요.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "77cba29f-5b0b-45d3-b126-4bda3f1e2d89",
+      "type": "bulletListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "직접 입력",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ": 문법 단축 입력으로 블록을 만듭니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "772f6ba9-1904-4bc0-b7b2-1c9c99932dbd",
+      "type": "bulletListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "붙여넣기",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ": Markdown을 읽어 제목·목록·표·코드 등으로 변환합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "05525110-6c59-4614-b102-e856c69bbc71",
+      "type": "bulletListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Markdown 보기 / 복사",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ": 작성한 블록을 Markdown 텍스트로 내보냅니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "8ed39692-b3ef-4d98-9b08-45e3b2a9c83f",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "주의할 차이는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": ">",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "입니다. 직접 입력 후 스페이스를 누르면 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "접는 목록",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "이 되고, Markdown의 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "> 인용문",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "을 붙여넣으면 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "인용 블록",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "이 됩니다. 직접 입력으로 인용을 만들 때는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "\"",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": " 뒤에 스페이스를 누릅니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "77b5b71e-7899-451a-8798-2ea77ed083b5",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "1.2 페이지 제목과 본문 제목",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "b3778a93-2492-4601-bb6d-8dc2775b3059",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "맨 위 페이지 제목은 본문과 별도입니다. 본문 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "#",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 큰 장, ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "##",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 장 안의 주제, ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "###",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 세부 설명에 사용하세요. 이 가이드도 같은 구조를 사용합니다. 목차에 표시할 큰 장에는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "1.",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "2.",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "처럼 번호를 붙이면 읽는 순서가 분명해집니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4ff61624-38ca-4a37-869f-6c7231a7fdef",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "2. 제목·문단·줄바꿈",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "efe224ea-77c6-40e1-9b60-a8fdb9d7546f",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "2.1 제목은 네 단계",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a9a5bc64-be83-43d9-ac68-e60d24a343d1",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "6f348585-4b71-473b-a164-6c1ee997a9da",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "# 1. 큰 장\n## 1.1 장 안의 주제\n### 세부 설명\n#### 더 작은 제목",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "ccf741dd-045e-47e0-8c74-1afdccd20869",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "#",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "와 제목 사이에 공백을 넣습니다. 보통 문서는 1~3단계면 충분합니다. 단계는 글자 크기만 바꾸는 장식이 아니라 문서의 관계를 나타냅니다. 위의 실제 장·절 제목이 표시 예시입니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "8f2c0a4c-83d1-4134-afd0-81fbddf0b04d",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 4,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "제목 4 표시 예시",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "b9b043a9-1e90-4699-9e44-c2d51b387983",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "제목 4도 본문보다 조금 크고 굵게 표시됩니다. 작게 프리셋의 본문은 14px, 제목 4는 15.12px입니다. 새로 붙여넣는 5·6단계 제목은 내용은 보존하고 제목 4로 표시합니다. 노션의 본문 제목은 1~3단계이며 Anotar는 요청에 따라 4단계까지 제공합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "0c181d78-8d23-4362-83b9-c237ab0fab61",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "2.2 빈 줄은 문단을 나눕니다",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "1ae3e3ca-5323-4f47-8988-e2c4d47dccbf",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "9cfb43bd-102e-46be-bb58-36914d9f9d7f",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "첫 문단은 핵심을 설명합니다.\n\n두 번째 문단은 근거를 설명합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "1010cfca-6ba0-4fc6-9e4a-9e2ce97b4c66",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4330d05a-6d2f-4f10-bb69-94761dada42d",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "첫 문단은 핵심을 설명합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "320e8e31-1921-4c11-9e00-54a5b73375d3",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "두 번째 문단은 근거를 설명합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "5831eb4d-bf37-456c-abef-63a0c4196244",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "2.3 같은 문단 안에서 줄을 바꾸기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "99d2276f-d488-457e-a3ad-883e43f9be2c",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 3,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Markdown을 붙여넣을 때",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "c8ec34d9-cda8-4c22-b5a0-1d945b1b0f99",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "줄 끝에 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "공백 두 칸",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "을 넣고 줄을 바꾸세요. 아래 첫 줄의 끝에 보이지 않는 공백 두 칸이 있습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "d6212563-dc22-4edc-a218-d53ec2e56f58",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "첫 번째 줄입니다.  \n같은 문단의 두 번째 줄입니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "d5547ad6-69ae-495d-a798-c4c2044d9f23",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "218a465a-cc13-4991-98ed-090bb9a655b8",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "첫 번째 줄입니다.\n 같은 문단의 두 번째 줄입니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "3d45e122-a290-4eb5-8a2a-6359ca54a630",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 3,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "편집기에서 직접 쓸 때",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "9df2d9e5-fe7d-478e-89e3-c8b5abb7428b",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Enter",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 다음 블록으로 이동하고, ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "Shift+Enter",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 현재 블록 안에서 줄을 바꿉니다. 단순히 화면 폭이 좁아져 생긴 자동 줄바꿈과 직접 넣은 줄바꿈은 다릅니다. 화면 폭에 따라 읽히도록 일반 문장은 중간에 임의로 끊지 않는 편이 좋습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "ca8ca461-b35d-41ed-9a82-58d245fc871b",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "3. 강조·인라인 코드·링크",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "06b2e2b9-c975-454c-a901-78e70ec3e4a8",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "3.1 문장 안의 서식",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "97cbe401-756e-48bd-a23f-bd4e76bd2730",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a45a37bd-98fd-4a24-b54d-7ad485374435",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "**핵심 결론**, *보충 강조*, ***굵고 기울인 강조***, ~~취소한 계획~~\n실행 명령은 `npm run dev`입니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "fd60776d-83d5-4022-aa1e-1a39070e4189",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4056b2f0-0b62-4048-8aaa-7035e38a31dc",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "핵심 결론",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "보충 강조",
+          "styles": {
+            "italic": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "굵고 기울인 강조",
+          "styles": {
+            "bold": true,
+            "italic": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "취소한 계획",
+          "styles": {
+            "strike": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "6ea13268-78a8-4925-9a5a-8d78ccc3ef82",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "실행 명령은 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "npm run dev",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "입니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "15e50809-5f9e-490e-a3c3-5f2692f9f917",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "파일명·명령·속성 이름에는 인라인 코드를 쓰고, 긴 프로그램에는 코드 블록을 쓰세요. 편집기에서는 글자를 선택한 뒤 서식 도구로 굵게·기울임·취소선·밑줄·코드·링크 등을 적용할 수도 있습니다. 밑줄과 글자색은 표준 Markdown으로 그대로 옮겨지지 않습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "7f4c4bd4-066a-4435-8b09-c0cee16564c1",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "3.2 링크에는 읽을 수 있는 이름을",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "9ba2ad4c-3887-4b73-98cd-50c25ab7942f",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "61d83789-8b20-4a5f-8165-9348bfec1305",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "[Anotar 사용법과 기술 구조](/pages/546e1325-762b-4ea4-9ce5-a37e4c43d2b5)\n[BlockNote 공식 문서](https://www.blocknotejs.org/docs)",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a7f3989d-ff7f-4abd-ac48-fa882ed08e0e",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "6c447afe-9ec3-4525-be92-aeff215558f1",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "link",
+          "href": "/pages/546e1325-762b-4ea4-9ce5-a37e4c43d2b5",
+          "content": [
+            {
+              "type": "text",
+              "text": "Anotar 사용법과 기술 구조",
+              "styles": {}
+            }
+          ]
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "2b9a5bf7-973a-4937-8acc-c8d29c13018b",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "link",
+          "href": "https://www.blocknotejs.org/docs",
+          "content": [
+            {
+              "type": "text",
+              "text": "BlockNote 공식 문서",
+              "styles": {}
+            }
+          ]
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "5a54c9b3-76ed-46b7-9ad2-3bb7260e64f0",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "개인 페이지의 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "/pages/...",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": " 주소는 로그인한 작업 공간 안의 이동 주소입니다. 이 링크를 글에 넣었다고 대상 페이지가 공개되는 것은 아닙니다. 외부 공유용 주소는 페이지 상단의 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "공유",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "에서 따로 발급합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "8d018fde-73d3-4fb2-a54c-06ba63ccf23e",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "3.3 기호를 글자 그대로 쓰기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "44cc87c9-f0ea-4ff7-9697-a0908fad9410",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "문법 기호 앞에 역슬래시를 붙이면 기호를 문자로 표현할 수 있습니다. 코드 영역 안에서는 문법을 다시 해석하지 않습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "161555cc-2cad-4131-b9fe-50d495f1c0f3",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "\\*강조가 아닌 별표\\*\n\\# 제목이 아닌 문장",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "419c8a98-aa7e-49db-9157-a82c269acf8a",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "2651f8f7-6d56-462f-a3db-85ef73d333f9",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "*강조가 아닌 별표*",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a10fe1eb-a3eb-47f8-930e-2a7ba903b0e3",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "# 제목이 아닌 문장",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "81c08012-0a7a-4582-b269-0fc075756994",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "코드 안에 역따옴표가 들어가면 바깥을 두 개로 감싸세요.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "cc297072-d8ef-466d-9173-5d87a953b74e",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "``문장 안의 `역따옴표`까지 코드로 표시``",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "c508bb2e-a32a-4108-83b9-90b6d2b9e49a",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "57147b17-5a6d-439d-b67f-e8235d60381b",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "문장 안의 `역따옴표`까지 코드로 표시",
+          "styles": {
+            "code": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a5ec21f6-cfb4-434f-b7a2-1089b954dc77",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "4. 목록·할 일·들여쓰기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "5162675e-257e-4c7a-8f03-0996cd7361bc",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "4.1 글머리와 번호 목록",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "f4abab79-890c-4a79-9d66-808401b6bdea",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "7daa5511-2c4b-4535-8e83-a82b5030e5ae",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "- 첫 번째 준비물\n- 두 번째 준비물\n\n1. 자료를 모읍니다.\n2. 결론을 정리합니다.\n3. 공유 전에 확인합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "f09976a5-1f14-44b9-ad75-a21db8787335",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4b3f987b-8a16-418d-9029-2206d8b9ffd1",
+      "type": "bulletListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "첫 번째 준비물",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "77dc52bb-9f4c-472a-8d15-989f1baec020",
+      "type": "bulletListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "두 번째 준비물",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "617964d6-8ce0-44a8-a65a-1081d3667d10",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "자료를 모읍니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4bd02a9d-68d3-4a04-acf5-32635da00c22",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "결론을 정리합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "e58b71fc-3293-4edc-8803-3b374f74b339",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "공유 전에 확인합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "d0517729-9df4-412f-88aa-4f7330f86d74",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "글머리 기호는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "* 항목",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "으로도 쓸 수 있습니다. 순서가 중요하면 번호 목록, 순서가 중요하지 않으면 글머리 목록을 사용하세요.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "04e1e0bc-b9c7-4c45-a45e-bab2e9a32f11",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "4.2 할 일 체크박스",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a7bcdae9-e5c7-4229-800e-621a10884ebe",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "73510b0a-91f6-4bd8-a835-c5bb9f56a5ae",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "- [ ] 문서 검토하기\n- [x] 작성 범위 정하기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "3bca4119-226d-4ecb-9915-b117db9d7349",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "c34622af-e45e-41eb-9877-d42280f26b44",
+      "type": "checkListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "checked": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "문서 검토하기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4ce842bd-7c51-46e6-8bae-08340b125c00",
+      "type": "checkListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "checked": true
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "작성 범위 정하기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "273a3eb9-00dc-4549-8912-599504e7cd73",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "[ ]",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": " 안에는 공백 하나를 넣습니다. 본문의 체크 목록은 문서 블록이며, 별도 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "할 일",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": " 화면의 항목과 자동으로 연결되지는 않습니다. 이 가이드의 체크박스는 설명용 예시입니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "442f01a9-ae50-4136-aa9a-9fa3152431d1",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "4.3 중첩과 일반 들여쓰기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "7d74cc33-1dcb-4a84-bb2e-44530f7ad82f",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "766ddb16-f8f3-491f-84a5-01e98d8541ec",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "- 큰 주제\n    - 하위 주제\n        - 세부 항목",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "c8b8e6fc-d90b-438a-b278-2c9cfd87f204",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "3f95de78-e147-4be4-bcb6-d0092d486961",
+      "type": "bulletListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "큰 주제",
+          "styles": {}
+        }
+      ],
+      "children": [
+        {
+          "id": "6d37700f-ab64-4965-a0ea-efede0197f92",
+          "type": "bulletListItem",
+          "props": {
+            "backgroundColor": "default",
+            "textColor": "default",
+            "textAlignment": "left"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "하위 주제",
+              "styles": {}
+            }
+          ],
+          "children": [
+            {
+              "id": "f782c62c-396b-489a-95d9-5797a26f3e67",
+              "type": "bulletListItem",
+              "props": {
+                "backgroundColor": "default",
+                "textColor": "default",
+                "textAlignment": "left"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "세부 항목",
+                  "styles": {}
+                }
+              ],
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3e605b24-61c0-4b36-a67a-b8824ed04728",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "직접 편집할 때는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "Tab",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "으로 바로 위 블록 안에 넣고 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "Shift+Tab",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "으로 꺼냅니다. 왼쪽 손잡이 메뉴에서도 들여쓰기와 내어쓰기를 고를 수 있습니다. 자식 묶음 옆의 옅은 점선은 깊이를 보여 주는 안내선입니다. 인용문의 실선과는 다른 표시입니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "5d0ab0c8-7f2c-4727-a84d-bd8b42e6ca58",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "5. 인용·구분선·접기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "7ba3e367-402a-4590-bfd0-624ce94ebe46",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "5.1 인용은 출처가 있는 문장에",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "d1730ee1-0e7e-4871-b753-714603de982d",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "붙여넣을 Markdown",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "865c1c2b-754b-4922-a081-e9f1529893f9",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "> 다른 문서에서 가져온 문장을 표시합니다.\n> 같은 인용 안의 다음 문장입니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "d43411aa-1419-4c3e-bea1-9a9599fb6bb5",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "292a083f-e5f6-4efd-9a16-37f42613ef8a",
+      "type": "quote",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "다른 문서에서 가져온 문장을 표시합니다.\n 같은 인용 안의 다음 문장입니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4ba9a5ab-7c07-4a63-94da-7fdf37da5125",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "실제 인용에는 작성자·문서명·출처 링크를 함께 적으세요. 빈 줄에서 직접 인용 블록을 만들려면 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "\"",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "와 스페이스를 입력하거나 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "/인용",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "을 고릅니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "baf4af51-f0f2-43de-9d4f-beb9aad59502",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "5.2 주제가 바뀌는 지점에 구분선",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "d91042c6-57df-4473-bf0e-66ebf7566c90",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a31eed59-db52-4bd8-bbbc-cf806462a900",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "---",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "96db4b4d-a020-4ffd-8936-c3faca9c261f",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "91359ea2-8d7b-45d4-8dbf-101d546efa8b",
+      "type": "divider",
+      "props": {},
+      "children": []
+    },
+    {
+      "id": "d65a15df-5ef2-4406-a799-806d2e4542ab",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "구분선 앞뒤에 빈 줄을 두세요. 문장 바로 아래의 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "---",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 Markdown에서 제목으로 해석될 수 있습니다. 짧은 문단마다 선을 넣기보다 큰 주제가 바뀌는 곳에 사용하세요.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "1e6cea4f-5cb5-4d45-aecf-24eae8c403ad",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "5.3 접는 목록과 접는 제목",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "04963d2b-3f16-4e66-837b-5f1376e34e5c",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "접기는 편집기 전용 기능입니다. ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "/접을 수 있는 목록",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": " 또는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "/접을 수 있는 제목",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "으로 만들고, 안에 넣을 블록을 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "Tab",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "으로 들여쓰세요. 제목 1~3단계에도 접기를 적용할 수 있습니다. 접힌 화살표를 누르면 자식 블록이 펼쳐집니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "854d84f4-8a0c-4a57-9315-843d9b339a66",
+      "type": "toggleListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "접기 예시 · 화살표를 눌러 보충 설명 보기",
+          "styles": {}
+        }
+      ],
+      "children": [
+        {
+          "id": "31f39849-c387-45b9-a692-fe370aa362e5",
+          "type": "paragraph",
+          "props": {
+            "backgroundColor": "default",
+            "textColor": "default",
+            "textAlignment": "left"
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "펼쳐지는 내용입니다. 긴 로그나 세부 근거를 이 안에 넣고, 중요한 결론은 접기 밖에 둡니다.",
+              "styles": {}
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "9624a81c-e076-46e6-a47e-54e82c1fb1e1",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "결론은 밖에 두고 로그·세부 근거·긴 설명을 접어 두면 읽기 편합니다. 점선 테두리는 콜아웃과 구별되는 접기 표시입니다. 일반 Markdown에는 이 접기 상태와 모양을 그대로 옮기는 문법이 없습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "3ba98398-b429-4268-8e0e-ad80fa672134",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "6. 표와 너비 조절",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "77d32619-728c-4bac-a1e3-afc989ab349f",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "6.1 머리글과 구분 행이 필요합니다",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "7622d539-9d10-4f52-a62c-77ba99080f5f",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "cde65e55-5dd2-459f-8b53-174057fa5c6a",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "| 요소 | 언제 쓰나요? | 예시 |\n| --- | --- | --- |\n| 목록 | 같은 성격의 항목 | 준비물 |\n| 번호 목록 | 진행 순서 | 작업 절차 |\n| 표 | 같은 기준으로 비교 | 역할 비교 |",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a87c2b58-b656-4828-abac-9195bef8a4fc",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "8d555b07-335c-4408-9703-a5485aa08392",
+      "type": "table",
+      "props": {
+        "textColor": "default"
+      },
+      "content": {
+        "type": "tableContent",
+        "columnWidths": [
+          160,
+          310,
+          240
+        ],
+        "headerRows": 1,
+        "rows": [
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "요소",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "언제 쓰나요?",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "예시",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "목록",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "같은 성격의 항목",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "준비물",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "번호 목록",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "진행 순서",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "작업 절차",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "표",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "같은 기준으로 비교",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "역할 비교",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    {
+      "id": "bf9eb9b7-44c9-4dac-9369-99ac35f74333",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표는 행마다 열 수를 맞추세요. 긴 설명을 여러 셀에 억지로 나누기보다 표 아래 일반 문단으로 풀어 쓰는 편이 낫습니다. 셀 안에서 줄을 강제로 나누면 화면 폭을 바꿨을 때 읽기 어려워질 수 있습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "348de510-be09-444b-a95e-1a09246398ab",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "6.2 본문 너비에 맞추기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "bc66a309-f867-4b04-bc32-4218cebee95f",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표 왼쪽 손잡이 메뉴의 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "본문 너비에 맞추기",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "를 누르면 열이 현재 본문 폭에 균등하게 배치됩니다. 이후 열 경계를 끌어 폭을 조절할 수 있습니다. 좁은 화면에서는 표 영역 안에서 가로로 스크롤합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "8772a8ee-b6c0-44f8-9e8e-afd11eaf6d09",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Markdown 표 원문에는 Anotar의 열 너비가 저장되지 않습니다. 셀 서식·머리글 모양을 정확히 보존하려면 원본 블록 JSON을 유지하세요. 현재 표에는 데이터베이스 필터나 수식 기능이 없습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "aed853ed-3e47-4aff-a018-2e281984eada",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "7. 코드 블록과 언어별 색상",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "7cd7e41d-cd9e-4673-b54c-7d14382c9e82",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "7.1 세 개의 역따옴표로 감쌉니다",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4341faa2-5753-46db-8a81-a75dcc235e7b",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "827f41b7-9156-40ac-9cf6-5b80442e3d32",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "```javascript\nconst message = \"Anotar\";\nconsole.log(message);\n```",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "821f4c7e-f2b1-484f-bc86-a2de5364c9ef",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "95cf7dcf-421a-4dc4-9fc0-9e00e63063de",
+      "type": "codeBlock",
+      "props": {
+        "language": "javascript"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "const message = \"Anotar\";\nconsole.log(message);",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "e266a4fa-8ed7-4383-bd3c-b3cf4307e944",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "첫 줄의 언어명이 구문 강조에 사용됩니다. 블록에 마우스를 올리거나 키보드 초점을 두면 오른쪽 도구에서 언어를 바꾸고 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "복사",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "를 누를 수 있습니다. 터치 화면에서는 도구를 바로 표시합니다. 복사는 현재 코드의 공백·줄바꿈을 유지하며 언어명이나 Markdown 울타리를 포함하지 않습니다. 성공하면 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "복사됨",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", 권한 등으로 실패하면 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "복사 실패",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "와 직접 선택해 복사하라는 안내를 표시합니다. 공유·오프라인 HTML에도 복사 버튼이 있습니다. 언어를 일반 텍스트로 바꾸면 색상 강조가 사라집니다. 코드는 표시용이며 페이지에서 자동 실행하지 않습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "0a19f487-7a26-4339-aa26-b6a22504170d",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "7.2 현재 선택 가능한 언어",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "d5f0b934-8349-4aaf-b628-c949ccef5e1e",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "일반 텍스트, JavaScript, TypeScript, JSX, TSX, Python, SQL, Bash / Shell, JSON, HTML, CSS, YAML, Markdown, Java, C, C++, C#, Go, Rust, Dockerfile, Diff, Mermaid를 고를 수 있습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "c256d9ba-5fe8-4d63-9211-2e8d4e29b7e9",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "흔히 쓰는 별칭은 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "js",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "ts",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "py",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "sh",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "yml",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "md",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "입니다. Mermaid는 다음 절의 다이어그램으로 작성하면 그림으로 볼 수 있습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "71027c16-59c7-467b-8b57-1134ba635017",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "명령과 설정 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "5eceaa1a-7daf-4829-bf36-9bd8f9b2008f",
+      "type": "codeBlock",
+      "props": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "# 예시 명령입니다. 실행할 경로를 먼저 확인하세요.\nnpm run dev:oracle",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "53278f1b-d459-47bc-ac7c-edffcd00c6b9",
+      "type": "codeBlock",
+      "props": {
+        "language": "json"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"title\": \"문서 제목\",\n  \"status\": \"draft\"\n}",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "6d822f4c-ff37-412a-aa1c-c2bdcae0390d",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "7.3 코드 울타리 자체를 보여 주기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "bcf1243e-b840-4061-8320-cc5024719163",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "안에 세 개의 역따옴표가 들어갈 때 바깥 울타리를 네 개로 만들면 됩니다. 이 절의 첫 입력 예시도 그 방법으로 작성했습니다. 인라인 코드와 코드 블록은 서로 다른 기능입니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "96aca8ee-20d5-48fe-8ef5-80a9c238a688",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "8. Mermaid 다이어그램",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "31c893f2-5946-4ed7-9516-6816654f5e58",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "8.1 흐름도 작성하기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "ba0de1bf-45d6-41fd-b672-9fbea9f93a36",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "mermaid",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": " 언어의 코드 울타리를 붙여넣으면 다이어그램 블록으로 변환합니다. ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "/다이어그램",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "으로 빈 블록을 만든 뒤 소스를 작성해도 됩니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "fccf99f2-0d40-44ab-92ab-15e8920849e2",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "94ee6f19-ba87-45e3-97e5-a04856112c73",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "```mermaid\nflowchart LR\n    A[자료 모으기] --> B[문서 작성]\n    B --> C[검토]\n    C --> D[공유]\n```",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a806e99c-97b0-4ad5-ba51-9339e16da4f2",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "fb76c480-bdd8-4f74-8601-6d162ad67fdc",
+      "type": "diagram",
+      "props": {},
+      "content": [
+        {
+          "type": "text",
+          "text": "flowchart LR\n    A[자료 모으기] --> B[문서 작성]\n    B --> C[검토]\n    C --> D[공유]",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "15c98984-b4ad-4f6a-8d7a-1135c345e351",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "LR",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "은 왼쪽에서 오른쪽, ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "TD",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 위에서 아래입니다. ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "A",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": ", ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "B",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 노드 식별자이며 대괄호 안의 글자가 화면에 표시됩니다. 모바일에서 너무 길면 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "TD",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "로 방향을 바꾸거나 흐름을 작게 나누세요.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "2bce26a7-c35e-4333-8d0d-77affb879e76",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "8.2 주고받는 순서는 시퀀스 다이어그램",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "3590d4e4-0fe7-4010-95c6-061a18090b6d",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "f6a94d88-2e55-4591-8e0b-77d793440721",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "```mermaid\nsequenceDiagram\n    participant U as 작성자\n    participant P as 문서\n    U->>P: 내용 작성\n    P-->>U: 검토할 초안\n    U->>P: 공개할 내용 확인\n```",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "0993dac3-867f-4179-9134-3924d39db5c4",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표시 예시",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "c7c28012-5238-413f-afd6-90cf3bca7fff",
+      "type": "diagram",
+      "props": {},
+      "content": [
+        {
+          "type": "text",
+          "text": "sequenceDiagram\n    participant U as 작성자\n    participant P as 문서\n    U->>P: 내용 작성\n    P-->>U: 검토할 초안\n    U->>P: 공개할 내용 확인",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "f2b82441-a0e2-46ae-bd18-fa71a9b67ab8",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "위 그림은 작성 순서를 보여 주는 설명용 예시입니다. 실제 서버 동기화 통신 규격을 뜻하지 않습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "eca97199-7eb1-4479-8713-1e3cddcea728",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "8.3 수정·확대·오류 확인",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "e8c4f3b4-0cb8-4cb1-b3a5-065e8542b41c",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "다이어그램에 마우스를 올리면 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "소스 수정",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "과 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "확대 보기",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "가 나타납니다. 소스는 Mermaid로 고정되며 일반 코드 블록의 언어 선택과 다릅니다. 문법 오류가 나면 원문은 남고 오류 안내가 표시됩니다. 그래프 전체의 의미를 짧은 문장으로 먼저 설명하고, 그림을 그 문장의 보충 자료로 쓰면 좋습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "763512fb-4f80-49a7-b79d-5852a804dadd",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "9. 콜아웃·목차·문서 구성",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "0873178b-2bcc-45b4-9b5d-2bf1e7d2df86",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "9.1 콜아웃은 중요한 안내에",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "c2e8c9aa-73ef-4379-af73-f6a2d5d15943",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "/콜아웃",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "으로 만듭니다. 기본은 투명 배경과 얇은 테두리입니다. 왼쪽 아이콘의 모양 설정에서 투명·배경색, 아이콘, 테두리를 바꿀 수 있습니다. 아이콘은 아이디어·안내·주의·확인·없음 중에서 고릅니다. 왼쪽 블록 메뉴의 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "콜아웃 아이콘 → 아이콘 없음",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "으로 빈자리까지 없앨 수도 있습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "79589e65-829d-4b6c-9ffe-de7fc32f6428",
+      "type": "callout",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "icon": "info",
+        "border": true
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "콜아웃 예시 · ",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "이 문장은 문서 작성 방법을 보여 주는 안내입니다. 아이콘·색·테두리를 바꿔 볼 수 있습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "01b93c81-6971-4a09-a35c-8b9025d76e47",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "박스 안에서는 일반 글·굵게·인라인 코드·링크를 사용할 수 있습니다. ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "Shift+Enter",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "로 내부 줄을 바꾸고, ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "Tab",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "으로 자식 블록을 넣습니다. 같은 성격의 콜아웃을 연달아 쌓기보다 한 박스에 필요한 안내를 모아 주세요.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "11c918b3-01eb-49f8-a7d8-dee4d8b30b8e",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "9.2 목차는 제목에서 자동으로 만듭니다",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "9c2406f8-9875-4ea2-949d-39ffb720abe9",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "/목차",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "를 한 번 넣습니다. 제목 블록을 추가하거나 고치면 목차도 바뀝니다. 손잡이 메뉴에서 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "대표 제목만 목차에 표시",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": " 또는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "소제목까지 목차에 표시",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "를 고를 수 있습니다. 긴 글에서는 큰 장만 표시하고 세부 절은 본문에서 읽는 구성이 간결합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "616a58d2-8719-4f14-af55-bf17642c9652",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "이 가이드 상단의 목차가 실제 예시입니다. 목차처럼 보이는 별도 링크 목록을 다시 만들 필요가 없습니다. 목차는 Markdown 내보내기에 포함되지 않으므로 다른 문서에서 필요하면 다시 넣어 주세요.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "ed2eafda-8dc7-4e30-b718-c4ad3c7052b3",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "9.3 좋은 설명서의 기본 순서",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "ab085daa-b07e-4295-a053-38c98436f212",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "무엇을 설명하는지 짧게 소개합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "25dbeca0-b103-41a5-b4c8-22f5a5a8ef43",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "먼저 필요한 결론이나 전체 흐름을 보여 줍니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "e9644e23-e81c-4876-8fe3-b1443e88cda7",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "제목과 소제목으로 내용을 나눕니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4f81b5f7-1d1a-466c-9171-0f66ca7b70d0",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력 예시, 결과, 주의사항을 가까이 둡니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "373720c1-3cc9-4102-9e4b-3531fe85a9d3",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "관련 링크와 확인 날짜를 남깁니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "261692dc-9948-43b0-95bc-d7536f9af1a9",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "표는 비교, 다이어그램은 관계와 흐름, 코드 블록은 원문, 접기는 보충 설명에 사용하세요. 모든 정보를 박스로 감싸거나 모든 문장에 굵게를 넣으면 우선순위가 흐려집니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "01c0d5de-302c-4378-9882-021458549311",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "10. 페이지·북마크·이미지·첨부",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "0f32c36a-c20a-45d7-88a1-197ee9798823",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "10.1 새 하위 페이지와 기존 페이지 연결",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4a31c64b-de2d-4d3e-a674-62a25ba74e32",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "/페이지",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 새 하위 페이지를 만들고 현재 문서에 이동 블록을 넣습니다. 기존 페이지는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "더보기 → 페이지 링크 복사",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": " 후 다른 문서의 빈 줄에 붙여넣어 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "페이지 링크",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "를 선택하세요. 사이드바에서 하위에 배치하는 것과 본문에 이동 블록을 넣는 것은 별개의 작업입니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "f591a1b8-f839-4b57-8624-6583a2f34462",
+      "type": "page",
+      "props": {
+        "pageId": "546e1325-762b-4ea4-9ce5-a37e4c43d2b5",
+        "title": "Anotar · 사용법과 기술 구조"
+      },
+      "children": []
+    },
+    {
+      "id": "82ca601b-a95e-4fd5-bddc-ddc91a6723a4",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "연결은 이동 경로이며 대상 문서를 복사하거나 공개하는 기능이 아닙니다. 대상 페이지를 휴지통으로 옮기면 링크가 열리지 않을 수 있습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "e691ac15-bbf9-4365-89e8-3918820dd223",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "10.2 URL 북마크",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "f1662b9c-ed45-40c3-bb76-74e36143675e",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "URL 하나를 빈 줄에 붙여넣으면 일반 링크 또는 북마크를 선택할 수 있습니다. 북마크는 가져온 제목·설명·대표 이미지 사본을 표시합니다. 정보를 읽지 못하면 일반 링크를 남기고 나중에 다시 확인하세요. Markdown으로 내보내면 제목 링크와 설명이 남고 북마크 이미지 사본은 함께 옮겨지지 않습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "1970b2c8-25bb-4dfa-a5bb-d1632ea7c9b2",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "10.3 이미지는 실제 파일을 첨부합니다",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "0dd24ad9-196e-44c4-b8d7-40d786b9c1a3",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "일반 Markdown의 아래 문법은 알고 있어도 됩니다. 다만 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "현재 Anotar는 이 외부 이미지 URL을 자동으로 내려받아 이미지 블록으로 만들지 않습니다.",
+          "styles": {
+            "bold": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "f5411fcb-45e0-4da2-ac8d-7a443c9cde34",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "![그림 설명](https://example.com/image.png)",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "44736f71-a283-4ce6-b2f0-9edd5ec82282",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "이미지·파일은 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "더보기 → 파일 첨부",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "로 넣으세요. 메모의 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "내 페이지에 정리",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "를 사용하면 보관한 내용과 첨부를 문서에 가져올 수도 있습니다. 문서에는 파일 참조가 들어가고 실제 파일 바이트는 별도로 보관됩니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a8882add-5699-4078-bf9d-7b07c5f0a994",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "페이지 공유는 현재 페이지 본문에 직접 배치한 첨부만 공개합니다. 하위 페이지·연결된 개인 페이지의 본문을 함께 공개하지 않습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a4f72a8c-27db-497f-b923-921f26b8cf68",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "10.4 이모지와 대표 아이콘",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "90b82835-c64b-461a-9d1d-1e50a51ade0e",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "본문에서 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": ":",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": " 또는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "/이모지",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "로 선택창을 열 수 있습니다. 제목 위의 대표 아이콘은 본문 이모지와 별도입니다. 의미를 구별하는 데 도움이 되는 곳에만 사용하세요.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "9d28f1c3-06e3-47e3-b04c-0982e024b98f",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "11. 편집·글자 크기·저장",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "aab8d176-62bc-410c-84e3-dd3ed0f385ac",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "11.1 블록 이동과 계속 쓰기",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "6072e964-7fe8-46ad-bfc9-51f937546fa4",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "왼쪽 손잡이를 끌어 블록 순서를 바꿉니다. 여러 블록을 선택하면 다른 페이지로 옮기거나 AI 요청에 사용할 수 있습니다. 본문 아래 빈 공간을 누르면 마지막 문단에서 이어 쓸 수 있습니다. 한 문단에는 한 가지 주제만 담고 긴 문장은 나눠 주세요.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "abcc39a0-0fd7-48b9-a69b-e570341d4630",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "11.2 폰트와 크기는 설정에서",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "ca8f1a5c-4058-42a0-a469-d889406643ce",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "설정 → 화면",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "에서 시스템 글꼴을 Pretendard 또는 RIDIBatang으로 바꿀 수 있습니다. 페이지 글자 크기는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "작게·보통·크게",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "를 고르고 제목 1·2·3·4 비율, 줄간격, 문단 간격도 조절할 수 있습니다. 현재 기본은 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "작게(본문 14px)",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "입니다. 제목 4도 본문보다 크게 표시되도록 비율 하한을 둡니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4338b5e2-dea7-4e19-af69-f855d9eff089",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "오른쪽 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "기본값으로 설정",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "은 현재 값을 새로운 기본으로 만드는 버튼이 아니라, 본문·제목·간격을 처음의 작은 크기 설정으로 되돌리고 저장하는 버튼입니다. 공유 화면의 글자 크기도 기본은 작게이며 독자가 자신의 브라우저에서 바꿀 수 있습니다. 크기 선택은 문서 본문을 바꾸지 않습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "78ecc32f-eb0b-4872-b583-3e3a54b80500",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "11.3 기기 저장과 서버 반영은 다릅니다",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a993213e-e51b-46c8-a2b9-e55da84ff84d",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "입력은 기기에 먼저 저장하고 서버에 모아 전송합니다. ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "기기에 저장됨",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "과 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "서버에 반영됨",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "은 서로 다른 확인입니다. 공개 공유 페이지에는 서버에 반영된 본문이 표시됩니다. 서로 다른 변경이 충돌하면 해당 페이지에서 양쪽 사본을 비교하고 반영할 내용을 선택하세요.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "128107a1-cd2e-44da-a2b0-0a284e6958d4",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "12. Markdown 내보내기와 지원 한계",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "f7230b38-eb0c-4608-a6bb-ab5b333a4690",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "12.1 원본은 블록 JSON",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "c02be588-ea1e-4c77-8923-a6c9f266795b",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Anotar 페이지는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "schemaVersion: 1",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "의 블록 JSON으로 저장됩니다. Markdown은 붙여넣기·보기·복사·AI 입력에 쓰는 교환 형식입니다. ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": ".md",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "만 보관해도 모든 모양과 연결이 완전히 복원되는 것은 아닙니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "e6da83c3-fd41-4eaa-ae07-aba44289ca88",
+      "type": "table",
+      "props": {
+        "textColor": "default"
+      },
+      "content": {
+        "type": "tableContent",
+        "columnWidths": [
+          220,
+          490
+        ],
+        "headerRows": 1,
+        "rows": [
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "기능",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Markdown으로 옮길 때",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "문단·제목·목록·강조·링크",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "일반적인 텍스트 구조를 표현",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "코드·Mermaid",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "언어명과 소스를 코드 울타리로 표현",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "표",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "셀 내용은 표현하지만 열 너비는 보존하지 않음",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "콜아웃",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "본문을 인용문으로 표현; 색·아이콘·테두리는 빠짐",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "접기",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "접기 모양과 상태를 그대로 보존하지 않음",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "목차",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "내보내기에서 제외",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "페이지 링크",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "개인 앱의 이동 주소이며 대상 본문은 포함하지 않음",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "첨부",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "앱 전용 참조 설명이며 파일 바이트는 포함하지 않음",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          },
+          {
+            "cells": [
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "원본 메모 관계",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              },
+              {
+                "type": "tableCell",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "내보내기에서 제외",
+                    "styles": {}
+                  }
+                ],
+                "props": {
+                  "colspan": 1,
+                  "rowspan": 1,
+                  "backgroundColor": "default",
+                  "textColor": "default",
+                  "textAlignment": "left"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    {
+      "id": "e92147e4-fd52-44fe-a1d1-643d03296dbf",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "읽을 수 있는 사본이 필요하면 오프라인 HTML 내보내기를, 정확한 복원이 필요하면 DB와 첨부를 함께 백업하는 방식을 사용하세요. AI에 문서를 요청해도 링크 대상의 본문이나 파일 바이트가 자동으로 전달되는 것은 아닙니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "3cfbd69b-7e7b-4891-8ef4-1bf39e9fdb3e",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 2,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "12.2 현재 보존을 보장하지 않는 문법",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "6f78e3cb-7398-4b2f-a401-40d1629ccb0b",
+      "type": "bulletListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "각주: ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "[^1]",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "과 각주 정의",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "c9e6054f-8d24-4666-8ea0-70eebd88fff2",
+      "type": "bulletListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "수식: ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "$...$",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": " 또는 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "$$...$$",
+          "styles": {
+            "code": true
+          }
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "d5a88550-2d70-47b5-bf46-7606ee3340f2",
+      "type": "bulletListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "정의 목록·MDX·임의 HTML",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "1d587f93-3ff5-4f78-b690-e8e2fabf9642",
+      "type": "bulletListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "외부 이미지 URL의 자동 이미지 첨부",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "a6a91c01-4c97-459e-8967-42872855cf66",
+      "type": "bulletListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "밑줄·글자색·배경색 등 표준 Markdown에 없는 모양",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4a07ae52-e709-4a8a-b348-bf26d1a25c7b",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "지원되지 않는 문법을 쓰면 일반 글자로 남거나 구조가 바뀔 수 있습니다. 중요한 문서를 옮길 때는 코드·표·링크와 첨부를 실제 화면에서 확인하세요. 문서당 최대 1,000개 블록, 중첩 깊이 8단계, 표당 200행·30열 제한이 있습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "0ad511ae-9da1-4996-a9e8-e86f22aad62a",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "13. 바로 복사할 문서 틀",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "d77768e2-0389-488b-a18b-1540ea7d789a",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "아래는 기능 설명서용 빈 틀입니다. 중괄호 부분은 실제로 확인한 내용으로 바꾸세요. 확인하지 않은 기능·수치·검증 결과를 사실처럼 채우지 마세요. 긴 글에는 붙여넣은 뒤 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "/목차",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "를 한 번 추가하면 됩니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "6e89c6b4-2ac7-418d-9ac3-c74db9d9f35c",
+      "type": "codeBlock",
+      "props": {
+        "language": "markdown"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "# 1. 무엇을 설명하나요?\n\n{대상 독자와 이 글을 읽고 할 수 있는 일을 두 문장으로 설명합니다.}\n\n## 1.1 먼저 알아둘 것\n\n- {필요한 준비}\n- {현재 지원하는 범위}\n\n# 2. 사용 순서\n\n1. {첫 번째 작업}\n2. {두 번째 작업}\n3. {결과 확인}\n\n## 2.1 입력 예시\n\n```json\n{\n  \"title\": \"실제 입력 예시\"\n}\n```\n\n## 2.2 결과와 주의사항\n\n{어떤 결과가 보이며, 실패하면 무엇을 확인할지 씁니다.}\n\n# 3. 관계와 흐름\n\n```mermaid\nflowchart TD\n    A[입력] --> B[처리]\n    B --> C[확인]\n```\n\n# 4. 확인과 다음 할 일\n\n- [ ] {완료 기준이 있는 확인 항목}\n- [ ] {다음 작업}\n\n## 4.1 변경 기록\n\n| 날짜 | 바뀐 내용 | 확인 범위 |\n| --- | --- | --- |\n| {YYYY-MM-DD} | {실제 변경} | {직접 확인한 것} |\n\n## 4.2 참고 자료\n\n[출처 이름](https://example.com/)",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "4140a5d4-bdee-4267-8d70-4a07926951f7",
+      "type": "heading",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left",
+        "level": 1,
+        "isToggleable": false
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "14. 에이전트가 문서를 작성할 때",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "d00dff43-a6e0-4bc3-8911-3d2fe8c1eedc",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "현재 MCP 연결은 아직 추가하지 않았습니다. 나중에 연결하더라도 아래 기준을 지키면 문서의 모양과 사용자 자료를 보존하기 쉽습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "d64f21db-7ba0-4ed4-93bc-9f32a78e7e8d",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "먼저 현재 페이지와 버전을 읽습니다. 작성 전에 확인한 원본을 보관합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "af0c03da-25b1-4c74-9bc2-ea864fbc0b74",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "일반 문장은 Markdown으로 작성하고, 목차·콜아웃·접기·표 너비처럼 전용 속성이 필요한 부분은 블록 JSON으로 표현합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "9f71e147-ca32-40b8-90c6-b46487aacbdb",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "기존 블록을 고칠 때 ID를 유지합니다. 전체 내용을 새 블록으로 바꾸면 댓글·참조의 연결에 영향을 줄 수 있습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "77aa67c4-1c7b-4ff6-803d-6cc7f0ebca3b",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "저장할 때 ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "expectedVersion",
+          "styles": {
+            "code": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "을 포함합니다. 버전이 바뀌었으면 다시 읽고 비교하며 강제로 덮어쓰지 않습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "427e4802-2001-46e2-9443-e60aa53b19b1",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "첨부·페이지 참조는 실제 ID를 사용합니다. 링크만 넣고 파일이 옮겨졌거나 페이지가 공유됐다고 설명하지 않습니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "c68b94f9-c86b-4af1-a553-94e0dc7e5af0",
+      "type": "numberedListItem",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "공유·휴지통 이동은 문서 작성과 별도 작업으로 다룹니다. 최종 페이지를 읽어 본문과 저장 결과를 확인합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "724e0363-7e0a-4270-82f3-3e4ef88bd4c1",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "원본과 예시를 같이 보면서 필요한 절만 복사해 사용하세요. ",
+          "styles": {}
+        },
+        {
+          "type": "text",
+          "text": "사용법과 기술 구조",
+          "styles": {
+            "bold": true
+          }
+        },
+        {
+          "type": "text",
+          "text": "는 서비스 전체 흐름, 이 가이드는 문서를 쓰는 방법을 설명합니다.",
+          "styles": {}
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "cccadb7a-5dcd-452c-9495-95f36e1875c3",
+      "type": "paragraph",
+      "props": {
+        "backgroundColor": "default",
+        "textColor": "default",
+        "textAlignment": "left"
+      },
+      "content": [],
+      "children": []
+    }
+  ]
+}

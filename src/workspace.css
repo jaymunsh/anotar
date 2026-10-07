@@ -1,6 +1,9 @@
 /* Shared workspace rhythm. Route-specific form and state styles remain local. */
 .sidebar {
   --sidebar-inline-padding: 8px;
+  --sidebar-icon-width: 18px;
+  --sidebar-icon-gap: 7px;
+  --sidebar-notice: #e4c795;
   padding: 0 var(--sidebar-inline-padding) 12px;
 }
 .sidebar .brand {
@@ -256,14 +259,33 @@
   padding-inline: 4px;
 }
 .sidebar .workspace-quick-link {
-  gap: 7px;
+  gap: var(--sidebar-icon-gap);
 }
 .sidebar .workspace-quick-icon {
-  width: 18px;
+  width: var(--sidebar-icon-width);
   justify-content: center;
+  font-size: 14px;
+  line-height: 1;
 }
 .sidebar .sidebar-pages-heading {
   margin-inline: 4px;
+}
+.sidebar .workspace-quick-section h2,
+.sidebar .sidebar-pages-heading {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  color: inherit;
+}
+@media (min-width: 761px) and (hover: hover) and (pointer: fine) {
+  .sidebar .sidebar-pages-heading > button {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .sidebar .sidebar-pages-heading:is(:hover, :focus-within) > button {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 /* Dense navigation for a mouse; touch layouts retain their larger targets. */
 @media (min-width: 761px) and (pointer: fine) {
@@ -299,6 +321,8 @@
     flex-basis: 24px;
   }
   .sidebar .workspace-navigation .sidebar-page-toggle {
+    width:24px;
+    flex-basis:24px;
     margin-right: 1px;
   }
   .sidebar .workspace-navigation .sidebar-page-row {
@@ -311,6 +335,35 @@
 }
 
 /* Toolbar owns route titles; body begins with local filters or editable content. */
+@media(max-width:760px) {
+  .sidebar { width:min(320px,calc(100vw - 48px)); }
+  .sidebar .workspace-quick-section { margin-bottom: 12px; }
+  .sidebar .workspace-quick-section h2 {
+    display: flex;
+    align-items: center;
+    min-height: 28px;
+  }
+  .sidebar .sidebar-pages-heading {
+    position: relative;
+    min-height: 28px;
+    margin-bottom: 7px;
+  }
+  .sidebar .sidebar-pages-heading > button {
+    position: absolute;
+    right: 0;
+    top: -8px;
+  }
+  /* Center the 44px touch control on the same 18px icon slot as favorites. */
+  .sidebar .workspace-navigation .sidebar-page-toggle {
+    margin-inline-start: calc((var(--sidebar-icon-width) - 44px) / 2);
+    margin-inline-end: calc(var(--sidebar-icon-gap) + (var(--sidebar-icon-width) - 44px) / 2);
+  }
+  .sidebar .workspace-navigation .sidebar-page-item {
+    font-size: 13px;
+    line-height: 20px;
+    color: inherit;
+  }
+}
 .workspace-hint {
   margin: 0 0 18px;
   font-size: 13px;

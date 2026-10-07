@@ -764,6 +764,13 @@ const server = createServer(async (request, response) => {
       const result = store.createPageShare(pageSharesMatch[1], body);
       return json(response, result ? 201 : 404, result || { error: '페이지를 찾을 수 없어요.' });
     }
+    const shareLinkMatch = url.pathname.match(/^\/api\/pages\/([a-f0-9-]+)\/shares\/([a-f0-9-]+)\/link$/);
+    if (shareLinkMatch && request.method === 'GET') {
+      try {
+        const token=store.getPageShareToken(shareLinkMatch[1],shareLinkMatch[2]);
+        return json(response,token?200:404,token?{url:`${publicShareOrigin}/s/${token}`}:{error:'다시 확인할 수 있는 공유 링크가 없어요.'});
+      } catch {return json(response,409,{error:'공유 링크를 읽지 못했어요. 백업의 공유 링크 키를 확인해 주세요.'});}
+    }
     const shareMatch = url.pathname.match(/^\/api\/pages\/([a-f0-9-]+)\/shares\/([a-f0-9-]+)$/);
     if (shareMatch && request.method === 'PATCH') {
       const item = store.updatePageShare(shareMatch[1], shareMatch[2], await readPageJson(request));
@@ -780,6 +787,18 @@ const server = createServer(async (request, response) => {
         revoked ? 200 : 404,
         revoked ? { revoked: true } : { error: '공유 링크를 찾을 수 없어요.' },
       );
+    }
+    const pageLockMatch=url.pathname.match(/^\/api\/pages\/([a-f0-9-]+)\/lock$/);
+    if(pageLockMatch && ['GET','PUT'].includes(request.method)) {
+      const id=pageLockMatch[1];
+      if(request.method==='PUT') {
+        const body=await readPageJson(request);
+        if(Object.keys(body).some(key=>!['locked','expectedLockVersion','expectedVersion'].includes(key)))
+          throw new PageValidationError('페이지 잠금 설정을 확인해 주세요.');
+        store.setPageLock({id,...body});
+      }
+      const item=store.getPageLock(id);
+      return json(response,item?200:404,item?{item}:{error:'페이지를 찾을 수 없어요.'});
     }
     const pageMatch = url.pathname.match(/^\/api\/pages\/([a-f0-9-]+)$/);
     if (pageMatch) {
@@ -1022,13 +1041,14 @@ const server = createServer(async (request, response) => {
 });
 
 server.listen(port, host, () => {
-  // A restored development copy must not consume copied jobs or run scheduled backups.
-  if (process.env.BACKGROUND_WORKERS_ENABLED !== 'false') {
-    aiWorker.start();
+  // Local copies can explicitly enable AI without starting OCR or scheduled backups.
+  const backgroundEnabled = process.env.BACKGROUND_WORKERS_ENABLED !== 'false';
+  if (backgroundEnabled || process.env.AI_WORKER_ENABLED === 'true') aiWorker.start();
+  else void aiWorker.stop();
+  if (backgroundEnabled) {
     ocrWorker.start();
     void backups.start().catch((error) => console.error('백업 초기화 실패:', error.message));
   } else {
-    void aiWorker.stop();
     void ocrWorker.stop();
   }
   console.log(`Storage API: http://${host}:${port}`);

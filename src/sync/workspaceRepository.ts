@@ -260,6 +260,7 @@ export function workspaceRepository(
           current: Pending | undefined = await idbRequest(store.get(pending.key));
         if (
           !current ||
+          current.localRevision !== pending.localRevision ||
           !['queued', 'sending'].includes(current.state) ||
           current.nextAttemptAt > clock()
         )

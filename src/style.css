@@ -549,15 +549,6 @@ a {
   gap: 10px;
   padding: 22px 25px 20px;
 }
-.composer-heading-icon {
-  display: grid;
-  place-items: center;
-  width: 27px;
-  height: 27px;
-  color: #42684d;
-  background: #eaf1e4;
-  border-radius: 8px;
-}
 .composer-heading strong {
   font-size: 15px;
   letter-spacing: normal;
@@ -1671,10 +1662,6 @@ kbd {
     flex: 0 0 auto;
     padding: max(12px, env(safe-area-inset-top)) 18px 12px;
   }
-  .composer.mobile-open .composer-heading-icon {
-    width: 32px;
-    height: 32px;
-  }
   .composer.mobile-open .composer-heading strong {
     font-size: 17px;
   }
@@ -1904,3 +1891,7 @@ kbd {
   border: 1px solid var(--theme-line);
   border-radius: 6px;
 }
+/* Application-wide reading preference; code and diagram canvases remain specialized. */
+:root[data-app-font='pretendard'] { --font-ui:'Pretendard Variable','Noto Sans KR',sans-serif; }
+:root[data-app-font='ridibatang'] { --font-ui:'RIDIBatang','Noto Sans KR',serif; font-synthesis:weight style; }
+:root[data-app-font='ridibatang'] .page-document { font-synthesis:weight style; }

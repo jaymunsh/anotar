@@ -1,14 +1,54 @@
-import { defineConfig } from 'vite';
+import { build, defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 // One portable source document is served in development and emitted unchanged for deployment.
-const architectureFile = fileURLToPath(new URL('./docs/architecture-overview.html', import.meta.url));
+const architectureFile = fileURLToPath(
+  new URL('./docs/architecture-overview.html', import.meta.url),
+);
 
 export default defineConfig({
   plugins: [
     react(),
+    {
+      name: 'anotar-public-diagram-viewer',
+      apply: 'build',
+      async closeBundle() {
+        // A separate build prevents the public entry from sharing editor/React chunks.
+        await build({
+          configFile: false,
+          publicDir: false,
+          build: {
+            outDir: 'dist/share-viewer',
+            emptyOutDir: true,
+            rollupOptions: {
+              input: fileURLToPath(new URL('./src/diagrams/public.ts', import.meta.url)),
+              output: {
+                format: 'es',
+                entryFileNames: 'entry.js',
+                chunkFileNames: '[name]-[hash].js',
+                assetFileNames: '[name]-[hash][extname]',
+              },
+            },
+          },
+        });
+        await build({
+          configFile: false,
+          publicDir: false,
+          build: {
+            outDir: 'dist',
+            emptyOutDir: false,
+            lib: {
+              entry: fileURLToPath(new URL('./src/code/public.ts', import.meta.url)),
+              formats: ['iife'],
+              name: 'AnotarCodeCopy',
+              fileName: () => 'share-code.js',
+            },
+          },
+        });
+      },
+    },
     {
       name: 'anotar-architecture-document',
       configureServer(server) {
@@ -24,7 +64,11 @@ export default defineConfig({
         });
       },
       generateBundle() {
-        this.emitFile({ type: 'asset', fileName: 'architecture.html', source: readFileSync(architectureFile) });
+        this.emitFile({
+          type: 'asset',
+          fileName: 'architecture.html',
+          source: readFileSync(architectureFile),
+        });
       },
     },
   ],
@@ -32,6 +76,11 @@ export default defineConfig({
     host: '127.0.0.1',
     port: Number(process.env.DEV_PORT || 5173),
     // Keep the browser's Host/Origin pair intact for the private request guard.
-    proxy: { '/api': { target: `http://127.0.0.1:${process.env.DEV_API_PORT || 8787}`, changeOrigin: false } },
+    proxy: {
+      '/api': {
+        target: `http://127.0.0.1:${process.env.DEV_API_PORT || 8787}`,
+        changeOrigin: false,
+      },
+    },
   },
 });

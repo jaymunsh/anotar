@@ -95,6 +95,9 @@
   gap: 6px;
   margin-top: 11px;
 }
+.page-share-link-section { margin-top:16px; padding-bottom:14px; border-bottom:1px solid var(--theme-line); }
+.page-share-link-section > strong { font-size:13px; font-weight:600; }
+.page-share-link-section .page-share-active { border-top:0; margin-top:9px; padding-top:0; }
 .page-share-url input {
   flex: 1;
   min-width: 0;
@@ -132,6 +135,8 @@
   outline-offset: 2px;
 }
 @media (max-width: 760px) {
+  .page-share-panel button,.page-share-panel select,.page-share-url input,.page-share-url a { min-height:44px; }
+  .page-share-url a { width:44px; }
   .page-share-panel {
     position: fixed;
     top: calc(54px + env(safe-area-inset-top));

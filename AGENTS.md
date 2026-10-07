@@ -192,7 +192,7 @@ node scripts/benchmark-search.mjs                 # 임시 1만·10만 혼합 �
 - 지도 아래 장소 이름은 `staticMapStops`로 같은 좌표 핀/번호를 사용한다. 좌표 없는 장소를 번호 목록에 추가하거나 이동에 번호를 붙이지 않는다. 공유/오프라인의 이름·URL은 escape한다. 지도 설정의 editor.isEditable 조건부 unmount는 저장 잠금 해제 후 조작이 돌아오지 않을 수 있으므로 context disabled 상태로 관리한다.
 - 댓글 버튼은 편집기 내부 56px 여백과 44px 버튼을 유지한다. 음수 right로 외부에 붙이거나 모바일 본문에 별도로 40px 여백을 중복 추가하지 않는다. PC의 보조 공간은 열기/닫기와 무관하게 확보하며 일정 버튼은 바깥 margin보다 실제 표면에 맞춘다.
 
-일정 읽기 UI를 고칠 때는 [일정 읽기 brief](.impeccable/briefs/itinerary-reading.md)와 CURRENT_IMPLEMENTATION의 여행 문서 읽기 구조를 함께 확인한다. 개인/공유는 `shared/itineraryReading.ts`·`public/itinerary-timetable.css`를 공유한다. 새 공개 CSS는 `server/public.mjs` 정적 허용 목록과 `server/pageExport.mjs` 오프라인 자산 목록에 함께 추가한다. 목차 compact는 선택 속성이고, 공개 목차가 숨긴 captureRef/page/TOC 하위 제목을 다시 노출하지 않도록 한다. 일정 설명은 접거나 요약하지 않고 전체 원문을 한 번 표시하며 시간별 줄바꿈을 보존한다. 목차는 compact에서도 이름을 바꾸지 않는다. CSS의 기존 `.itinerary-duration` 입력 높이가 읽기 열의 행을 늘리지 않도록 확인한다.
+일정 읽기 UI를 고칠 때는 [일정 읽기 brief](.impeccable/briefs/itinerary-reading.md)와 CURRENT_IMPLEMENTATION의 여행 문서 읽기 구조를 함께 확인한다. 개인/공유는 `shared/itineraryReading.ts`·`public/itinerary-timetable.css`를 공유한다. 새 공개 CSS는 `server/public.mjs` 정적 허용 목록과 `server/pageExport.mjs` 오프라인 자산 목록에 함께 추가한다. 목차 compact는 이전 저장값 호환만 유지하고 디자인은 기존 한 열 카드로 통일하며, 공개 목차가 숨긴 captureRef/page/TOC 하위 제목을 다시 노출하지 않도록 한다. 일정 설명은 접거나 요약하지 않고 전체 원문을 한 번 표시하며 시간별 줄바꿈을 보존한다. 새 문서를 작성할 때도 동일한 목차 블록과 한 열 카드 디자인을 사용한다. CSS의 기존 `.itinerary-duration` 입력 높이가 읽기 열의 행을 늘리지 않도록 확인한다.
 
 일정 직접 편집은 `ItineraryInlineField.tsx`/`itineraryInline.css`와 기존 ItineraryBlock 초안·Page 자동 저장을 사용한다. 전체 폼/접힌 일정 편집 목록을 다시 도입하지 않는다. IME 중 Enter는 확정하지 않고, 설명 Enter는 줄바꿈, Escape는 해당 필드 취소다. 변경된 항목의 ID와 이미지 메타데이터를 새로 만들지 않는다. UI 회귀는 임시 DB의 `scripts/qa-itinerary-inline.mjs`로 확인하며 실제 사용자 여행 문서를 QA 입력으로 바꾸지 않는다.
 

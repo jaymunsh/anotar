@@ -1,0 +1,9 @@
+# docker compose -f compose.yaml -f compose.n100.yaml build
+# N100 target; local Apple Silicon uses emulation when running this image.
+services:
+  storage:
+    platform: linux/amd64
+  share:
+    platform: linux/amd64
+  sites:
+    platform: linux/amd64

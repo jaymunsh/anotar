@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { defaultProps, type BlockNoteEditor } from '@blocknote/core';
 import { insertOrUpdateBlockForSlashMenu } from '@blocknote/core/extensions';
-import { createReactBlockSpec } from '@blocknote/react';
+import { createReactBlockSpec, useEditorState } from '@blocknote/react';
 import { Check, CircleCheck, Info, Lightbulb, Palette, TriangleAlert } from 'lucide-react';
 import { calloutColors, calloutColorLabels, calloutIcons, calloutIconLabels, type CalloutIcon } from '../../shared/callout';
 import '../../public/callout.css';
@@ -12,12 +12,18 @@ type CalloutProps = { backgroundColor: string; textColor: string; textAlignment:
 const icons = { lightbulb: Lightbulb, info: Info, warning: TriangleAlert, check: CircleCheck, none: Palette };
 
 function CalloutView({ block, editor, contentRef }: { block: { id: string; props: CalloutProps }; editor: AnyEditor; contentRef: (element: HTMLElement | null) => void }) {
+  const editable = useEditorState({ editor, on: 'change', selector: ({ editor }) => editor.isEditable });
   const menu = useRef<HTMLDivElement>(null), trigger = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+  useEffect(() => { if (!editable) menu.current?.hidePopover(); }, [editable]);
   const Icon = icons[block.props.icon] || Lightbulb;
   const update = (props: Partial<CalloutProps>) => {
+    if (props.icon === 'none') menu.current?.hidePopover();
     if (editor.isEditable) editor.updateBlock(block.id, { props });
   };
+  useEffect(() => {
+    if (block.props.icon === 'none') menu.current?.hidePopover();
+  }, [block.props.icon]);
   function positionAppearance() {
     const panel = menu.current, button = trigger.current;
     if (!panel || !button || !panel.matches(':popover-open')) return;
@@ -44,9 +50,9 @@ function CalloutView({ block, editor, contentRef }: { block: { id: string; props
     positionAppearance();
   }
   return (
-    <div className="page-callout">
+    <div className="page-callout" data-icon={block.props.icon}>
       <div className="callout-marker" contentEditable={false}>
-        {editor.isEditable ? (
+        {editable ? (
           <button ref={trigger} type="button" className={'callout-icon-button' + (block.props.icon === 'none' ? ' is-empty' : '')} aria-label="콜아웃 모양" title="아이콘·배경색·테두리" aria-expanded={open} aria-controls={'callout-menu-' + block.id} onClick={toggleAppearance}>
             <Icon size={20} aria-hidden="true" />
           </button>
@@ -74,7 +80,7 @@ export const createCalloutBlockSpec = createReactBlockSpec(
     render: ({ block, editor, contentRef }) => <CalloutView block={block as any} editor={editor} contentRef={contentRef} />,
     toExternalHTML: ({ block, contentRef }) => {
       const Icon = icons[block.props.icon] || Lightbulb;
-      return <aside className="callout-box" data-callout="true" data-background-color={block.props.backgroundColor} data-border={block.props.border} style={{ border: block.props.border ? '1px solid #cdd5ce' : 'none', borderRadius: '8px', padding: '14px 16px' }}>
+      return <aside className="callout-box" data-callout="true" data-icon={block.props.icon} data-background-color={block.props.backgroundColor} data-border={block.props.border} style={{ border: block.props.border ? '1px solid #cdd5ce' : 'none', borderRadius: '8px', padding: '14px 16px' }}>
         <div className="callout-grid">{block.props.icon !== 'none' && <span className="callout-marker"><Icon size={20} /></span>}<div ref={contentRef} /></div>
       </aside>;
     },

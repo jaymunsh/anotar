@@ -1,0 +1,23 @@
+/* Self-hosted Google Fonts, SIL Open Font License; license files are beside the fonts. */
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+  src: url('/fonts/dm-sans.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/noto-sans-kr.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Pretendard Variable'; font-style: normal; font-weight: 45 920;
+  font-display: swap; src: url('/fonts/pretendard.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'RIDIBatang'; font-style: normal; font-weight: 400;
+  font-display: swap; src: url('/fonts/ridibatang.woff2') format('woff2');
+}

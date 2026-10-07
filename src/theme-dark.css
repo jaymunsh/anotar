@@ -107,7 +107,6 @@
 :root[data-theme='dark'] .composer-tab.selected {
   border-color: var(--theme-accent);
 }
-:root[data-theme='dark'] .composer-heading-icon,
 :root[data-theme='dark'] .file-pill,
 :root[data-theme='dark'] .filter-chip.active,
 :root[data-theme='dark'] .capture-new,
@@ -386,8 +385,7 @@
   color: var(--theme-ink);
 }
 :root[data-theme='dark'] .page-icon-popover-head button:hover,
-:root[data-theme='dark'] .page-icon-grid button:hover,
-:root[data-theme='dark'] .page-link-block:hover {
+:root[data-theme='dark'] .page-icon-grid button:hover {
   background: var(--theme-soft);
 }
 :root[data-theme='dark'] .page-icon-grid button.active {

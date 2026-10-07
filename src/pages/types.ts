@@ -6,6 +6,8 @@ export type PageSummary = {
   icon: string;
   parentId: string | null;
   position: number;
+  locked?: boolean;
+  lockVersion?: number;
   version: number;
   createdAt: string;
   updatedAt: string;

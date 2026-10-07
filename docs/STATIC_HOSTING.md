@@ -35,7 +35,7 @@ sudo docker compose run --rm --no-deps \
 
 등록 결과는 관리 목록에 나타난다. `hosted-sites/` 또는 `/srv/leneu/sites` 안에 폴더만 넣어서는 등록되지 않는다. CLI가 파일 검증과 목록 갱신을 함께 수행하므로 `registry.json`이나 `bundles/`를 직접 편집하지 않는다.
 
-이번 샘플은 `/path/to/mathematics`에서 가져온 HTML 47개와 CSS·JS 3개, 약 2.3 MB다. 수식용 KaTeX는 원본에서 사용하는 jsDelivr CDN을 유지하므로 해당 수식 자산은 인터넷 연결이 필요하다. 상대 파일 링크는 그대로 동작한다. `/assets/...`처럼 사이트 루트에 고정된 링크를 사용하는 빌드 결과는 `/<slug>/` base로 빌드하거나 상대경로로 바꿔야 한다.
+이번 샘플은 `/Users/sunghyuk/Documents/ClaudeCode/mathematics`에서 가져온 HTML 47개와 CSS·JS 3개, 약 2.3 MB다. 수식용 KaTeX는 원본에서 사용하는 jsDelivr CDN을 유지하므로 해당 수식 자산은 인터넷 연결이 필요하다. 상대 파일 링크는 그대로 동작한다. `/assets/...`처럼 사이트 루트에 고정된 링크를 사용하는 빌드 결과는 `/<slug>/` base로 빌드하거나 상대경로로 바꿔야 한다.
 
 ## 저장과 제한
 

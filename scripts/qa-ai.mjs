@@ -80,9 +80,10 @@ export async function runAiQa(browser, baseUrl, { configured = false, smoke = fa
     ).item;
     await panel.getByRole('button', { name: '결과를 페이지로 정리', exact: true }).click();
     const picker = page.locator('.detail-panel');
+    const expectedPageTitle = '느긋한 교토 여행을 계획하기 [SLOW] · AI 요청 결과';
     assert.equal(
       await picker.getByRole('textbox', { name: '새 페이지 제목' }).inputValue(),
-      '여행 정리',
+      expectedPageTitle,
     );
     await picker.getByRole('button', { name: 'AI 리서치 내 페이지', exact: true }).click();
     if (smoke) {
@@ -123,11 +124,11 @@ export async function runAiQa(browser, baseUrl, { configured = false, smoke = fa
     assert.ok(adopted.document.blocks.some((block) => block.type === 'bulletListItem'));
     assert.ok(adopted.document.blocks.some((block) => block.type === 'table'));
     assert.ok(adopted.document.blocks.some((block) => block.type === 'diagram'));
-    assert.equal(adopted.title, '여행 정리');
+    assert.equal(adopted.title, expectedPageTitle);
     assert.equal(adopted.parentId, parent.id);
     assert.equal(
       (await (await fetch(baseUrl + '/api/pages')).json()).items.filter(
-        (item) => item.title === '여행 정리',
+        (item) => item.title === expectedPageTitle,
       ).length,
       1,
     );
@@ -144,7 +145,7 @@ export async function runAiQa(browser, baseUrl, { configured = false, smoke = fa
     assert.equal(await page.evaluate(() => window.aiInjected), undefined);
     await clickPageTool(page, 'Markdown 복사');
     const pageMarkdown = await page.evaluate(() => navigator.clipboard.readText());
-    assert.match(pageMarkdown, /^# 여행 정리/);
+    assert.ok(pageMarkdown.startsWith('# ' + expectedPageTitle));
     assert.equal((pageMarkdown.match(/^# 여행 정리$/gm) || []).length, 1);
     assert.match(pageMarkdown, /```mermaid/);
     assert.match(pageMarkdown, /장소/);

@@ -187,7 +187,7 @@ export function mountTimeboxing(root, options = {}) {
   }
   state.days = Object.fromEntries(Object.entries(state.days).map(([date,day]) => [date,normalizeJournalDay(day,date)]));
   let pendingSaves = 0, saveGeneration = 0;
-  function persist(next) {
+  function persist(next, deferSync = false) {
     if (storageLocked) return false;
     if (options.storage) {
       for (const [date,day] of Object.entries(next.days)) {
@@ -195,7 +195,7 @@ export function mountTimeboxing(root, options = {}) {
         const generation = ++saveGeneration;
         pendingSaves++;
         $('saveStatus').textContent = '기기에 저장 중…';
-        options.storage.save(date,day).then(() => {
+        options.storage.save(date,day,{deferSync}).then(() => {
           if (!cleanup.signal.aborted && generation === saveGeneration && !storageLocked)
             $('saveStatus').textContent = '이 기기에 저장됨 · 서버 반영은 상단 동기화 상태에서 확인';
         }).catch(error => {
@@ -229,16 +229,16 @@ export function mountTimeboxing(root, options = {}) {
   function current() {
     return state.days[selected] || emptyDay(selected);
   }
-  function updateDate(date, change) {
+  function updateDate(date, change, deferSync = false) {
     const next = clone(state);
     next.days[date] = clone(state.days[date] || emptyDay(date));
     change(next.days[date]);
-    if (!persist(next)) return false;
+    if (!persist(next, deferSync)) return false;
     state = next;
     renderCalendar();
     return true;
   }
-  const updateDay = change => updateDate(selected,change);
+  const updateDay = (change, deferSync = false) => updateDate(selected,change,deferSync);
   function hm(min) {
     return `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
   }
@@ -490,6 +490,7 @@ export function mountTimeboxing(root, options = {}) {
   function renderSchedule() {
     $('timeLists').hidden = scheduleView !== 'list';
     $('axisView').hidden = scheduleView !== 'axis';
+    $('axisAddPlan').hidden = scheduleView !== 'axis';
     document
       .querySelectorAll('[data-schedule]')
       .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.schedule === scheduleView)));
@@ -617,7 +618,7 @@ export function mountTimeboxing(root, options = {}) {
           updateDay((d) => {
             d.priorities[i].text = text.value;
             if (!text.value.trim()) d.priorities[i].done = false;
-          })
+          }, true)
         ) {
           if (!text.value.trim()) {
             check.checked = false;
@@ -1037,6 +1038,7 @@ export function mountTimeboxing(root, options = {}) {
     selected = date;
     calendarMonth = date.slice(0, 7) + '-01';
     render();
+    closeCalendar();
   }
   function move(delta) {
     if (view === 'month') {
@@ -1210,7 +1212,7 @@ export function mountTimeboxing(root, options = {}) {
   ['brain', 'idea', 'feedback'].forEach((k) =>
     $(k).addEventListener('input', () => {
       fitText($(k));
-      if (updateDay((d) => (d[k] = $(k).value))) summary();
+      if (updateDay((d) => (d[k] = $(k).value), true)) summary();
     }),
   );
   $('prev').onclick = () => move(-1);
@@ -1242,10 +1244,24 @@ export function mountTimeboxing(root, options = {}) {
         renderSchedule();
       }),
   );
+  function closeCalendar() {
+    $('calendarRail').classList.remove('open');
+    $('calendarToggle').setAttribute('aria-expanded', 'false');
+  }
   $('calendarToggle').onclick = () => {
     const open = $('calendarRail').classList.toggle('open');
     $('calendarToggle').setAttribute('aria-expanded', String(open));
   };
+  owner.addEventListener('pointerdown', event => {
+    const path = event.composedPath();
+    if (!path.includes($('calendarRail')) && !path.includes($('calendarToggle'))) closeCalendar();
+  }, { signal: cleanup.signal });
+  owner.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && $('calendarRail').classList.contains('open')) {
+      closeCalendar();
+      $('calendarToggle').focus();
+    }
+  }, { signal: cleanup.signal });
   function moveCalendar(delta) {
     const date = new Date(calendarMonth + 'T12:00:00Z');
     date.setUTCMonth(date.getUTCMonth() + delta);

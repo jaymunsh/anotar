@@ -1,6 +1,7 @@
 import { cleanItinerary } from './itinerary.ts';
 import { webBookmarkUrl, validBookmarkImage } from './bookmarks.ts';
 import { calloutColors, calloutIcons } from './callout.ts';
+import { parseAssetCrop } from './assetPresentation.mjs';
 const allowedTypes = new Set([
   'paragraph',
   'heading',
@@ -166,9 +167,14 @@ export function serializePageDocument(document) {
           );
         if (block.type === 'asset' && !['image', 'file'].includes(block.props.display))
           throw new PageValidationError('첨부 표시 방식이 올바르지 않습니다.');
+        if (block.type === 'asset') {
+          if (block.props.caption !== undefined && (typeof block.props.caption !== 'string' || block.props.caption.length > 1000))
+            throw new PageValidationError('첨부 설명은 1,000자까지 입력할 수 있습니다.');
+          try { parseAssetCrop(block.props.crop); } catch (error) { throw new PageValidationError(error.message); }
+        }
         if (
           Object.keys(block.props).some(
-            (key) => ![field, ...(block.type === 'asset' ? ['display'] : [])].includes(key),
+            (key) => ![field, ...(block.type === 'asset' ? ['display', 'caption', 'crop'] : [])].includes(key),
           )
         )
           throw new PageValidationError('참조 블록에는 ID와 표시 방식만 저장합니다.');

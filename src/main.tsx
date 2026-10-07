@@ -1,8 +1,10 @@
+import { defaultDocumentTitle } from '../shared/documentTitle';
 import { workspaceFetch } from './sync/runtime';
 import { SyncStatus } from './sync/SyncStatus';
+import { getSyncSnapshot, subscribeSync } from './sync/runtime';
 import AppUpdateNotice from './offline/AppUpdateNotice';
 import AuthBoundary from './auth/AuthBoundary';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {
@@ -19,7 +21,6 @@ import {
   MessageCircle,
   Paperclip,
   Pencil,
-  Plus,
   Search,
   Settings,
   WandSparkles,
@@ -43,6 +44,8 @@ import CaptureComposerSurface from './capture/CaptureComposerSurface';
 import { CaptureInstallHelp } from './capture/CaptureInstallHelp';
 import { prepareCaptureSubmission, forgetCaptureSubmission } from './drafts/captureSubmission';
 import type { AiJob, AiJobSummary } from './ai/types';
+import type { AiFollowupSource } from './ai/followup';
+import './ai/ai-flow.css';
 import { activeAiJob } from './ai/types';
 import './style.css';
 import './theme-dark.css';
@@ -61,11 +64,13 @@ import type { TrashEntry } from './trash/types';
 import { publishRecordChange, subscribeRecordChanges } from './trash/events';
 
 const PageWorkspace = React.lazy(() => import('./pages/PageWorkspace'));
+const SyncConflictReview = React.lazy(() => import('./sync/SyncConflictReview'));
 const SearchPalette = React.lazy(() => import('./search/SearchPalette'));
 const PromptWorkspace = React.lazy(() => import('./prompts/PromptWorkspace'));
 const AiRequestFields = React.lazy(() => import('./prompts/AiRequestFields'));
 const AssetOcr = React.lazy(() => import('./ocr/AssetOcr'));
 const AiJobPanel = React.lazy(() => import('./ai/AiJobPanel'));
+const AiFollowupComposer = React.lazy(() => import('./ai/AiFollowupComposer'));
 const AiActivity = React.lazy(() => import('./ai/AiActivity'));
 const CaptureOrganization = React.lazy(() => import('./memos/CaptureOrganization'));
 const AiListUpdates = React.lazy(() => import('./ai/AiListUpdates'));
@@ -139,7 +144,11 @@ function savedThemeMode(): ThemeMode {
 }
 
 function App() {
+  const syncConflicts = useSyncExternalStore(subscribeSync, () => getSyncSnapshot().conflicts);
   const [route, setRoute] = useState(currentRoute);
+  useEffect(() => {
+    if (route.section !== 'pages' || !route.pageId) document.title = defaultDocumentTitle;
+  }, [route]);
   const [sidebarTarget, setSidebarTarget] = useState<HTMLDivElement | null>(null);
   const [pageToolbarTarget, setPageToolbarTarget] = useState<HTMLDivElement | null>(null);
   const [taskPanelTarget, setTaskPanelTarget] = useState<HTMLDivElement | null>(null);
@@ -204,9 +213,9 @@ function App() {
     legacyError,
   } = usePromptLibrary(promptsVisited || aiEnabled);
   const [items, setItems] = useState<Capture[]>([]);
-  const [memoCursor,setMemoCursor]=useState<string|null>(null);
-  const [memoNextCursor,setMemoNextCursor]=useState<string|null>(null);
-  const [memoPrevious,setMemoPrevious]=useState<(string|null)[]>([]);
+  const [memoCursor, setMemoCursor] = useState<string | null>(null);
+  const [memoNextCursor, setMemoNextCursor] = useState<string | null>(null);
+  const [memoPrevious, setMemoPrevious] = useState<(string | null)[]>([]);
   const [counts, setCounts] = useState({ memo: 0, ai: 0 });
   const [loadedList, setLoadedList] = useState<{
     scope: MemoScope;
@@ -226,6 +235,11 @@ function App() {
   const [importOpen, setImportOpen] = useState(false);
   const [importAiJob, setImportAiJob] = useState<AiJob | null>(null);
   const [importBusy, setImportBusy] = useState(false);
+  const [aiFollowup, setAiFollowup] = useState<{
+    job: AiJob;
+    source: AiFollowupSource;
+    editRequest: boolean;
+  } | null>(null);
   const [captureRouteError, setCaptureRouteError] = useState('');
   const [captureRetry, setCaptureRetry] = useState(0);
   const [editingCapture, setEditingCapture] = useState(false);
@@ -241,13 +255,15 @@ function App() {
   const [notice, setNotice] = useState('');
   const [dragging, setDragging] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [mobileComposerOpen, setMobileComposerOpen] = useState(() =>
-    /^\/capture\/?$/.test(window.location.pathname) &&
-    window.matchMedia('(max-width: 760px)').matches,
+  const [mobileComposerOpen, setMobileComposerOpen] = useState(
+    () =>
+      /^\/capture\/?$/.test(window.location.pathname) &&
+      window.matchMedia('(max-width: 760px)').matches,
   );
   const [searchOpen, setSearchOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [aiSettingsRequested, setAiSettingsRequested] = useState(false);
+  const [storageSettingsRequested, setStorageSettingsRequested] = useState(false);
   const [aiAvailable, setAiAvailable] = useState(false);
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
@@ -260,7 +276,10 @@ function App() {
     };
   }, []);
   useEffect(() => {
-    const open = () => { setAiSettingsRequested(true); setSettingsOpen(true); };
+    const open = () => {
+      setAiSettingsRequested(true);
+      setSettingsOpen(true);
+    };
     window.addEventListener('anotar:open-ai-settings', open);
     return () => window.removeEventListener('anotar:open-ai-settings', open);
   }, []);
@@ -281,7 +300,11 @@ function App() {
   const isPromptView = route.section === 'prompts';
   const isInboxView = route.section === 'inbox';
   const isMemoView = route.section === 'memo';
-  const aiResultView = Boolean(selected?.aiRequest && !editingCapture && new URLSearchParams(window.location.search).has('aiJob'));
+  const aiResultView = Boolean(
+    selected?.aiRequest &&
+    !editingCapture &&
+    new URLSearchParams(window.location.search).has('aiJob'),
+  );
   const isTrashView = route.section === 'trash';
   const isAiView = route.section === 'ai';
   const isBackupView = route.section === 'backups';
@@ -381,7 +404,8 @@ function App() {
   }, [activeTheme, themeMode]);
 
   const captureNavigationLock = useRef(false);
-  captureNavigationLock.current = editingCapture || editBusy || importBusy || trashPending;
+  captureNavigationLock.current =
+    editingCapture || editBusy || importBusy || trashPending || Boolean(aiFollowup);
   const activePath = useRef(window.location.pathname + window.location.search);
   useEffect(() => {
     const protectReload = (event: BeforeUnloadEvent) => {
@@ -412,7 +436,11 @@ function App() {
   }, []);
 
   function navigate(path: string, completedRequest = false) {
-    if (editingCapture || editBusy || (!completedRequest && (importBusy || trashPending))) {
+    if (
+      editingCapture ||
+      editBusy ||
+      (!completedRequest && (importBusy || trashPending || aiFollowup))
+    ) {
       setCommandError('메모의 수정을 마치거나 처리 중인 요청이 끝난 뒤 이동해 주세요.');
       return;
     }
@@ -447,7 +475,7 @@ function App() {
       activeFilter: Filter = currentList.current.filter,
       scope: MemoScope = currentList.current.scope,
       activeOrganization: Organization = currentList.current.organization,
-      cursor: string|null = null,
+      cursor: string | null = null,
     ) => {
       const requestId = ++latestRequest.current;
       setLoading(true);
@@ -459,18 +487,20 @@ function App() {
           scope,
           organization: activeOrganization,
         });
-        if(cursor)params.set('cursor',cursor);
+        if (cursor) params.set('cursor', cursor);
         const response = await workspaceFetch(`/api/captures?${params}`);
         if (!response.ok) throw new Error('목록을 불러오지 못했습니다.');
         const data = (await response.json()) as {
           items: Capture[];
           counts: { memo: number; ai: number };
-          nextCursor?:string|null;
+          nextCursor?: string | null;
         };
         if (!Array.isArray(data.items) || !data.counts) throw new Error('Invalid memo list');
         if (requestId !== latestRequest.current) return;
         setItems(data.items);
-        setMemoCursor(cursor);setMemoNextCursor(data.nextCursor??null);if(!cursor)setMemoPrevious([]);
+        setMemoCursor(cursor);
+        setMemoNextCursor(data.nextCursor ?? null);
+        if (!cursor) setMemoPrevious([]);
         setCounts(data.counts);
         setLoadedList({
           scope,
@@ -526,7 +556,10 @@ function App() {
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
       if (mobileComposerOpen) {
-        if (event.key === 'Escape') { event.preventDefault(); setMobileComposerOpen(false); }
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          setMobileComposerOpen(false);
+        }
         return;
       }
       if (document.querySelector('.workspace-settings[open]')) return;
@@ -540,7 +573,7 @@ function App() {
           setSearchOpen(false);
           return;
         }
-        if (importOpen) return;
+        if (importOpen || aiFollowup) return;
         if (editingCapture) {
           if (!editBusy) cancelCaptureEdit();
         } else closeCapture();
@@ -558,6 +591,7 @@ function App() {
     filter,
     loadItems,
     importOpen,
+    aiFollowup,
     captureRouteId,
     searchOpen,
     mobileComposerOpen,
@@ -646,9 +680,11 @@ function App() {
 
   async function save(includeAi = aiEnabled) {
     if (
-      busy || !filesReady ||
+      busy ||
+      !filesReady ||
       (includeAi && (aiTemplateUnresolved || !aiExecution || (!aiAvailable && navigator.onLine)))
-    ) return;
+    )
+      return;
     if (kind === 'note' && !text.trim() && !files.length) {
       textInput.current?.focus();
       return;
@@ -700,7 +736,13 @@ function App() {
       const cleared = clearIfUnchanged(submitted);
       setNoticeAi(withAi);
       if (cleared && fileInput.current) fileInput.current.value = '';
-      setNotice(data.local ? '기기에 저장했어요. 연결되면 동기화해요.' : withAi ? '메모를 보관하고 AI 요청을 등록했어요.' : '보관함에 저장했어요');
+      setNotice(
+        data.local
+          ? '기기에 저장했어요. 연결되면 동기화해요.'
+          : withAi
+            ? '메모를 보관하고 AI 요청을 등록했어요.'
+            : '보관함에 저장했어요',
+      );
       if (withAi) publishRecordChange('ai-request');
       void loadItems();
       if (cleared && mobileComposerOpen) {
@@ -724,6 +766,7 @@ function App() {
 
   function openCapture(item: Capture) {
     setSelected(item);
+    setAiFollowup(null);
     setImportOpen(false);
     setEditingCapture(false);
     setEditError('');
@@ -851,7 +894,7 @@ function App() {
     if (event.dataTransfer.files.length) addFiles(event.dataTransfer.files);
   }
   const hasDraft = Boolean(
-    text.trim() || url.trim() || files.length || !filesReady || aiEnabled || aiAdditional,
+    text.trim() || url.trim() || files.length || !filesReady || aiAdditional.trim(),
   );
 
   function openMemo(scope: MemoScope = 'memo') {
@@ -926,8 +969,23 @@ function App() {
     return (
       <CaptureCollection
         compact={compact}
-        onNext={memoNextCursor?()=>{setMemoPrevious(p=>[...p,memoCursor]);void loadItems(undefined,undefined,undefined,undefined,memoNextCursor);}:undefined}
-        onPrevious={memoPrevious.length?()=>{const previous=memoPrevious.at(-1)!;setMemoPrevious(p=>p.slice(0,-1));void loadItems(undefined,undefined,undefined,undefined,previous);}:undefined}
+        onNext={
+          memoNextCursor
+            ? () => {
+                setMemoPrevious((p) => [...p, memoCursor]);
+                void loadItems(undefined, undefined, undefined, undefined, memoNextCursor);
+              }
+            : undefined
+        }
+        onPrevious={
+          memoPrevious.length
+            ? () => {
+                const previous = memoPrevious.at(-1)!;
+                setMemoPrevious((p) => p.slice(0, -1));
+                void loadItems(undefined, undefined, undefined, undefined, previous);
+              }
+            : undefined
+        }
         selectedId={selected?.id}
         items={items}
         now={now}
@@ -981,7 +1039,13 @@ function App() {
                 navigate('/');
               }}
             >
-              <img className="brand-mark" src="/capture-icons/icon-192.png" alt="" width="26" height="26" />
+              <img
+                className="brand-mark"
+                src="/capture-icons/icon-192.png"
+                alt=""
+                width="26"
+                height="26"
+              />
               <span>anotar</span>
             </a>
             <time
@@ -1023,8 +1087,19 @@ function App() {
                   </span>
                   <span className="nav-label">메모</span>
                 </a>
-                <a className={`nav-item ${isJournalView ? 'active' : ''}`} aria-current={isJournalView ? 'page' : undefined} href="/journal" onClick={(event) => { event.preventDefault(); navigate('/journal'); }}>
-                  <span className="nav-icon"><CalendarDays size={18} /></span><span className="nav-label">일지</span>
+                <a
+                  className={`nav-item ${isJournalView ? 'active' : ''}`}
+                  aria-current={isJournalView ? 'page' : undefined}
+                  href="/journal"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    navigate('/journal');
+                  }}
+                >
+                  <span className="nav-icon">
+                    <CalendarDays size={18} />
+                  </span>
+                  <span className="nav-label">일지</span>
                 </a>
                 <a
                   className={`nav-item ${isTaskView ? 'active' : ''}`}
@@ -1075,7 +1150,13 @@ function App() {
           <AppUpdateNotice />
           <div className="sidebar-footer">
             <img className="sidebar-profile" src="/profile.png" alt="" width="20" height="20" />
-            <SyncStatus />
+            <SyncStatus
+              onNavigate={navigate}
+              onOpenStorage={() => {
+                setStorageSettingsRequested(true);
+                setSettingsOpen(true);
+              }}
+            />
             <button
               type="button"
               className="sidebar-settings-button"
@@ -1089,12 +1170,19 @@ function App() {
         </aside>
         {settingsOpen && (
           <WorkspaceSettings
-            initialSection={aiSettingsRequested ? 'ai' : 'appearance'}
+            initialSection={
+              storageSettingsRequested ? 'storage' : aiSettingsRequested ? 'ai' : 'appearance'
+            }
             theme={activeTheme}
             onThemeChange={setThemeMode}
-            onClose={() => { setSettingsOpen(false); setAiSettingsRequested(false); }}
+            onClose={() => {
+              setSettingsOpen(false);
+              setAiSettingsRequested(false);
+              setStorageSettingsRequested(false);
+            }}
             onOpen={(path) => {
               setSettingsOpen(false);
+              setStorageSettingsRequested(false);
               navigate(path);
             }}
           />
@@ -1140,23 +1228,23 @@ function App() {
                 ? '페이지'
                 : isHostingView
                   ? '웹 호스팅'
-                : isJournalView
-                  ? '일지'
-                : isTaskView
-                  ? '할 일'
-                  : isPromptView
-                    ? '프롬프트'
-                    : isAiView
-                      ? 'AI 작업'
-                      : isBackupView
-                        ? '백업'
-                        : isCommentsView
-                          ? '공유 댓글'
-                          : isMemoView
-                            ? '메모'
-                            : isTrashView
-                              ? '휴지통'
-                              : '입력함'}
+                  : isJournalView
+                    ? '일지'
+                    : isTaskView
+                      ? '할 일'
+                      : isPromptView
+                        ? '프롬프트'
+                        : isAiView
+                          ? 'AI 작업'
+                          : isBackupView
+                            ? '백업'
+                            : isCommentsView
+                              ? '공유 댓글'
+                              : isMemoView
+                                ? '메모'
+                                : isTrashView
+                                  ? '휴지통'
+                                  : '입력함'}
             </span>
           </header>
           {isInboxView && (
@@ -1188,279 +1276,299 @@ function App() {
             <div className="dashboard-grid">
               <div ref={setDashboardContinueTarget} className="dashboard-continue" />
               <div className="dashboard-primary">
-                <CaptureComposerSurface open={mobileComposerOpen} onClose={() => setMobileComposerOpen(false)}>
-                <section
-                  className={`composer ${aiEnabled ? 'composer-ai' : ''} ${dragging ? 'dragging' : ''} ${mobileComposerOpen ? 'mobile-open' : ''}`}
-                  onDragOver={(event) => {
-                    event.preventDefault();
-                    setDragging(true);
-                  }}
-                  onDragLeave={(event) => {
-                    if (!event.currentTarget.contains(event.relatedTarget as Node))
-                      setDragging(false);
-                  }}
-                  onDrop={onDrop}
-                  aria-label={mobileComposerOpen ? '빠른 기록' : '새 항목 저장'}
+                <CaptureComposerSurface
+                  open={mobileComposerOpen}
+                  onClose={() => setMobileComposerOpen(false)}
                 >
-                  <div className="composer-heading">
-                    <span className="composer-heading-icon">
-                      <Plus size={19} strokeWidth={2.3} />
-                    </span>
-                    <strong>{aiEnabled ? 'AI 요청' : '빠른 메모'}</strong>
-                    <span className="composer-subtitle">{aiEnabled ? '요청과 결과를 함께 보관해요' : '적어두고 나중에 정리해요'}</span>
-                    {!mobileComposerOpen && (
-                      <button
-                        type="button"
-                        className="dashboard-expand"
-                        aria-label="전체 화면으로 쓰기"
-                        onClick={openMobileComposer}
-                      >
-                        크게 쓰기 <ArrowUpRight size={15} aria-hidden="true" />
-                      </button>
-                    )}
-                    <button
-                      className="mobile-composer-close icon-button"
-                      aria-label="입력 닫기"
-                      onClick={() => setMobileComposerOpen(false)}
-                    >
-                      <X size={22} />
-                    </button>
-                  </div>
-                  <div className="composer-body">
-                    <CaptureImportPanel
-                      draft={{ text, url, files, filesReady, fileSaving, aiEnabled, aiAdditional }}
-                      onApply={applyReviewedImport}
-                    />
-                    {kind === 'link' && (
-                      <div className="url-field">
-                        <Link2 size={18} />
-                        <input
-                          ref={urlInput}
-                          type="url"
-                          value={url}
-                          onChange={(event) => setUrl(event.target.value)}
-                          placeholder="https://example.com/읽고-싶은-글"
-                          aria-label="링크 주소"
-                        />
-                      </div>
-                    )}
-                    {(kind === 'image' || kind === 'file') && (
-                      <button
-                        className="upload-zone"
-                        type="button"
-                        onClick={() => fileInput.current?.click()}
-                      >
-                        <span className="upload-symbol">
-                          {kind === 'image' ? <FileImage size={23} /> : <Paperclip size={22} />}
-                        </span>
-                        <strong>
-                          {kind === 'image'
-                            ? '이미지를 여기에 놓거나 선택하세요'
-                            : '파일을 여기에 놓거나 선택하세요'}
-                        </strong>
-                        <span>한 파일 최대 25MB · 최대 8개</span>
-                      </button>
-                    )}
-                    <textarea
-                      ref={textInput}
-                      value={text}
-                      onChange={(event) => setText(event.target.value)}
-                      onPaste={onPaste}
-                      onKeyDown={(event) => {
-                        if (
-                          !event.nativeEvent.isComposing &&
-                          (event.metaKey || event.ctrlKey) &&
-                          event.key === 'Enter'
-                        ) {
-                          event.preventDefault();
-                          void save();
-                        }
-                      }}
-                      placeholder={
-                        kind === 'note'
-                          ? '떠오른 생각을 바로 적어보세요…'
-                          : kind === 'link'
-                            ? '이 링크에 대한 메모를 남겨보세요 (선택)'
-                            : '함께 기억할 내용을 적어보세요 (선택)'
-                      }
-                      aria-label="메모 내용"
-                      rows={kind === 'note' ? 3 : 2}
-                    />
-                    <details
-                      className="composer-options"
-                      open={captureOptionsOpen}
-                      onToggle={(event) => setCaptureOptionsOpen(event.currentTarget.open)}
-                    >
-                      <summary>
-                        <span>{kind === 'note' ? '링크·이미지·파일 추가' : `${kinds.find((item) => item.id === kind)?.label} 입력`}</span>
-                        <ChevronDown size={14} aria-hidden="true" />
-                      </summary>
-                  <div className="composer-tabs" role="tablist" aria-label="저장할 항목 종류">
-                    {kinds.map((option) => (
-                      <button
-                        key={option.id}
-                        type="button"
-                        role="tab"
-                        aria-selected={kind === option.id}
-                        className={`composer-tab ${kind === option.id ? 'selected' : ''}`}
-                        onClick={() => {
-                          setKind(option.id);
-                          setError('');
-                        }}
-                      >
-                        <option.icon size={16} strokeWidth={1.9} />
-                        <span>{option.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                    </details>
-                    {!!files.length && (
-                      <div className="attached-files">
-                        {files.map((file, index) => (
-                          <span className="file-pill" key={`${file.name}-${index}`}>
-                            <Paperclip size={14} />
-                            <span>{file.name}</span>
-                            <small>{fileSize(file.size)}</small>
-                            <button
-                              aria-label={`${file.name} 제거`}
-                              onClick={() =>
-                                setFiles((current) =>
-                                  current.filter((_, currentIndex) => currentIndex !== index),
-                                )
-                              }
-                            >
-                              <X size={14} />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <div className={`capture-ai ${aiEnabled ? 'enabled' : ''}`}>
-                      <div className="capture-ai-toggle-row">
-                        <label className="capture-ai-toggle">
-                          <input
-                            type="checkbox"
-                            checked={aiEnabled}
-                            onChange={(event) => setAiEnabled(event.target.checked)}
-                          />
-                          <WandSparkles size={15} aria-hidden="true" />
-                          <span>AI 요청</span>
-                        </label>
-                        <span className="capture-ai-preview-label">저장 후 처리</span>
-                      </div>
-                      {aiEnabled && (
-                        <React.Suspense
-                          fallback={<p className="capture-ai-loading">요청 설정을 여는 중…</p>}
-                        >
-                          <AiRequestFields
-                            execution={aiExecution}
-                            onExecution={setAiExecution}
-                            onAvailability={setAiAvailable}
-                            templates={templates}
-                            selectedId={activeTemplateId}
-                            onSelect={(id) => {
-                              setAiTemplateId(id);
-                              rememberChoice(requestKind, id);
-                            }}
-                            additional={aiAdditional}
-                            onAdditional={setAiAdditional}
-                            input={{ url: aiUrl, content: text }}
-                            onManage={(id) => navigate(id ? `/prompts/${id}` : '/prompts')}
-                            libraryError={libraryError || preferenceError}
-                            loading={libraryLoading && !libraryReady}
-                            onReload={() => void reloadLibrary()}
-                          />
-                        </React.Suspense>
-                      )}
-                      {aiEnabled && aiExecution && !aiAvailable && online && (
+                  <section
+                    className={`composer ${aiEnabled ? 'composer-ai' : ''} ${dragging ? 'dragging' : ''} ${mobileComposerOpen ? 'mobile-open' : ''}`}
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                      setDragging(true);
+                    }}
+                    onDragLeave={(event) => {
+                      if (!event.currentTarget.contains(event.relatedTarget as Node))
+                        setDragging(false);
+                    }}
+                    onDrop={onDrop}
+                    aria-label={mobileComposerOpen ? '빠른 기록' : '새 항목 저장'}
+                  >
+                    <div className="composer-heading">
+                      <strong>{aiEnabled ? 'AI 요청' : '빠른 메모'}</strong>
+                      <span className="composer-subtitle">
+                        {aiEnabled ? '요청과 결과를 함께 보관해요' : '적어두고 나중에 정리해요'}
+                      </span>
+                      {!mobileComposerOpen && (
                         <button
                           type="button"
-                          className="prompt-text-button"
-                          disabled={busy || !filesReady}
-                          onClick={() => void save(false)}
+                          className="dashboard-expand"
+                          aria-label="전체 화면으로 쓰기"
+                          onClick={openMobileComposer}
                         >
-                          메모만 저장
+                          크게 쓰기 <ArrowUpRight size={15} aria-hidden="true" />
                         </button>
                       )}
-                    </div>
-                    {(draftWarning || recovered || !filesReady || fileSaving) && (
-                      <p
-                        className={`capture-draft-status ${draftWarning ? 'error' : ''}`}
-                        role={draftWarning ? 'alert' : 'status'}
-                      >
-                        {draftWarning ||
-                          (!filesReady
-                            ? '첨부를 복구하는 중…'
-                            : fileSaving
-                              ? '첨부 임시저장 중…'
-                              : '작성 중인 초안을 복구했어요.')}
-                      </p>
-                    )}
-                  </div>
-                  {error && mobileComposerOpen && (
-                    <div className="composer-error-mobile" role="alert">
-                      {error}
-                    </div>
-                  )}
-                  <div className="composer-footer">
-                    <div className="composer-tools">
-                      <input
-                        ref={fileInput}
-                        type="file"
-                        multiple
-                        hidden
-                        accept={kind === 'image' ? 'image/*' : undefined}
-                        onChange={(event) => {
-                          if (event.target.files?.length) {
-                            const picked = Array.from(event.target.files);
-                            if (
-                              window.matchMedia('(max-width: 760px)').matches &&
-                              !mobileComposerOpen
-                            ) {
-                              setMobileComposerOpen(true);
-                            }
-                            addFiles(picked);
-                          }
-                          event.target.value = '';
-                        }}
-                      />
                       <button
-                        className="attach-button"
-                        type="button"
-                        onClick={() => fileInput.current?.click()}
-                        title="파일 첨부"
+                        className="mobile-composer-close icon-button"
+                        aria-label="입력 닫기"
+                        onClick={() => setMobileComposerOpen(false)}
                       >
-                        <Paperclip size={18} />
-                        <span>첨부하기</span>
+                        <X size={22} />
                       </button>
-                      <span className="composer-hint">붙여넣기 또는 끌어놓기도 가능해요</span>
                     </div>
-                    <button
-                      className="save-button"
-                      onClick={() => void save()}
-                      disabled={busy || (aiEnabled && (!aiExecution || (!aiAvailable && online))) || !filesReady || aiTemplateUnresolved}
-                    >
-                      <span>
-                        {busy
-                          ? '저장 중...'
-                          : !filesReady
-                            ? '첨부 복구 중…'
-                            : aiTemplateUnresolved
-                              ? '템플릿 확인 중…'
-                              : aiEnabled
-                                ? '저장하고 AI 요청'
-                                : '저장'}
-                      </span>
-                      <ArrowRight size={18} />
-                    </button>
-                  </div>
-                  {dragging && (
-                    <div className="drop-overlay">
-                      <FileImage size={30} />
-                      <strong>여기에 놓으면 첨부돼요</strong>
+                    <div className="composer-body">
+                      <CaptureImportPanel
+                        draft={{
+                          text,
+                          url,
+                          files,
+                          filesReady,
+                          fileSaving,
+                          aiEnabled,
+                          aiAdditional,
+                        }}
+                        onApply={applyReviewedImport}
+                      />
+                      {kind === 'link' && (
+                        <div className="url-field">
+                          <Link2 size={18} />
+                          <input
+                            ref={urlInput}
+                            type="url"
+                            value={url}
+                            onChange={(event) => setUrl(event.target.value)}
+                            placeholder="https://example.com/읽고-싶은-글"
+                            aria-label="링크 주소"
+                          />
+                        </div>
+                      )}
+                      {captureOptionsOpen && (kind === 'image' || kind === 'file') && (
+                        <button
+                          className="upload-zone"
+                          type="button"
+                          onClick={() => fileInput.current?.click()}
+                        >
+                          <span className="upload-symbol">
+                            {kind === 'image' ? <FileImage size={23} /> : <Paperclip size={22} />}
+                          </span>
+                          <strong>
+                            {kind === 'image'
+                              ? '이미지를 여기에 놓거나 선택하세요'
+                              : '파일을 여기에 놓거나 선택하세요'}
+                          </strong>
+                          <span>한 파일 최대 25MB · 최대 8개</span>
+                        </button>
+                      )}
+                      <textarea
+                        ref={textInput}
+                        value={text}
+                        onFocus={() => setCaptureOptionsOpen(false)}
+                        onChange={(event) => setText(event.target.value)}
+                        onPaste={onPaste}
+                        onKeyDown={(event) => {
+                          if (
+                            !event.nativeEvent.isComposing &&
+                            (event.metaKey || event.ctrlKey) &&
+                            event.key === 'Enter'
+                          ) {
+                            event.preventDefault();
+                            void save();
+                          }
+                        }}
+                        placeholder={
+                          kind === 'note'
+                            ? '떠오른 생각을 바로 적어보세요…'
+                            : kind === 'link'
+                              ? '이 링크에 대한 메모를 남겨보세요 (선택)'
+                              : '함께 기억할 내용을 적어보세요 (선택)'
+                        }
+                        aria-label="메모 내용"
+                        rows={kind === 'note' ? 3 : 2}
+                      />
+                      <details
+                        className="composer-options"
+                        open={captureOptionsOpen}
+                        onToggle={(event) => setCaptureOptionsOpen(event.currentTarget.open)}
+                      >
+                        <summary>
+                          <span>
+                            {kind === 'note'
+                              ? '링크·이미지·파일 추가'
+                              : `${kinds.find((item) => item.id === kind)?.label} 입력`}
+                          </span>
+                          <ChevronDown size={14} aria-hidden="true" />
+                        </summary>
+                        <div className="composer-tabs" role="tablist" aria-label="저장할 항목 종류">
+                          {kinds.map((option) => (
+                            <button
+                              key={option.id}
+                              type="button"
+                              role="tab"
+                              aria-selected={kind === option.id}
+                              className={`composer-tab ${kind === option.id ? 'selected' : ''}`}
+                              onClick={() => {
+                                setKind(option.id);
+                                setError('');
+                              }}
+                            >
+                              <option.icon size={16} strokeWidth={1.9} />
+                              <span>{option.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </details>
+                      {!!files.length && (
+                        <div className="attached-files">
+                          {files.map((file, index) => (
+                            <span className="file-pill" key={`${file.name}-${index}`}>
+                              <Paperclip size={14} />
+                              <span>{file.name}</span>
+                              <small>{fileSize(file.size)}</small>
+                              <button
+                                aria-label={`${file.name} 제거`}
+                                onClick={() =>
+                                  setFiles((current) =>
+                                    current.filter((_, currentIndex) => currentIndex !== index),
+                                  )
+                                }
+                              >
+                                <X size={14} />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <div className={`capture-ai ${aiEnabled ? 'enabled' : ''}`}>
+                        <div className="capture-ai-toggle-row">
+                          <label className="capture-ai-toggle">
+                            <input
+                              type="checkbox"
+                              checked={aiEnabled}
+                              onChange={(event) => setAiEnabled(event.target.checked)}
+                            />
+                            <WandSparkles size={15} aria-hidden="true" />
+                            <span>AI 요청</span>
+                          </label>
+                          <span className="capture-ai-preview-label">저장 후 처리</span>
+                        </div>
+                        {aiEnabled && (
+                          <React.Suspense
+                            fallback={<p className="capture-ai-loading">요청 설정을 여는 중…</p>}
+                          >
+                            <AiRequestFields
+                              execution={aiExecution}
+                              onExecution={setAiExecution}
+                              onAvailability={setAiAvailable}
+                              templates={templates}
+                              selectedId={activeTemplateId}
+                              onSelect={(id) => {
+                                setAiTemplateId(id);
+                                rememberChoice(requestKind, id);
+                              }}
+                              additional={aiAdditional}
+                              onAdditional={setAiAdditional}
+                              input={{ url: aiUrl, content: text }}
+                              onManage={(id) => navigate(id ? `/prompts/${id}` : '/prompts')}
+                              libraryError={libraryError || preferenceError}
+                              loading={libraryLoading && !libraryReady}
+                              onReload={() => void reloadLibrary()}
+                            />
+                          </React.Suspense>
+                        )}
+                        {aiEnabled && aiExecution && !aiAvailable && online && (
+                          <button
+                            type="button"
+                            className="prompt-text-button"
+                            disabled={busy || !filesReady}
+                            onClick={() => void save(false)}
+                          >
+                            메모만 저장
+                          </button>
+                        )}
+                      </div>
+                      {(draftWarning || recovered || !filesReady || fileSaving) && (
+                        <p
+                          className={`capture-draft-status ${draftWarning ? 'error' : ''}`}
+                          role={draftWarning ? 'alert' : 'status'}
+                        >
+                          {draftWarning ||
+                            (!filesReady
+                              ? '첨부를 복구하는 중…'
+                              : fileSaving
+                                ? '첨부 임시저장 중…'
+                                : '작성 중인 초안을 복구했어요.')}
+                        </p>
+                      )}
                     </div>
-                  )}
-                </section>
+                    {error && mobileComposerOpen && (
+                      <div className="composer-error-mobile" role="alert">
+                        {error}
+                      </div>
+                    )}
+                    <div className="composer-footer">
+                      <div className="composer-tools">
+                        <input
+                          ref={fileInput}
+                          type="file"
+                          multiple
+                          hidden
+                          accept={kind === 'image' ? 'image/*' : undefined}
+                          onChange={(event) => {
+                            if (event.target.files?.length) {
+                              const picked = Array.from(event.target.files);
+                              if (
+                                window.matchMedia('(max-width: 760px)').matches &&
+                                !mobileComposerOpen
+                              ) {
+                                setMobileComposerOpen(true);
+                              }
+                              addFiles(picked);
+                            }
+                            event.target.value = '';
+                          }}
+                        />
+                        <button
+                          className="attach-button"
+                          type="button"
+                          onClick={() => fileInput.current?.click()}
+                          title="파일 첨부"
+                        >
+                          <Paperclip size={18} />
+                          <span>첨부하기</span>
+                        </button>
+                        <span className="composer-hint">붙여넣기 또는 끌어놓기도 가능해요</span>
+                      </div>
+                      <button
+                        className="save-button"
+                        onClick={() => void save()}
+                        disabled={
+                          busy ||
+                          (aiEnabled && (!aiExecution || (!aiAvailable && online))) ||
+                          !filesReady ||
+                          aiTemplateUnresolved
+                        }
+                      >
+                        <span>
+                          {busy
+                            ? '저장 중...'
+                            : !filesReady
+                              ? '첨부 복구 중…'
+                              : aiTemplateUnresolved
+                                ? '템플릿 확인 중…'
+                                : aiEnabled
+                                  ? '저장하고 AI 요청'
+                                  : '저장'}
+                        </span>
+                        <ArrowRight size={18} />
+                      </button>
+                    </div>
+                    {dragging && (
+                      <div className="drop-overlay">
+                        <FileImage size={30} />
+                        <strong>여기에 놓으면 첨부돼요</strong>
+                      </div>
+                    )}
+                  </section>
                 </CaptureComposerSurface>
                 {error && !mobileComposerOpen && (
                   <div className="feedback error" role="alert">
@@ -1500,11 +1608,24 @@ function App() {
               </aside>
             </div>
           </main>
+          {syncConflicts > 0 && (isJournalView || isTaskView || isMemoView) && (
+            <React.Suspense fallback={null}>
+              <SyncConflictReview
+                key={route.section + (isMemoView ? route.captureId || '' : '')}
+                kind={isJournalView ? 'journal' : isTaskView ? 'task' : 'capture'}
+                entityId={isMemoView ? route.captureId : null}
+              />
+            </React.Suspense>
+          )}
           {isJournalView && (
-            <React.Suspense fallback={<p role="status">일지를 여는 중…</p>}><JournalWorkspace /></React.Suspense>
+            <React.Suspense fallback={<p role="status">일지를 여는 중…</p>}>
+              <JournalWorkspace />
+            </React.Suspense>
           )}
           {isMemoView && (
-            <main className={`memo-workspace${selected && memoDesktop ? ' memo-split' : ''}${aiResultView ? ' memo-ai-reading' : ''}`}>
+            <main
+              className={`memo-workspace${selected && memoDesktop ? ' memo-split' : ''}${aiResultView ? ' memo-ai-reading' : ''}`}
+            >
               <div className="memo-split-list">{collection()}</div>
               <div ref={setMemoDetailTarget} className="memo-detail-host" />
             </main>
@@ -1522,7 +1643,9 @@ function App() {
             </React.Suspense>
           )}
           {isHostingView && (
-            <React.Suspense fallback={<p role="status">호스팅 목록을 여는 중…</p>}><HostingWorkspace /></React.Suspense>
+            <React.Suspense fallback={<p role="status">호스팅 목록을 여는 중…</p>}>
+              <HostingWorkspace />
+            </React.Suspense>
           )}
           {isBackupView && (
             <React.Suspense fallback={<div className="page-route-loading">백업을 여는 중…</div>}>
@@ -1602,13 +1725,18 @@ function App() {
           </React.Suspense>
         )}
         {!mobileComposerOpen && !mobileMenu && !searchOpen && (
-            <FloatingCreateMenu hasDraft={hasDraft} onMemo={openMobileComposer}
-              onPage={() => void executeWorkspaceCommand('page')} />
-          )}
+          <FloatingCreateMenu
+            hasDraft={hasDraft}
+            onMemo={openMobileComposer}
+            onPage={() => void executeWorkspaceCommand('page')}
+          />
+        )}
         {notice && !isInboxView && (
           <div className="capture-context-notice" role="status">
             <span>{notice}</span>
-            <button onClick={() => noticeAi ? navigate('/ai') : openMemo()}>{noticeAi ? '요청 보기' : '메모 보기'}</button>
+            <button onClick={() => (noticeAi ? navigate('/ai') : openMemo())}>
+              {noticeAi ? '요청 보기' : '메모 보기'}
+            </button>
           </div>
         )}
         {captureRouteError && (
@@ -1623,17 +1751,40 @@ function App() {
             inline={isMemoView && memoDesktop}
             target={memoDetailTarget}
             onBackdrop={() => {
-              if (!editingCapture && !importOpen) closeCapture();
+              if (!editingCapture && !importOpen && !aiFollowup) closeCapture();
             }}
           >
             <aside
-              className={'detail-panel' + (selected.aiRequest ? ' ai-capture-detail' : '') + (importOpen ? ' capture-import-panel' : '')}
+              className={
+                'detail-panel' +
+                (selected.aiRequest ? ' ai-capture-detail' : '') +
+                (importOpen || aiFollowup ? ' capture-import-panel' : '')
+              }
               role={isMemoView && memoDesktop ? 'region' : 'dialog'}
               aria-modal={isMemoView && memoDesktop ? undefined : true}
               aria-label="보관한 항목"
               onMouseDown={(event) => event.stopPropagation()}
             >
-              {importOpen ? (
+              {aiFollowup ? (
+                <React.Suspense fallback={<p role="status">추가 요청을 여는 중…</p>}>
+                  <AiFollowupComposer
+                    job={aiFollowup.job}
+                    initialSource={aiFollowup.source}
+                    editRequest={aiFollowup.editRequest}
+                    onBack={() => {
+                      if (!importBusy) setAiFollowup(null);
+                    }}
+                    onBusy={setImportBusy}
+                    onCreated={(capture) => {
+                      setAiFollowup(null);
+                      setNotice('원본을 보존하고 새 AI 요청을 등록했어요.');
+                      setNoticeAi(true);
+                      void loadItems();
+                      navigate(`/captures/${capture.id}`, true);
+                    }}
+                  />
+                </React.Suspense>
+              ) : importOpen ? (
                 <React.Suspense fallback={<p role="status">정리 화면을 불러오는 중…</p>}>
                   <CapturePageImport
                     key={selected.id}
@@ -1715,83 +1866,93 @@ function App() {
                       </button>
                     </div>
                   </div>
-                  {!aiResultView && <>
-                  <div className={`detail-icon capture-icon-${selected.kind}`}>
-                    {React.createElement(iconFor(selected.kind), { size: 26 })}
-                  </div>
-                  <span className="detail-type">
-                    {kinds.find((option) => option.id === selected.kind)?.label}
-                  </span>
-                  <RecordTimestamps createdAt={selected.createdAt} updatedAt={selected.updatedAt} />
-                  {editingCapture ? (
-                    <form className="detail-edit-form" onSubmit={saveCaptureEdit}>
-                      {selected.kind === 'link' && (
-                        <label className="detail-edit-field">
-                          <span>링크 주소</span>
-                          <input
-                            aria-label="보관한 링크 주소"
-                            type="url"
-                            value={editUrl}
-                            onChange={(event) => setEditUrl(event.target.value)}
-                            disabled={editBusy}
-                          />
-                        </label>
-                      )}
-                      <label className="detail-edit-field">
-                        <span>{selected.kind === 'note' ? '내용' : '설명'}</span>
-                        <textarea
-                          aria-label="보관한 내용"
-                          value={editText}
-                          onChange={(event) => setEditText(event.target.value)}
-                          maxLength={10000}
-                          rows={8}
-                          disabled={editBusy}
-                          autoFocus
-                        />
-                      </label>
-                      {editError && (
-                        <div className="detail-edit-error" role="alert">
-                          <span>{editError}</span>
-                          {conflictCapture && (
-                            <button type="button" onClick={loadConflictCapture}>
-                              최신 내용 불러오기
-                            </button>
-                          )}
-                        </div>
-                      )}
-                      <div className="detail-edit-actions">
-                        <button type="button" onClick={cancelCaptureEdit} disabled={editBusy}>
-                          취소
-                        </button>
-                        <button type="submit" disabled={editBusy}>
-                          {editBusy ? '저장 중…' : '변경 저장'}
-                        </button>
-                      </div>
-                    </form>
-                  ) : (
+                  {!aiResultView && (
                     <>
-                      {selected.url && (
-                        <a
-                          className="detail-link"
-                          href={selected.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Link2 size={17} />
-                          <span>{selected.url}</span>
-                          <ArrowUpRight size={16} />
-                        </a>
+                      {selected.aiRequest && <h2 className="memo-detail-section-label">원문</h2>}
+                      <div className={`detail-icon capture-icon-${selected.kind}`}>
+                        {React.createElement(iconFor(selected.kind), { size: 26 })}
+                      </div>
+                      <span className="detail-type">
+                        {kinds.find((option) => option.id === selected.kind)?.label}
+                      </span>
+                      <RecordTimestamps
+                        createdAt={selected.createdAt}
+                        updatedAt={selected.updatedAt}
+                      />
+                      {editingCapture ? (
+                        <form className="detail-edit-form" onSubmit={saveCaptureEdit}>
+                          {selected.kind === 'link' && (
+                            <label className="detail-edit-field">
+                              <span>링크 주소</span>
+                              <input
+                                aria-label="보관한 링크 주소"
+                                type="url"
+                                value={editUrl}
+                                onChange={(event) => setEditUrl(event.target.value)}
+                                disabled={editBusy}
+                              />
+                            </label>
+                          )}
+                          <label className="detail-edit-field">
+                            <span>{selected.kind === 'note' ? '내용' : '설명'}</span>
+                            <textarea
+                              aria-label="보관한 내용"
+                              value={editText}
+                              onChange={(event) => setEditText(event.target.value)}
+                              maxLength={10000}
+                              rows={8}
+                              disabled={editBusy}
+                              autoFocus
+                            />
+                          </label>
+                          {editError && (
+                            <div className="detail-edit-error" role="alert">
+                              <span>{editError}</span>
+                              {conflictCapture && (
+                                <button type="button" onClick={loadConflictCapture}>
+                                  최신 내용 불러오기
+                                </button>
+                              )}
+                            </div>
+                          )}
+                          <div className="detail-edit-actions">
+                            <button type="button" onClick={cancelCaptureEdit} disabled={editBusy}>
+                              취소
+                            </button>
+                            <button type="submit" disabled={editBusy}>
+                              {editBusy ? '저장 중…' : '변경 저장'}
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <>
+                          {selected.url && (
+                            <a
+                              className="detail-link"
+                              href={selected.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Link2 size={17} />
+                              <span>{selected.url}</span>
+                              <ArrowUpRight size={16} />
+                            </a>
+                          )}
+                          {selected.text && <p className="detail-text">{selected.text}</p>}
+                        </>
                       )}
-                      {selected.text && <p className="detail-text">{selected.text}</p>}
                     </>
                   )}
-                  </>}
                   {selected.aiRequest && !editingCapture && (
                     <React.Suspense fallback={<p role="status">AI 요청을 불러오는 중…</p>}>
                       <AiJobPanel
                         key={selected.id}
                         capture={selected}
                         onJobChange={updateAiJob}
+                        compactResult={!aiResultView}
+                        onAdditionalRequest={(job, source, editRequest = false) => {
+                          setAiFollowup({ job: structuredClone(job), source, editRequest });
+                        }}
                         onOrganize={(job) => {
                           setImportAiJob(job);
                           setImportOpen(true);
@@ -1799,11 +1960,26 @@ function App() {
                       />
                     </React.Suspense>
                   )}
-                  {aiResultView && <details className="ai-original-note"><summary>현재 메모 원본</summary>
-                    <RecordTimestamps createdAt={selected.createdAt} updatedAt={selected.updatedAt} />
-                    {selected.url && <a className="detail-link" href={selected.url} target="_blank" rel="noopener noreferrer">{selected.url}</a>}
-                    {selected.text && <p className="detail-text">{selected.text}</p>}
-                  </details>}
+                  {aiResultView && (
+                    <details className="ai-original-note">
+                      <summary>원문 · 현재 메모</summary>
+                      <RecordTimestamps
+                        createdAt={selected.createdAt}
+                        updatedAt={selected.updatedAt}
+                      />
+                      {selected.url && (
+                        <a
+                          className="detail-link"
+                          href={selected.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {selected.url}
+                        </a>
+                      )}
+                      {selected.text && <p className="detail-text">{selected.text}</p>}
+                    </details>
+                  )}
                   {!!selected.files.length && (
                     <div className="detail-files">
                       <h3>
@@ -1838,31 +2014,37 @@ function App() {
                       ))}
                     </div>
                   )}
-                  {!editingCapture && !trashPending && !aiResultView && (
-                    <React.Suspense fallback={<p role="status">페이지 정리를 불러오는 중…</p>}>
-                      <CapturePageImport
-                        key={selected.id}
-                        capture={selected}
-                        expanded={false}
-                        onExpand={() => {
-                          setImportAiJob(null);
-                          setImportOpen(true);
-                        }}
-                        onBack={() => setImportOpen(false)}
-                        onBusy={setImportBusy}
-                        navigate={navigate}
-                      />
-                    </React.Suspense>
-                  )}
-                  {selected.organizedAt && (
-                    <React.Suspense fallback={null}>
-                      <CaptureOrganization
-                        key={selected.id}
-                        capture={selected}
-                        disabled={editingCapture || trashPending || importBusy}
-                        onRestored={setSelected}
-                      />
-                    </React.Suspense>
+                  {!editingCapture &&
+                    !trashPending &&
+                    ((!aiResultView && selected.latestAiJob?.status !== 'result_ready') || Boolean(selected.organizedAt)) && (
+                      <section className="memo-connections" aria-label="메모 정리">
+                        {!aiResultView && selected.latestAiJob?.status !== 'result_ready' && (
+                          <React.Suspense fallback={<p role="status">페이지 정리를 불러오는 중…</p>}>
+                            <CapturePageImport
+                              key={selected.id}
+                              capture={selected}
+                              expanded={false}
+                              onExpand={() => {
+                                setImportAiJob(null);
+                                setImportOpen(true);
+                              }}
+                              onBack={() => setImportOpen(false)}
+                              onBusy={setImportBusy}
+                              navigate={navigate}
+                            />
+                          </React.Suspense>
+                        )}
+                        {selected.organizedAt && (
+                          <React.Suspense fallback={null}>
+                            <CaptureOrganization
+                              key={selected.id}
+                              capture={selected}
+                              disabled={editingCapture || trashPending || importBusy}
+                              onRestored={setSelected}
+                            />
+                          </React.Suspense>
+                        )}
+                      </section>
                   )}
                   {!editingCapture && (
                     <React.Suspense fallback={null}>
@@ -1914,4 +2096,8 @@ function App() {
   );
 }
 
-createRoot(document.getElementById('root')!).render(<AuthBoundary><App /></AuthBoundary>);
+createRoot(document.getElementById('root')!).render(
+  <AuthBoundary>
+    <App />
+  </AuthBoundary>,
+);

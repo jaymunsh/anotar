@@ -26,6 +26,8 @@ body > header {
 }
 .share-brand {
   display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
   align-items: center;
   gap: 16px;
 }
@@ -78,47 +80,13 @@ body img {
   border-color: var(--share-line);
 }
 @media (max-width: 600px) {
+  body > header {
+    flex-wrap: wrap;
+  }
   .share-theme-select {
     min-height: 44px;
   }
   .share-brand {
     gap: 12px;
   }
-}
-
-/* Keep Korean title words together while retaining long-title fallback wrapping. */
-main > h1 {
-  word-break: keep-all;
-  overflow-wrap: anywhere;
-}
-/* Match the document's reading rhythm in the editor and exported copy. */
-main .block > h2 {
-  font-size: 24px;
-  line-height: 1.4;
-  margin: 28px 0 10px;
-  word-break: keep-all;
-}
-main .block > h3 {
-  font-size: 20px;
-  line-height: 1.4;
-  margin: 24px 0 8px;
-}
-main .block > :is(p, blockquote) {
-  line-height: 1.65;
-  word-break: keep-all;
-  overflow-wrap: anywhere;
-}
-
-/* The shared/exported document uses the same reading rhythm as the editor. */
-main > h1,
-main .block > :is(h2, h3, h4, h5, h6) {
-  letter-spacing: -0.015em;
-}
-main .block > :is(p, blockquote),
-main .list-item-content {
-  line-height: 1.7;
-  letter-spacing: normal;
-}
-main .block > p {
-  margin-block: 12px;
 }

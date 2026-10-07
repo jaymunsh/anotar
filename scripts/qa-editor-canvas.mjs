@@ -109,8 +109,8 @@ try {
         'typing must not select its current block',
       );
       await page.keyboard.press('Shift+Home');
-      await page.getByLabel('선택 블록 작업').waitFor();
-      assert.match(await page.getByLabel('선택 블록 작업').innerText(), /1개 블록 선택/);
+      assert.equal(await page.locator('.page-selection-tools').count(), 0);
+      assert.equal(await page.locator('.page-selection-tools').count(), 0, 'selection must not insert a document banner');
       await page.keyboard.press('ArrowRight');
       await page.waitForFunction(() => !document.querySelector('.page-selection-tools'));
       await clickPageTool(page, '선택 블록 이동');
@@ -125,7 +125,7 @@ try {
       await inline.click();
       await page.keyboard.press('End');
       await page.keyboard.press('Shift+Home');
-      await page.getByLabel('선택 블록 작업').waitFor();
+      assert.equal(await page.locator('.page-selection-tools').count(), 0);
       await clickBelow(page);
       await page.waitForFunction(() => !document.querySelector('.page-selection-tools'));
       assert.equal((await cursor(page)).id, 'last');

@@ -11,10 +11,10 @@ try{
  await pb.reload();assert.equal(await pb.getByLabel('페이지 제목',{exact:true}).inputValue(),'두 번째 기기 수정');
  await a.setOffline(false);await settleSync(pa);assert.equal((await(await fetch(app.base+'/api/pages/'+item.id)).json()).item.title,'첫 번째 기기 수정');
  await b.setOffline(false);await pb.getByRole('button',{name:'동기화 상태',exact:true}).click();await pb.getByRole('button',{name:'지금 동기화',exact:true}).click();await pb.getByRole('button',{name:'동기화 상태 닫기'}).click();
- await pb.getByText('다른 기기에서 수정했어요',{exact:true}).waitFor();
+ await pb.getByText('서버본과 기기본이 달라요',{exact:true}).waitFor();
  assert.equal(await pb.getByLabel('페이지 제목',{exact:true}).inputValue(),'두 번째 기기 수정');
- await pb.getByRole('button',{name:'서버 내용 보기',exact:true}).click();await pb.getByText('첫 번째 기기 수정',{exact:true}).last().waitFor();
- await pb.getByRole('button',{name:'새 페이지로 보관',exact:true}).click();
+ await pb.getByRole('button',{name:'변경 내용 비교',exact:true}).click();await pb.getByText('첫 번째 기기 수정',{exact:true}).last().waitFor();
+ await pb.getByRole('radio',{name:/^새 페이지로 보관/}).check();await pb.getByRole('button',{name:'선택한 내용 적용',exact:true}).click();
  await pb.waitForURL(/\/pages\/(?!undefined)[a-f0-9-]+$/);await pb.getByLabel('페이지 제목',{exact:true}).waitFor();
  await settleSync(pb);
  const pages=(await(await fetch(app.base+'/api/pages')).json()).items;assert.equal(pages.length,2);assert.ok(pages.some(p=>p.title.includes('두 번째 기기 수정')));

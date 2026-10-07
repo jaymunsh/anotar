@@ -22,10 +22,14 @@ const securityHeaders = {
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'no-referrer',
   'Content-Security-Policy':
-    "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+    "default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
 };
 const appRoot = fileURLToPath(new URL('../', import.meta.url));
 const viewerAssets = {
+  '/share-assets/share-code.js': [join(appRoot, 'dist', 'share-code.js'), 'text/javascript; charset=utf-8'],
+  '/share-assets/document.css': [join(appRoot, 'dist', 'document.css'), 'text/css; charset=utf-8'],
+  '/share-assets/document-fonts.css': [join(appRoot, 'dist', 'document-fonts.css'), 'text/css; charset=utf-8'],
+  '/share-assets/diagram.css': [join(appRoot, 'dist', 'diagram.css'), 'text/css; charset=utf-8'],
   '/share-assets/callout.css': [join(appRoot, 'dist', 'callout.css'), 'text/css; charset=utf-8'],
   '/share-assets/favicon.png': [join(appRoot, 'dist', 'favicon.png'), 'image/png'],
   '/share-assets/itinerary-timetable.css': [
@@ -57,6 +61,10 @@ const viewerAssets = {
     'text/css; charset=utf-8',
   ],
 };
+for (const family of ['dm-sans', 'noto-sans-kr', 'pretendard', 'ridibatang']) {
+  viewerAssets[`/fonts/${family}.woff2`] = [join(appRoot, 'dist', 'fonts', `${family}.woff2`), 'font/woff2'];
+  viewerAssets[`/fonts/${family}-OFL.txt`] = [join(appRoot, 'dist', 'fonts', `${family}-OFL.txt`), 'text/plain; charset=utf-8'];
+}
 
 function missing(response) {
   response.writeHead(404, { ...securityHeaders, 'Content-Type': 'text/plain; charset=utf-8' });
@@ -76,6 +84,13 @@ const server = createServer(async (request, response) => {
     }
     return;
   }
+  // Only the separate reader build is public; no private app chunks or arbitrary files.
+  if (['GET', 'HEAD'].includes(request.method) && /^\/share-viewer\/[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*\.js$/.test(path)) {
+    const data = await readFile(join(appRoot, 'dist', 'share-viewer', path.slice('/share-viewer/'.length))).catch(() => null);
+    if (!data) return missing(response);
+    response.writeHead(200, { ...securityHeaders, 'Content-Type': 'text/javascript; charset=utf-8', 'Content-Length': data.length });
+    return response.end(request.method === 'HEAD' ? undefined : data);
+  }
   if (['GET', 'HEAD'].includes(request.method) && Object.hasOwn(viewerAssets, path)) {
     const [file, mime] = viewerAssets[path];
     const data = await readFile(file).catch(() => null);
@@ -84,6 +99,7 @@ const server = createServer(async (request, response) => {
       ...securityHeaders,
       'Content-Type': mime,
       'Content-Length': data.length,
+      ...(path.startsWith('/fonts/') ? { 'Cache-Control': 'public, max-age=86400' } : {}),
     });
     return response.end(request.method === 'HEAD' ? undefined : data);
   }
@@ -157,7 +173,7 @@ const server = createServer(async (request, response) => {
     }
     const assets = new Map();
     for (const id of ids) {
-      const asset = db.prepare(`SELECT id, name, mime FROM assets WHERE id = ?`).get(id);
+      const asset = db.prepare(`SELECT id, name, mime, size FROM assets WHERE id = ?`).get(id);
       if (asset) assets.set(id, asset);
     }
     const html = renderSharedPage(page, match[1], assets, {

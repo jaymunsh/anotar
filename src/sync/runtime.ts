@@ -1,3 +1,4 @@
+import { snapshotIsBound, wouldCreateDependencyCycle } from './pendingSnapshot';
 import { verifyRemoteAccess, cacheVerifiedRecord, fetchVerifiedEntity } from './remoteGuard';
 import { putEntity, allSummaries, querySummaries, captureCounts } from './summaries.ts';
 import type { SyncEntityKind, SyncOperation } from '../../shared/sync.ts';
@@ -147,7 +148,7 @@ export function getWorkspaceRuntime(): Promise<Runtime> {
     );
     runtimeDisposers.push(() => clearTimeout(refresh));
     await migrateLegacyDrafts({ workspaceId });
-    // A reload can land after the 250ms local commit but before the 750ms queue timer.
+    // A reload can land after a local commit but before the delayed sync flush.
     await transaction(['entities', 'outbox', 'meta'], 'readwrite', async (tx) => {
       const summaries = await idbRequest(
         tx.objectStore('entitySummaries').index('workspace').getAll(workspaceId),
@@ -225,20 +226,26 @@ export async function resetRuntimeBinding(session: import('../../shared/sync').S
   return getWorkspaceRuntime();
 }
 export async function enqueueCurrentPage(id: string) {
+  return enqueueCurrentEntity('page', id);
+}
+export async function enqueueCurrentEntity(kind: 'page' | 'journal', id: string) {
   const { workspaceId, deviceId, engine } = await getWorkspaceRuntime();
-  await transaction(['entities', 'outbox', 'meta'], 'readwrite', async (tx) => {
+  const changed = await transaction(['entities', 'outbox', 'meta'], 'readwrite', async (tx) => {
     const entity: Entity | undefined = await idbRequest(
-      tx.objectStore('entities').get(keyOf(workspaceId, 'page', id)),
+      tx.objectStore('entities').get(keyOf(workspaceId, kind, id)),
     );
-    if (!entity?.dirty || !entity.current) return;
+    if (!entity?.dirty || !entity.current) return false;
+    putEntity(tx, { ...entity, stableAt: 0 });
     const outbox = tx.objectStore('outbox'),
       heads: Pending[] = await idbRequest(outbox.index('workspace').getAll(workspaceId));
-    if (
-      heads.some(
+    const existing = heads.find(
         (head) => head.operation.entityId === id && /\.(create|update)$/.test(head.operation.kind),
-      )
-    )
-      return;
+    );
+    if (existing) {
+      if (existing.state === 'queued' && existing.attempt === 0)
+        outbox.put({ ...existing, nextAttemptAt: 0 });
+      return true;
+    }
     const identity = await idbRequest(tx.objectStore('meta').get(keyOf(workspaceId, 'sync'))),
       operation = operationForEntity(entity, identity, deviceId);
     outbox.add({
@@ -249,11 +256,14 @@ export async function enqueueCurrentPage(id: string) {
       dependencies: pageDependencies(entity, heads),
       state: 'queued',
       attempt: 0,
-      nextAttemptAt: entity.stableAt ?? 0,
+      nextAttemptAt: 0,
     });
+    return true;
   });
-  announceLocalChanges();
-  void engine.requestSync();
+  if (changed) {
+    announceLocalChanges();
+    void engine.requestSync();
+  }
 }
 export async function requestWorkspaceSync() {
   const runtime = await getWorkspaceRuntime();
@@ -280,6 +290,7 @@ export async function queueValue(
   stableAt = 0,
   baseOverride?: Value | null,
   expectedLocalRevision?: number,
+  deferSync = false,
 ) {
   const { workspaceId, deviceId, engine } = await getWorkspaceRuntime();
   const result = await transaction(
@@ -339,6 +350,22 @@ export async function queueValue(
       for (const blob of blobs)
         tx.objectStore('blobs').put({ ...blob, key: keyOf(workspaceId, blob.id), workspaceId });
       const heads: Pending[] = await idbRequest(outbox.index('workspace').getAll(workspaceId));
+      // Replace only an update that has never been sent. Sending/retried UUIDs
+      // must retain their exact payload for receipt replay after response loss.
+      if (kind === 'page' || kind === 'journal') {
+        const unsent = heads.find(head => head.operation.entityId === id &&
+          /\.(create|update)$/.test(head.operation.kind) && head.state === 'queued' && head.attempt === 0);
+        if (unsent) {
+          const dependencies = [...new Set([...unsent.dependencies, ...pageDependencies(entity, heads)])];
+          // Parent creation must finish before its child. If the latest parent
+          // links that child, retain this create and send the latest as a follow-up.
+          if (!snapshotIsBound(unsent.operation, heads) && !wouldCreateDependencyCycle(unsent.operation.operationId, dependencies, heads)) {
+            const identity = await idbRequest(tx.objectStore('meta').get(keyOf(workspaceId, 'sync')));
+            const operation = { ...operationForEntity(entity, identity, deviceId), operationId: unsent.operation.operationId };
+            outbox.put({ ...unsent, operation, localRevision, nextAttemptAt: stableAt, dependencies });
+          }
+        }
+      }
       if (
         enqueue &&
         !heads.some(
@@ -370,7 +397,7 @@ export async function queueValue(
     throw new Error(
       '같은 기기의 다른 창에서 수정했어요. 이 창의 원문과 다른 창의 사본을 보존했어요. 원문을 내려받고 다시 열어 확인해 주세요.',
     );
-  if (enqueue) void engine.requestSync();
+  if (enqueue && !deferSync) void engine.requestSync();
   return result;
 }
 function response(body: unknown, status = 200) {

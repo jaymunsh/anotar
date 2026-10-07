@@ -2102,7 +2102,7 @@ dialog::backdrop {
   }
 }
 
-/* Inline task writing and a short reflection / medium idea / large brain dump. */
+/* Inline task writing and a large brain dump / medium idea / short reflection. */
 .priority-row textarea,
 .priority-row textarea:focus,
 .priority-row textarea:focus-visible {
@@ -2128,7 +2128,7 @@ dialog::backdrop {
   }
   .day-notes .notes {
     display: grid;
-    grid-template-rows: minmax(95px, 1fr) minmax(110px, 1.4fr) minmax(150px, 2.6fr);
+    grid-template-rows: minmax(150px, 2.6fr) minmax(110px, 1.4fr) minmax(95px, 1fr);
     min-height: 0;
   }
   .day-notes .note-section {
@@ -2144,10 +2144,10 @@ dialog::backdrop {
 
 /* Graph paper belongs to notes; the timetable uses its own measured grid. */
 :root {
-  --graph-line: rgba(72, 98, 78, 0.1);
+  --graph-line: rgba(72, 98, 78, 0.04);
 }
 :root[data-theme='dark'] {
-  --graph-line: rgba(189, 207, 188, 0.1);
+  --graph-line: rgba(189, 207, 188, 0.04);
 }
 .note-section textarea {
   background-image:
@@ -2381,4 +2381,61 @@ dialog::backdrop {
   .priority-plan { min-height: 44px; max-width: 44px; font-size: 12px; }
   .priority-hint { font-size: 12px; }
   .summary-table[data-period='week'] th:nth-child(2) { width: auto; }
+}
+
+/* Keep the full day near the top; the calendar opens without shifting the sheet. */
+.page-head {
+  position: relative;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto;
+  align-items: center;
+  gap: 12px 24px;
+  margin-bottom: 8px;
+}
+.page-head .day-controls { grid-column: 2; grid-row: 1; align-self: center; }
+#calendarToggle { display: inline-flex; margin-left: 6px; align-items: center; gap: 5px; }
+.page-head .calendar-rail {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 280px;
+  max-width: 100%;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+  z-index: 20;
+}
+.page-head .calendar-rail.open { display: block; }
+.page-head .calendar-day { min-height: 32px; }
+.day-summary { margin-top: 3px; }
+.view-bar { margin-bottom: 12px; }
+.schedule-toolbar { margin-bottom: 6px; }
+.schedule-toolbar .schedule-actions { margin-left: auto; }
+.minute-heading > span { display: flex; align-items: center; justify-content: center; }
+@media (min-width: 761px) {
+  .day-hour { min-height: clamp(26px, calc((100dvh - 300px) / 24), 38px); }
+  .plan-slot .hour-entry { min-height: 0; padding-block: 2px; }
+  .day-notes { gap: 14px; }
+  .day-notes .notes { gap: 12px; }
+  .view-tabs button { min-height: 34px; padding-block: 5px; }
+}
+@media (min-width: 1101px) {
+  .day-summary, .journal-save-status { display: inline-block; margin-bottom: 0; }
+  .journal-save-status { margin-left: 12px; }
+}
+@media (max-width: 1100px) {
+  .page-head { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .page-head .day-controls { grid-column: 1; grid-row: 2; }
+  .page-head .calendar-rail { right: auto; left: 0; }
+}
+@media (max-width: 760px) {
+  .day-controls { flex-wrap: wrap; }
+  .day-controls input { flex: 1; min-width: 110px; width: 110px; }
+  #calendarToggle { margin-left: 0; }
+  .page-head .calendar-day { min-height: 38px; }
+  .day-controls button, .day-controls input { min-height: 44px; }
 }

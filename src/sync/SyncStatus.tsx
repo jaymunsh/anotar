@@ -1,23 +1,27 @@
+import { getWorkspaceNotices, subscribeWorkspaceNotices } from '../workspace/notices';
+import SyncDetailsDialog from './SyncDetailsDialog';
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { Cloud, CloudOff, RefreshCw, TriangleAlert, X } from 'lucide-react';
+import { ChevronRight, Cloud, CloudOff, RefreshCw, TriangleAlert } from 'lucide-react';
 import {
   getWorkspaceRuntime,
   getSyncSnapshot,
   subscribeSync,
   requestWorkspaceSync,
 } from './runtime';
-import { listRecords, readRecord, type Pending } from './repository';
-import ConflictPanel from './ConflictPanel';
-import type { ConflictRecord } from './conflicts';
+import { listRecords, type Pending } from './repository';
+import { noticeDestination } from './noticeDestination';
 import './sync.css';
 import { replaceRejectedWrite } from './workflows';
-import RecoveryPanel from '../offline/RecoveryPanel';
-export function SyncStatus() {
+export function SyncStatus({ onNavigate, onOpenStorage }: {
+  onNavigate: (path: string) => void;
+  onOpenStorage: () => void;
+}) {
+  const notices = useSyncExternalStore(subscribeWorkspaceNotices, getWorkspaceNotices);
+  const [retryingNotice, setRetryingNotice] = useState('');
   const status = useSyncExternalStore(subscribeSync, getSyncSnapshot),
     [open, setOpen] = useState(false),
     [actionError, setActionError] = useState(''),
-    [pending, setPending] = useState<Pending[]>([]),
-    [conflict, setConflict] = useState<ConflictRecord>();
+    [pending, setPending] = useState<Pending[]>([]);
   useEffect(() => {
     void getWorkspaceRuntime().catch(() => {});
   }, []);
@@ -25,11 +29,13 @@ export function SyncStatus() {
     if (!open) return;
     void getWorkspaceRuntime()
       .then(async ({ workspaceId }) =>
-        setPending(await listRecords<Pending>('outbox', workspaceId, 50)),
+        setPending((await listRecords<Pending>('outbox', workspaceId, 10000))
+          .filter(item => item.state === 'conflict' || item.state === 'failed')),
       )
       .catch(() => {});
   }, [open, status]);
   const warning = status.conflicts > 0 || ['access', 'recovery'].includes(status.state),
+    attention = warning || notices.length > 0,
     offline = status.state === 'offline';
   const label =
     status.state === 'access'
@@ -47,7 +53,8 @@ export function SyncStatus() {
                 : offline
                   ? '서버 연결 대기'
                   : '저장소 준비 중…';
-  const Icon = warning
+  const compactLabel = notices.length && !warning ? `안내 확인 · ${notices.length}건` : label;
+  const Icon = attention
     ? TriangleAlert
     : offline
       ? CloudOff
@@ -58,23 +65,28 @@ export function SyncStatus() {
     <div className="sync-status">
       <button
         type="button"
-        className="sync-status-trigger"
+        className={'sync-status-trigger' + (attention ? ' needs-attention' : '')}
         aria-label="동기화 상태"
-        title={label}
+        title={notices.length ? `${label} · ${notices.map(notice => notice.title).join(' · ')}` : label}
         aria-expanded={open}
+        aria-haspopup="dialog"
         onClick={() => setOpen((value) => !value)}
       >
         <Icon size={14} aria-hidden />
-        <span role="status">{label}</span>
+        <span role="status">{compactLabel}</span>
+        {attention && <ChevronRight className="sync-status-more" size={13} aria-hidden />}
       </button>
       {open && (
-        <section className="sync-status-panel" aria-label="기기 저장과 동기화">
-          <header>
-            <strong>기기 저장과 동기화</strong>
-            <button type="button" aria-label="동기화 상태 닫기" onClick={() => setOpen(false)}>
-              <X size={16} />
-            </button>
-          </header>
+        <SyncDetailsDialog onClose={() => setOpen(false)}>
+          {notices.map(notice => <section className="sync-workspace-notice" key={notice.id} aria-label={notice.title}>
+            <h3>{notice.title}</h3>
+            <p>{notice.message}</p>
+            {notice.retry && <button type="button" className="sync-retry" disabled={retryingNotice === notice.id} onClick={async()=>{
+              setRetryingNotice(notice.id);
+              try { await notice.retry?.(); } catch { setActionError('안내에 해당하는 작업을 다시 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.'); }
+              finally { setRetryingNotice(''); }
+            }}>{retryingNotice === notice.id ? '확인 중…' : '다시 시도'}</button>}
+          </section>)}
           <p>기기에 저장한 자료는 연결 후 서버에 반영돼요. 공유에는 서버에 반영된 내용만 보여요.</p>
           <dl className="sync-status-facts">
             <div>
@@ -103,10 +115,13 @@ export function SyncStatus() {
           )}
           {status.error && <p role="alert">{status.error}</p>}
           {actionError && <p role="alert">{actionError}</p>}
-          {status.state === 'recovery' && <RecoveryPanel />}
+          {status.state === 'recovery' && <button type="button" className="sync-retry" onClick={() => {
+            setOpen(false);
+            onOpenStorage();
+          }}>기기 저장소에서 확인</button>}
           {!!pending.length && (
             <ul>
-              {pending.map((item) => (
+              {pending.slice(0, 50).map((item) => (
                 <li key={item.operation.operationId}>
                   <span>
                     {String(
@@ -116,7 +131,10 @@ export function SyncStatus() {
                           ? `${item.operation.payload.date} 일지`
                         : 'text' in item.operation.payload
                           ? item.operation.payload.text
-                          : item.operation.kind) || '새 자료',
+                          : item.operation.kind.startsWith('task.') ? '할 일'
+                          : item.operation.kind.startsWith('journal.') ? '일지'
+                          : item.operation.kind.startsWith('page.') ? '페이지'
+                          : '메모') || '새 자료',
                     ).slice(0, 60)}
                   </span>
                   <small>
@@ -126,7 +144,7 @@ export function SyncStatus() {
                         ? '저장 내용 확인 필요'
                         : '전송 대기'}
                   </small>
-                  {item.error && <small>{item.error}</small>}
+                  {item.error && item.state !== 'conflict' && <small>{item.error}</small>}
                   {item.state === 'failed' &&
                     [404, 413, 422].includes(item.errorStatus ?? 0) &&
                     item.errorCode !== 'payload_mismatch' &&
@@ -147,38 +165,22 @@ export function SyncStatus() {
                         고친 내용으로 다시 전송
                       </button>
                     )}
-                  {item.state === 'conflict' &&
-                    item.operation.kind !== 'ai.submit' &&
-                    item.operation.kind !== 'capture.organize' && (
+                  {item.state === 'conflict' && (
                       <button
                         className="sync-retry"
-                        onClick={async () => {
-                          const { workspaceId } = await getWorkspaceRuntime();
-                          setConflict(
-                            await readRecord<ConflictRecord>(
-                              'conflicts',
-                              workspaceId,
-                              item.operation.operationId,
-                            ),
-                          );
+                        onClick={() => {
+                          setOpen(false);
+                          onNavigate(noticeDestination(item.operation).path);
                         }}
                       >
-                        양쪽 내용 확인
+                        {noticeDestination(item.operation).label}
                       </button>
                     )}
                 </li>
               ))}
             </ul>
           )}
-          {conflict && (
-            <ConflictPanel
-              conflict={conflict}
-              local={conflict.local}
-              onResolved={() => {
-                setConflict(undefined);
-              }}
-            />
-          )}
+          {pending.length > 50 && <p>확인할 항목이 {pending.length - 50}건 더 있어요. 각 화면에서도 확인할 수 있어요.</p>}
           <button
             type="button"
             className="sync-retry"
@@ -191,7 +193,7 @@ export function SyncStatus() {
           >
             지금 동기화
           </button>
-        </section>
+        </SyncDetailsDialog>
       )}
     </div>
   );

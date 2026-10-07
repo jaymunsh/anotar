@@ -1,4 +1,6 @@
+import {savedAppFont, applyAppFont, type AppFont} from './appearance';
 import AiSettingsPanel from './AiSettingsPanel';
+import DocumentTypographySettings from './DocumentTypographySettings';
 import DeviceStorage from '../offline/DeviceStorage';
 import SecuritySettings from '../auth/SecuritySettings';
 import { useEffect, useRef, useState } from 'react';
@@ -62,6 +64,7 @@ export default function WorkspaceSettings({
   onOpen: (path: '/prompts' | '/backups' | '/trash' | '/hosting') => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [appFont,setAppFont]=useState(savedAppFont);
   const [section, setSection] = useState<Section>(initialSection);
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -166,16 +169,13 @@ export default function WorkspaceSettings({
                   {theme === 'dark' ? '어두움' : '밝음'}
                 </button>
               </div>
-              <div className="settings-type-preview" aria-label="화면 미리보기">
-                <span>미리보기</span>
-                <h4>생각을, 놓아두세요.</h4>
-                <p>
-                  빠르게 남기는 메모부터 차분하게 읽는 페이지까지.
-                  <br />
-                  기록은 가볍게, 내용은 또렷하게.
-                </p>
-                <small>본문과 메뉴에 선택한 화면 모드가 함께 적용돼요.</small>
+              <div className="settings-row">
+                <div><strong>앱 글꼴</strong><p>메뉴, 메모, 일지와 문서에 함께 적용해요.</p></div>
+                <select aria-label="앱 글꼴" value={appFont} onChange={event=>{const font=event.target.value as AppFont;setAppFont(font);applyAppFont(font);}}>
+                  <option value="default">기본</option><option value="pretendard">Pretendard</option><option value="ridibatang">리디바탕</option>
+                </select>
               </div>
+              <DocumentTypographySettings />
               <p className="settings-save-note">변경한 설정은 자동으로 저장됩니다.</p>
             </section>
           )}

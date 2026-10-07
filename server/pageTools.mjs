@@ -261,6 +261,8 @@ export function createPageTools(db, getStore) {
     return { pageId: cleanId(pageId), expectedVersion: cleanVersion(expectedVersion) };
   }
   function saveSnapshot(page, { title = page.title, icon = page.icon, document }) {
+    getStore().assertPageEditable(page.id);
+    document = getStore().withChildPageLinks(page.id, document);
     const serialized = serializePageDocument(document);
     // Only persisted snapshots reach this helper; absent legacy targets remain inert references.
     syncPageReferences(db, page.id, document, null, false);

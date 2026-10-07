@@ -85,6 +85,7 @@ test('required auth guards every private API and upload before writing, but heal
     '/api/ai/activity',
     '/api/assets/missing',
     '/api/document-blueprints',
+    '/api/pages/546e1325-762b-4ea4-9ce5-a37e4c43d2b5/shares/69dea5c2-87dc-4b3d-8873-51961db95a12/link',
     '/api/search?q=hello',
   ])
     assert.equal((await fetch(f.base + path)).status, 401, path);

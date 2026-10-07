@@ -43,6 +43,10 @@ export function preparePageExport({ store, pageId, expectedVersion, dataDir }) {
   let html = renderSharedPage(page, token, assets, {
     planTasks: store.getPublicPlanTasks?.(page.id) || [],
   }).replaceAll('/share-assets/', 'assets/');
+  // file:// cannot reliably import ES modules. Preserve the diagram source as the
+  // offline fallback; interactive rendering belongs to the same-origin shared reader.
+  html = html.replace('<script type="module" src="/share-viewer/entry.js"></script>', '')
+    .replaceAll('<details class="diagram-source-details">', '<details class="diagram-source-details" open>');
   for (const file of files) {
     const id = file.name.slice(6).split('.')[0];
     html = html.replaceAll(`/s/${token}/assets/${id}`, file.name);
@@ -59,6 +63,11 @@ export function preparePageExport({ store, pageId, expectedVersion, dataDir }) {
       '저장한 사본입니다. 외부 장소 링크는 인터넷 연결이 필요합니다.',
     );
   const entries = [{ name: 'index.html', data: Buffer.from(html) }, ...files];
+  // Server-only checkouts may not have built browser controls yet. Keep those
+  // exports readable without referencing an absent script.
+  const copyScript = join(root, 'dist', 'share-code.js');
+  if (existsSync(copyScript)) entries.push({ name: 'assets/share-code.js', data: readFileSync(copyScript) });
+  else entries[0].data = Buffer.from(html.replace('<script src="assets/share-code.js" defer></script>', ''));
   for (const name of [
     'favicon.png',
     'share-plan.css',
@@ -67,17 +76,23 @@ export function preparePageExport({ store, pageId, expectedVersion, dataDir }) {
     'share-theme.js',
     'itinerary-timetable.css',
     'callout.css',
-  ])
+    'document.css',
+    'document-fonts.css',
+    'diagram.css',
+  ]) {
+    const data = readFileSync(join(root, existsSync(join(root, 'dist', name)) ? 'dist' : 'public', name));
     entries.push({
       name: 'assets/' + name,
-      data: readFileSync(
-        join(root, existsSync(join(root, 'dist', name)) ? 'dist' : 'public', name),
-      ),
+      data: name === 'document-fonts.css' ? Buffer.from(data.toString('utf8').replaceAll("'/fonts/", "'../fonts/")) : data,
     });
+  }
+  for (const family of ['dm-sans', 'noto-sans-kr', 'pretendard', 'ridibatang'])
+    for (const suffix of ['.woff2', '-OFL.txt'])
+      entries.push({ name: `fonts/${family}${suffix}`, data: readFileSync(join(root, existsSync(join(root, 'public', 'fonts')) ? 'public' : 'dist', 'fonts', family + suffix)) });
   entries.push({
     name: 'README.txt',
     data: Buffer.from(
-      'index.html을 브라우저로 여세요. 첨부는 files 폴더에 있습니다.\n외부 지도/웹 링크는 온라인 연결이 필요합니다. 이 사본은 공유 링크 폐기 후에도 남습니다.\n개인 댓글·AI 내부 정보·하위 페이지는 포함하지 않습니다.\n',
+      'index.html을 브라우저로 여세요. 첨부는 files 폴더에 있습니다.\n외부 지도/웹 링크는 온라인 연결이 필요합니다. 이 사본은 공유 링크 폐기 후에도 남습니다.\n다이어그램은 Mermaid 원문으로 포함됩니다. 그림과 확대 보기는 앱 또는 온라인 공유 페이지에서 이용하세요.\n개인 댓글·AI 내부 정보·하위 페이지는 포함하지 않습니다.\n',
     ),
   });
   return entries;

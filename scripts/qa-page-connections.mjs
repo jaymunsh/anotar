@@ -124,7 +124,7 @@ export async function runPageConnectionQa(browser, baseUrl) {
       assetIds: [],
     });
     await old.getByRole('textbox', { name: '페이지 제목' }).fill('충돌 중인 초안');
-    await old.getByText('다른 기기에서 수정했어요', {exact:true}).waitFor();
+    await old.getByText('서버본과 기기본이 달라요', {exact:true}).waitFor();
     await old.reload({waitUntil:'domcontentloaded'});
     assert.equal(await old.getByRole('textbox',{name:'페이지 제목',exact:true}).inputValue(),'충돌 중인 초안');
     await old.close();

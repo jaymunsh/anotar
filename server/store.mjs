@@ -1,4 +1,5 @@
 import { initializeSyncFeed } from './sync/feed.mjs';
+import { reconcileChildPageLinks } from '../shared/childPageLinks.ts';
 import { createJournalStore } from './journal.mjs';
 import { createAuthStore } from './auth/store.mjs';
 import { initializeSync, getSyncSession, bindSyncStore } from './sync/store.mjs';
@@ -110,6 +111,8 @@ export function openStore(dataDir) {
   if (!pageColumns.has('icon'))
     db.exec("ALTER TABLE pages ADD COLUMN icon TEXT NOT NULL DEFAULT ''");
   if (!pageColumns.has('parent_id')) db.exec('ALTER TABLE pages ADD COLUMN parent_id TEXT');
+  if (!pageColumns.has('locked')) db.exec('ALTER TABLE pages ADD COLUMN locked INTEGER NOT NULL DEFAULT 0 CHECK(locked IN (0,1))');
+  if (!pageColumns.has('lock_version')) db.exec('ALTER TABLE pages ADD COLUMN lock_version INTEGER NOT NULL DEFAULT 0');
   if (!pageColumns.has('position')) {
     db.exec('ALTER TABLE pages ADD COLUMN position REAL NOT NULL DEFAULT 0');
     // 기존 페이지는 최신순 목록 순서를 유지하도록 rowid 역순으로 채운다
@@ -119,7 +122,7 @@ export function openStore(dataDir) {
   initializePageAssets(db);
   db.exec('CREATE INDEX IF NOT EXISTS assets_page_id ON assets(page_id)');
   initializeTrash(db);
-  const shareStore = createShareStore(db);
+  const shareStore = createShareStore(db, dataDir);
   const selectFiles = db.prepare(
     'SELECT id, storage_key AS key, name, mime, size FROM assets WHERE capture_id = ? ORDER BY rowid',
   );
@@ -226,17 +229,42 @@ export function openStore(dataDir) {
     listPages() {
       return db
         .prepare(
-          'SELECT id, title, icon, parent_id AS parentId, position, version, created_at AS createdAt, updated_at AS updatedAt FROM pages WHERE deleted_at IS NULL ORDER BY position, updated_at DESC, rowid',
+          'SELECT id, title, icon, parent_id AS parentId, position, locked, lock_version AS lockVersion, version, created_at AS createdAt, updated_at AS updatedAt FROM pages WHERE deleted_at IS NULL ORDER BY position, updated_at DESC, rowid',
         )
-        .all();
+        .all().map(row=>({...row,locked:Boolean(row.locked)}));
     },
     getPage(id, { includeDeleted = false } = {}) {
       const row = db
         .prepare(
-          `SELECT id, title, icon, parent_id AS parentId, position, document, version, created_at AS createdAt, updated_at AS updatedAt FROM pages WHERE id = ?${includeDeleted ? '' : ' AND deleted_at IS NULL'}`,
+          `SELECT id, title, icon, parent_id AS parentId, position, document, locked, lock_version AS lockVersion, version, created_at AS createdAt, updated_at AS updatedAt FROM pages WHERE id = ?${includeDeleted ? '' : ' AND deleted_at IS NULL'}`,
         )
         .get(id);
-      return row ? { ...row, document: JSON.parse(row.document) } : null;
+      return row ? { ...row, locked:Boolean(row.locked), document: JSON.parse(row.document) } : null;
+    },
+    getPageLock(id) {
+      const row=db.prepare('SELECT id,locked,lock_version AS lockVersion,version FROM pages WHERE id=? AND deleted_at IS NULL').get(id);
+      return row ? {...row,locked:Boolean(row.locked)} : null;
+    },
+    withChildPageLinks(id, document) {
+      const children = db.prepare('SELECT id,title,parent_id AS parentId,position FROM pages WHERE parent_id=? AND deleted_at IS NULL ORDER BY position,rowid').all(id);
+      const blocks = reconcileChildPageLinks(document.blocks, id, children);
+      return blocks === document.blocks ? document : { ...document, blocks };
+    },
+    assertPageEditable(id) {
+      if(this.getPageLock(id)?.locked) throw new PageValidationError('페이지가 잠금 상태예요. 잠금을 해제한 뒤 수정해 주세요.');
+    },
+    setPageLock({id,locked,expectedLockVersion,expectedVersion}) {
+      if(typeof locked !== 'boolean' || !Number.isSafeInteger(expectedLockVersion) || expectedLockVersion<0)
+        throw new PageValidationError('페이지 잠금 설정을 확인해 주세요.');
+      return pageTransaction(db,()=>{
+        const previous=this.getPageLock(id);
+        if(!previous)return null;
+        if(previous.locked===locked)return this.getPage(id);
+        if(previous.lockVersion!==expectedLockVersion)throw new PageConflictError('다른 기기에서 잠금 상태를 바꿨어요. 현재 상태를 확인해 주세요.');
+        if(locked && previous.version!==expectedVersion)throw new PageConflictError('다른 곳에서 페이지를 수정했어요. 저장 상태를 확인한 뒤 잠가 주세요.');
+        db.prepare('UPDATE pages SET locked=?,lock_version=lock_version+1 WHERE id=?').run(Number(locked),id);
+        return this.getPage(id);
+      });
     },
     movePage({ id, parentId, position }) {
       const cleanParentId = cleanPageParentId(parentId);
@@ -266,7 +294,7 @@ export function openStore(dataDir) {
     },
     updatePage({ id, title, document, expectedVersion, icon }) {
       const cleanTitle = cleanPageTitle(title);
-      const serialized = serializePageDocument(document);
+      serializePageDocument(document);
       const cleanIcon = icon === undefined ? null : cleanPageIcon(icon);
       if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1)
         throw new PageConflictError('페이지 버전이 올바르지 않습니다.');
@@ -274,8 +302,11 @@ export function openStore(dataDir) {
       return pageTransaction(db, () => {
         const previous = this.getPage(id);
         if (!previous) return null;
+        this.assertPageEditable(id);
         if (previous.version !== expectedVersion)
           throw new PageConflictError('다른 곳에서 먼저 수정한 페이지입니다.');
+        document = this.withChildPageLinks(id, document);
+        const serialized = serializePageDocument(document);
         syncPageReferences(db, id, document, previous.document);
         const result = db
           .prepare(

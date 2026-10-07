@@ -5,7 +5,7 @@ import { insertOrUpdateBlockForSlashMenu } from '@blocknote/core/extensions';
 import { createReactBlockSpec } from '@blocknote/react';
 import { FileText } from 'lucide-react';
 import { PageNavContext } from './pageNav';
-import { subscribeRecordChanges } from '../trash/events';
+import { publishRecordChange, subscribeRecordChanges } from '../trash/events';
 
 type AnyEditor = BlockNoteEditor<any, any, any>;
 
@@ -113,6 +113,7 @@ export function getPageLinkSlashMenuItems(editor: AnyEditor, parentId?: string) 
               type: 'page',
               props: { pageId: item.id, title: item.title },
             } as any);
+            publishRecordChange('page-created');
           } catch {
             /* 서버가 응답하지 않으면 블록을 만들지 않습니다. */
           }

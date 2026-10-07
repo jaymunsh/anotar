@@ -8,7 +8,7 @@ const source = (await readFile("public/capture-worker.js", "utf8")).replace(
   "",
 );
 const hash = (value) => createHash("sha256").update(value).digest("hex");
-function worker(version, storage, missing = false) {
+function worker(version, storage, missing = false, fonts = false) {
   const listeners = new Map();
   let takeover = 0;
   const cache = (key) => ({
@@ -57,6 +57,7 @@ function worker(version, storage, missing = false) {
               { url: "/index.html", hash: hash("index") },
               { url: "/assets/app.js", hash: hash("script") },
               { url: "/architecture.html", hash: hash("architecture") },
+              ...(fonts ? ["/document-fonts.css","/fonts/pretendard.woff2","/fonts/ridibatang.woff2","/fonts/pretendard-OFL.txt"].map(url=>({url,hash:hash("script")})) : []),
             ],
           })
         : new Response(path === "/index.html" ? "index" : path === "/architecture.html" ? "architecture" : "script", {
@@ -128,4 +129,13 @@ test("prepared shell serves capture deep links and query links offline while exc
     shell.navigate("/captures/example", "GET", "https://external.invalid"),
     undefined,
   );
+});
+
+test('font assets in the build manifest install successfully and remain available offline',async()=>{
+  const shell=worker('fonts',new Map(),false,true);
+  await shell.install();
+  for(const path of ['/document-fonts.css','/fonts/pretendard.woff2','/fonts/ridibatang.woff2','/fonts/pretendard-OFL.txt']){
+    assert.equal(await(await shell.navigate(path)).text(),'script');
+  }
+  assert.equal(shell.navigate('/fonts/../../api/pages'),undefined);
 });

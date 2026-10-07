@@ -1,0 +1,291 @@
+.page-attachment {
+  position: relative;
+}
+.page-attachment-preview {
+  position: relative;
+}
+.page-attachment-original {
+  display: block;
+}
+.page-attachment .page-attachment-cropped {
+  border-radius: 8px;
+}
+.page-attachment .page-attachment-cropped img {
+  border-radius: 0;
+}
+.page-attachment-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px;
+  border: 1px solid var(--theme-line);
+  border-radius: 8px;
+  background: var(--theme-raised);
+  opacity: 0;
+  pointer-events: none;
+}
+.page-attachment-toolbar a,
+.page-attachment-toolbar button,
+.page-attachment-menu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--theme-ink);
+  font: inherit;
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.page-attachment-toolbar :is(a, button):hover {
+  background: var(--theme-soft);
+}
+.page-attachment-preview:hover .page-attachment-toolbar,
+.page-attachment-preview:focus-within .page-attachment-toolbar,
+.page-attachment-toolbar[data-open] {
+  opacity: 1;
+  pointer-events: auto;
+}
+.page-attachment-menu-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--theme-raised);
+  border: 1px solid var(--theme-line);
+  opacity: 0;
+  pointer-events: none;
+}
+.page-attachment-menu-button:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+@media (hover: hover) and (min-width: 601px) {
+  .page-attachment-preview:hover .page-attachment-menu-button {
+    visibility: hidden;
+  }
+}
+.page-attachment :is(a, button, input):focus-visible,
+.asset-crop-dialog :is(button, input):focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 3px;
+}
+.page-attachment-caption {
+  margin: 8px 0;
+  color: var(--theme-muted);
+  font-size: 13px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.page-attachment-caption-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+  margin: 10px 0;
+}
+.page-asset-image .page-attachment-caption {
+  text-align: center;
+}
+.page-attachment-caption-form label {
+  flex: 1 1 200px;
+  font-size: 12px;
+}
+.page-attachment-caption-form input {
+  display: block;
+  margin-top: 4px;
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--theme-line);
+  background: var(--theme-raised);
+  color: var(--theme-ink);
+  border-radius: 6px;
+  padding: 6px 9px;
+  font: inherit;
+}
+.page-attachment-caption-form button,
+.asset-crop-actions button {
+  min-height: 38px;
+  padding: 6px 12px;
+  border: 1px solid var(--theme-line);
+  border-radius: 6px;
+  color: var(--theme-ink);
+  background: var(--theme-raised);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.asset-crop-dialog {
+  width: min(760px, calc(100vw - 24px));
+  max-height: calc(100dvh - 32px);
+  padding: 22px;
+  overflow: auto;
+  border: 1px solid var(--theme-line);
+  border-radius: 12px;
+  background: var(--theme-raised);
+  color: var(--theme-ink);
+}
+.asset-crop-dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+.asset-crop-dialog h2 {
+  font-size: 18px;
+  margin: 0 0 8px;
+}
+.asset-crop-dialog p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--theme-muted);
+  margin: 0 0 16px;
+}
+.asset-crop-stage {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+.asset-crop-stage > img {
+  display: block;
+  max-width: 100%;
+  max-height: 48dvh;
+  object-fit: contain;
+}
+.asset-crop-selection {
+  position: absolute;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 9999px rgb(0 0 0 / 0.5);
+  cursor: move;
+  touch-action: none;
+}
+.asset-crop-handle {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #fff;
+  background: var(--theme-accent);
+  border-radius: 4px;
+}
+.asset-crop-handle-nw {
+  top: -2px;
+  left: -2px;
+  cursor: nw-resize;
+}
+.asset-crop-handle-ne {
+  top: -2px;
+  right: -2px;
+  cursor: ne-resize;
+}
+.asset-crop-handle-sw {
+  bottom: -2px;
+  left: -2px;
+  cursor: sw-resize;
+}
+.asset-crop-handle-se {
+  bottom: -2px;
+  right: -2px;
+  cursor: se-resize;
+}
+.asset-crop-adjustments {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+  margin-top: 20px;
+}
+.asset-crop-adjustments label {
+  display: grid;
+  grid-template-columns: 70px 1fr 36px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.asset-crop-adjustments input {
+  min-width: 0;
+  width: 100%;
+  accent-color: var(--theme-accent);
+}
+.asset-crop-adjustments output {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.asset-crop-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+.asset-crop-actions span {
+  flex: 1;
+}
+.asset-crop-actions button[type='submit'] {
+  background: var(--theme-accent);
+  color: var(--theme-accent-ink);
+}
+.asset-crop-actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+@media (hover: none), (max-width: 600px) {
+  .page-attachment-toolbar {
+    position: static;
+    opacity: 1;
+    pointer-events: auto;
+    margin-top: 6px;
+    border: 0;
+    padding: 0;
+  }
+  .page-attachment-toolbar :is(a, button) {
+    min-height: 44px;
+  }
+  .page-attachment-menu-button {
+    display: none;
+  }
+  .page-asset-image .page-attachment-menu-button {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+  .page-asset-image .page-attachment-toolbar {
+    display: none;
+    position: absolute;
+    top: 56px;
+    left: 8px;
+    right: 8px;
+    margin: 0;
+    padding: 4px;
+    border: 1px solid var(--theme-line);
+    border-radius: 8px;
+  }
+  .page-asset-image .page-attachment-toolbar[data-open] {
+    display: flex;
+  }
+  .asset-crop-dialog {
+    padding: 16px;
+  }
+  .asset-crop-adjustments {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .asset-crop-actions span {
+    display: none;
+  }
+  .asset-crop-actions {
+    justify-content: flex-end;
+  }
+  .asset-crop-actions button {
+    min-height: 44px;
+  }
+}

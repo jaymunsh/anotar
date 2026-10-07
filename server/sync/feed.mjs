@@ -63,7 +63,7 @@ export function readSyncEntity(store, kind, id, { metadata = false } = {}) {
   return pageTransaction(db, () => {
     const columns =
       kind === 'page' && metadata
-        ? 'id,title,icon,parent_id,position,version,created_at,updated_at,client_created_at,deleted_at'
+        ? 'id,title,icon,parent_id,position,locked,lock_version,version,created_at,updated_at,client_created_at,deleted_at'
         : '*';
     const row = db.prepare(`SELECT ${columns} FROM ${table} WHERE id=?`).get(id),
       session = getSyncSession(db),
@@ -78,6 +78,8 @@ export function readSyncEntity(store, kind, id, { metadata = false } = {}) {
             icon: row.icon,
             parentId: row.parent_id,
             position: row.position,
+            locked:Boolean(row.locked),
+            lockVersion:row.lock_version,
             version: row.version,
             createdAt: row.created_at,
             updatedAt: row.updated_at,

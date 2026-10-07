@@ -60,8 +60,8 @@
 .ai-job-heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 .ai-job-heading h2 {
   display: flex;
@@ -175,8 +175,9 @@
 .ai-job-panel button:focus-visible,
 .ai-job-panel summary:focus-visible,
 .ai-result-sources a:focus-visible {
-  outline: 2px solid var(--theme-accent);
-  outline-offset: 3px;
+  outline: none;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 .ai-result-text,
 .ai-saved-prompt pre {
@@ -233,7 +234,6 @@
 .ai-history {
   border-top: 1px solid var(--theme-line);
 }
-.ai-saved-prompt summary,
 .ai-history summary {
   list-style: none;
   display: flex;
@@ -242,13 +242,19 @@
   gap: 12px;
   color: var(--theme-muted);
 }
-.ai-saved-prompt summary::-webkit-details-marker,
 .ai-history summary::-webkit-details-marker {
   display: none;
 }
-.ai-saved-prompt[open] summary svg,
 .ai-history[open] summary svg {
   transform: rotate(180deg);
+}
+.ai-saved-prompt > summary {
+  display: list-item;
+  list-style: disclosure-closed inside;
+  color: var(--theme-muted);
+}
+.ai-saved-prompt[open] > summary {
+  list-style-type: disclosure-open;
 }
 .ai-saved-prompt p {
   color: var(--theme-muted);
@@ -309,7 +315,7 @@
 .ai-execution-controls .ai-settings-link { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 6px; background: transparent; color: var(--theme-muted); }
 .ai-execution-picker p { margin: 6px 0 0; color: var(--theme-muted); font-size: 11px; line-height: 1.6; }
 .ai-execution-picker p button { padding: 0; background: transparent; border: 0; color: var(--theme-accent); text-decoration: underline; font: inherit; }
-.ai-execution-picker select:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 2px; }
+.ai-execution-picker select:focus-visible { outline: none; border-color: var(--theme-accent); }
 .ai-additional-options { align-self: end; }
 .ai-additional-options summary { cursor: pointer; padding: 10px 0; color: var(--theme-muted); font-size: 12px; }
 .ai-additional-options .prompt-field { margin-top: 4px; }

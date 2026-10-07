@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { ChevronDown, Code2, Settings2 } from 'lucide-react';
-import { buildRequest, DIRECT_REQUEST, VARIABLE_LABELS } from './templates';
+import { buildRequest, DIRECT_REQUEST, VARIABLE_LABELS, readRecentTemplates } from './templates';
 import type { PromptTemplate } from './templates';
 import CopyRequestButton from './CopyRequestButton';
 import AiExecutionPicker from '../ai/AiExecutionPicker';
 import type { AiExecution } from '../../shared/aiRequests';
 import './prompts.css';
+import './aiRequestFields.css';
+import { quickRequestTemplates, templatePresentation } from './requestPresentation';
 
 type Props = {
   templates: PromptTemplate[];
@@ -22,6 +24,8 @@ type Props = {
   onExecution: (value: AiExecution) => void;
   onAvailability?: (enabled: boolean) => void;
   subject?: 'memo' | 'page';
+  sourceLabel?: string;
+  instructionMode?: boolean;
 };
 
 export default function AiRequestFields({
@@ -37,21 +41,39 @@ export default function AiRequestFields({
   onReload,
   execution, onExecution, onAvailability,
   subject = 'memo',
+  sourceLabel,
+  instructionMode = false,
 }: Props) {
   const [copyError, setCopyError] = useState('');
   const active = templates.filter((item) => !item.archived);
   const template = active.find((item) => item.id === selectedId);
   const unresolvedTemplate = selectedId !== DIRECT_REQUEST && !template;
   const request = buildRequest(template, input, additional);
+  const [recent] = useState(() => readRecentTemplates(localStorage));
+  const quick = quickRequestTemplates(active, selectedId, recent);
+  const presentation = template && templatePresentation(template);
+  const instruction = <label className="prompt-field ai-instruction-field">
+    {instructionMode && <span>무엇을 해줄까요?</span>}
+    <textarea aria-label="AI 추가 요청" value={additional} maxLength={1000}
+      onChange={event => onAdditional(event.target.value)} rows={instructionMode ? 3 : 2}
+      placeholder={instructionMode ? '예: 이 자료를 바탕으로 초보자가 이해할 수 있는 학습 순서를 만들어 주세요.' : '예: 핵심 세 줄로 정리하고, 확인이 필요한 내용은 따로 표시해 주세요.'} />
+  </label>;
   return (
     <div className="capture-ai-fields">
+      <AiExecutionPicker value={execution} onChange={onExecution} onAvailability={onAvailability} research={template?.kind === 'research'} hasUrl={Boolean(input.url)} />
       <div className="capture-ai-input-summary">
-        <strong>{subject === 'page' ? '저장한 페이지' : '지금 적은 메모'}</strong>
+        <strong>{sourceLabel || (subject === 'page' ? '저장한 페이지' : '지금 적은 메모')}</strong>
         <span>텍스트 {input.content.length.toLocaleString('ko-KR')}자{input.url ? ' · URL 포함' : ''} · 첨부 제외</span>
+      </div>
+      {instructionMode && instruction}
+      <div className="ai-template-quick" role="group" aria-label="템플릿 빠른 선택">
+        <button type="button" aria-pressed={selectedId === DIRECT_REQUEST} onClick={() => onSelect(DIRECT_REQUEST)}>직접 요청</button>
+        {quick.map(item => <button key={item.id} type="button" aria-pressed={selectedId === item.id} disabled={loading}
+          title={item.description} onClick={() => onSelect(item.id)}>{item.name}</button>)}
       </div>
       <div className="capture-ai-options">
         <label className="prompt-field">
-          <span>템플릿</span>
+          <span>요청 템플릿</span>
           <select
             aria-label="AI 요청 템플릿"
             disabled={loading}
@@ -73,15 +95,7 @@ export default function AiRequestFields({
             ))}
           </select>
         </label>
-<details className="ai-additional-options" open={additional ? true : undefined}><summary>추가 지시</summary><label className="prompt-field">
-          <input
-            aria-label="AI 추가 요청"
-            value={additional}
-            maxLength={1000}
-            onChange={(event) => onAdditional(event.target.value)}
-            placeholder="예: 기술적인 부분을 조금 더 자세히"
-          />
-        </label></details>
+        {!instructionMode && <details className="ai-additional-options"><summary>추가 지시{additional.trim() ? ' · 작성됨' : ''}</summary>{instruction}</details>}
       </div>
       {loading && (
         <p className="capture-ai-loading" role="status">
@@ -92,12 +106,13 @@ export default function AiRequestFields({
         <p>
           {unresolvedTemplate
             ? '선택한 템플릿을 불러온 뒤 요청문을 확인할 수 있어요.'
-            : template?.description || '적은 내용을 그대로 요청문으로 사용해요.'}
+            : template?.description || '적은 내용을 요청문으로 사용해요. 원하는 작업과 결과 형식을 함께 적어 주세요.'}
         </p>
         <button className="prompt-text-button" type="button" onClick={() => onManage(template?.id)}>
           <Settings2 size={14} /> 템플릿 관리
         </button>
       </div>
+      {presentation && <p className="ai-template-output-hint">입력: {presentation.inputLabel}{presentation.outline.length ? ` → ${presentation.outline.join(' · ')}` : ''}</p>}
       {template?.kind === 'research' && (
         <p className="capture-ai-loading">
           {input.url
@@ -153,7 +168,6 @@ export default function AiRequestFields({
           </button>
         </p>
       )}
-      <AiExecutionPicker value={execution} onChange={onExecution} onAvailability={onAvailability} research={template?.kind === 'research'} hasUrl={Boolean(input.url)} />
     </div>
   );
 }

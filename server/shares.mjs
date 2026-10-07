@@ -1,10 +1,11 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { createShareTokenVault } from './shareTokens.mjs';
 
 const hashToken = (token) => createHash('sha256').update(token).digest('hex');
 
 export class ShareValidationError extends Error {}
 
-export function createShareStore(db) {
+export function createShareStore(db, dataDir) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS page_shares (
       id TEXT PRIMARY KEY,
@@ -24,6 +25,9 @@ export function createShareStore(db) {
       .some((column) => column.name === 'comments_enabled')
   )
     db.exec('ALTER TABLE page_shares ADD COLUMN comments_enabled INTEGER NOT NULL DEFAULT 0');
+  if (!db.prepare('PRAGMA table_info(page_shares)').all().some(column=>column.name==='token_cipher'))
+    db.exec('ALTER TABLE page_shares ADD COLUMN token_cipher TEXT');
+  const vault=createShareTokenVault(dataDir,()=>Boolean(db.prepare('SELECT 1 FROM page_shares WHERE token_cipher IS NOT NULL LIMIT 1').get()));
   const summary = (row) =>
     row && {
       id: row.id,
@@ -32,6 +36,7 @@ export function createShareStore(db) {
       expiresAt: row.expiresAt,
       revokedAt: row.revokedAt,
       commentsEnabled: !!row.commentsEnabled,
+      linkAvailable: !!row.tokenCipher,
     };
   return {
     listPageShares(pageId) {
@@ -39,10 +44,18 @@ export function createShareStore(db) {
       return db
         .prepare(
           `SELECT id, page_id AS pageId, created_at AS createdAt, expires_at AS expiresAt,
-        revoked_at AS revokedAt, comments_enabled AS commentsEnabled FROM page_shares WHERE page_id = ? ORDER BY created_at DESC`,
+        revoked_at AS revokedAt, comments_enabled AS commentsEnabled, token_cipher AS tokenCipher FROM page_shares WHERE page_id = ? ORDER BY created_at DESC`,
         )
         .all(pageId)
         .map(summary);
+    },
+    getPageShareToken(pageId, shareId) {
+      if (!this.getPage(pageId)) return null;
+      const row=db.prepare(`SELECT token_hash, token_cipher FROM page_shares WHERE page_id=? AND id=? AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at>?)`).get(pageId,shareId,new Date().toISOString());
+      if (!row?.token_cipher) return null;
+      const token=vault.decrypt(row.token_cipher,pageId+':'+shareId);
+      if (!/^[A-Za-z0-9_-]{43}$/.test(token) || hashToken(token)!==row.token_hash) throw Error('공유 링크를 읽지 못했어요.');
+      return token;
     },
     createPageShare(pageId, { expiresInDays = 30, commentsEnabled = false } = {}) {
       if (!this.getPage(pageId)) return null;
@@ -52,6 +65,7 @@ export function createShareStore(db) {
         throw new ShareValidationError('댓글 허용 설정을 확인해 주세요.');
       const token = randomBytes(32).toString('base64url');
       const id = randomUUID();
+      const tokenCipher = vault.encrypt(token, pageId+':'+id);
       const now = new Date();
       const expiresAt =
         expiresInDays === null
@@ -60,12 +74,13 @@ export function createShareStore(db) {
       db.exec('BEGIN IMMEDIATE');
       try {
         db.prepare(
-          'UPDATE page_shares SET revoked_at = ? WHERE page_id = ? AND revoked_at IS NULL',
+          'UPDATE page_shares SET revoked_at = ?, token_cipher = NULL WHERE page_id = ? AND revoked_at IS NULL',
         ).run(now.toISOString(), pageId);
         db.prepare(
           `INSERT INTO page_shares (id, page_id, token_hash, created_at, expires_at, comments_enabled)
           VALUES (?, ?, ?, ?, ?, ?)`,
         ).run(id, pageId, hashToken(token), now.toISOString(), expiresAt, Number(commentsEnabled));
+        db.prepare('UPDATE page_shares SET token_cipher=? WHERE id=?').run(tokenCipher,id);
         db.exec('COMMIT');
       } catch (error) {
         db.exec('ROLLBACK');
@@ -79,6 +94,7 @@ export function createShareStore(db) {
           expiresAt,
           revokedAt: null,
           commentsEnabled,
+          linkAvailable: true,
         },
         token,
       };
@@ -99,7 +115,7 @@ export function createShareStore(db) {
       if (!this.getPage(pageId)) return false;
       const result = db
         .prepare(
-          'UPDATE page_shares SET revoked_at = ? WHERE page_id = ? AND id = ? AND revoked_at IS NULL',
+          'UPDATE page_shares SET revoked_at = ?, token_cipher = NULL WHERE page_id = ? AND id = ? AND revoked_at IS NULL',
         )
         .run(new Date().toISOString(), pageId, shareId);
       return Boolean(result.changes);

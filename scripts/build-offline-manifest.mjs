@@ -10,6 +10,7 @@ const urls = [
   '/profile.png',
   '/capture.webmanifest',
   '/capture-store.js',
+  '/document-fonts.css',
   '/capture-icons/icon-192.png',
   '/capture-icons/icon-512.png',
 ];
@@ -21,6 +22,7 @@ async function walk(dir) {
   }
 }
 await walk('assets');
+await walk('fonts');
 urls.sort();
 const assets = await Promise.all(
   urls.map(async (url) => ({ url, hash: hash(await readFile(join(dist, url.slice(1)))) })),

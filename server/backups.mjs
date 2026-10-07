@@ -2,6 +2,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import {
   copyFile,
+  chmod,
   lstat,
   mkdir,
   readFile,
@@ -14,11 +15,20 @@ import {
 import { dirname, join, resolve, sep } from 'node:path';
 import { backup, DatabaseSync } from 'node:sqlite';
 import { rotateSyncEpochAfterRestore } from './sync/store.mjs';
+import { shareLinkKeyFile } from './shareTokens.mjs';
 
 const HASH = /^[a-f0-9]{64}$/;
 // Uploads use bare UUIDs; generated map images also keep a file extension.
 // Dot-separated filename segments allow both without accepting path components.
 const STORAGE_KEY = /^[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*$/;
+
+function hasShareLinkTokens(path) {
+  const db=new DatabaseSync(path,{readOnly:true});
+  try {
+    const columns=db.prepare('PRAGMA table_info(page_shares)').all();
+    return columns.some(column=>column.name==='token_cipher') && Boolean(db.prepare('SELECT 1 FROM page_shares WHERE token_cipher IS NOT NULL LIMIT 1').get());
+  } finally {db.close();}
+}
 
 async function absent(path) {
   try {
@@ -113,6 +123,13 @@ export async function createBackup(dataDir, backupDir) {
       database: { sha256: await sha256(join(temporary, 'storage.sqlite')) },
       files,
     };
+    if (hasShareLinkTokens(join(temporary,'storage.sqlite'))) {
+      const source=join(data,shareLinkKeyFile), target=join(temporary,shareLinkKeyFile);
+      if ((await regularFile(source)).size!==32) throw Error('공유 링크 키 형식이 올바르지 않습니다.');
+      await copyFile(source,target);
+      await chmod(target,0o600);
+      manifest.shareLinkKey={sha256:await sha256(target)};
+    }
     await writeFile(join(temporary, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n', {
       mode: 0o600,
     });
@@ -140,6 +157,12 @@ export async function verifyBackup(backupDir) {
   await regularFile(dbPath);
   if ((await sha256(dbPath)) !== manifest.database.sha256)
     throw new Error('백업 DB 체크섬이 다릅니다.');
+  if (hasShareLinkTokens(dbPath) && !manifest.shareLinkKey) throw Error('백업에 공유 링크 키가 없습니다.');
+  if (manifest.shareLinkKey) {
+    const keyPath=join(directory,shareLinkKeyFile);
+    if (!HASH.test(manifest.shareLinkKey.sha256) || (await regularFile(keyPath)).size!==32 || await sha256(keyPath)!==manifest.shareLinkKey.sha256)
+      throw Error('백업 공유 링크 키 검증에 실패했습니다.');
+  }
   const rows = inspectDatabase(dbPath);
   const listed = new Map();
   for (const file of manifest.files) {
@@ -176,6 +199,10 @@ export async function restoreBackup(backupDir, targetDataDir) {
     await mkdir(join(temporary, 'blobs'));
     await copyFile(join(backupPath, 'storage.sqlite'), join(temporary, 'storage.sqlite'));
     await copyFile(join(backupPath, 'manifest.json'), join(temporary, 'manifest.json'));
+    if (manifest.shareLinkKey) {
+      await copyFile(join(backupPath,shareLinkKeyFile),join(temporary,shareLinkKeyFile));
+      await chmod(join(temporary,shareLinkKeyFile),0o600);
+    }
     for (const { key } of manifest.files)
       await copyFile(join(backupPath, 'blobs', key), join(temporary, 'blobs', key));
     await verifyBackup(temporary);

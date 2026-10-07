@@ -1,7 +1,8 @@
-import { onlineActionFetch } from '../sync/onlineActions';
+import { setWorkspaceNotice } from '../workspace/notices';
+import { onlineActionFetch, PENDING_REASON } from '../sync/onlineActions';
 import { workspaceFetch } from '../sync/runtime';
 import { Fragment, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import type { DragEvent, MouseEvent, ReactNode } from 'react';
+import type { CSSProperties, DragEvent, MouseEvent, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowRight, ChevronRight, FileText, FolderInput, LayoutTemplate, Plus } from 'lucide-react';
 import { PageNavContext } from './pageNav';
@@ -481,6 +482,7 @@ export default function PageWorkspace({
           <div
             className={
               'sidebar-page-row' +
+              (expanded ? ' expanded' : '') +
               (selectedId === item.id ? ' active' : '') +
               (hint ? ` drop-${hint}` : '')
             }
@@ -511,13 +513,13 @@ export default function PageWorkspace({
               aria-expanded={expanded}
               onClick={() => (kids.length ? toggleCollapsed(item.id) : toggleLeafOpen(item.id))}
             >
-              <span className="sidebar-page-icon" aria-hidden>
-                {item.icon || <FileText size={15} />}
-              </span>
               <ChevronRight
                 size={12}
                 className={'sidebar-page-chevron' + (expanded ? ' open' : '')}
               />
+              <span className="sidebar-page-icon" aria-hidden>
+                {item.icon || <FileText size={15} />}
+              </span>
             </button>
             <a
               href={'/pages/' + item.id}
@@ -542,13 +544,17 @@ export default function PageWorkspace({
               <FolderInput size={14} />
             </button>
           </div>
-          {expanded && !!kids.length && renderPages(item.id, depth + 1)}
-          {expanded && !kids.length && (
+          {expanded && (
+            <div className="sidebar-page-children" role="group" aria-label={`${item.title} 하위 페이지`}
+              style={{'--sidebar-guide-left': `${8 + Math.min(depth,4) * 8}px`} as CSSProperties}>
+            {kids.length ? renderPages(item.id, depth + 1) : (
             <div
               className="sidebar-page-empty"
               style={{ paddingLeft: 22 + Math.min(depth + 1, 4) * 8 }}
             >
               하위 페이지 없음
+            </div>
+            )}
             </div>
           )}
         </Fragment>
@@ -557,9 +563,20 @@ export default function PageWorkspace({
   }
 
   function retryPreference() {
-    if (preferenceFailure?.input) void saveWorkspace(preferenceFailure.input);
-    else void refreshWorkspace();
+    return preferenceFailure?.input ? saveWorkspace(preferenceFailure.input) : refreshWorkspace();
   }
+
+  useEffect(() => {
+    setWorkspaceNotice('page-navigation', preferenceFailure ? {
+      title: preferenceFailure.input?.favorite !== undefined ? '즐겨찾기 저장 확인'
+        : preferenceFailure.input?.visited ? '최근 열람 기록 확인' : '페이지 탐색 정보 확인',
+      message: preferenceFailure.message === PENDING_REASON
+        ? '문서의 서버 반영을 기다리면서 이 작업을 보류했어요. 동기화가 완료됐으면 다시 시도해 주세요.'
+        : preferenceFailure.message,
+      retry: retryPreference,
+    } : null);
+  }, [preferenceFailure]);
+  useEffect(() => () => setWorkspaceNotice('page-navigation', null), []);
 
   function visibleQuickPages(items: WorkspacePageSummary[]) {
     const active = new Map(pages.map((item) => [item.id, item]));
@@ -634,14 +651,6 @@ export default function PageWorkspace({
               workspace.favorites,
               '페이지에서 즐겨찾기를 추가해요.',
             )}
-            {preferenceFailure && (
-              <div className="workspace-preference-error" role="alert">
-                <span>{preferenceFailure.message}</span>
-                <button type="button" onClick={retryPreference}>
-                  다시 시도
-                </button>
-              </div>
-            )}
             <div className="sidebar-pages-heading">
               <span>내 페이지</span>
               <button
@@ -690,14 +699,6 @@ export default function PageWorkspace({
             {renderContinueList('즐겨찾기', workspace.favorites)}
             {!workspace.recentVisited.length && !workspace.favorites.length && (
               <p>페이지를 열거나 즐겨찾기에 추가하면 바로 이어서 작업할 수 있어요.</p>
-            )}
-            {preferenceFailure && (
-              <div className="workspace-continue-error" role="alert">
-                <span>{preferenceFailure.message}</span>
-                <button type="button" onClick={retryPreference}>
-                  다시 시도
-                </button>
-              </div>
             )}
           </section>,
           continueTarget,

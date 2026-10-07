@@ -1,5 +1,6 @@
+import { createDebouncedSync } from '../sync/autosave';
 import { journalId, normalizeJournalDay, type JournalDay } from '../../shared/journal.mjs';
-import { getWorkspaceRuntime, queueValue } from '../sync/runtime';
+import { getWorkspaceRuntime, queueValue, enqueueCurrentEntity } from '../sync/runtime';
 import { idbRequest, transaction } from '../sync/db';
 import {
   readRecord,
@@ -19,7 +20,7 @@ export type JournalStorage = {
   days: Record<string, JournalDay>;
   notice: string;
   collisions: JournalMigrationCollision[];
-  save: (date: string, day: JournalDay) => Promise<void>;
+  save: (date: string, day: JournalDay, options?: { deferSync?: boolean }) => Promise<void>;
   flush: () => Promise<void>;
   subscribe: (listener: (days: Record<string, JournalDay>) => string[]) => () => void;
 };
@@ -32,7 +33,7 @@ export async function createJournalStorage(): Promise<JournalStorage> {
       notice =
         '이전 기기 일지는 다른 작업 공간의 자료예요. 자동으로 가져오지 않았고 원본은 그대로 남아 있어요.';
     if (result.conflicts)
-      notice = `이전 기기 일지 ${result.conflicts}일과 기존 내용이 달라요. 상단 동기화 상태에서 양쪽 내용을 확인해 주세요. 원본은 보존했어요.`;
+      notice = `이전 기기 일지 ${result.conflicts}일과 기존 내용이 달라요. 이 화면의 변경 확인에서 양쪽 내용을 확인해 주세요. 원본은 보존했어요.`;
   } catch {
     notice = '이전 기기 일지를 읽거나 이관하지 못했어요. 원본은 이 기기에 그대로 남아 있어요.';
   }
@@ -41,6 +42,18 @@ export async function createJournalStorage(): Promise<JournalStorage> {
   const visibleDays = new Map<string, JournalDay>(),
     visibleBases = new Map<string, Value | null>();
   let chain: Promise<unknown> = Promise.resolve();
+  const schedulers = new Map<string, ReturnType<typeof createDebouncedSync>>();
+  const schedulerFor = (date: string) => {
+    let scheduler = schedulers.get(date);
+    if (!scheduler) {
+      scheduler = createDebouncedSync(async () => {
+        await chain;
+        await enqueueCurrentEntity('journal', journalId(workspaceId, date));
+      }, { onError: () => { void engine.requestSync(); } });
+      schedulers.set(date, scheduler);
+    }
+    return scheduler;
+  };
   const load = async () => {
     const rows: Entity[] = await transaction(['entities'], 'readonly', (tx) =>
       idbRequest(tx.objectStore('entities').index('kind').getAll([workspaceId, 'journal'])),
@@ -75,8 +88,11 @@ export async function createJournalStorage(): Promise<JournalStorage> {
     collisions: await listJournalMigrationCollisions(workspaceId),
     async flush() {
       await chain;
+      await Promise.all([...schedulers.values()].map(scheduler => scheduler.flush()));
     },
-    save(date, day) {
+    save(date, day, options = {}) {
+      const scheduler = schedulerFor(date);
+      const stableAt = options.deferSync ? scheduler.schedule() : 0;
       const expected = revisions.get(date) ?? 0;
       const previousVisibleDay = visibleDays.get(date),
         previousVisibleBase = visibleBases.get(date) ?? null;
@@ -113,15 +129,18 @@ export async function createJournalStorage(): Promise<JournalStorage> {
           [],
           [],
           true,
-          0,
+          stableAt,
           baseOverride,
           expected,
+          true,
         );
       });
       // A failed commit stops this mounted editor's later writes. All input
       // remains visible for copying, and the source archive is untouched.
       chain = saving;
-      return saving.finally(() => pending.set(date, Math.max(0, (pending.get(date) ?? 1) - 1)));
+      return saving.then(async () => {
+        if (!options.deferSync) await scheduler.flush();
+      }).finally(() => pending.set(date, Math.max(0, (pending.get(date) ?? 1) - 1)));
     },
     subscribe(listener) {
       let active = true,

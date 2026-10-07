@@ -10,6 +10,7 @@ type Share = {
   expiresAt: string | null;
   revokedAt: string | null;
   commentsEnabled: boolean;
+  linkAvailable: boolean;
 };
 type SharedAsset = { id: string; name: string; size: number };
 
@@ -29,9 +30,12 @@ export default function PageSharePanel({
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [commentsEnabled, setCommentsEnabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let active = true;
+    setLoading(true); setLoaded(false); setUrl(''); setItems([]); setOrigin(''); setError(''); setCopied(false);
     Promise.all([
       fetch(`/api/pages/${pageId}/shares`).then((response) => {
         if (!response.ok) throw new Error();
@@ -42,7 +46,7 @@ export default function PageSharePanel({
         return response.json();
       }),
     ])
-      .then(([shares, config]) => {
+      .then(async ([shares, config]) => {
         if (!active) return;
         setItems(shares.items || []);
         const live = (shares.items || []).find(
@@ -52,8 +56,17 @@ export default function PageSharePanel({
         setCommentsEnabled(Boolean(live?.commentsEnabled));
         setAssets(shares.scope?.assets || []);
         setOrigin(config.origin || '');
+        setLoaded(true);
+        if (live?.linkAvailable && config.origin) {
+          const response = await fetch(`/api/pages/${pageId}/shares/${live.id}/link`);
+          const body = await response.json();
+          if (!active) return;
+          if (!response.ok) throw new Error(body.error || '공유 링크를 불러오지 못했어요.');
+          setUrl(body.url);
+        }
       })
-      .catch(() => active && setError('공유 설정을 불러오지 못했어요. 다시 열어 주세요.'));
+      .catch((cause) => active && setError(cause instanceof Error && cause.message ? cause.message : '공유 설정을 불러오지 못했어요. 다시 열어 주세요.'))
+      .finally(() => active && setLoading(false));
     return () => {
       active = false;
     };
@@ -154,6 +167,23 @@ export default function PageSharePanel({
           <X size={17} />
         </button>
       </div>
+      <div className="page-share-link-section">
+        <strong>공유 링크</strong>
+        {loading ? <p role="status">공유 링크를 불러오는 중이에요.</p> : url ? (
+          <div className="page-share-url">
+            <input aria-label="공유 링크" readOnly value={url} onFocus={(event) => event.target.select()} />
+            <button type="button" onClick={() => void copy()}>
+              {copied ? <Check size={16} /> : <Copy size={16} />}{copied ? '복사됨' : '복사'}
+            </button>
+            <a href={url} target="_blank" rel="noreferrer" aria-label="공유 페이지 새 창에서 열기" title="공유 페이지 열기"><ExternalLink size={16} /></a>
+          </div>
+        ) : loaded && !active ? <p>아직 공유하지 않은 페이지예요. 아래에서 링크를 만들 수 있어요.</p> : null}
+        {!loading && active && !active.linkAvailable && !url && <p className="page-share-hint">이전 방식으로 만든 링크라 주소를 다시 표시할 수 없어요. 새 링크를 발급하면 이후에는 이곳에서 계속 확인할 수 있어요.</p>}
+        {active && <div className="page-share-active">
+          <span>{active.expiresAt ? `${formatKoreanTime(active.expiresAt)}까지` : '만료 없음'}</span>
+          <button type="button" disabled={busy || loading} onClick={() => void revoke(active.id)}><Link2Off size={15} /> 링크 끊기</button>
+        </div>}
+      </div>
       <p>
         이 페이지만 읽기 전용으로 보여줍니다. 하위 페이지와 원본 메모는 자동으로 공개되지 않아요.
       </p>
@@ -174,7 +204,7 @@ export default function PageSharePanel({
           <input
             type="checkbox"
             checked={commentsEnabled}
-            disabled={busy || !origin}
+            disabled={busy || loading || !loaded || !origin}
             onChange={(event) => void changeCommentPolicy(event.target.checked)}
           />
           방문자 댓글 허용
@@ -195,43 +225,10 @@ export default function PageSharePanel({
           <option value="90">90일</option>
           <option value="none">만료 없음</option>
         </select>
-        <button type="button" disabled={busy || !origin} onClick={() => void createLink()}>
+        <button type="button" disabled={busy || loading || !loaded || !origin} onClick={() => void createLink()}>
           {active ? '새 링크 발급' : '공유 링크 만들기'}
         </button>
       </div>
-      {url ? (
-        <div className="page-share-url">
-          <input
-            aria-label="공유 링크"
-            readOnly
-            value={url}
-            onFocus={(event) => event.target.select()}
-          />
-          <button type="button" onClick={() => void copy()}>
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-            {copied ? '복사됨' : '복사'}
-          </button>
-          <a href={url} target="_blank" rel="noreferrer" aria-label="공유 페이지 새 창에서 열기">
-            <ExternalLink size={16} />
-          </a>
-        </div>
-      ) : null}
-      {active && (
-        <div className="page-share-active">
-          <span>
-            활성 링크 ·{' '}
-            {active.expiresAt ? `${formatKoreanTime(active.expiresAt)}까지` : '만료 없음'}
-          </span>
-          <button type="button" disabled={busy} onClick={() => void revoke(active.id)}>
-            <Link2Off size={15} /> 링크 끊기
-          </button>
-        </div>
-      )}
-      {active && !url && (
-        <p className="page-share-hint">
-          기존 링크의 주소는 다시 표시할 수 없어요. 잃어버렸다면 새 링크를 발급하세요.
-        </p>
-      )}
       {error && (
         <p className="page-share-error" role="alert">
           {error}

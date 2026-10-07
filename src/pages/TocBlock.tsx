@@ -35,17 +35,18 @@ export function collectHeadings(editor: AnyEditor): TocEntry[] {
 
 function TableOfContentsView({
   editor,
-  compact = false,
+  maxLevel = 4,
 }: {
   editor: AnyEditor;
-  compact?: boolean;
+  maxLevel?: number;
 }) {
   const [entries, setEntries] = useState<TocEntry[]>(() => collectHeadings(editor));
   useEffect(() => {
     setEntries(collectHeadings(editor));
     return editor.onChange(() => setEntries(collectHeadings(editor)));
   }, [editor]);
-  const minLevel = entries.reduce((min, entry) => Math.min(min, entry.level), 6);
+  const visibleEntries = entries.filter(entry => entry.level <= maxLevel);
+  const minLevel = visibleEntries.reduce((min, entry) => Math.min(min, entry.level), 6);
 
   if (!entries.length)
     return (
@@ -56,9 +57,9 @@ function TableOfContentsView({
     );
 
   return (
-    <nav className="page-toc" aria-label="목차" data-layout={compact ? 'compact' : 'list'}>
+    <nav className="page-toc" aria-label="목차" data-layout="list">
       <div className="page-toc-title">목차</div>
-      {entries.map((entry) => (
+      {visibleEntries.map((entry) => (
         <button
           key={entry.id}
           type="button"
@@ -81,12 +82,13 @@ function TableOfContentsView({
 export const createTableOfContentsBlockSpec = createReactBlockSpec(
   {
     type: 'tableOfContents',
-    propSchema: { compact: { default: false } },
+    // Keep legacy properties readable; all TOCs use the existing single-column card.
+    propSchema: { compact: { default: false }, maxLevel: { default: 4, values: [1, 2, 3, 4, 5, 6] as const } },
     content: 'none',
   },
   {
     render: ({ editor, block }) => (
-      <TableOfContentsView editor={editor as AnyEditor} compact={block.props.compact} />
+      <TableOfContentsView editor={editor as AnyEditor} maxLevel={block.props.maxLevel} />
     ),
   },
 );

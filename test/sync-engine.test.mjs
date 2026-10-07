@@ -118,6 +118,15 @@ test('lost acknowledgement retries the exact operation and produces one effect',
   assert.equal(h.pending.state, 'acked');
   assert.deepEqual(h.counts(), { sendCount: 2, storedCount: 1 });
 });
+test('a remote page lock queues the draft without treating it as invalid or offline',async()=>{
+ const h=harness();
+ h.repository.nextOperation=async()=>h.pending.state==='queued'&&h.pending.nextAttemptAt<=1000?h.pending:null;
+ h.transport.applyOperation=async()=>{throw Object.assign(Error('페이지가 잠겨 있어요.'),{status:423,code:'page_locked'});};
+ await h.engine.requestSync();
+ assert.equal(h.pending.state,'queued');
+ assert.equal(h.pending.nextAttemptAt,31000);
+ assert.equal(h.engine.getSnapshot().state,'ready');
+});
 test('stale lease cannot commit a late acknowledgement', async () => {
   const h = harness();
   h.transport.applyOperation = async () => {

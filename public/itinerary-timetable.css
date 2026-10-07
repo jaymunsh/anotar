@@ -293,47 +293,7 @@ body > main .page-toc[data-layout='list'] .page-toc-item:hover {
 :root[data-theme='dark'] body > main .page-toc[data-layout='list'] {
   background: var(--share-surface);
 }
-.page-toc[data-layout='compact'] {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px 16px;
-  padding: 12px 0;
-  margin: 14px 0;
-  background: transparent;
-  border-radius: 0;
-  border-top: 1px solid var(--theme-line, var(--share-line, #dfe7dc));
-  border-bottom: 1px solid var(--theme-line, var(--share-line, #dfe7dc));
-}
-.page-toc[data-layout='compact'] .page-toc-title {
-  grid-column: 1 / -1;
-  padding: 0;
-  margin-bottom: 4px;
-  font-size: 12px;
-  color: var(--theme-muted, var(--share-muted, #60766a));
-}
-.page-toc[data-layout='compact'] .page-toc-item {
-  padding: 5px 22px 5px 0;
-  border: 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--theme-ink, var(--share-ink, #21352c));
-  text-decoration: none;
-  white-space: normal;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-  min-width: 0;
-}
-.page-toc[data-layout='compact'] .page-toc-item:focus-visible {
-  outline: 2px solid var(--theme-accent, var(--share-accent, #315b41));
-  outline-offset: 2px;
-}
 @media (max-width: 600px) {
-  .bn-editor:has(.page-toc[data-layout='compact']) h2 {
-    font-size: 20px;
-    line-height: 1.4;
-    word-break: keep-all;
-    text-wrap: balance;
-  }
   .itinerary-block {
     --plan-time-width: 49px;
     --plan-rail-width: 20px;
@@ -382,11 +342,6 @@ body > main .page-toc[data-layout='list'] .page-toc-item:hover {
   }
   .itinerary-block .itinerary-map-stops > li {
     flex-basis: calc(50% - 8px);
-  }
-  .page-toc[data-layout='compact'] .page-toc-item {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
   }
 }
 /* Give the note its own full-width reading row on narrow pages. The stop

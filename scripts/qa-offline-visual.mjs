@@ -12,7 +12,7 @@ try {
  await page.evaluate(()=>{window.originalPut=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(value,...args){if(this.name==='entities')throw new DOMException('full','QuotaExceededError');return originalPut.call(this,value,...args);};});
  await page.getByLabel('페이지 제목',{exact:true}).fill('용량 부족이어도 입력은 그대로 유지');await page.getByText('기기 저장 공간이 부족해요.',{exact:false}).waitFor();assert.equal(await page.getByLabel('페이지 제목',{exact:true}).inputValue(),'용량 부족이어도 입력은 그대로 유지');await screenshots(page,'quota');await page.evaluate(()=>{IDBObjectStore.prototype.put=originalPut;});
  await page.addScriptTag({content:bundle.outputFiles[0].text});await page.evaluate(async id=>{const {workspaceId}=await fixture.getWorkspaceRuntime();const entity=await fixture.readLocalEntity({workspaceId,kind:'page',id});const operationId=crypto.randomUUID();await fixture.writeRecord('conflicts',workspaceId,[operationId],{operationId,entityKind:'page',entityId:id,base:entity.base,local:entity.current,server:{...entity.base,title:'서버에서 바꾼 제목',version:2},tombstone:false});},first.id);
- await page.getByText('다른 기기에서 수정했어요',{exact:true}).waitFor();await screenshots(page,'conflict');
+ await page.getByText('서버본과 기기본이 달라요',{exact:true}).waitFor();await screenshots(page,'conflict');
  await page.goto(app.base+'/pages/'+uncached.id);await page.getByText('이 기기에 보관하지 않은 페이지예요.',{exact:false}).waitFor();await screenshots(page,'uncached');
  console.log('PASS visual: 24 captures, 1440/390/320 light/dark pending/conflict/quota/uncached, retained quota input, no horizontal overflow');
 }finally{await app.close();}

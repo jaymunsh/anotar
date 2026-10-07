@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
-import { getWorkspaceRuntime } from '../sync/runtime';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import { getWorkspaceRuntime, getSyncSnapshot, subscribeSync } from '../sync/runtime';
+import RecoveryPanel from './RecoveryPanel';
 import { listRecords, subscribeLocalChanges } from '../sync/repository';
 import { storageStatus, requestPersistentStorage, OFFLINE_BUDGET } from './storage';
 import { Download, ShieldCheck } from 'lucide-react';
 import { unpinPage, type PinResult } from './pageCache';
 import { exportPendingWorkspace } from './exportPending';
 export default function DeviceStorage() {
+  const status = useSyncExternalStore(subscribeSync, getSyncSnapshot);
   const [pins, setPins] = useState<PinResult[]>([]),
     [message, setMessage] = useState(''),
     [usage, setUsage] = useState<{ bytes: number; persisted: boolean } | null>(null),
@@ -33,6 +35,7 @@ export default function DeviceStorage() {
       <p className="settings-description">
         보관한 페이지는 연결 없이 열 수 있어요. 미전송 변경과 첨부는 보관 해제로 지워지지 않아요.
       </p>
+      {status.state === 'recovery' && <RecoveryPanel />}
       <div className="settings-storage-usage">
         <strong>{usage ? `${(usage.bytes / 1024 / 1024).toFixed(1)} MB` : '확인 중…'}</strong>
         <span>/ 보관 예산 {OFFLINE_BUDGET / 1024 / 1024} MB</span>

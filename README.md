@@ -262,6 +262,8 @@ UI·저장·AI 실행 흐름은 로컬에서 개발하고 나중에 미니PC로 
 
 ## Oracle 설치
 
+현재 운영 주소·구성은 [실운영 연결](docs/ORACLE_LIVE_DEPLOYMENT.md), 작업 반영의 상세 순서·백업·확인은 [Oracle 서버 반영 가이드](docs/ORACLE_RELEASE_GUIDE.md)를 참고합니다. 아래 최초 설치 미실시 표시는 이전 준비 당시 기록입니다.
+
 Ubuntu ARM64 A1 2 OCPU / 12GB의 준비·자료 이전·Docker·개인 HTTPS·공유 도메인·백업/복구 절차는 [상세 설치 가이드](docs/ORACLE_INSTALLATION.md)를 확인하세요.
 ## 오프라인 작업 공간 (2026-10-03)
 
@@ -296,7 +298,7 @@ Tailscale Serve 등 개인 HTTPS 프록시를 사용하기 전 Git에서 제외�
 
 ## Oracle 개발 사본과 일반 페이지 구조 문서 (2026-10-06)
 
-`docs/examples/anotar-architecture.page.json`은 제목·목차·표·코드·콜아웃으로 작성한 일반 페이지입니다. 명시적으로 `node scripts/seed-architecture.mjs <data-dir>`를 실행해 설치하며 시작 시 자동으로 시드하지 않습니다. 기존 문서나 휴지통의 같은 ID는 보존합니다. 설치한 뒤 설정 → 서비스 정보의 기술 아키텍처가 이 편집 가능한 페이지를 엽니다. 아직 설치하지 않은 환경에서는 이전 HTML 안내를 엽니다.
+`docs/examples/anotar-architecture.page.json`은 제목·표·코드·콜아웃으로 작성한 일반 페이지입니다. 본문에 별도 목차를 넣지 않고 기존 페이지 정보 메뉴의 ‘목차 열기’를 사용합니다. 명시적으로 `node scripts/seed-architecture.mjs <data-dir>`를 실행해 설치하며 시작 시 자동으로 시드하지 않습니다. 기존 문서나 휴지통의 같은 ID는 보존합니다. 설치한 뒤 설정 → 서비스 정보의 기술 아키텍처가 이 편집 가능한 페이지를 엽니다. 아직 설치하지 않은 환경에서는 이전 HTML 안내를 엽니다.
 
 Oracle의 SQLite **온라인 백업과 참조 첨부**를 내려받고 `backup verify` → `backup restore`로 `.local-workspace/`의 새 경로에 복원합니다. 실행 중인 DB/WAL을 단순 파일 복사하지 않습니다. `.local-workspace/current.json`에 `{ "dataDirectory": "oracle-YYYYMMDD" }`처럼 복원 경로를 기록한 뒤 `npm run dev:oracle`을 실행합니다. 개발 화면 5174·API 8788·로컬 공유 8791은 모두 루프백이며 기존 5173·8787의 `data/`와 분리됩니다. 운영 `.env`를 읽지 않고 AI·OCR·예약 백업을 실행하지 않습니다. 이 디렉터리는 Git에서 제외합니다. 호스팅 사이트 원본은 DB 백업에 포함되지 않습니다.
 
@@ -311,3 +313,11 @@ node scripts/page-transfer.mjs import <target-data-dir> <change.json>
 `check`는 본문을 반영하지 않으며 `import`는 정상 저장 메서드와 `expectedVersion`으로 한 페이지만 반영합니다. 서버가 먼저 바뀌었다면 충돌로 중단하고, 같은 내용을 재전송하면 버전을 늘리지 않습니다. 기존 수정 이력과 다른 페이지는 유지합니다. 새 첨부 바이트·새 메모 원본·계층 변경을 함께 자동 이관하는 도구는 아닙니다. 서버에 없는 첨부는 먼저 올려야 하고 상위 페이지도 존재해야 합니다. 운영 적용 전에 온라인 백업을 생성·검증합니다. 원격 실행은 본인 SSH 관리 경로로 하며 웹에 별도 관리자 우회 API를 추가하지 않습니다.
 
 `BACKGROUND_WORKERS_ENABLED=false`는 별도 개발 사본의 시작 시 AI/OCR 큐 소비·실행 중 작업 중단 표시·예약 백업을 막습니다. 정상 운영 기본값은 켜짐입니다. 개발용 사용자 인증 해제는 `dev:oracle`의 루프백 사본에만 적용하며 운영 인증 설정과 비밀 키를 옮기거나 변경하지 않습니다.
+
+로컬 AI 테스트는 `.local-workspace/current.json`의 `aiEnabled: true`로 켠 뒤 `npm run dev:oracle`을 재시작합니다. 먼저 `npm install --prefix .local-workspace/opencode-runtime --no-save --package-lock=false opencode-ai@1.18.34`로 전용 CLI를 설치합니다. OpenCode와 AI worker만 켜며 OCR·예약 백업·Telegram은 꺼 둡니다. 운영 `.env`나 개인 유료 제공자 인증을 읽지 않으며, 초기 기본 모델은 `opencode/muse-spark-1.3-contributor-free`입니다. 모델은 설정 → AI에서 바꿀 수 있습니다. 최초 활성화 전 복사된 대기·실행 중 작업을 확인합니다. 재시작 후에는 이 로컬 DB의 AI 큐를 처리하므로 일반 `aiEnabled` 미설정/false 사본과 구분합니다. `AI_WORKER_ENABLED=true`는 전체 백그라운드 비활성 상태에서 AI만 명시적으로 켜는 서버 설정입니다.
+
+### 구조 문서와 다이어그램
+
+구조 문서 샘플은 `docs/examples/anotar-architecture.page.json`의 편집 가능한 페이지입니다. Mermaid 블록은 **소스 수정**으로 편집하고 **확대 보기**에서 확대·축소·드래그 이동할 수 있습니다. 온라인 공유에서도 같은 다이어그램과 문서 스타일을 사용합니다. 사용자 지정 CSS·외부 리소스·Mermaid 설정 지시문은 미리 보기에서 제외합니다. 오프라인 ZIP은 다이어그램 원문을 보존합니다.
+
+로컬 Oracle 사본 화면: `npm run dev:oracle` → `http://127.0.0.1:5174`. 실제 서버 배포와 별개입니다.

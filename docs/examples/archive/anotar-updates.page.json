@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "id": "0d132763-92ad-45dd-ade6-5c6a6e066b50",
+  "title": "Anotar · 업데이트",
+  "icon": "✨",
+  "document": {
+    "schemaVersion": 1,
+    "blocks": [
+      {
+        "id": "e306948c-82eb-4f09-bee7-5a519bf4444a",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "Anotar의 새 기능과 사용성 개선을 기록합니다. 사용자가 체감하는 변화와 적용 상태를 함께 남깁니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "73d425d4-81cf-418f-b999-e5b9b0325852",
+        "type": "callout",
+        "props": {
+          "icon": "info",
+          "border": true,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "개발 미리보기 · 아래 변경은 로컬 개발 사본에서 확인한 내용입니다. Oracle 배포 완료 내역으로 표시하지 않습니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "f4591682-e46e-4590-a3e5-465ccb3200ad",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "2026년 10월 6일 · 문서 읽기와 작성 개선",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "49e3fb47-6b1f-464f-9a4e-799712e2cff1",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "긴 설명서를 더 쉽게 읽고, 코드와 구조도를 문서 안에서 다룰 수 있도록 다듬었습니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "520e003a-0f83-4745-998e-bf9f726b1615",
+        "type": "heading",
+        "props": {
+          "level": 3
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "문서 표현",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "9d261d99-b11f-4428-a2d8-ef3cecbb9b9c",
+        "type": "bulletListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "코드 블록에서 언어를 선택하고 문법에 맞는 색상으로 읽을 수 있습니다. 인라인 코드도 본문과 구분됩니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "3150bb77-0f60-4cf7-84e7-c0c1aeabe07a",
+        "type": "bulletListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "Mermaid 다이어그램의 소스를 수정하고, 확대해서 살펴볼 수 있습니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "653f6563-104a-4bbf-9481-d2ec1dc2a9f7",
+        "type": "bulletListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "접기는 투명한 배경과 점선 테두리로 묶어 콜아웃과 구분했습니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "b49e5204-ab77-4770-b19e-6516f20a15c3",
+        "type": "heading",
+        "props": {
+          "level": 3
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "읽기 편의",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "c84a9e48-5b26-47bb-b14e-9f7eb42e94ae",
+        "type": "bulletListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "문서의 글자 크기와 제목 간격을 줄이고, 라이트모드의 표·구분선 대비를 보완했습니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "c8a9eb76-98e6-4ac0-b538-a7afe3f70fee",
+        "type": "bulletListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "설정에서 앱 전체 글꼴을 바꿀 수 있습니다. Pretendard와 RIDIBatang을 선택할 수 있습니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "722af0b2-7356-48f2-a5f6-8a02cb8cf024",
+        "type": "bulletListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "브라우저 탭에는 “문서 제목 | anotar”가 표시됩니다. 제목 없는 화면은 “anotar | 나만의 워크스페이스”로 표시됩니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "ab1d7b7c-a8e8-4816-8f9a-4e564efec157",
+        "type": "bulletListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "본문 위에 크게 나타나던 블록 선택 도구 영역을 제거했습니다. 선택 블록 이동은 페이지 메뉴에서 사용할 수 있습니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "1c75ffdb-92df-40e1-b7c6-ad823fae821e",
+        "type": "heading",
+        "props": {
+          "level": 3
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "소개와 안내",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "5f48fc66-fd70-46ed-b1ab-94dba4c92ce8",
+        "type": "bulletListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "프로그램 소개, 기술 구조, 업데이트를 나누고 서로 연결했습니다. 기술 구조 문서는 요약과 사용 흐름부터 읽을 수 있도록 정리했습니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "6cb8cfe9-7811-434d-9ed7-ab3692d37cf2",
+        "type": "toggleListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "확인 범위",
+            "styles": {}
+          }
+        ],
+        "children": [
+          {
+            "id": "84461e49-c0aa-4d85-93cb-23bcd380195a",
+            "type": "paragraph",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "로컬 개발·공유 화면에서 확인한 변경입니다. 실제 배포 날짜와 버전은 배포 후 기록합니다. 이 기록은 과거 배포 이력을 추정해 채운 내역이 아닙니다.",
+                "styles": {}
+              }
+            ],
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "e7d2535d-9fbc-4c31-8116-ea56ad5ba09e",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "관련 문서",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "3103a610-6cc3-4e23-85c5-595486b0fd6d",
+        "type": "page",
+        "props": {
+          "pageId": "c45b89b2-aec2-42c6-b7cf-afe03f300fc9",
+          "title": "Anotar · 기록에서 공유까지"
+        },
+        "children": []
+      },
+      {
+        "id": "bb696a05-56a2-4110-ab52-16d971aec9a5",
+        "type": "page",
+        "props": {
+          "pageId": "546e1325-762b-4ea4-9ce5-a37e4c43d2b5",
+          "title": "Anotar · 기술 아키텍처와 개발 안내"
+        },
+        "children": []
+      }
+    ]
+  }
+}

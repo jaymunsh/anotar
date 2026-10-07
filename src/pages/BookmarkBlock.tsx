@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createReactBlockSpec } from '@blocknote/react';
+import { createReactBlockSpec, useEditorState } from '@blocknote/react';
 import type { BlockNoteEditor } from '@blocknote/core';
 import { Bookmark, ExternalLink, Link, RefreshCw } from 'lucide-react';
 import { webBookmarkUrl } from '../../shared/bookmarks';
@@ -40,6 +40,7 @@ function BookmarkView({
   block: { id: string; props: BookmarkProps };
   editor: AnyEditor;
 }) {
+  const editable = useEditorState({ editor, on: 'change', selector: ({ editor }) => editor.isEditable });
   const [busy, setBusy] = useState(false),
     [error, setError] = useState('');
   const props = block.props,
@@ -70,7 +71,7 @@ function BookmarkView({
         </span>
         {props.imageData && <img src={props.imageData} alt="" loading="lazy" />}
       </a>
-      {editor.isEditable && (
+      {editable && (
         <div className="bookmark-actions">
           <button type="button" disabled={busy} onClick={() => void refresh()}>
             <RefreshCw size={12} />

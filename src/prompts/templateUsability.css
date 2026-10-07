@@ -1,0 +1,15 @@
+.prompt-purpose-summary { margin: 0 28px; padding: 18px 0; border-bottom: 1px solid var(--theme-line); }
+.prompt-purpose-summary > strong { font-size: 16px; line-height: 1.4; font-weight: 600; }
+.prompt-purpose-summary > p { margin: 6px 0 10px; color: var(--theme-muted); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.prompt-purpose-summary dl { display: grid; gap: 5px; margin: 0 0 10px; font-size: 12px; }
+.prompt-purpose-summary dl > div { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 8px; }
+.prompt-purpose-summary dt { color: var(--theme-muted); }
+.prompt-purpose-summary dd { margin: 0; overflow-wrap: anywhere; }
+.prompt-purpose-summary .prompt-text-button { min-height: 30px; }
+.prompt-preview-heading strong small { margin-left: 6px; font-size: 11px; color: var(--theme-muted); font-weight: 400; }
+.prompt-example-fill { align-self: flex-start; min-height: 36px; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 760px) {
+  .prompt-purpose-summary { margin-inline: 16px; padding-block: 14px; }
+  .prompt-purpose-summary .prompt-text-button, .prompt-example-fill { min-height: 44px; }
+  .prompt-preview-heading strong small { display: block; margin: 3px 0 0; }
+}

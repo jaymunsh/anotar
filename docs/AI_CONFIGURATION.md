@@ -20,6 +20,19 @@ AI_DEVIN_CREDENTIALS_FILE=
 
 ## 요청과 결과
 
+### 로컬 Oracle 사본에서 실행
+
+`npm run dev:oracle`은 운영 `.env`를 읽지 않습니다. `.local-workspace/current.json`에 `aiEnabled: true`를 설정하고 아래 CLI를 설치한 뒤 재시작하면 로컬 OpenCode 요청을 실행할 수 있습니다.
+
+```sh
+npm install --prefix .local-workspace/opencode-runtime --no-save --package-lock=false opencode-ai@1.18.34
+npm run dev:oracle
+```
+
+AI worker만 켜고 OCR·예약 백업·Telegram은 꺼 둡니다. 기존 전역 CLI 버전·인증을 바꾸거나 유료 제공자 인증을 읽지 않습니다. 초기 기본 모델은 `opencode/muse-spark-1.3-contributor-free`이며 이후 설정 → AI에서 선택한 모델이 우선합니다. Hive/Devin과 자동 fallback은 연결하지 않습니다. 처음 켜기 전 복사된 대기/실행 중 요청을 확인합니다. 재시작은 현재 로컬 AI 큐를 처리합니다. 새 사본은 `aiEnabled` 미설정/false를 기본으로 사용합니다. `AI_WORKER_ENABLED=true`는 `BACKGROUND_WORKERS_ENABLED=false`에서도 AI만 시작하는 명시적인 서버 설정입니다.
+
+### 사용 흐름
+
 1. 메모 또는 페이지에서 템플릿을 고른다. 추가 지시는 선택 항목이다.
 2. 요청 옆 `실행기 · 모델`에서 Hive/Devin/OpenCode를 선택한다. OpenCode는 사용 중으로 등록한 여러 모델 중에서 고른다.
 3. 제출 시 실행기·모델·입력·템플릿/버전·프롬프트를 사본으로 저장한다. UUID는 응답 유실·새로고침에도 유지한다.

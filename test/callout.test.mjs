@@ -49,6 +49,15 @@ test('Markdown/AI output keeps callout and child text and attachment scope remai
   assert.deepEqual([...referencedAssetIds(document(value))], ['direct-asset']);
 });
 
+test('public iconless callouts keep their content and children without an icon gutter', () => {
+  const value = block({ icon: 'none', backgroundColor: 'gray' });
+  const html = renderSharedPage({ title: '아이콘 없는 콜아웃', updatedAt: '2026-10-06T00:00:00Z', document: document(value) }, 'test-token');
+  assert.match(html, /class="callout-box"[^>]*data-icon="none"/);
+  assert.doesNotMatch(html, /class="callout-marker"/);
+  assert.match(html, /class="callout-content"/);
+  assert.match(html, /class="callout-children">[\s\S]*여권과 예약 내역/);
+});
+
 test('every line of multiline callout text stays quoted in Markdown', () => {
   const value = block(); value.children = [];
   value.content = [{ type: 'text', text: '출발 전\n\n여권 확인\n예약 확인', styles: {} }];

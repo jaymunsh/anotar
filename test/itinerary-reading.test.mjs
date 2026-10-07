@@ -127,7 +127,7 @@ test('shared reference toggles contain their children once and can be opened nat
   assert.equal((html.match(/실제 좌석 확인 필요/g) || []).length, 1);
 });
 
-test('shared navigation links only visible public headings and preserves compact opt-in', () => {
+test('shared navigation links only visible public headings using the canonical TOC', () => {
   const heading = (id, text) => ({
     id,
     type: 'heading',
@@ -157,7 +157,7 @@ test('shared navigation links only visible public headings and preserves compact
     },
   };
   const html = renderSharedPage(page, 'local');
-  assert.match(html, /data-layout="compact"/);
+  assert.match(html, /data-layout="list"/);
   assert.match(html, /class="page-toc-title">목차</);
   assert.doesNotMatch(html, /바로가기/);
   assert.match(html, /href="#block-kyoto"/);

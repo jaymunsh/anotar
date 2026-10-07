@@ -29,9 +29,14 @@ export default function JournalWorkspace() {
     let active = true;
     let dispose: (() => void) | undefined;
     let unregisterFlush: (() => void) | undefined;
+    let flushStorage: (() => Promise<void>) | undefined;
+    const hidden = () => { if (document.visibilityState === 'hidden') void flushStorage?.().catch(() => {}); };
+    const pagehide = () => { void flushStorage?.().catch(() => {}); };
+    document.addEventListener('visibilitychange', hidden);
+    window.addEventListener('pagehide', pagehide);
     const element = host.current!;
     const root = element.shadowRoot || element.attachShadow({ mode: 'open' });
-    root.innerHTML = `<style>${scopedStyles}\n:host { display:block; min-width:0; } .topbar { display:none; } .sheet { padding:24px clamp(16px,3vw,40px) 96px; } .journal-body { font-family:inherit; }</style><div class="journal-body">${body}</div>`;
+    root.innerHTML = `<style>${scopedStyles}\n:host { display:block; min-width:0; } .topbar { display:none; } .sheet { padding:16px clamp(16px,3vw,40px) 40px; } @media (min-width:761px) { .sheet { padding-right:76px; } } .journal-body { font-family:inherit; }</style><div class="journal-body">${body}</div>`;
     const applyTheme = () => {
       element.dataset.theme = document.documentElement.dataset.theme || 'light';
     };
@@ -45,6 +50,7 @@ export default function JournalWorkspace() {
     void createJournalStorage().then(storage => {
       if (!active) return;
       setCollisions(storage.collisions);
+      flushStorage = storage.flush;
       unregisterFlush = registerLocalFlush(storage.flush);
       dispose = mountTimeboxing(root, {
         today: new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul' }).format(new Date()),
@@ -62,6 +68,9 @@ export default function JournalWorkspace() {
     return () => {
       active = false;
       observer.disconnect();
+      document.removeEventListener('visibilitychange', hidden);
+      window.removeEventListener('pagehide', pagehide);
+      void flushStorage?.().catch(() => {});
       dispose?.();
       unregisterFlush?.();
       root.replaceChildren();

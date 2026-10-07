@@ -218,6 +218,10 @@ export function createSyncEngine({
             await repository.reject(pending, 'conflict', cause, 0, lease);
             continue;
           }
+          if (error.status === 423 && error.code === 'page_locked') {
+            await repository.reject(pending, 'queued', cause, clock() + 30000, lease);
+            continue;
+          }
           if ([404, 413, 422].includes(error.status ?? 0)) {
             await repository.reject(pending, 'failed', cause, 0, lease);
             continue;

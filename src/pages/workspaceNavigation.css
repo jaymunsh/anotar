@@ -332,6 +332,7 @@
   text-decoration: underline;
 }
 @media (max-width: 760px) {
+  .workspace-navigation .workspace-row-action { display:none; }
   .workspace-row-action {
     flex-basis: 44px;
     width: 44px;

@@ -140,6 +140,8 @@ export function applySyncOperation(store, op) {
         tombstone: entity.tombstone,
       });
     const p = op.payload;
+    if (op.kind === 'page.update' && entity.item?.locked)
+      throw new SyncError(423, 'page_locked', '페이지가 잠겨 있어요. 기기의 변경은 보관하고 잠금 해제 후 다시 전송해요.');
     if (op.kind === 'capture.organize' || op.kind === 'ai.submit') {
       if (!p.sourceSnapshot || typeof p.sourceSnapshot !== 'object')
         throw new SyncError(422, 'invalid_snapshot', '요청 당시 원본을 확인해 주세요.');

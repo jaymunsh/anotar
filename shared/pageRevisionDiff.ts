@@ -25,14 +25,19 @@ const blockLimit = 2000;
 const depthLimit = 8;
 const displayLimit = 100;
 
-// Canonical property order avoids false changes after a JSON round trip.
+// Compare the persisted JSON value: editors can add undefined optional fields.
+// JSON omits those object keys and turns undefined array entries into null.
 function canonical(value: unknown): string {
-  if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']';
+  if (Array.isArray(value))
+    return (
+      '[' + Array.from(value, (item) => canonical(item === undefined ? null : item)).join(',') + ']'
+    );
   if (value && typeof value === 'object') {
     const object = value as Record<string, unknown>;
     return (
       '{' +
       Object.keys(object)
+        .filter((key) => object[key] !== undefined)
         .sort()
         .map((key) => JSON.stringify(key) + ':' + canonical(object[key]))
         .join(',') +

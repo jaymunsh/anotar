@@ -216,9 +216,13 @@ try {
   );
   await page.locator('.sync-status-trigger').click();
   await page.getByRole('button', { name: '양쪽 내용 확인', exact: true }).first().click();
-  await page.getByRole('button', { name: '내 변경 보기', exact: true }).click();
+  await page.getByRole('button', { name: '변경 내용 비교', exact: true }).click();
   assert.match(await page.locator('.sync-conflict-preview').innerText(), /기기 A 오프라인 회고/);
-  await page.getByRole('button', { name: '서버 내용 사용', exact: true }).click();
+  const reviewToggle = page.getByRole('button', {name:/^(변경 내용 비교|비교 접기)$/});
+  await reviewToggle.waitFor();
+  if (await reviewToggle.getAttribute('aria-expanded') === 'false') await reviewToggle.click();
+  await page.getByRole('radio', {name:/^서버 내용 사용/}).check();
+  await page.getByRole('button', {name:'선택한 내용 적용',exact:true}).click();
   await page.getByRole('button', { name: '동기화 상태 닫기' }).click();
   await page.locator('#date').focus();
   await wait(async () => (await entity(page)).current.day.feedback === '기기 B 서버 회고');
@@ -259,7 +263,10 @@ try {
   assert.equal((await serverDay()).day.idea, '다른 기기에서 갱신한 아이디어');
   await page.locator('.sync-status-trigger').click();
   await page.getByRole('button', { name: '양쪽 내용 확인', exact: true }).first().click();
-  await page.getByRole('button', { name: '서버 내용 사용', exact: true }).click();
+  await reviewToggle.waitFor();
+  if (await reviewToggle.getAttribute('aria-expanded') === 'false') await reviewToggle.click();
+  await page.getByRole('radio', {name:/^서버 내용 사용/}).check();
+  await page.getByRole('button', {name:'선택한 내용 적용',exact:true}).click();
   await page.getByRole('button', { name: '동기화 상태 닫기' }).click();
   await page.locator('#date').focus();
   await synced(page);

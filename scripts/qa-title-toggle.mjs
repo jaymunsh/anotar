@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
+import {offlineApp} from './fixtures/offline-app.mjs';
+import {openStore} from '../server/store.mjs';
+import {ensureArchitecturePage} from './seed-architecture.mjs';
+const app=await offlineApp();
+try{
+ const store=openStore(app.dir);const doc=await ensureArchitecturePage(store);store.close();
+ const page=await app.browser.newPage({viewport:{width:1440,height:1000}});
+ await page.goto(app.base+'/pages/'+doc.id);
+ await page.locator('.page-title-input').waitFor();
+ await page.waitForFunction(t=>document.title===t,doc.title+' | anotar');
+ const title=page.locator('.page-title-input');await title.fill('제목 확인');await page.waitForFunction(()=>document.title==='제목 확인 | anotar');
+ await title.fill('');await page.waitForFunction(()=>document.title==='anotar | 나만의 워크스페이스');
+ await title.fill(doc.title);
+ const toggle=page.locator('.bn-block').filter({has:page.locator(':scope > .bn-block-content[data-content-type="toggleListItem"]')}).first();
+ console.log('toggle count',await toggle.count());
+ assert.equal(await toggle.evaluate(e=>getComputedStyle(e).borderTopStyle),'dotted');
+ assert.equal(await toggle.evaluate(e=>getComputedStyle(e).borderTopWidth),'1px');
+ await toggle.locator('.bn-toggle-button').click();
+ await mkdir('.omo/evidence/title-toggle',{recursive:true});
+ await toggle.screenshot({path:'.omo/evidence/title-toggle/toggle-open.png'});
+ await page.goto(app.base+'/');await page.waitForFunction(()=>document.title==='anotar | 나만의 워크스페이스');
+ await page.goto('http://127.0.0.1:8791/s/kSQooU2F_y33CJB8TLYRE41x3F2qB4verLZEfVUrvL0');
+ await page.waitForFunction(()=>document.title.endsWith(' | anotar'));
+ const shared=page.locator('.page-reference-toggle').first();assert.equal(await shared.evaluate(e=>getComputedStyle(e).borderTopWidth),'1px');assert.equal(await shared.evaluate(e=>getComputedStyle(e).borderTopStyle),'dotted');await shared.locator('summary').click();assert.equal(await shared.getAttribute('open'),'');
+ await shared.screenshot({path:'.omo/evidence/title-toggle/shared-toggle-open.png'});
+ await page.setViewportSize({width:390,height:844});await page.evaluate(()=>document.documentElement.dataset.theme='dark');
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+ await shared.screenshot({path:'.omo/evidence/title-toggle/shared-mobile-dark.png'});
+ console.log('PASS: title edits, fallback navigation, private/shared dotted toggles, mobile width');
+}finally{await app.close();}

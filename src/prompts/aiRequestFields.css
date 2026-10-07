@@ -1,0 +1,44 @@
+.capture-ai-fields { min-width: 0; }
+.capture-ai-fields .ai-execution-compact {
+  margin: 0 0 14px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid var(--theme-line);
+}
+.ai-execution-overview { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.ai-execution-current { display: flex; align-items: baseline; flex: 1; gap: 8px; min-width: 0; font-size: 12px; }
+.ai-execution-current strong { flex-shrink: 0; font-weight: 600; }
+.ai-execution-current span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--theme-muted); }
+.ai-execution-state { flex-shrink: 0; font-size: 11px; color: var(--theme-muted); }
+.ai-execution-state.ready { color: var(--theme-accent); }
+.ai-execution-options { margin-top: 6px; }
+.ai-execution-options > summary { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; font-size: 12px; cursor: pointer; color: var(--theme-muted); }
+.ai-execution-options > summary::-webkit-details-marker { display: none; }
+.ai-execution-options[open] > summary svg { transform: rotate(180deg); }
+.ai-execution-options .ai-execution-controls { padding-top: 6px; }
+.ai-execution-options .ai-execution-controls label { width: 100%; }
+.ai-template-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.ai-template-quick button { border: 1px solid var(--theme-line); border-radius: 6px; background: transparent; color: var(--theme-ink); min-height: 32px; max-width: 100%; padding: 5px 9px; font: inherit; font-size: 12px; overflow-wrap: anywhere; cursor: pointer; }
+.ai-template-quick button[aria-pressed='true'] { background: var(--theme-soft); border-color: var(--theme-accent); color: var(--theme-accent); }
+.ai-template-quick button:hover:not(:disabled) { background: var(--theme-soft); }
+.ai-template-quick button:disabled { opacity: .55; cursor: default; }
+.capture-ai-fields .capture-ai-options { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.capture-ai-fields .capture-ai-options .prompt-field select { height: auto; min-height: 38px; font-size: 13px; }
+.ai-additional-options > summary { cursor: pointer; color: var(--theme-muted); font-size: 12px; min-height: 30px; display: list-item; }
+.ai-additional-options > .prompt-field { margin-top: 8px; }
+.capture-ai-fields .ai-instruction-field { margin-bottom: 12px; }
+.capture-ai-fields .ai-instruction-field textarea { width: 100%; min-height: 76px; height: auto; resize: vertical; font-size: 13px; line-height: 1.6; }
+.capture-ai-fields .capture-ai-description { gap: 8px; margin-top: 10px; align-items: flex-start; }
+.capture-ai-fields .capture-ai-description p { margin: 0; font-size: 12px; }
+.ai-template-output-hint { margin: 5px 0 10px; color: var(--theme-muted); font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
+.capture-ai-fields .capture-ai-preview { margin-top: 12px; }
+.ai-execution-options > summary:focus-visible,
+.ai-template-quick button:focus-visible,
+.ai-additional-options > summary:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 3px; }
+@media (max-width: 760px) {
+  .ai-execution-current { flex-direction: column; gap: 2px; }
+  .ai-execution-current span { max-width: 100%; }
+  .ai-template-quick button { min-height: 40px; }
+  .ai-execution-options > summary, .ai-additional-options > summary { min-height: 40px; }
+  .capture-ai-fields .capture-ai-options .prompt-field select,
+  .capture-ai-fields .ai-instruction-field textarea { font-size: 16px; }
+}

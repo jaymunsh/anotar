@@ -1,6 +1,10 @@
-import { useOnlineAction } from '../sync/onlineActions';
-import { workspaceFetch } from '../sync/runtime';
+import { createDebouncedSync } from '../sync/autosave';
+import { reconcileChildPageLinks } from '../../shared/childPageLinks';
+import {documentTitle,defaultDocumentTitle} from '../../shared/documentTitle';
+import { canPerformOnlineAction, useOnlineAction } from '../sync/onlineActions';
+import { requestWorkspaceSync, workspaceFetch } from '../sync/runtime';
 import { useLocalPage, persistLocalPage, enqueueLocalPage } from './useLocalPage';
+import { usePageLock } from './usePageLock';
 import { registerLocalFlush } from '../offline/update';
 import ConflictPanel from '../sync/ConflictPanel';
 import OfflinePageControl from '../offline/OfflinePageControl';
@@ -23,18 +27,23 @@ import {
   defaultBlockSpecs,
   SideMenuExtension,
 } from '@blocknote/core';
-import { filterSuggestionItems } from '@blocknote/core/extensions';
+import { SyntaxHighlightingExtension, filterSuggestionItems } from '@blocknote/core/extensions';
 import { ko } from '@blocknote/core/locales';
 import {
-  createReactDiagramBlockSpec,
   getDiagramSlashMenuItems,
   locales as diagramLocales,
 } from '@blocknote/diagram-block';
 import { BlockNoteView } from '@blocknote/mantine';
+import { createDocumentCodeBlockSpec } from './CodeBlock';
+import { createDocumentHeadingBlockSpec } from './HeadingBlock';
+import { createDocumentDiagramBlockSpec } from './DiagramBlock';
 import {
   BlockColorsItem,
   DragHandleMenu,
   FormattingToolbar,
+  BasicTextStyleButton,
+  blockTypeSelectItems,
+  getFormattingToolbarItems,
   FormattingToolbarController,
   getDefaultReactSlashMenuItems,
   GridSuggestionMenuController,
@@ -66,6 +75,8 @@ import {
   FileText,
   List,
   Link2,
+  Lock,
+  LockOpen,
   MessageCircle,
   MoreHorizontal,
   History,
@@ -112,11 +123,12 @@ import { PageNavContext } from './pageNav';
 import { createPageLinkBlockSpec, getPageLinkSlashMenuItems } from './PageLinkBlock';
 import { createBookmarkBlockSpec, refreshBookmark } from './BookmarkBlock';
 import { createCalloutBlockSpec, getCalloutSlashMenuItems } from './CalloutBlock';
+import { calloutIcons, calloutIconLabels } from '../../shared/callout';
 import UrlPasteChoice from './UrlPasteChoice';
 import { webBookmarkUrl } from '../../shared/bookmarks';
 import { parsePageLink, pageLinkAddress } from '../../shared/pageLinks';
 import { createCaptureRefBlockSpec } from './CaptureRefBlock';
-import { createAssetBlockSpec } from './AssetBlock';
+import { AssetAttachmentProvider, createAssetBlockSpec, getAssetSlashMenuItems } from './AssetBlock';
 import { createTableOfContentsBlockSpec, getTableOfContentsSlashMenuItems } from './TocBlock';
 import type { PageDocument, PageRecord, PageSummary } from './types';
 import { editablePageBlocks, preserveLegacyCaptureRefs } from '../../shared/pageDocuments';
@@ -155,16 +167,16 @@ const PageToolsPanel = lazy(() => import('./PageToolsPanel'));
 const schema = BlockNoteSchema.create({
   blockSpecs: {
     paragraph: defaultBlockSpecs.paragraph,
-    heading: defaultBlockSpecs.heading,
+    heading: createDocumentHeadingBlockSpec(),
     bulletListItem: defaultBlockSpecs.bulletListItem,
     numberedListItem: defaultBlockSpecs.numberedListItem,
     checkListItem: defaultBlockSpecs.checkListItem,
     toggleListItem: defaultBlockSpecs.toggleListItem,
     quote: defaultBlockSpecs.quote,
-    codeBlock: defaultBlockSpecs.codeBlock,
+    codeBlock: createDocumentCodeBlockSpec(),
     divider: defaultBlockSpecs.divider,
     table: defaultBlockSpecs.table,
-    diagram: createReactDiagramBlockSpec(),
+    diagram: createDocumentDiagramBlockSpec(),
     tableOfContents: createTableOfContentsBlockSpec(),
     page: createPageLinkBlockSpec(),
     captureRef: createCaptureRefBlockSpec(),
@@ -214,7 +226,11 @@ function PageFormattingToolbar(props: React.ComponentProps<typeof FormattingTool
     },
   });
   // The stock toolbar treats any URL property as a file. Bookmark actions live on the card.
-  return bookmarkSelected ? null : <FormattingToolbar {...props} />;
+  const allowedTypes = (props.blockTypeSelectItems || blockTypeSelectItems(editor.dictionary))
+    .filter(item => item.type !== 'heading' || Number(item.props?.level || 1) <= 4);
+  const items = getFormattingToolbarItems(allowedTypes);
+  items.splice(12, 0, <BasicTextStyleButton key="codeStyleButton" basicTextStyle="code" />);
+  return bookmarkSelected ? null : <FormattingToolbar {...props}>{items}</FormattingToolbar>;
 }
 
 function draftKey(id: string) {
@@ -274,17 +290,41 @@ function PageSideMenu(props: { dragHandleMenu?: React.ComponentType }) {
 function PageBlockActions() {
   const components = useComponentsContext();
   const editor = useBlockNoteEditor<any, any, any>();
-  const block = useExtensionState(SideMenuExtension, { selector: state => state?.block });
+  const hoveredBlock = useExtensionState(SideMenuExtension, { selector: state => state?.block });
+  const block = useEditorState({editor, selector: ({editor}) => hoveredBlock ? editor.getBlock(hoveredBlock.id) : undefined});
   const portalElement = usePortalElement();
   if (!components || !block) return null;
   const clone = (value: any): any => ({ ...structuredClone(value), id: crypto.randomUUID(), children: (value.children || []).map(clone) });
   const textTypes = ['paragraph','heading','bulletListItem','numberedListItem','checkListItem','toggleListItem','quote'];
   return <>
     <components.Generic.Menu.Item className="bn-menu-item" onClick={()=>{ const [copy] = editor.insertBlocks([clone(block)],block,'after');if(Array.isArray(copy.content))editor.setTextCursorPosition(copy.id);editor.focus(); }}>블록 복제</components.Generic.Menu.Item>
+    {block.type === 'table' && <components.Generic.Menu.Item className="bn-menu-item" onClick={() => {
+      const element = editor.domElement?.querySelector(`[data-id="${CSS.escape(block.id)}"] [data-content-type="table"]`);
+      const current = editor.getBlock(block.id);
+      if (!element || current?.type !== 'table') return;
+      const content = current.content as any;
+      const count = content.columnWidths?.length || content.rows[0]?.cells.length;
+      if (!count) return;
+      // Fit the actual block width, including indentation, using native persisted column sizes.
+      const available = Math.floor(element.getBoundingClientRect().width) - 2;
+      const width = Math.max(80, Math.floor(available / count));
+      editor.updateBlock(current, { content: { ...content, columnWidths: Array.from({length: count}, (_, i) => width + (i === count - 1 ? Math.max(0, available - width * count) : 0)) } });
+    }}>본문 너비에 맞추기</components.Generic.Menu.Item>}
+    {block.type === 'tableOfContents' && <components.Generic.Menu.Item className="bn-menu-item" onClick={() => {
+      editor.updateBlock(block, { props: { maxLevel: block.props.maxLevel === 1 ? 4 : 1 } });
+    }}>{block.props.maxLevel === 1 ? '소제목까지 목차에 표시' : '대표 제목만 목차에 표시'}</components.Generic.Menu.Item>}
+    {block.type === 'callout' && <components.Generic.Menu.Root position="right" sub={true} portalElement={portalElement}>
+      <components.Generic.Menu.Trigger sub={true}><components.Generic.Menu.Item className="bn-menu-item" subTrigger={true}>콜아웃 아이콘</components.Generic.Menu.Item></components.Generic.Menu.Trigger>
+      <components.Generic.Menu.Dropdown sub={true}>
+        {calloutIcons.map(icon => <components.Generic.Menu.Item key={icon} className="bn-menu-item"
+          icon={block.props.icon === icon ? <Check size={16} aria-hidden="true" /> : <span style={{width:16}} />}
+          onClick={() => editor.updateBlock(block, {props: {icon}})}>{calloutIconLabels[icon]}</components.Generic.Menu.Item>)}
+      </components.Generic.Menu.Dropdown>
+    </components.Generic.Menu.Root>}
     {textTypes.includes(block.type) && <components.Generic.Menu.Root position="right" sub={true} portalElement={portalElement}>
       <components.Generic.Menu.Trigger sub={true}><components.Generic.Menu.Item className="bn-menu-item" subTrigger={true}>블록 유형 변경</components.Generic.Menu.Item></components.Generic.Menu.Trigger>
       <components.Generic.Menu.Dropdown sub={true}>{[
-        {label:'텍스트',type:'paragraph'}, {label:'제목 1',type:'heading',level:1}, {label:'제목 2',type:'heading',level:2}, {label:'제목 3',type:'heading',level:3},
+        {label:'텍스트',type:'paragraph'}, {label:'제목 1',type:'heading',level:1}, {label:'제목 2',type:'heading',level:2}, {label:'제목 3',type:'heading',level:3}, {label:'제목 4',type:'heading',level:4},
         {label:'글머리 목록',type:'bulletListItem'}, {label:'번호 목록',type:'numberedListItem'}, {label:'체크리스트',type:'checkListItem'}, {label:'접는 목록',type:'toggleListItem'}, {label:'인용',type:'quote'},
       ].map(item=><components.Generic.Menu.Item className="bn-menu-item" key={item.label} onClick={()=>{editor.updateBlock(block,{type:item.type,props:item.level?{level:item.level}:{}} as any);editor.setTextCursorPosition(block.id);editor.focus();}}>{item.label}</components.Generic.Menu.Item>)}</components.Generic.Menu.Dropdown>
     </components.Generic.Menu.Root>}
@@ -378,7 +418,7 @@ export default function PageEditor({
       diagram: diagramLocales.ko,
     },
     disableExtensions: ['quote-block-shortcuts'],
-    extensions: [notionInputShortcuts],
+    extensions: [notionInputShortcuts, SyntaxHighlightingExtension({createHighlighter: async () => (await import('../code/highlighter')).documentHighlighter() as Promise<import('@shikijs/types').HighlighterGeneric<any, any>>})],
   });
   const [urlPaste, setUrlPaste] = useState<{url:string;blockId:string;pageId?:string} | null>(null);
   const [bookmarkNotice, setBookmarkNotice] = useState('');
@@ -441,6 +481,10 @@ export default function PageEditor({
     }),
   });
   const localPage = useLocalPage(page.id);
+  const pageLock = usePageLock((localPage.record?.current?.document ? localPage.record.current : page) as unknown as PageRecord);
+  const documentLocked = pageLock.locked || pageLock.pending;
+  const readMode = useRef(documentLocked);
+  readMode.current = documentLocked;
   const onlineReason=useOnlineAction('page',page.id);
   const basePage = useRef(page);
   const editorRevision=useRef(page.localRevision??0);
@@ -449,6 +493,8 @@ export default function PageEditor({
   const commitPromise = useRef<Promise<void> | null>(null);
   const committedRevision = useRef(0);
   const [title, setTitle] = useState(page.title === '제목 없음' ? '' : page.title);
+  useEffect(()=>{document.title=documentTitle(title);},[title]);
+  useEffect(()=>()=>{document.title=defaultDocumentTitle;},[]);
   const [icon, setIcon] = useState(page.icon || '');
   const [savedAt, setSavedAt] = useState(page.updatedAt);
   const [iconOpen, setIconOpen] = useState(false);
@@ -532,9 +578,9 @@ export default function PageEditor({
   }, []);
   const itineraryEditing = editingItineraries.size > 0;
   const [toolsMode, setToolsMode] = useState<'templates' | 'move' | 'history' | null>(null);
-  const [toolSelectionIds, setToolSelectionIds] = useState<string[]>([]);
   const [moveSelectionIds, setMoveSelectionIds] = useState<string[]>([]);
   const pageFileInput = useRef<HTMLInputElement>(null);
+  const attachmentKind = useRef<'image' | 'file'>('file');
   const [selectionIds, setSelectionIds] = useState<string[]>([]);
   const [aiPending, setAiPending] = useState(() => {
     try {
@@ -570,7 +616,7 @@ export default function PageEditor({
       // Menus and comment forms operate on the selected block; blank canvas does not.
       if (
         target.closest(
-          '.page-document-actions, .page-selection-tools, .page-comment-panel, .page-inspector, [role="dialog"], [role="menu"], [role="listbox"], .bn-side-menu, .bn-toolbar',
+          '.page-document-actions, .page-comment-panel, .page-inspector, .asset-crop-dialog, [role="dialog"], [role="menu"], [role="listbox"], .bn-side-menu, .bn-toolbar',
         )
       )
         return;
@@ -578,7 +624,6 @@ export default function PageEditor({
         setSelectedCommentBlockId(null);
         setHoveredCommentBlockId(null);
         setSelectionIds([]);
-        setToolSelectionIds([]);
       }
       const selection = editor.prosemirrorState.selection;
       if (!(selection instanceof NodeSelection)) return;
@@ -632,9 +677,11 @@ export default function PageEditor({
   const changes = useRef(0);
   const saving = useRef(false);
   const conflicted = useRef(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const syncScheduler = useRef<ReturnType<typeof createDebouncedSync> | null>(null);
+  const syncDeadline = useRef(0);
   const rawDocument = useRef(page.document);
   const applying = useRef(false);
+  const childLinksUnsaved = useRef(false);
   const navigate = useContext(PageNavContext);
   const workspaceNavigation = usePageWorkspace();
   const importedBlockId = new URLSearchParams(window.location.search).get('import');
@@ -642,6 +689,7 @@ export default function PageEditor({
   const toolsLocked = toolsBusy || Boolean(toolsPending) || Boolean(toolsStorageError);
   const mutationLocked = aiPending || toolsLocked;
   const toolsDisabled =
+    documentLocked ||
     Boolean(onlineReason) ||
     itineraryEditing ||
     status !== 'saved' ||
@@ -650,6 +698,9 @@ export default function PageEditor({
     aiPending ||
     commentPreviewOpen ||
     markdownOpen;
+  useLayoutEffect(() => editor.onBeforeChange(({ tr }) => {
+    if (tr.docChanged && readMode.current && !applying.current) return false;
+  }), [editor]);
   useEffect(() => {
     const open = (event: Event) => {
       if ((event as CustomEvent<{ pageId: string }>).detail?.pageId !== page.id) return;
@@ -667,8 +718,11 @@ export default function PageEditor({
     // BlockNote remounts the view when its editable prop changes. Keep AI locks
     // on the mounted instance so selection/toolbar measurements stay valid.
     editor.isEditable =
-      !markdownOpen && !commentPreviewOpen && !recovery && !trashPending && !mutationLocked;
-  }, [editor, markdownOpen, commentPreviewOpen, recovery, trashPending, mutationLocked]);
+      !markdownOpen && !commentPreviewOpen && !recovery && !trashPending && !mutationLocked && !documentLocked;
+    commentEditorRef.current?.querySelectorAll<HTMLSelectElement>('.bn-block-content[data-content-type="codeBlock"] select')
+      .forEach((select) => { select.disabled = !editor.isEditable; });
+  }, [editor, markdownOpen, commentPreviewOpen, recovery, trashPending, mutationLocked, documentLocked]);
+  useEffect(() => { if (documentLocked) { setIconOpen(false); setSelectionIds([]); } }, [documentLocked]);
 
   function captureSelection() {
     // A collapsed text cursor is an editing position, not a selected block.
@@ -679,7 +733,6 @@ export default function PageEditor({
       (editor.prosemirrorState.selection instanceof NodeSelection
         ? [editor.getTextCursorPosition().block]
         : []);
-    setToolSelectionIds(selected.map((block) => block.id));
     setSelectionIds(
       selected
         .filter((block) => !['captureRef', 'asset', 'page', 'tableOfContents'].includes(block.type))
@@ -718,7 +771,6 @@ export default function PageEditor({
     setSelectedCommentBlockId(null);
     setHoveredCommentBlockId(null);
     setSelectionIds([]);
-    setToolSelectionIds([]);
     editor.setTextCursorPosition(block.id, 'end');
     editor.focus();
   }
@@ -735,9 +787,9 @@ export default function PageEditor({
 
   function acceptAiPage(item: PageRecord) {
     basePage.current=item;editorRevision.current=item.localRevision??localPage.record?.localRevision??editorRevision.current;
-    if(localTimer.current)clearTimeout(localTimer.current);
+    if(localTimer.current)clearTimeout(localTimer.current); localTimer.current = null;
     applying.current = true;
-    if (timer.current) clearTimeout(timer.current);
+    syncScheduler.current?.cancel();
     rawDocument.current = item.document;
     const blocks = editablePageBlocks(item.document.blocks);
     editor.replaceBlocks(
@@ -812,6 +864,7 @@ export default function PageEditor({
   }
   async function attachPageFiles(files: File[]) {
     if (!files.length) return;
+    if (documentLocked || toolsBusy || (toolsLocked && toolsPending?.kind !== 'assets')) return;
     if (
       files.length > 8 ||
       files.some((file) => file.size > 25 * 1024 * 1024) ||
@@ -825,14 +878,33 @@ export default function PageEditor({
       if (toolsPending?.kind === 'assets') {
         await restorePageAssetFiles(toolsPending, files);
         await submitTool(toolsPending);
-      } else if (!toolsDisabled && !toolsPending) {
-        const pending = await createPageAssetPending(savedPage, files);
+      } else if (!insertionLocked && !toolsPending) {
+        syncScheduler.current?.cancel();
+        await saveLatest();
+        await enqueueLocalPage(page.id);
+        await requestWorkspaceSync();
+        const check = await canPerformOnlineAction('page', page.id);
+        if (!check.allowed) throw new Error(check.reason);
+        const currentPage = await readCurrentPage(page.id);
+        const pending = await createPageAssetPending(currentPage, files);
         await submitTool(pending);
       }
     } catch (error) {
       setToolsError(error instanceof Error ? error.message : '첨부를 준비하지 못했어요.');
     } finally {
       setToolsBusy(false);
+    }
+  }
+
+  function openAttachment(kind: 'image' | 'file') {
+    if (insertionLocked || toolsLocked || navigator.onLine === false) {
+      setToolsError(onlineReason || '저장이 끝난 뒤 첨부할 수 있어요.');
+      return;
+    }
+    attachmentKind.current = kind;
+    if (pageFileInput.current) {
+      pageFileInput.current.accept = kind === 'image' ? 'image/png,image/jpeg,image/webp,image/gif,image/avif' : '';
+      pageFileInput.current.click();
     }
   }
 
@@ -904,10 +976,16 @@ export default function PageEditor({
     changes.current += 1;
     try { localStorage.setItem(draftKey(page.id), JSON.stringify(next)); } catch { /* IDB commit below owns success */ }
     setStatus('saving');
-    if (localTimer.current) clearTimeout(localTimer.current);
-    localTimer.current = setTimeout(() => {void saveLatest().catch(()=>{});}, 250);
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => { void saveLatest().then(() => enqueueLocalPage(page.id)).catch(() => {}); }, 750);
+    syncScheduler.current ??= createDebouncedSync(async () => {
+      await saveLatest();
+      await enqueueLocalPage(page.id);
+    });
+    syncDeadline.current = syncScheduler.current.schedule();
+    // Persist periodically during continuous typing, not only after a pause.
+    if (!localTimer.current) localTimer.current = setTimeout(() => {
+      localTimer.current = null;
+      void saveLatest().catch(() => {});
+    }, 250);
   }
 
   function saveLatest(): Promise<void> {
@@ -917,7 +995,7 @@ export default function PageEditor({
     saving.current = true;
     const commit = (async () => {
       try {
-        const item = await persistLocalPage(page.id, {...snapshot,icon:snapshot.icon??''}, basePage.current,editorRevision.current);
+        const item = await persistLocalPage(page.id, {...snapshot,icon:snapshot.icon??''}, basePage.current,editorRevision.current,syncDeadline.current);
         editorRevision.current=item.localRevision??editorRevision.current;setLocalSaveError('');
         committedRevision.current = snapshotChange;
         rawDocument.current = item.document;
@@ -937,33 +1015,73 @@ export default function PageEditor({
     return commit;
   }
   useEffect(() => {
-    const flush = async () => { await saveLatest(); await enqueueLocalPage(page.id); };
+    const flush = async () => { syncScheduler.current?.cancel(); await saveLatest(); await enqueueLocalPage(page.id); };
     const unregister = registerLocalFlush(flush);
     const hidden = () => { if(document.visibilityState==='hidden')void flush().catch(()=>{}); };
     document.addEventListener('visibilitychange',hidden);
-    return () => { unregister(); document.removeEventListener('visibilitychange',hidden); if(localTimer.current)clearTimeout(localTimer.current); if(timer.current)clearTimeout(timer.current); void flush().catch(()=>{}); };
+    const pagehide = () => { void flush().catch(() => {}); };
+    window.addEventListener('pagehide',pagehide);
+    return () => { unregister(); document.removeEventListener('visibilitychange',hidden); window.removeEventListener('pagehide',pagehide); if(localTimer.current)clearTimeout(localTimer.current); localTimer.current = null; syncScheduler.current?.cancel(); void flush().catch(()=>{}); };
   }, [page.id]);
   useEffect(() => {
-    const current = localPage.record?.current;
-    if(!current || localPage.record?.dirty || status !== 'saved')return;
-    if(current.title === (latest.current.title.trim() || '제목 없음') && JSON.stringify(current.document) === JSON.stringify(latest.current.document)) {
+    const record = localPage.record;
+    const current = record?.current;
+    if(!record || !current || record.localRevision < editorRevision.current || record.dirty || localPage.conflict || status !== 'saved' || saving.current || changes.current !== committedRevision.current)return;
+    if(current.title === (latest.current.title.trim() || '제목 없음') && current.icon === (latest.current.icon ?? '') && JSON.stringify(current.document) === JSON.stringify(latest.current.document)) {
       const acknowledged=current as unknown as PageRecord;
-      version.current=acknowledged.version; basePage.current=acknowledged; setSavedPage(acknowledged); setSavedAt(acknowledged.updatedAt);
+      version.current=acknowledged.version; basePage.current=acknowledged; editorRevision.current=record.localRevision; setSavedPage(acknowledged); setSavedAt(acknowledged.updatedAt);
+    } else if (Number(current.version) > version.current) {
+      // An untouched editor can follow a newly synced server version. Pending
+      // local edits and conflicts are handled separately and retain both copies.
+      acceptAiPage({...current,localRevision:record.localRevision} as unknown as PageRecord);
     }
-  }, [localPage.record, status]);
+  }, [localPage.record, localPage.conflict, status]);
 
   function editTitle(value: string) {
+    if (documentLocked) return;
     setTitle(value);
     queueSave({ ...latest.current, title: value, baseVersion: version.current });
   }
 
   function editIcon(value: string) {
+    if (documentLocked) return;
     setIcon(value);
     queueSave({ ...latest.current, icon: value, baseVersion: version.current });
   }
 
+  function reconcileChildLinks() {
+    const current = editor.document;
+    const next = reconcileChildPageLinks(current, page.id, pages) as typeof current;
+    if (next === current) return false;
+    const ids = (blocks: typeof current): Set<string> => new Set(blocks.flatMap(block => [block.id, ...ids(block.children)]));
+    const beforeIds = ids(current), afterIds = ids(next);
+    const removed = [...beforeIds].filter(id => !afterIds.has(id));
+    const added = next.filter(block => !beforeIds.has(block.id));
+    const wasApplying = applying.current;
+    applying.current = true;
+    try {
+      if (removed.length) editor.removeBlocks(removed);
+      if (added.length) {
+        const last = editor.document.at(-1)!;
+        const blank = last.type === 'paragraph' && !last.content?.length && !last.children.length;
+        editor.insertBlocks(added as any, last, blank ? 'before' : 'after');
+      }
+    } finally { applying.current = wasApplying; }
+    return true;
+  }
+
+  useEffect(() => {
+    const changed = reconcileChildLinks();
+    if (changed) childLinksUnsaved.current = true;
+    if (!documentLocked && !recovery && !localPage.conflict && !trashPending && !mutationLocked && !markdownOpen && !commentPreviewOpen && childLinksUnsaved.current) {
+      childLinksUnsaved.current = false;
+      editBlocks();
+    }
+  }, [editor, page.id, pages, documentLocked, savedPage, recovery, localPage.conflict, trashPending, mutationLocked, markdownOpen, commentPreviewOpen]);
+
   function editBlocks() {
-    if (applying.current) return;
+    if (applying.current || documentLocked || recovery) return;
+    reconcileChildLinks();
     const nextSnapshot = JSON.stringify(editor.document);
     if (nextSnapshot === blockSnapshot.current) return;
     blockSnapshot.current = nextSnapshot;
@@ -978,7 +1096,7 @@ export default function PageEditor({
   }
 
   const insertionLocked = markdownOpen || commentPreviewOpen || Boolean(recovery) || trashPending ||
-    mutationLocked || itineraryEditing || status === 'conflict' || status === 'error' || Boolean(localPage.conflict);
+    mutationLocked || documentLocked || itineraryEditing || status === 'conflict' || status === 'error' || Boolean(localPage.conflict);
   const blankDocument = editor.document.every((block) => block.type === 'paragraph' &&
     !block.children.length && (!block.content || (Array.isArray(block.content) && block.content.length === 0)));
 
@@ -1014,6 +1132,7 @@ export default function PageEditor({
   }
 
   function restoreDraft() {
+    if (documentLocked) return;
     if (!recovery || recovery.baseVersion !== version.current) return;
     setTitle(recovery.title === '제목 없음' ? '' : recovery.title);
     if (recovery.icon !== undefined) setIcon(recovery.icon);
@@ -1037,6 +1156,7 @@ export default function PageEditor({
   }
 
   function addDiagram() {
+    if (documentLocked) return;
     const current = editor.getTextCursorPosition()?.block || editor.document.at(-1);
     if (current)
       editor.insertBlocks(
@@ -1202,6 +1322,12 @@ export default function PageEditor({
     setAiOpen((value) => !value);
   }
 
+  function toggleOutline() {
+    setAiOpen(false); setShareOpen(false); setCommentPreviewOpen(false);
+    setToolsMode(null); setMaterialsOpen(false); closePageMenu();
+    setOutlineOpen((value) => !value);
+  }
+
   const toolbar = (
     <div className="page-document-top">
       <nav className="page-crumbs" aria-label="페이지 경로">
@@ -1256,6 +1382,9 @@ export default function PageEditor({
                   : '저장 실패'}
         </span>
         <div className="page-document-actions">
+          {pageLock.locked && <button type="button" className="page-lock-toggle" aria-label="페이지 잠금 해제"
+            title="읽기 모드 · 클릭하여 잠금 해제" disabled={pageLock.pending}
+            onClick={() => void pageLock.toggle(version.current)}><Lock size={15} /><span>읽기 모드</span></button>}
           <button
             type="button"
             className="page-favorite-toggle"
@@ -1303,7 +1432,7 @@ export default function PageEditor({
             <span>댓글</span>
           </button>
           <button type="button" className="page-materials-toggle" aria-label="자료 가져오기" title="자료 가져오기" aria-expanded={materialsOpen}
-            onClick={openMaterials}>
+            disabled={documentLocked} onClick={openMaterials}>
             <FolderInput size={16} />
           </button>
           <button
@@ -1312,7 +1441,7 @@ export default function PageEditor({
             aria-label="페이지 AI 요청"
             title="페이지 AI 요청"
             aria-expanded={aiOpen}
-            disabled={commentPreviewOpen || toolsLocked || itineraryEditing}
+            disabled={documentLocked || commentPreviewOpen || toolsLocked || itineraryEditing}
             onPointerDown={() => {
               if (!aiOpen) captureSelection();
             }}
@@ -1365,6 +1494,13 @@ export default function PageEditor({
             </summary>
             <div className="page-info-panel">
               <div className="page-menu-group">
+                <button type="button" aria-pressed={pageLock.locked}
+                  disabled={pageLock.pending || (!pageLock.locked && (Boolean(onlineReason) || status !== 'saved' || Boolean(recovery) || trashPending || mutationLocked || itineraryEditing))}
+                  title={pageLock.locked ? '읽기 모드를 해제하고 편집해요.' : onlineReason || '제목·아이콘·본문의 실수로 인한 수정을 막아요.'}
+                  onClick={() => { closePageMenu(); void pageLock.toggle(version.current); }}>
+                  {pageLock.locked ? <LockOpen size={15} /> : <Lock size={15} />}
+                  {pageLock.pending ? '잠금 설정 중…' : pageLock.locked ? '페이지 잠금 해제' : '페이지 잠금'}
+                </button>
                 <button type="button" onClick={() => void copyPageLink()}>
                   <Link2 size={15} /> 페이지 링크 복사
                 </button>
@@ -1386,7 +1522,7 @@ export default function PageEditor({
               </div>
               <div className="page-menu-group">
                 <strong>작성·정리</strong>
-                <button type="button" onClick={openMaterials}><FolderInput size={15} /> 자료 가져오기</button>
+                <button type="button" disabled={documentLocked} onClick={openMaterials}><FolderInput size={15} /> 자료 가져오기</button>
                 <button
                   type="button"
                   disabled={toolsDisabled || toolsLocked}
@@ -1402,7 +1538,7 @@ export default function PageEditor({
                   disabled={toolsDisabled || toolsLocked}
                   onClick={() => {
                     closePageMenu();
-                    pageFileInput.current?.click();
+                    openAttachment('file');
                   }}
                 >
                   <Paperclip size={15} /> 파일 첨부
@@ -1473,6 +1609,10 @@ export default function PageEditor({
               </div>
               <div className="page-menu-group page-menu-view">
                 <strong>보기 설정</strong>
+                <button type="button" onClick={toggleOutline}>
+                  <List size={16} />
+                  {outlineOpen ? '목차 닫기' : '목차 열기'}
+                </button>
                 <label>
                   <span>넓게 보기</span>
                   <input
@@ -1493,20 +1633,6 @@ export default function PageEditor({
                     }
                   />
                 </label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAiOpen(false);
-                    setShareOpen(false);
-                    setCommentPreviewOpen(false);
-                    setToolsMode(null);
-                    setOutlineOpen((value) => !value); setMaterialsOpen(false);
-                    closePageMenu();
-                  }}
-                >
-                  <List size={16} />
-                  {outlineOpen ? '목차 닫기' : '목차 열기'}
-                </button>
               </div>
               <div className="page-menu-group">
                 <button
@@ -1521,6 +1647,7 @@ export default function PageEditor({
                     Boolean(recovery) ||
                     trashPending ||
                     mutationLocked ||
+                    documentLocked ||
                     itineraryEditing ||
                     !history?.canUndo
                   }
@@ -1543,6 +1670,7 @@ export default function PageEditor({
                     Boolean(recovery) ||
                     trashPending ||
                     mutationLocked ||
+                    documentLocked ||
                     itineraryEditing ||
                     !history?.canRedo
                   }
@@ -1646,7 +1774,7 @@ export default function PageEditor({
 
   return (
     <article
-      className={`page-document${commentPreviewOpen ? ' page-comment-mode page-comment-panel-open' : ''}${view.wide ? ' page-wide' : ''}${view.smallText ? ' page-small-text' : ''}${aiOpen || outlineOpen || toolsMode || materialsOpen ? ' has-inspector' : ''}`}
+      className={`page-document${documentLocked ? ' page-read-mode' : ''}${commentPreviewOpen ? ' page-comment-mode page-comment-panel-open' : ''}${view.wide ? ' page-wide' : ''}${view.smallText ? ' page-small-text' : ''}${aiOpen || outlineOpen || toolsMode || materialsOpen ? ' has-inspector' : ''}`}
       onPointerDown={(event) => {
         endSpacePointer.current =
           event.button === 0 && isDocumentEndSpace(event.target, event.currentTarget, event.clientY)
@@ -1683,6 +1811,10 @@ export default function PageEditor({
         </style>
       )}
       {toolbarTarget ? createPortal(toolbar, toolbarTarget) : toolbar}
+      {pageLock.error && <p className="page-lock-feedback" role="alert">{pageLock.error}</p>}
+      {pageLock.locked && localPage.record?.dirty && <p className="page-lock-feedback" role="status">
+        다른 기기에서 페이지를 잠갔어요. 기기의 변경은 보관 중이며, 잠금을 해제하면 다시 전송해요.
+      </p>}
       {shareOpen && (
         <Suspense fallback={null}>
           <PageSharePanel pageId={page.id} onClose={() => setShareOpen(false)} />
@@ -1802,6 +1934,10 @@ export default function PageEditor({
         onChange={(event) => {
           const files = Array.from(event.target.files || []);
           event.target.value = '';
+          if (attachmentKind.current === 'image' && files.some(file => !/^image\/(png|jpeg|webp|gif|avif)$/.test(file.type))) {
+            setToolsError('PNG, JPEG, WebP, GIF, AVIF 이미지 파일을 선택해 주세요.');
+            return;
+          }
           void attachPageFiles(files);
         }}
       />
@@ -1920,6 +2056,7 @@ export default function PageEditor({
                 trashPending ||
                 itineraryEditing ||
                 toolsLocked
+                || documentLocked
               }
               selectionIds={selectionIds}
               savedMarkdown={savedAiMarkdown}
@@ -1952,6 +2089,7 @@ export default function PageEditor({
             Boolean(recovery) ||
             trashPending ||
             mutationLocked
+            || documentLocked
           }
           aria-expanded={iconOpen}
           aria-label={icon ? '페이지 아이콘 변경' : '페이지 아이콘 추가'}
@@ -1989,7 +2127,7 @@ export default function PageEditor({
           }
         }}
         readOnly={
-          markdownOpen || commentPreviewOpen || Boolean(recovery) || trashPending || mutationLocked
+          markdownOpen || commentPreviewOpen || Boolean(recovery) || trashPending || mutationLocked || documentLocked
         }
         maxLength={160}
       />
@@ -2003,31 +2141,7 @@ export default function PageEditor({
         <button type="button" disabled={insertionLocked} onClick={() => setBlueprintsOpen(true)}><LayoutTemplate size={15} /> 템플릿으로 시작</button>
         <span>또는 아래에 바로 작성하세요.</span>
       </div>}
-      {toolSelectionIds.length > 0 &&
-        !markdownOpen &&
-        !commentPreviewOpen &&
-        !aiOpen &&
-        !toolsMode && (
-          <div className="page-selection-tools" aria-label="선택 블록 작업">
-            <span>{toolSelectionIds.length}개 블록 선택</span>
-            <button
-              type="button"
-              disabled={toolsDisabled || toolsLocked}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => openTools('move')}
-            >
-              <FolderInput size={14} /> 다른 페이지로 이동
-            </button>
-            <button
-              type="button"
-              disabled={toolsDisabled || toolsLocked || !selectionIds.length}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={openAi}
-            >
-              <Sparkles size={14} /> AI 요청
-            </button>
-          </div>
-        )}
+      <AssetAttachmentProvider pageId={page.id} editor={editor} disabled={insertionLocked || !editor.isEditable}>
       <MapImageContext.Provider
         value={{
           disabled: toolsDisabled || toolsLocked,
@@ -2052,8 +2166,21 @@ export default function PageEditor({
         >
           <div
             className="page-block-editor"
+            onDragOver={event => {if (event.dataTransfer.types.includes('Files')) {event.preventDefault();event.dataTransfer.dropEffect=insertionLocked||toolsLocked||!navigator.onLine?'none':'copy';}}}
+            onDropCapture={event => {
+              if (!event.dataTransfer.files.length) return;
+              event.preventDefault(); event.stopPropagation();
+              if (!insertionLocked && !toolsLocked && navigator.onLine) void attachPageFiles(Array.from(event.dataTransfer.files));
+              else if (!documentLocked) setToolsError(onlineReason || '저장이 끝난 뒤 첨부할 수 있어요.');
+            }}
             onPasteCapture={event => {
-              if (!editor.isEditable || event.clipboardData.files.length) return;
+              if (event.clipboardData.files.length) {
+                event.preventDefault(); event.stopPropagation();
+                if (!insertionLocked && !toolsLocked && navigator.onLine) void attachPageFiles(Array.from(event.clipboardData.files));
+                else if (!documentLocked) setToolsError(onlineReason || '저장이 끝난 뒤 첨부할 수 있어요.');
+                return;
+              }
+              if (!editor.isEditable) return;
               const pasted = event.clipboardData.getData('text/plain');
               const linkedPage = parsePageLink(pasted, location.origin);
               const url = linkedPage?.url || webBookmarkUrl(pasted);
@@ -2109,6 +2236,7 @@ export default function PageEditor({
                       getTableOfContentsSlashMenuItems(editor),
                       getPageLinkSlashMenuItems(editor, page.id),
                       getCalloutSlashMenuItems(editor),
+                      getAssetSlashMenuItems(openAttachment),
                     ),
                     query,
                   )
@@ -2146,6 +2274,7 @@ export default function PageEditor({
           />
         </PlanConnectionsProvider>
       </MapImageContext.Provider>
+      </AssetAttachmentProvider>
       {urlPaste && <UrlPasteChoice url={urlPaste.url} internalPage={Boolean(urlPaste.pageId)} onChoose={chooseUrlPaste}/>}
       {bookmarkNotice && <p className="bookmark-error" role="status">{bookmarkNotice}</p>}
       {markdownOpen && (

@@ -1,0 +1,261 @@
+.document-diagram,
+.diagram-dialog {
+  font-family: "DM Sans", "Noto Sans KR", system-ui, sans-serif;
+  --diagram-bg: #fafbf8;
+  --diagram-fg: #293628;
+  --diagram-line: #dfe5d8;
+  --diagram-muted: #66745e;
+  color: var(--diagram-fg);
+  background: var(--diagram-bg);
+  font-family: inherit;
+}
+:root[data-theme='dark'] .document-diagram,
+:root[data-theme='dark'] .diagram-dialog {
+  font-family: "DM Sans", "Noto Sans KR", system-ui, sans-serif;
+  --diagram-bg: #202320;
+  --diagram-fg: #e3e8df;
+  --diagram-line: #404c40;
+  --diagram-muted: #a3b29b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .document-diagram,
+  :root:not([data-theme='light']) .diagram-dialog {
+  font-family: "DM Sans", "Noto Sans KR", system-ui, sans-serif;
+    --diagram-bg: #202320;
+    --diagram-fg: #e3e8df;
+    --diagram-line: #404c40;
+    --diagram-muted: #a3b29b;
+  }
+}
+.document-diagram {
+  margin: 18px 0;
+  border: 1px solid var(--diagram-line);
+  border-radius: 10px;
+  overflow: hidden;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+.diagram-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--diagram-line);
+  font:
+    500 12px/1.5 "DM Sans", "Noto Sans KR", system-ui,
+    sans-serif;
+}
+.diagram-toolbar > :first-child {
+  margin-right: auto;
+  color: var(--diagram-muted);
+}
+.diagram-toolbar button {
+  font: inherit;
+  color: inherit;
+  border: 1px solid var(--diagram-line);
+  border-radius: 6px;
+  background: transparent;
+  min-height: 32px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.diagram-toolbar button:hover {
+  background: color-mix(in srgb, var(--diagram-fg) 7%, transparent);
+}
+.diagram-toolbar button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.diagram-toolbar button:focus-visible,
+.diagram-viewport:focus-visible,
+.diagram-source-details > summary:focus-visible {
+  outline: 2px solid #77956c;
+  outline-offset: 2px;
+}
+.diagram-preview {
+  padding: 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  overflow: auto;
+  font-size: 13px;
+  color: var(--diagram-muted);
+}
+.diagram-preview > svg {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 520px;
+}
+.document-diagram .diagram-source-details {
+  border-top: 1px solid var(--diagram-line);
+  font-size: 12px;
+}
+.document-diagram .diagram-source-details > summary {
+  padding: 10px 14px;
+  cursor: pointer;
+  color: var(--diagram-muted);
+}
+.document-diagram pre.diagram-source {
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 14px;
+  overflow: auto;
+  background: transparent;
+  color: inherit;
+  font:
+    12px/1.6 ui-monospace,
+    monospace;
+  white-space: pre;
+}
+.diagram-editor .bn-preview-with-source-popup {
+  width: 100%;
+}
+.diagram-editor .bn-preview-container {
+  width: 100%;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+.diagram-editor .bn-source-block-popup {
+  max-width: 100%;
+}
+.diagram-dialog {
+  font-family: "DM Sans", "Noto Sans KR", system-ui, sans-serif;
+  position: fixed;
+  inset: 0;
+  width: calc(100vw - 40px);
+  height: calc(100dvh - 40px);
+  max-width: 1600px;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--diagram-line);
+  border-radius: 12px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.diagram-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.diagram-dialog::backdrop {
+  background: #121812ba;
+}
+.diagram-dialog .diagram-toolbar {
+  flex: none;
+  padding: 12px 16px;
+}
+.diagram-dialog .diagram-toolbar button {
+  min-width: 36px;
+  min-height: 36px;
+}
+.diagram-dialog output {
+  min-width: 44px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.diagram-viewport {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.diagram-viewport:active {
+  cursor: grabbing;
+}
+.diagram-canvas {
+  width: calc(100% - 48px);
+  height: calc(100% - 48px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform-origin: center;
+  will-change: transform;
+}
+.diagram-canvas > svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100% !important;
+  max-height: 100%;
+}
+.diagram-viewer-hint {
+  font:
+    12px/1.5 "DM Sans", "Noto Sans KR", system-ui,
+    sans-serif;
+  text-align: center;
+  color: var(--diagram-muted);
+  margin: 0;
+  padding: 10px 12px;
+  border-top: 1px solid var(--diagram-line);
+}
+.diagram-render-staging {
+  position: fixed;
+  left: -100000px;
+  top: 0;
+  width: 1200px;
+  visibility: hidden;
+  pointer-events: none;
+}
+@media (max-width: 600px) {
+  .diagram-dialog {
+  font-family: "DM Sans", "Noto Sans KR", system-ui, sans-serif;
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0;
+  }
+  .diagram-toolbar button {
+    min-height: 44px;
+  }
+  .diagram-dialog .diagram-toolbar {
+    padding: 8px;
+    gap: 6px;
+  }
+  .diagram-dialog .diagram-toolbar button {
+    min-height: 44px;
+    padding: 4px 8px;
+  }
+  .diagram-preview {
+    padding: 18px 10px;
+  }
+  .diagram-canvas {
+    width: calc(100% - 24px);
+    height: calc(100% - 24px);
+  }
+}
+@media print {
+  .diagram-toolbar,
+  .diagram-dialog {
+  font-family: "DM Sans", "Noto Sans KR", system-ui, sans-serif;
+    display: none !important;
+  }
+  .document-diagram {
+    break-inside: avoid;
+  }
+  .diagram-preview > svg {
+    max-height: none;
+  }
+}
+/* Match the code block's contextual tools without changing the full-screen viewer. */
+.document-diagram { position:relative; border-color:transparent; background:var(--code-surface,var(--diagram-bg)); }
+.document-diagram > .diagram-toolbar {
+ position:absolute; top:6px; right:6px; z-index:2; width:max-content; max-width:calc(100% - 12px);
+ padding:3px 5px; gap:3px; border:1px solid var(--diagram-line); border-radius:7px;
+ background:var(--code-tool,var(--diagram-bg)); box-shadow:0 2px 6px #00000006;
+ opacity:0; pointer-events:none; transition:opacity .12s;
+}
+.document-diagram:is(:hover,:focus-within) > .diagram-toolbar { opacity:1; pointer-events:auto; }
+.document-diagram > .diagram-toolbar > span { padding:0 6px; margin:0; }
+.document-diagram > .diagram-toolbar button { min-height:28px; padding:3px 7px; border:0; font-size:12px; }
+.document-diagram .diagram-preview { padding-top:44px; }
+@media (hover:none), (pointer:coarse) { .document-diagram > .diagram-toolbar { opacity:1; pointer-events:auto; } }
+@media(prefers-reduced-motion:reduce) { .document-diagram > .diagram-toolbar { transition:none; } }

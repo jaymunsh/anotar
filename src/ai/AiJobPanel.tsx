@@ -12,18 +12,32 @@ import { listAiJobs, requestAiJob, linkedAiJobId, includeLinkedAiJob } from './a
 import { formatKoreanTime } from '../time';
 import { publishRecordChange } from '../trash/events';
 import './ai.css';
+import './ai-flow.css';
+import type { AiFollowupSource } from './followup';
 import WorkflowQueue from '../sync/WorkflowQueue';
+import { useQueuedWorkflows } from '../sync/workflows';
 
 export default function AiJobPanel({
   capture,
   onJobChange,
   onOrganize,
+  onAdditionalRequest,
+  compactResult = false,
 }: {
   capture: Capture;
   onJobChange: (captureId: string, job: AiJobSummary | null) => void;
   onOrganize: (job: AiJob) => void;
+  onAdditionalRequest: (job: AiJob, source: AiFollowupSource, editRequest?: boolean) => void;
+  compactResult?: boolean;
 }) {
   const [jobs, setJobs] = useState<AiJob[]>([]);
+  const workflows = useQueuedWorkflows(capture.id);
+  const pendingSubmission = workflows.some(
+    (workflow) =>
+      workflow.operation.kind === 'ai.submit' &&
+      workflow.operation.payload.sourceKind === 'capture' &&
+      ['queued', 'sending'].includes(workflow.state),
+  );
   const [jobId, setJobId] = useState(linkedAiJobId);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -89,10 +103,10 @@ export default function AiJobPanel({
       configController.abort();
       document.removeEventListener('visibilitychange', visibility);
     };
-  }, [capture.id, capture.version, reload]);
+  }, [capture.id, capture.version, reload, pendingSubmission]);
 
   const selected = jobs.find((job) => job.id === jobId) ?? jobs[0];
-  const active = jobs.some(activeAiJob);
+  const active = jobs.some(activeAiJob) || pendingSubmission;
   async function request(retryOf?: string) {
     if (busy || active || (!retryOf && (!execution || (!enabled && navigator.onLine)))) return;
     setBusy(true);
@@ -101,9 +115,18 @@ export default function AiJobPanel({
     const controller = new AbortController();
     submitting.current = controller;
     try {
-      const job = await requestAiJob(capture.id, capture.version, retryOf, controller.signal, retryOf ? undefined : execution);
+      const job = await requestAiJob(
+        capture.id,
+        capture.version,
+        retryOf,
+        controller.signal,
+        retryOf ? undefined : execution,
+      );
       if (!alive.current) return;
-      if(!job){setReload(value=>value+1);return;}
+      if (!job) {
+        setReload((value) => value + 1);
+        return;
+      }
       setJobId(job.id);
       setJobs((current) => [job, ...current.filter((item) => item.id !== job.id)]);
       callback.current(capture.id, job);
@@ -144,8 +167,27 @@ export default function AiJobPanel({
           {selected && (
             <p className="ai-job-meta">
               <time dateTime={selected.createdAt}>{formatKoreanTime(selected.createdAt)}</time>
-              {selected.runner ? <span>{selected.runner.label}</span> : selected.request.execution && <span>{selected.request.execution.profileId === 'devin' ? 'Devin CLI' : 'Hive'} · {selected.request.execution.model}</span>}
-              <span>{selected.request.template?.name || '직접 요청'}{selected.request.template ? ` · v${selected.request.template.version}` : ''}</span>
+              {selected.runner ? (
+                <span>{selected.runner.label}</span>
+              ) : (
+                selected.request.execution && (
+                  <span>
+                    {
+                      {
+                        hive: 'Hive',
+                        devin: 'Devin CLI',
+                        opencode: 'OpenCode',
+                        http: 'HTTP 실행기',
+                      }[selected.request.execution.profileId]
+                    }{' '}
+                    · {selected.request.execution.model}
+                  </span>
+                )
+              )}
+              <span>
+                {selected.request.template?.name || '직접 요청'}
+                {selected.request.template ? ` · v${selected.request.template.version}` : ''}
+              </span>
               {selected.runner?.mode === 'test' && (
                 <span className="ai-test-mark">테스트 응답</span>
               )}
@@ -154,7 +196,9 @@ export default function AiJobPanel({
           {selected?.stale && (
             <p className="ai-job-stale" role="status">
               <strong>이전 내용 기준</strong>
-              <span>요청한 뒤 메모가 수정됐어요. 현재 메모로 다시 요청할 수 있어요.</span>
+              <span>
+                요청한 뒤 메모가 수정됐어요. 이 작업은 요청 당시 입력 사본을 기준으로 해요.
+              </span>
             </p>
           )}
           {activeAiJob(selected) && (
@@ -172,7 +216,10 @@ export default function AiJobPanel({
           {selected?.result && (
             <>
               <div className="ai-result-toolbar">
-                <div className="ai-result-actions">
+                <div className="ai-result-actions" role="group" aria-label="결과 작업">
+                  <button onClick={() => onAdditionalRequest(selected, 'result')}>
+                    <Sparkles size={15} /> 이 결과로 추가 요청
+                  </button>
                   <button onClick={() => onOrganize(selected)}>
                     <FolderPlus size={15} /> 결과를 페이지로 정리
                   </button>
@@ -181,11 +228,18 @@ export default function AiJobPanel({
                   </button>
                 </div>
               </div>
-              <AiResultContent key={selected.id} markdown={selected.result.markdown} />
+              <AiResultContent
+                key={selected.id}
+                markdown={selected.result.markdown}
+                compact={compactResult}
+              />
               <AiTaskAdoption key={selected.id} job={selected} />
               {!!selected.result.sources.length && (
-                <div className="ai-result-sources">
-                  <h3>{selected.request.kind === 'research' ? '확인한 출처' : '참고 링크'}</h3>
+                <details className="ai-result-sources">
+                  <summary>
+                    {selected.request.kind === 'research' ? '확인한 출처' : '참고 링크'} ·{' '}
+                    {selected.result.sources.length}개
+                  </summary>
                   {selected.result.sources.map((source, index) => (
                     <a
                       key={`${source.url}-${index}`}
@@ -200,7 +254,7 @@ export default function AiJobPanel({
                       </small>
                     </a>
                   ))}
-                </div>
+                </details>
               )}
             </>
           )}
@@ -214,38 +268,58 @@ export default function AiJobPanel({
               이번 요청에는 글과 URL만 사용해요. 첨부 파일은 전송하지 않아요.
             </p>
           )}
-          {!selected?.result && !enabled && (
+          {!selected && !enabled && (
             <p className="ai-job-explanation">
               실행기를 연결하면 요청을 처리할 수 있어요. 보관한 요청문은 복사해서 사용할 수 있어요.
             </p>
           )}
-          <details className="ai-request-again" open={!selected?.result ? true : undefined}><summary>다시 요청</summary>
-          <AiExecutionPicker value={execution} onChange={setExecution} onAvailability={setEnabled} research={capture.aiRequest?.kind === 'research'} hasUrl={Boolean(capture.url || capture.aiRequest?.input.url)} />
-          <div className="ai-job-actions">
-            <button
-              className="ai-run-current"
-              disabled={busy || active || (!enabled&&navigator.onLine)}
-              onClick={() => void request()}
+          {selected?.status === 'failed' ? (
+            <div
+              className="ai-failure-actions ai-job-actions"
+              role="group"
+              aria-label="실패한 요청 작업"
             >
-              <Sparkles size={15} />
-              {busy ? '요청 등록 중…' : selected ? '현재 메모로 다시 요청' : '보관한 요청 실행'}
-            </button>
-            {selected?.status === 'failed' && (
-              <button
-                disabled={busy || active}
-                onClick={() => void request(selected.id)}
-              >
-                <RotateCcw size={15} /> 실패한 요청 그대로 재시도
+              <button disabled={busy || active} onClick={() => void request(selected.id)}>
+                <RotateCcw size={15} /> 같은 조건으로 재시도
               </button>
-            )}
-          </div>
-          <p className="ai-job-explanation">
-            다시 요청하면 현재 저장된 메모와 처음 선택한 프롬프트·추가 지시로 새 결과를 만들어요.
-          </p>
-          </details>
+              <button
+                disabled={busy}
+                onClick={() => onAdditionalRequest(selected, 'original', true)}
+              >
+                <Sparkles size={15} /> 요청 수정·실행기 변경
+              </button>
+              <p className="ai-job-explanation">
+                재시도는 요청 당시 입력·지시·실행기로 새 작업을 만들어요. 등록 확인 중에는 같은 요청
+                번호로 중복을 막아요.
+              </p>
+            </div>
+          ) : (
+            !selected?.result && (
+              <details className="ai-request-again" open>
+                <summary>보관한 요청 실행</summary>
+                <AiExecutionPicker
+                  value={execution}
+                  onChange={setExecution}
+                  onAvailability={setEnabled}
+                  research={capture.aiRequest?.kind === 'research'}
+                  hasUrl={Boolean(capture.url || capture.aiRequest?.input.url)}
+                />
+                <div className="ai-job-actions">
+                  <button
+                    className="ai-run-current"
+                    disabled={busy || active || (!enabled && navigator.onLine)}
+                    onClick={() => void request()}
+                  >
+                    <Sparkles size={15} />
+                    {busy ? '요청 등록 중…' : '보관한 요청 실행'}
+                  </button>
+                </div>
+              </details>
+            )
+          )}
           <details className="ai-saved-prompt">
             <summary>
-              요청 당시 입력·프롬프트 <ChevronDown size={15} />
+              요청 당시 입력·프롬프트
             </summary>
             <p>
               {selected?.request.template?.name || capture.aiRequest?.template?.name || '직접 요청'}{' '}

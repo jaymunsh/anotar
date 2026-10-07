@@ -1,0 +1,448 @@
+{
+  "schemaVersion": 1,
+  "id": "c45b89b2-aec2-42c6-b7cf-afe03f300fc9",
+  "title": "Anotar · 기록에서 공유까지",
+  "icon": "📖",
+  "document": {
+    "schemaVersion": 1,
+    "blocks": [
+      {
+        "id": "684d9416-eeac-45c2-a0e0-d3c235e37897",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "떠오른 생각을 빠르게 남기고, 필요한 순간에 정리해 공유하는 개인 작업 공간입니다. 짧은 메모부터 업무 기록, 긴 설명서까지 한곳에서 이어갑니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "ffd6e707-05df-467d-818e-c81f7b0c51f5",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "한 번의 기록이 이어지는 방식",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "3cc41054-ba90-4d32-bb66-bd57abfa8cf4",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "회의 준비를 예로 들어볼게요. 질문을 메모하고, 자료를 모아 문서로 정리한 뒤, 동료에게 필요한 내용만 공유합니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "25baa060-ebf2-4baf-84b6-df7f1d484389",
+        "type": "diagram",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "flowchart TB\n A[\"01 · 메모로 질문 남기기\"] --> B[\"02 · 페이지로 자료 정리\"]\n B --> C[\"03 · 필요한 부분에 AI 요청\"]\n C --> D[\"04 · 결과를 검토하고 문서에 반영\"]\n D --> E[\"05 · 공유 링크로 전달\"]",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "2bde3eba-38f5-4c1c-89d5-0b1989ac2b2d",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "01 · 먼저 적어두세요",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "b7a94bc1-160a-4806-a637-8b86ee1cfa2f",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "짧은 생각은 빠른 입력에 남깁니다. 처음부터 제목과 문서 구조를 완벽하게 정할 필요는 없습니다. 나중에 메모를 다시 열어 내용을 보완하고 페이지로 정리할 수 있습니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "ebea5d80-0e4a-4d36-996e-8a647719597e",
+        "type": "callout",
+        "props": {
+          "icon": "info",
+          "border": true,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "예시 · “다음 회의에서 확인할 질문: 오프라인에서 바꾼 내용은 언제 다른 기기에 보일까?”",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "59cc585b-99ed-4a21-a938-54fcde7e2cbe",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "02 · 읽는 사람을 생각하며 정리하세요",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "00415cea-2d03-4dd9-a2ed-364d0d547a4c",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "페이지 상단에는 결론을 짧게 적고, 제목으로 본문을 나눕니다. 중요한 안내는 콜아웃으로, 긴 근거와 명령은 접기로 묶으면 읽는 순서가 분명해집니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "0b47db11-966d-4476-bb75-96ffc1db0690",
+        "type": "toggleListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "문서 도구를 고르는 기준",
+            "styles": {}
+          }
+        ],
+        "children": [
+          {
+            "id": "1dfa2932-fb41-444e-a1a4-a21095ac6b8d",
+            "type": "bulletListItem",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "제목과 목록 · 내용의 순서와 중요도를 보여줄 때",
+                "styles": {}
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "2605bb94-e5cf-48df-9ebf-848a30d55674",
+            "type": "bulletListItem",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "표 · 같은 항목을 기준으로 비교할 때",
+                "styles": {}
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "40e833c6-5a66-43dc-b514-52c9b06b83cc",
+            "type": "bulletListItem",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "콜아웃 · 놓치면 안 되는 전제나 결론을 강조할 때",
+                "styles": {}
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "58129104-6abf-42dc-a481-266e8fde4004",
+            "type": "bulletListItem",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "접기 · 필요한 사람만 상세 내용을 읽게 할 때",
+                "styles": {}
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "6a9cd2bf-a4d4-43af-bc54-c7ebb527139f",
+            "type": "bulletListItem",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "코드 블록 · 명령이나 예제 코드를 언어별 색상으로 보여줄 때",
+                "styles": {}
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "c8e16f3f-f79d-41c3-9421-ea5ad4e498bd",
+            "type": "bulletListItem",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "다이어그램 · 구성 요소의 관계와 처리 순서를 설명할 때",
+                "styles": {}
+              }
+            ],
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "85eef3c3-fbf4-461d-8df4-30448f6fa04f",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "03 · AI로 초안을 만들고 직접 확인하세요",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "e5da208c-8a68-4db3-94b8-ef3e834451e0",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "메모나 페이지에서 템플릿과 모델을 선택해 요청합니다. 결과를 읽고 출처·내용을 확인한 뒤 필요한 부분을 문서에 반영합니다. 요청 상태와 실패 안내는 AI 작업 화면에서 확인할 수 있습니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "10b3cc67-c74e-4256-a0e6-bcb4fa798f82",
+        "type": "toggleListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "요청하기 전에 확인할 것",
+            "styles": {}
+          }
+        ],
+        "children": [
+          {
+            "id": "ba8bb81a-9b0f-402c-9482-633c600223c1",
+            "type": "bulletListItem",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "입력에 어떤 내용이 포함되는지 확인하세요.",
+                "styles": {}
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "b37c293e-40fd-4344-b2a9-22ed6cfc2245",
+            "type": "bulletListItem",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "실행기와 모델의 사용 가능 여부는 서버 설정에 따라 달라집니다.",
+                "styles": {}
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "41885155-9dfb-452c-9aa9-10993534a276",
+            "type": "bulletListItem",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "무료 모델의 제공 조건은 바뀔 수 있으며, AI 결과는 검토가 필요합니다.",
+                "styles": {}
+              }
+            ],
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "26d0bd43-bd5b-44c6-b243-8ab2c79d11a8",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "04 · 필요한 문서를 공유하세요",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "2a642d28-db77-42fb-a9ca-e9c1f1483ba0",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "문서를 읽기 전용 링크로 전달할 수 있습니다. 공유 화면에는 서버에 반영된 내용이 표시됩니다. 하위 문서나 다른 페이지가 함께 공개되는 것으로 가정하지 말고 각 문서의 공유 범위를 확인하세요.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "c34cbc9c-66e7-4871-9804-36f8c09738c5",
+        "type": "toggleListItem",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "페이지 공유와 웹 호스팅의 차이",
+            "styles": {}
+          }
+        ],
+        "children": [
+          {
+            "id": "a7031ca1-ec21-4984-8037-69500b925cd8",
+            "type": "paragraph",
+            "props": {},
+            "content": [
+              {
+                "type": "text",
+                "text": "페이지 공유는 Anotar에서 작성한 문서를 전달합니다. HTML 호스팅은 HTML·CSS·JS·이미지로 구성한 독립 사이트를 제공합니다. 제품 소개용 문서는 페이지로 계속 수정하고, 별도의 인터랙티브 화면이 필요할 때 호스팅을 선택할 수 있습니다.",
+                "styles": {}
+              }
+            ],
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "2fabb00e-8be1-4959-9550-829fae6d87cb",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "매일의 계획도 같은 공간에서",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "acff9a80-5a77-4fbe-8ab5-0c29d72a3421",
+        "type": "paragraph",
+        "props": {},
+        "content": [
+          {
+            "type": "text",
+            "text": "할 일은 대기·진행 중·완료 상태로 관리하고, 일지는 하루 계획을 시간표로 배치합니다. 하루 돌아보기·아이디어·머릿속 생각을 남겨 다음 계획을 세울 때 참고할 수 있습니다.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "08c61627-ff39-4765-b8e1-e2cd6f37d1d8",
+        "type": "callout",
+        "props": {
+          "icon": "info",
+          "border": true,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "저장 상태를 확인하세요 · 기기에 저장된 내용과 서버에 반영된 내용은 다를 수 있습니다. 공유하기 전에는 동기화 상태를 확인하고, 충돌 안내가 있으면 양쪽 내용을 비교하세요.",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "44e11d58-4ff3-4f19-b86c-9a3cfd19866b",
+        "type": "heading",
+        "props": {
+          "level": 2
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "더 알아보기",
+            "styles": {}
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "468c2112-25f8-4cd3-9959-9054b2906295",
+        "type": "page",
+        "props": {
+          "pageId": "546e1325-762b-4ea4-9ce5-a37e4c43d2b5",
+          "title": "Anotar · 기술 아키텍처와 개발 안내"
+        },
+        "children": []
+      },
+      {
+        "id": "c01f4d72-2b29-4afc-9ad3-4048d364b49d",
+        "type": "page",
+        "props": {
+          "pageId": "0d132763-92ad-45dd-ade6-5c6a6e066b50",
+          "title": "Anotar · 업데이트"
+        },
+        "children": []
+      }
+    ]
+  }
+}

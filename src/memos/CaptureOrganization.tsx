@@ -70,12 +70,7 @@ export default function CaptureOrganization({
   }
   return (
     <section className="capture-organization" aria-label="메모 정리 상태">
-      <p>정리 완료 · 원본과 첨부는 보관돼 있어요.</p>
-      {pageState === 'active' && (
-        <p>
-          <a href={'/pages/' + capture.organizedPageId}>연결 페이지 열기</a>
-        </p>
-      )}
+      <p>정리 완료</p>
       {pageState === 'missing' && (
         <p>
           연결 페이지가 휴지통에 있거나 사라졌어요. <a href="/trash">휴지통에서 확인</a>하거나

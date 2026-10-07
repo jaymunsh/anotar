@@ -9,6 +9,7 @@
 .callout-marker:empty { display:none; }
 .callout-grid>.callout-content { flex:1; min-width:0; white-space:pre-wrap; line-height:1.75; }
 .callout-children { margin:10px 0 0 36px; }
+.callout-box[data-icon=none] > .callout-children { margin-left:0; }
 .callout-box[data-text-alignment="center"] .callout-content { text-align:center; }
 .callout-box[data-text-alignment="right"] .callout-content { text-align:right; }
 .callout-box[data-text-alignment="justify"] .callout-content { text-align:justify; }

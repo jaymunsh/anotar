@@ -42,6 +42,7 @@ export async function persistLocalPage(
   changes: Pick<PageRecord, 'title' | 'icon' | 'document'>,
   base: PageRecord,
   expectedLocalRevision?: number,
+  stableAt = 0,
 ) {
   const { workspaceId } = await getWorkspaceRuntime(),
     entity = await readLocalEntity({ workspaceId, kind: 'page', id: pageId });
@@ -61,10 +62,11 @@ export async function persistLocalPage(
     crypto.randomUUID(),
     [],
     [],
-    false,
-    Date.now() + 500,
+    true,
+    stableAt,
     entity.dirty || !entity.base ? entity.base : base,
     expectedLocalRevision,
+    true,
   )) as PageRecord;
 }
 export async function enqueueLocalPage(pageId: string) {
