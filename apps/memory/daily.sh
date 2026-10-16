@@ -5,7 +5,7 @@
 # 인자 없으면 MEMORY_AGENT / MEMORY_MODEL 환경변수, 그것도 없으면 claude 기본 모델.
 set -euo pipefail
 CODE="${0:A:h}"
-cd "${MEMORY_DATA:-$HOME/Documents/Service/memory-data}"
+cd "${MEMORY_DATA:-$CODE/../../data/memory}"
 
 AGENT=${1:-${MEMORY_AGENT:-claude}}
 MODEL=${2:-${MEMORY_MODEL:-}}

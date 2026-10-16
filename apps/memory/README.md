@@ -5,8 +5,8 @@ AI 세션 기록(Claude Code·Codex·opencode)과 위키를 한 화면에서 보
 데이터 repo 루트에서 실행한다 (`MEMORY_DATA` 환경변수로 바꿀 수 있음).
 
 ```sh
-cd ../memory-data
-M=../anotar/apps/memory
+cd data/memory          # anotar repo 루트 기준
+M=../../apps/memory
 python3 $M/import_sessions.py   # 이 Mac의 세션 기록 → raw/sessions/
 python3 $M/build.py             # wiki/ + sessions/ → site/index.html
 python3 $M/test_build.py        # frontmatter 파서 확인

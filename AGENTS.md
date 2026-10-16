@@ -9,10 +9,15 @@
 | `apps/anotar/` | 개인 메모·페이지 앱 + 공개 공유 서버 + 정적 호스팅 서버 (Node) | `apps/anotar/AGENTS.md`를 먼저 읽는다 |
 | `apps/memory/` | 기억 화면: 위키·AI 기록 뷰어, 빌드, 세션 가져오기, 실행 스크립트 (Python 표준 라이브러리) | 데이터는 이 repo에 없다 |
 
-함께 쓰는 옆 폴더 (이 repo 밖):
+이 폴더 안에 있지만 **이 repo에는 안 들어가는** 별도 비공개 repo 2개 (`.gitignore`로 제외):
 
-- `../memory-data/` — 위키·세션 요약 데이터 (비공개 repo). 데이터 규칙은 그쪽 `AGENTS.md`.
-- `../anotar-private/` — 운영 기록, 비공개 문서, 인계 문서 (비공개 repo).
+| 경로 | GitHub (비공개) | 무엇 |
+|---|---|---|
+| `data/memory/` | jaymunsh/memory-data | 위키·세션 요약. 데이터 규칙은 `data/memory/AGENTS.md` |
+| `private/` | jaymunsh/anotar-private | 운영 기록, 비공개 문서, 설계 메모, 인계 문서 |
+
+이 두 폴더에서 커밋·push할 때는 그 폴더 안에서 git을 쓴다 (각자 자기 `.git`이 있다).
+인계 문서는 `private/docs/handoff/`에 있고, `.claude/session`이 그 폴더를 가리키는 링크다.
 
 ## 배포 주의
 
