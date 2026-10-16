@@ -1,0 +1,1145 @@
+{
+ "id": "02ec5dc1-327c-4a2b-a67e-92da772db052",
+ "title": "Anotar · MCP 구현 제안",
+ "icon": "🔌",
+ "document": {
+  "schemaVersion": 1,
+  "blocks": [
+   {
+    "id": "7c67d1a3-9c32-4b23-b11d-9efab1372f49",
+    "type": "paragraph",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "2026-10-07 작성. ",
+      "styles": {}
+     },
+     {
+      "type": "text",
+      "text": "조사와 제안이며 MCP 서버·인증·도구가 구현됐다는 뜻은 아니다.",
+      "styles": {
+       "bold": true
+      }
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "347dd382-e229-422b-bd2f-4e22b5d5b44f",
+    "type": "tableOfContents",
+    "props": {
+     "compact": false,
+     "maxLevel": 1
+    },
+    "content": [],
+    "children": []
+   },
+   {
+    "id": "aabec6cb-652f-4f5e-b9ad-ea5eef729ead",
+    "type": "heading",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left",
+     "level": 1,
+     "isToggleable": false
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "1. ",
+      "styles": {}
+     },
+     {
+      "type": "text",
+      "text": "목적과 첫 사용 시나리오",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "43a73c0b-40e9-4766-a28c-8b7f880ba7aa",
+    "type": "paragraph",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "연결한 에이전트가 Anotar 자료를 검색하고, 작성 가이드를 읽고, 기존 목차·표·코드·Mermaid·콜아웃을 활용한 문서를 지정한 상위 페이지 아래에 작성한다. 기존 내용을 수정할 때에는 버전·블록 ID·잠금·수정 이력을 보존한다. 모델 호출은 연결한 에이전트가 맡는다. MCP 도구 호출만으로 Anotar AI 작업을 자동 제출하지 않는다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "c1274b0a-c814-4633-ada9-eded24d73e35",
+    "type": "paragraph",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "첫 검증 과제: “저장한 자료를 찾아 Shared Pages 아래에 목차·표·코드·다이어그램이 포함된 학습 문서를 작성하고, 한 문단을 수정해줘.” 검색부터 생성·부분 수정과 브라우저 표시까지 실제 MCP 클라이언트에서 검증한다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "a8fbf8f2-2820-4d71-a28b-755e5f2d419e",
+    "type": "heading",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left",
+     "level": 1,
+     "isToggleable": false
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "2. ",
+      "styles": {}
+     },
+     {
+      "type": "text",
+      "text": "공식 Notion 구성에서 참고할 부분",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "bccc79a3-acab-4a20-b8b4-51d78c94b4c8",
+    "type": "table",
+    "props": {
+     "textColor": "default"
+    },
+    "content": {
+     "type": "tableContent",
+     "headerRows": 1,
+     "rows": [
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "공식 구성",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "Anotar 적용 제안",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "Notion이 호스팅하는 원격 MCP가 Notion API를 사용하고 OAuth로 사용자 접근 권한을 연결",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "Oracle의 원격 MCP가 기존 개인 서비스의 저장 경로를 재사용. MCP 인증 경계와 브라우저 로그인 세션을 분리",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "검색 → fetch → create-pages/update-page로 문서 작업",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "소수의 문서 작업 도구와 지원 기능 조회부터 구현",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "조회 결과에 경로·수정 시각을 포함하며 큰 문서에는 잘린 부분을 명시",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "UUID·상위 경로·version·locked·본문·직접 하위 목록을 반환. 부분 조회와 명시적 pagination/truncated 계약 제공",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "create-pages의 content는 Markdown 입력, update_content는 일치 여부를 검증한 배치 교체",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "Markdown과 블록 작업을 제공하되 Anotar 고유 블록·참조를 보존. 일반 Markdown으로 되돌리며 전체 문서를 덮지 않음",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "도구 접근 가능 여부 조회",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "연결별 읽기/쓰기와 페이지 범위·지원 블록·제한을 조회 가능하게 제공",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      }
+     ]
+    },
+    "children": []
+   },
+   {
+    "id": "9f3854b9-f899-4ad8-b625-28c6577a1b6f",
+    "type": "paragraph",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "조사 출처:",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "8384c270-f2ea-49f1-b622-e869d3afc368",
+    "type": "bulletListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "link",
+      "href": "https://developers.notion.com/guides/mcp/overview",
+      "content": [
+       {
+        "type": "text",
+        "text": "Notion MCP overview",
+        "styles": {}
+       }
+      ]
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "1773b4d7-da9d-4068-b9d2-f162b850f009",
+    "type": "bulletListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "link",
+      "href": "https://developers.notion.com/guides/mcp/mcp-supported-tools",
+      "content": [
+       {
+        "type": "text",
+        "text": "Supported tools",
+        "styles": {}
+       }
+      ]
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "80f8b22b-9e8b-4d99-a27a-6dfcaf0ff427",
+    "type": "bulletListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "link",
+      "href": "https://developers.notion.com/guides/mcp/get-started-with-mcp",
+      "content": [
+       {
+        "type": "text",
+        "text": "Connect to Notion MCP",
+        "styles": {}
+       }
+      ]
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "a65f38ad-b9e7-4e79-a028-320f0569f07d",
+    "type": "bulletListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "link",
+      "href": "https://ts.sdk.modelcontextprotocol.io/server",
+      "content": [
+       {
+        "type": "text",
+        "text": "MCP TypeScript SDK server guide",
+        "styles": {}
+       }
+      ]
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "ab934bd9-1cf8-4938-a9f3-e5d334549e77",
+    "type": "bulletListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "link",
+      "href": "https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization",
+      "content": [
+       {
+        "type": "text",
+        "text": "MCP authorization specification",
+        "styles": {}
+       }
+      ]
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "bac657c6-b8ea-4cbd-a30b-6ad603cc2007",
+    "type": "heading",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left",
+     "level": 1,
+     "isToggleable": false
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "3. ",
+      "styles": {}
+     },
+     {
+      "type": "text",
+      "text": "처음 제공할 인터페이스",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "fb0afe43-58f2-4288-a5ed-402b987b37d1",
+    "type": "table",
+    "props": {
+     "textColor": "default"
+    },
+    "content": {
+     "type": "tableContent",
+     "headerRows": 1,
+     "rows": [
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "제안 도구",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "계약",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "anotar-get-capabilities",
+           "styles": {
+            "code": true
+           }
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "연결 범위·권한·입력 제한·지원 블록과 작성 가이드 위치. 비밀정보는 반환하지 않음",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "anotar-search",
+           "styles": {
+            "code": true
+           }
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "기존 FTS 사용. 제목·발췌·UUID·타입·경로·cursor 반환. 검색 결과와 수량에 접근 범위를 먼저 적용",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "anotar-fetch",
+           "styles": {
+            "code": true
+           }
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "UUID 또는 검증된 Anotar 페이지 주소로 조회. Markdown과 보존용 블록 데이터·version·locked·직접 하위 목록 제공",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "anotar-create-page",
+           "styles": {
+            "code": true
+           }
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "지정한 parentId·제목·아이콘과 Markdown 또는 block JSON. 작업 UUID 재전송, 입력 전체 검증 후 생성",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      },
+      {
+       "cells": [
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "anotar-update-page",
+           "styles": {
+            "code": true
+           }
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        },
+        {
+         "type": "tableCell",
+         "content": [
+          {
+           "type": "text",
+           "text": "expectedVersion 필수. 명시한 블록만 추가/교체/삭제하거나 검증된 내용 교체. 잠금·충돌 시 원본 유지",
+           "styles": {}
+          }
+         ],
+         "props": {
+          "colspan": 1,
+          "rowspan": 1,
+          "backgroundColor": "default",
+          "textColor": "default",
+          "textAlignment": "left"
+         }
+        }
+       ]
+      }
+     ]
+    },
+    "children": []
+   },
+   {
+    "id": "cd38780d-06c3-4250-a57d-625b97e02491",
+    "type": "paragraph",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "작성 가이드와 예시는 MCP resources로 제공하고, resources를 자동으로 읽지 않는 클라이언트를 위해 fetch에서도 조회할 수 있게 한다. 첫 버전의 가져오기는 페이지·작성 가이드에 한정하고 첨부 바이트·외부 URL 수집은 별도 범위로 다룬다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "8dba959a-76b0-40ec-9aa4-b0bc9b7d2820",
+    "type": "heading",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left",
+     "level": 1,
+     "isToggleable": false
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "4. ",
+      "styles": {}
+     },
+     {
+      "type": "text",
+      "text": "재사용할 기존 코드와 필요한 준비",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "a7288997-82e5-4f42-9dec-8ff4ab5bd7d8",
+    "type": "bulletListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "server/search.mjs",
+      "styles": {
+       "code": true
+      }
+     },
+     {
+      "type": "text",
+      "text": ": 검색·페이지네이션. MCP 접근 범위를 SQL/조회 계약에 적용해야 한다. 전체 검색 후 결과만 숨기면 개수·발췌가 노출될 수 있다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "0d31759d-bcaa-4cc0-b580-48f55bf53fca",
+    "type": "bulletListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "server/store.mjs",
+      "styles": {
+       "code": true
+      }
+     },
+     {
+      "type": "text",
+      "text": ", ",
+      "styles": {}
+     },
+     {
+      "type": "text",
+      "text": "server/sync/operations.mjs",
+      "styles": {
+       "code": true
+      }
+     },
+     {
+      "type": "text",
+      "text": ": 저장 검증·버전 비교·작업 UUID·동기화 feed. 클라이언트가 제출한 device/workspace/epoch를 신뢰해 권한을 결정하지 않는다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "69996230-0e91-400a-8b20-f9f755a3a936",
+    "type": "bulletListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "server/pageTools.mjs",
+      "styles": {
+       "code": true
+      }
+     },
+     {
+      "type": "text",
+      "text": ": 도구 작업 UUID·수정 이력·블록 선택 작업. 연결별 범위 검증을 작업 대상과 참조 대상에 모두 적용한다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "19fc1c55-cf18-4fbd-b348-f5d510031df9",
+    "type": "bulletListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "shared/pageMarkdown.ts",
+      "styles": {
+       "code": true
+      }
+     },
+     {
+      "type": "text",
+      "text": ", ",
+      "styles": {}
+     },
+     {
+      "type": "text",
+      "text": "src/pages/parseMarkdown.ts",
+      "styles": {
+       "code": true
+      }
+     },
+     {
+      "type": "text",
+      "text": ": Markdown 출력/입력의 기존 규격. 입력 파서는 현재 브라우저 편집기 의존성이 있으므로 서버에서 실행 가능한 변환 경계를 확인한 뒤 재사용한다. 단순 Node import가 된다고 가정하지 않는다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "59a981ed-fa6c-4d67-abec-fb04ba936432",
+    "type": "bulletListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "shared/childPageLinks.ts",
+      "styles": {
+       "code": true
+      }
+     },
+     {
+      "type": "text",
+      "text": ": 상하위 관계와 본문 링크 일관성. 페이지 링크 블록은 다른 문서 참조도 가능하므로 링크만 보고 parentId를 바꾸지 않는다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "23b01f97-0550-408c-b249-87d7f9cae1d4",
+    "type": "heading",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left",
+     "level": 1,
+     "isToggleable": false
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "5. ",
+      "styles": {}
+     },
+     {
+      "type": "text",
+      "text": "연결과 권한",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "03f6e539-35ec-4209-b72d-5e04b7ca1189",
+    "type": "paragraph",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "원격 연결은 Streamable HTTP를 사용한다. 정식 범용 클라이언트 연결에는 MCP OAuth 규격을 적용하고, 사전 등록된 CLI의 제한된 검증에는 별도 만료·폐기 가능한 자격증명을 사용하되 범용 OAuth 호환으로 설명하지 않는다. DB 저장된 TOTP 비밀·브라우저 로그인 쿠키를 에이전트에 제공하지 않는다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "9481f6fa-7ed0-4968-b40b-a13cb7d59cf3",
+    "type": "paragraph",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "설정에서는 연결 이름·허용 페이지와 하위 범위·읽기/생성/수정 권한·만료·폐기·최근 사용을 관리한다. 권한은 서버에서 매 호출 검증하고 도구 설명/annotations만으로 강제됐다고 간주하지 않는다. 문서에 적힌 지시문은 데이터이며 권한 변경이나 외부 전송의 승인으로 취급하지 않는다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "fc2906c6-2459-4345-8d4c-b52a1ef4b899",
+    "type": "paragraph",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "공개 공유 서버와 HTML 호스팅 서버에는 개인 MCP를 추가하지 않는다. 첫 문서 도구 범위에는 삭제·공유 링크 발급·호스팅 공개·AI 요청 제출을 넣지 않는다. 이 작업들은 별도 권한과 실제 사용 수요를 확인한 뒤 확장한다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "589a74ff-34ef-450e-a98f-4c58a5649567",
+    "type": "heading",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left",
+     "level": 1,
+     "isToggleable": false
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "6. ",
+      "styles": {}
+     },
+     {
+      "type": "text",
+      "text": "구현 순서와 완료 기준",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "55a7446d-a6e7-4ea1-844f-8dd1d27bbf78",
+    "type": "numberedListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "원격 연결·인증 경계·읽기 범위를 구성하고 검색/조회/작성 규격 조회를 실제 클라이언트에서 검증.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "2413c0db-dca2-4395-aaa3-416a0863f042",
+    "type": "numberedListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "단일 문서 생성과 부분 수정을 추가. 동시 브라우저 수정은 충돌로 거부하고 작업 UUID 재시도는 중복 없이 성공.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "2eedbe7c-cf79-4dfe-868b-fbf6480e85a4",
+    "type": "numberedListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "설정 UI와 감사 기록을 연결. 사용자 문서 가이드 기반 예제를 실제 Anotar 블록으로 작성.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "4dbd3e5d-d490-4e8c-bb7c-f9e1ec670fec",
+    "type": "numberedListItem",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "필요할 때 이동·댓글·첨부 도구를 추가. 처음부터 Notion의 전체 도구 목록을 복제하지 않는다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   },
+   {
+    "id": "645abe62-ac3f-4118-a0d6-a8da6d864002",
+    "type": "paragraph",
+    "props": {
+     "backgroundColor": "default",
+     "textColor": "default",
+     "textAlignment": "left"
+    },
+    "content": [
+     {
+      "type": "text",
+      "text": "필수 검증: 접근 범위 밖 검색/조회/쓰기 거부, 잠긴 페이지 쓰기 거부, stale version 변경 없음, 작업 재시도 중복 없음, 원본 블록·첨부 참조 보존, 하위 링크 누락 없음, Markdown 지원 표현/거부 표현 명시, 로컬과 Oracle 구성 분리. 운영 배포·실제 클라이언트 인증은 fixture SDK 테스트와 구분해서 기록한다.",
+      "styles": {}
+     }
+    ],
+    "children": []
+   }
+  ]
+ }
+}

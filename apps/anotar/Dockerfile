@@ -23,6 +23,8 @@ COPY scripts/auth-setup.mjs ./scripts/auth-setup.mjs
 COPY scripts/host-site.mjs ./scripts/host-site.mjs
 COPY scripts/seed-architecture.mjs scripts/page-transfer.mjs ./scripts/
 COPY docs/examples/anotar-architecture.page.json ./docs/examples/anotar-architecture.page.json
+COPY scripts/seed-examples.mjs ./scripts/seed-examples.mjs
+COPY examples/seed ./examples/seed
 COPY --from=build /app/dist ./dist
 EXPOSE 8787
 VOLUME /data

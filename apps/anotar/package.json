@@ -18,6 +18,7 @@
     "qa:google-map": "npm run build && node scripts/qa-google-itinerary.mjs",
     "qa:docker-share": "node scripts/qa-docker-share.mjs",
     "seed:showcase": "node scripts/seed-markdown-showcase.mjs",
+    "seed:examples": "node scripts/seed-examples.mjs",
     "seed:memo": "node scripts/seed-memo-samples.mjs",
     "seed:itinerary": "node scripts/seed-itinerary-sample.mjs",
     "seed:plan": "node scripts/seed-connected-itinerary.mjs",

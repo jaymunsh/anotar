@@ -17,6 +17,8 @@ docs/*
 !docs/architecture-overview.html
 test
 examples
+!examples/seed/
+!examples/seed/**
 
 hosted-sites
 .local-workspace
