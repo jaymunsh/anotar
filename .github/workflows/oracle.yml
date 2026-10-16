@@ -2,6 +2,9 @@ name: Verify Oracle release
 on:
   push:
     branches: [main]
+    # Planner-only commits must not rebuild/restart the personal stack.
+    # oracle-poll then sees no new successful run and keeps the deployed release.
+    paths-ignore: ['apps/planner/**', '.github/workflows/planner.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -12,6 +15,9 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/anotar
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -20,6 +26,9 @@ jobs:
         with:
           node-version: '24'
           cache: npm
+          cache-dependency-path: apps/anotar/package-lock.json
       - run: npm ci
       - run: npm run build
       - run: npm test
+      - run: python3 test_build.py
+        working-directory: apps/memory

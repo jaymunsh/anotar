@@ -8,6 +8,18 @@
 |---|---|---|
 | `apps/anotar/` | 개인 메모·페이지 앱 + 공개 공유 서버 + 정적 호스팅 서버 (Node) | `apps/anotar/AGENTS.md`를 먼저 읽는다 |
 | `apps/memory/` | 기억 화면: 위키·AI 기록 뷰어, 빌드, 세션 가져오기, 실행 스크립트 (Python 표준 라이브러리) | 데이터는 이 repo에 없다 |
+| `apps/planner/` | anotar 플래너: 제3자도 가입해 쓰는 하루 시간표 서비스, `leneu.store` (Node) | 개인 anotar와 DB·쿠키·배포를 공유하지 않는다. `apps/planner/README.md` |
+
+## 주소와 서비스 (운영, 2026-10-16 기준)
+
+| 주소 | 서비스 | 누가 | 서버 |
+|---|---|---|---|
+| `leneu.store` | planner | 누구나 (가입) | `/srv/anotar-planner`, 8794 |
+| `personal.leneu.store` | anotar 개인 앱 | 본인만 | `/srv/leneu`, 8787 |
+| `share.leneu.store` | anotar 공유 문서·댓글 | 링크 받은 사람 | 8790 |
+| `host.leneu.store` | 정적 사이트 호스팅 | 누구나 | 8792 |
+
+외부 요청은 Cloudflare tunnel이 주소별로 위 포트에 보낸다.
 
 이 폴더 안에 있지만 **이 repo에는 안 들어가는** 별도 비공개 repo 2개 (`.gitignore`로 제외):
 
@@ -21,5 +33,7 @@
 
 ## 배포 주의
 
-`main`에 push하면 GitHub Actions(`oracle.yml`)가 돌고 Oracle 서버가 그 커밋을 자동 배포한다.
-지금 배포 스크립트는 예전 루트 구조(`compose.yaml`이 repo 루트)를 가정한다. **`apps/` 구조에 맞게 배포 경로를 고치기 전에는 `main`에 merge하거나 push하지 않는다.**
+`main`에 push하면 GitHub Actions(`oracle.yml`)가 돌고 Oracle 서버가 그 커밋의 **anotar**를 자동 배포한다. `apps/planner`만 바뀐 커밋은 `oracle.yml`을 건너뛰어 anotar를 재배포하지 않는다.
+planner는 자동 배포가 없다. `planner.yml`은 검사만 하고, 서버 반영은 `apps/planner/docs/LAUNCH_RUNBOOK.md` 절차로 직접 한다.
+
+`oracle-deploy.sh`는 `apps/anotar` 구조와 예전 루트 구조를 모두 처리하도록 고쳤지만 **서버의 `/usr/local/sbin/anotar-deploy`는 아직 옛 버전이다.** 서버 사본을 갱신하기 전에는 `main`에 merge하거나 push하지 않는다.

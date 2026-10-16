@@ -71,7 +71,7 @@ npm test
 
 ## 4. GitHub 검증과 자동 배포
 
-[`.github/workflows/oracle.yml`](../.github/workflows/oracle.yml)은 `main` push 또는 명시 workflow 실행에서 Node 24로 `npm ci` → `npm run build` → `npm test`를 실행한다.
+저장소는 모노레포다. 앱은 `apps/anotar/`, workflow는 저장소 루트의 [`.github/workflows/oracle.yml`](../../../.github/workflows/oracle.yml)이다. `main` push 또는 명시 workflow 실행에서 `apps/anotar`를 작업 디렉터리로 Node 24 `npm ci` → `npm run build` → `npm test`를 실행하고, `apps/memory`의 `test_build.py`도 실행한다.
 
 ```sh
 git push origin main
@@ -91,13 +91,23 @@ Oracle의 `anotar-deploy.timer`는 약 2분 간격으로 실행한다. [`deploy/
 
 1. 배포 잠금 획득.
 2. 고정 저장소 `main`을 가져오고 요청 SHA와 비교.
-3. `/srv/leneu/releases/<SHA>`에 소스 archive 생성, 기존 운영 `.env` 링크.
+3. `/srv/leneu/releases/<SHA>`에 저장소 전체 archive 생성. Compose 디렉터리는 `apps/anotar/compose.yaml`이 있으면 `apps/anotar`, 없으면(모노레포 이전 릴리스) 릴리스 루트다. 그 디렉터리에 기존 운영 `.env`를 링크한다. `current`는 릴리스 루트를 가리키고, 롤백도 같은 규칙으로 Compose 디렉터리를 찾는다.
 4. [`verify-oracle-mounts.py`](../deploy/verify-oracle-mounts.py)로 새 Compose와 현재 컨테이너의 영구 bind 경로·읽기 전용 여부 확인. 환경 출력은 비밀정보를 포함하므로 그대로 로그에 남기지 않는다.
 5. [`Dockerfile.oracle`](../Dockerfile.oracle)로 서버 ARM64에서 `anotar:<SHA>` 이미지 빌드. 빌드 제한 900초.
 6. 기존 storage 컨테이너에서 `backup-data.mjs create`로 **SQLite 온라인 스냅샷·참조 첨부** 백업. 이름은 `before-<SHA 앞 12자>-<UTC 시각>`. 생성·검증 각각 제한 120초.
 7. `docker compose --project-name app -f compose.yaml -f compose.oracle.yaml up -d --no-build --wait --wait-timeout 120` 실행.
 8. 실패하면 이전 릴리스와 이전 이미지로 Compose 교체를 되돌림.
 9. 성공하면 `current`와 `deployed-commit` 갱신.
+
+배포 스크립트 자체를 바꿨으면 서버 사본을 직접 갱신한다. 자동 배포는 `/usr/local/sbin/anotar-deploy`를 교체하지 않는다. 새 스크립트가 옛 구조와 새 구조를 모두 처리하므로, 구조를 바꾸는 커밋을 `main`에 넣기 **전에** 설치한다.
+
+```sh
+# 로컬에서
+scp apps/anotar/deploy/oracle-deploy.sh ORACLE_HOST:/tmp/anotar-deploy
+# 서버에서
+sudo install -o root -g root -m 0755 /tmp/anotar-deploy /usr/local/sbin/anotar-deploy
+sudo bash -n /usr/local/sbin/anotar-deploy && rm /tmp/anotar-deploy
+```
 
 일반 배포는 DB 복원이나 workspace epoch 변경을 하지 않는다. 코드 롤백은 백업 복원과 다르며, 이미 수행된 DB 이관을 자동으로 역변환하지 않는다. 옛 코드로 되돌릴 때 새 DB 형식과의 호환을 확인한다.
 
