@@ -1,0 +1,83 @@
+# Personal stack: anotar (private app) + memory viewer behind one Caddy edge.
+# Local:  cd infra/personal && cp .env.example .env && docker compose up -d --build
+#         open http://my.localhost:8780
+# Only Caddy publishes a port, on loopback. Cloudflare tunnel points my./personal. at it.
+name: personal
+services:
+  anotar:
+    build: ../../apps/anotar
+    image: ${ANOTAR_IMAGE:-anotar:local}
+    environment:
+      AUTH_MODE: required
+      AUTH_SECRET_KEY: ${AUTH_SECRET_KEY:?set AUTH_SECRET_KEY in infra/personal/.env}
+      AUTH_COOKIE_SECURE: 'true'
+      PRIVATE_ALLOWED_ORIGINS: ${MY_ORIGIN:-http://my.localhost:8780}
+      BACKUP_DIR: /backups
+      HOSTED_SITES_DIR: /sites
+      AI_RUNNER_KIND: ${AI_RUNNER_KIND:-disabled}
+      # Share-comment socket; removed when the public stack stops reading the personal DB.
+      COMMENT_SOCKET_PATH: /run/leneu/share-comments.sock
+    volumes:
+      - ${PERSONAL_DIR:-./.local}/data:/data
+      - ${PERSONAL_DIR:-./.local}/backups:/backups
+      - ${PERSONAL_DIR:-./.local}/sites:/sites
+      - comment-ipc:/run/leneu
+    networks: [personal]
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:8787/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    restart: unless-stopped
+
+  memory:
+    image: python:3.13-alpine
+    command: ['python3', '/app/server.py']
+    environment:
+      MEMORY_DATA: /data
+      MEMORY_HOST: 0.0.0.0
+      MEMORY_PORT: '8788'
+      PYTHONDONTWRITEBYTECODE: '1'
+    volumes:
+      - ../../apps/memory:/app:ro
+      - ${MEMORY_DATA_DIR:-../../data/memory}/site:/data/site:ro # built page only, never raw/
+    user: '65534:65534'
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    networks: [personal]
+    healthcheck:
+      test: ['CMD', 'python3', '-c', "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8788/memory/health',timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2.10-alpine
+    depends_on:
+      anotar: {condition: service_healthy}
+      memory: {condition: service_healthy}
+    environment:
+      MY_HOST: ${MY_HOST:-my.localhost}
+      OLD_HOST: ${OLD_HOST:-personal.localhost}
+      MY_ORIGIN: ${MY_ORIGIN:-http://my.localhost:8780}
+    ports:
+      - '127.0.0.1:${EDGE_PORT:-8780}:80'
+    volumes:
+      - ../edge/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    networks: [personal]
+    restart: unless-stopped
+
+networks:
+  personal:
+
+volumes:
+  comment-ipc:
+  caddy-data:
+  caddy-config:

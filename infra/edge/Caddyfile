@@ -1,0 +1,43 @@
+# Edge for the personal stack only (my.*). share/host/planner stay on direct tunnel routes.
+# TLS ends at Cloudflare in production; locally Chrome treats *.localhost as a secure context,
+# so anotar's Secure __Host- cookies work over plain HTTP here as well.
+{
+	auto_https off
+	admin off
+}
+
+http://{$MY_HOST:my.localhost} {
+	encode zstd gzip
+	header -Server
+
+	# Service-to-service endpoints never leave the docker network.
+	handle /internal/* {
+		respond 404
+	}
+
+	@memory path /memory /memory/*
+	handle @memory {
+		forward_auth anotar:8787 {
+			uri /api/auth/check
+			@denied status 401
+			handle_response @denied {
+				redir * / 302
+			}
+		}
+		reverse_proxy memory:8788
+	}
+
+	handle {
+		reverse_proxy anotar:8787
+	}
+}
+
+# Old personal address: keep bookmarks and installed PWAs working.
+http://{$OLD_HOST:personal.localhost} {
+	redir {$MY_ORIGIN:http://my.localhost:8780}{uri} 301
+}
+
+# Anything else that reaches this port.
+http:// {
+	respond 404
+}

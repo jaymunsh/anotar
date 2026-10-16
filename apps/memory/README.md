@@ -18,4 +18,5 @@ $M/daily.sh codex gpt-6.1-sol   # 가져오기 + 에이전트 요약 + 빌드 (+
 | `viewer.html` | 화면 템플릿. build.py가 데이터를 넣어 한 파일로 만든다 |
 | `build.py` | frontmatter 검사 + site/index.html 생성 |
 | `import_sessions.py` | ~/.claude, ~/.codex, opencode DB에서 대화만 추려 덤프 |
+| `server.py` | `/memory/`에서 `site/index.html` 제공 (`MEMORY_HOST`/`MEMORY_PORT`, 기본 127.0.0.1:8788). 인증은 앞단 Caddy가 맡는다. `test_server.py`로 확인 |
 | `daily.sh` | 에이전트(claude/codex/opencode)와 모델을 골라 sessions 절차 실행 |
