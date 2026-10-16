@@ -51,6 +51,13 @@
   white-space: nowrap;
   color: var(--theme-ink);
 }
+.workspace-toolbar-lead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  height: 100%;
+}
 .workspace-toolbar-actions {
   display: flex;
   align-items: center;
@@ -191,6 +198,10 @@
   }
   .workspace-toolbar-actions {
     gap: 2px;
+  }
+  /* Tabs carry the location on small screens; the title would crowd them out. */
+  .workspace-toolbar-lead > h1 {
+    display: none;
   }
   .workspace-toolbar :is(button, summary) {
     min-height: 44px;

@@ -9,16 +9,26 @@ export const WorkspaceToolbarContext = createContext<HTMLElement | null>(null);
 export function WorkspaceToolbar({
   title,
   meta,
+  lead,
   children,
 }: {
   title: string;
   meta?: ReactNode;
+  /** Screen navigation shown right after the title (e.g. view tabs). */
+  lead?: ReactNode;
   children?: ReactNode;
 }) {
   const target = useContext(WorkspaceToolbarContext);
   const toolbar = (
     <div className="workspace-toolbar" aria-label={`${title} 도구`}>
-      <h1>{title}</h1>
+      {lead ? (
+        <div className="workspace-toolbar-lead">
+          <h1>{title}</h1>
+          {lead}
+        </div>
+      ) : (
+        <h1>{title}</h1>
+      )}
       <div className="workspace-toolbar-actions">
         {meta && <span className="toolbar-meta">{meta}</span>}
         {children}

@@ -82,6 +82,8 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
     { path: '/wiki/projects', label: '프로젝트', active: route.view === 'projects' },
   ];
   const data = load.state === 'ready' ? load.data : null;
+  const today = ymd(new Date());
+  const thisWeek = data ? data.sessions.filter((s) => s.date >= monday(today)).length : 0;
   const reload = (
     <button type="button" className="toolbar-icon-mobile" onClick={() => setAttempt((n) => n + 1)} aria-label="위키 다시 불러오기" title="다시 불러오기">
       <RefreshCw size={15} aria-hidden />
@@ -105,16 +107,27 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
 
   return (
     <main className="wiki-workspace">
-      <WorkspaceToolbar title="위키" meta={data ? `위키 ${data.wiki.length} · AI 기록 ${data.sessions.length}` : undefined}>
+      <WorkspaceToolbar
+        title="위키"
+        lead={
+          <nav className="wiki-tabs" aria-label="위키 보기">
+            {tabs.map((tab) => (
+              <a key={tab.path} {...link(tab.path)} aria-current={tab.active ? 'page' : undefined}>
+                {tab.label}
+              </a>
+            ))}
+          </nav>
+        }
+        meta={
+          data ? (
+            <span className="wiki-toolbar-stats">
+              이번 주 기록 <b>{thisWeek}</b> · 위키 <b>{data.wiki.length}</b> · AI 기록 <b>{data.sessions.length}</b>
+            </span>
+          ) : undefined
+        }
+      >
         {reload}
       </WorkspaceToolbar>
-      <nav className="wiki-tabs" aria-label="위키 보기">
-        {tabs.map((tab) => (
-          <a key={tab.path} {...link(tab.path)} aria-current={tab.active ? 'page' : undefined}>
-            {tab.label}
-          </a>
-        ))}
-      </nav>
       {body}
     </main>
   );
@@ -140,11 +153,6 @@ function WikiHome({ data, link }: { data: Prepared; link: Link }) {
   const home = useMemo(() => homeSummary(data, today), [data, today]);
   return (
     <div className="wiki-home">
-      <div className="wiki-stats">
-        <span><b>{home.thisWeek.length}</b> 이번 주 AI 기록</span>
-        <span><b>{home.weekProjects}</b> 이번 주 프로젝트</span>
-        <span><b>{data.wiki.length}</b> 위키 페이지</span>
-      </div>
       <div className="wiki-home-grid">
         <Section title="이번 주" note={<a {...link('/wiki/log')}>전체 기록</a>}>
           {home.thisWeek.length ? (
