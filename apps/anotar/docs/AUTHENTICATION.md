@@ -76,6 +76,8 @@ docker compose up -d --force-recreate storage
 
 `GET /api/auth/status`는 활성/설정/로그인 여부만 반환한다. `/api/health`와 정적 앱 셸은 인증 없이 열리며 개인 데이터는 포함하지 않는다. `/api/auth/login` 외의 개인 `/api/*`는 첨부 다운로드·업로드·AI·백업·동기화를 포함해 앞단에서 보호한다. Cookie만 있어도 쓰기 Origin이 없거나 허용되지 않으면 거절한다.
 
+`GET|HEAD /api/auth/check`는 앞단 프록시(Caddy `forward_auth`)용이다. 유효한 세션 또는 신뢰 기기 쿠키가 있으면 204, 아니면 401이며 본문·`Set-Cookie`가 없다. 세션 행을 새로 만들지 않는다. 인증 비활성(`AUTH_MODE=disabled`)·계정 미설정에서도 401이다. `infra/edge/Caddyfile`이 `my.` 의 `/memory/*`를 이 응답으로 막는다.
+
 Vercel/PWA와 Oracle은 **브라우저에서 같은 Origin의 `/api/*`를 사용하는 프록시 구조**로 연결한다. Oracle 원본 접근 제한·프록시 Host/Origin·HTTPS·쿠키 전달·첨부 크기·PWA 갱신을 실제 배포 때 확인한다. 직접 교차 Origin API용 CORS는 구현하지 않았다. 인증 코드 추가만으로 Vercel·Oracle 네트워크가 연결된 것은 아니다. 기존 Tailscale 안내는 다른 운영 선택지이며, 공유 서버 8790을 개인 API 프록시로 사용하지 않는다.
 
 공개 `share` 프로세스에는 개인 인증 API나 암호화 키를 전달하지 않는다. 읽기 전용 공유 출시와 독립 HTML 호스팅은 후속이다.

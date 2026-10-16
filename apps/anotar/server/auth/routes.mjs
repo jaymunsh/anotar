@@ -74,6 +74,13 @@ export function createAuthHttp({ store, env = process.env, clock = Date.now }) {
           send(res, 200, { enabled: false, configured: false, authenticated: false });
           return true;
         }
+        // Fail closed: an edge must never treat "auth disabled" as "logged in".
+        if (url.pathname === '/api/auth/check') {
+          req.resume();
+          res.writeHead(401, { 'Cache-Control': 'no-store' });
+          res.end();
+          return true;
+        }
         if (url.pathname.startsWith('/api/auth/')) {
           req.resume();
           send(res, 404, { error: '로컬 개발에서는 인증을 사용하지 않아요.' });
@@ -90,6 +97,14 @@ export function createAuthHttp({ store, env = process.env, clock = Date.now }) {
       }
       const configured = Boolean(auth?.configured()),
         cookies = readCookies(req.headers.cookie);
+      if (url.pathname === '/api/auth/check' && ['GET', 'HEAD'].includes(req.method)) {
+        const ok =
+          configured &&
+          auth.check({ sessionToken: cookies[names.session], deviceToken: cookies[names.device] });
+        res.writeHead(ok ? 204 : 401, { 'Cache-Control': 'no-store' });
+        res.end();
+        return true;
+      }
       const access = configured
         ? auth.authenticate({
             sessionToken: cookies[names.session],

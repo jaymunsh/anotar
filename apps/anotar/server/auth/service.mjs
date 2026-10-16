@@ -140,6 +140,18 @@ export function createAuthenticator({ store, key, clock = Date.now, secure = tru
       const issued = sessionFor(device);
       return { ...issued, session: db.session(digest(issued.sessionToken)) };
     },
+    // Read-only gate for the edge proxy (Caddy forward_auth). Its Set-Cookie never reaches the
+    // browser, so a trusted device is accepted without minting a session row per request.
+    check({ sessionToken, deviceToken } = {}) {
+      db.cleanup(clock(), epoch());
+      if (typeof sessionToken === 'string' && /^[a-f0-9]{64}$/.test(sessionToken))
+        if (db.session(digest(sessionToken))) return true;
+      return (
+        typeof deviceToken === 'string' &&
+        /^[a-f0-9]{64}$/.test(deviceToken) &&
+        Boolean(db.trust(digest(deviceToken)))
+      );
+    },
     devices(session) {
       db.cleanup(clock(), epoch());
       return db

@@ -152,8 +152,36 @@ test('password plus TOTP issues protected cookies; foreign Origin cannot login o
   assert.equal((await f.post('/api/auth/logout', {}, cookie)).status, 200);
   assert.equal((await fetch(f.base + '/api/tasks', { headers: { Cookie: cookie } })).status, 401);
 });
+test('auth check is a cookie-only 204/401 gate that does not mint sessions', async (t) => {
+  const f = await fixture(t);
+  const check = (cookie = '', method = 'GET') =>
+    fetch(f.base + '/api/auth/check', { method, headers: cookie ? { Cookie: cookie } : {} });
+  assert.equal((await check()).status, 401);
+  assert.equal((await check('leneu_session=' + 'a'.repeat(64))).status, 401);
+  const login = await f.post('/api/auth/login', {
+    password: 'My private fixture password!',
+    code: totp(secret),
+    remember: true,
+  });
+  const cookie = cookies(login);
+  const ok = await check(cookie);
+  assert.equal(ok.status, 204);
+  assert.equal(ok.headers.get('cache-control'), 'no-store');
+  assert.equal(ok.headers.getSetCookie().length, 0);
+  assert.equal((await check(cookie, 'HEAD')).status, 204);
+  assert.equal((await f.post('/api/auth/check', {}, cookie)).status, 404);
+  // Trusted device alone (expired session) still passes, without a new Set-Cookie.
+  const device = cookie.split('; ').find((c) => c.startsWith('leneu_device='));
+  const trusted = await check(device);
+  assert.equal(trusted.status, 204);
+  assert.equal(trusted.headers.getSetCookie().length, 0);
+  assert.equal((await f.post('/api/auth/logout', {}, cookie)).status, 200);
+  assert.equal((await check(cookie)).status, 401);
+  assert.equal((await check(device)).status, 401);
+});
 test('missing account or key is fail-closed and oversized login is bounded', async (t) => {
   const f = await fixture(t, false, '');
+  assert.equal((await fetch(f.base + '/api/auth/check')).status, 401);
   assert.equal((await fetch(f.base + '/api/pages')).status, 503);
   const status = await (await fetch(f.base + '/api/auth/status')).json();
   assert.equal(status.configured, false);
@@ -233,4 +261,13 @@ test('production defaults to required auth and Secure cookies carry host-only pr
     assert.match(c, /SameSite=Strict/);
     assert.doesNotMatch(c, /Domain=/);
   }
+});
+test('auth check fails closed when auth is disabled for local development', async () => {
+  const { createAuthHttp } = await import('../server/auth/routes.mjs');
+  const http = createAuthHttp({ store: {}, env: { AUTH_MODE: 'disabled', HOST: '127.0.0.1' } });
+  let status;
+  const res = { writeHead: (s) => (status = s), end() {} };
+  const req = { method: 'GET', headers: {}, resume() {} };
+  assert.equal(await http.handle(req, res, new URL('http://localhost/api/auth/check')), true);
+  assert.equal(status, 401);
 });
