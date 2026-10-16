@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Memory</title>
+<script>try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/marked@15.0.12/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+<style>
+:root {
+  --paper: #edf0f3;
+  --panel: #e4e8ed;
+  --ink: #1d2733;
+  --muted: #5d6a78;
+  --rule: #d3d9e0;
+  --link: #2c55c4;
+  --code: #dde3ea;
+  --c-claude: #c8693a;
+  --c-codex: #1f8a6a;
+  --c-opencode: #7656c9;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #161b22; --panel: #1b212a; --ink: #e2e7ed; --muted: #8f9baa;
+    --rule: #2b333d; --link: #93b1ff; --code: #232b35; color-scheme: dark;
+    --c-claude: #e39066; --c-codex: #4cc39d; --c-opencode: #a58cf0;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #161b22; --panel: #1b212a; --ink: #e2e7ed; --muted: #8f9baa;
+  --rule: #2b333d; --link: #93b1ff; --code: #232b35; color-scheme: dark;
+    --c-claude: #e39066; --c-codex: #4cc39d; --c-opencode: #a58cf0;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.7 "Pretendard Variable", Pretendard, system-ui, sans-serif;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  -webkit-text-size-adjust: 100%;
+}
+a { color: var(--link); text-underline-offset: .2em; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 3px; }
+.muted { color: var(--muted); }
+
+/* shell: 모바일은 위아래, PC는 왼쪽 사이드바 */
+.side { padding: 1rem 1rem 0; }
+.bar { display: flex; align-items: center; justify-content: space-between; }
+.brand { font: 700 1.35rem/1.2 "Gowun Batang", serif; color: inherit; text-decoration: none; }
+.theme { background: none; border: 1px solid var(--rule); border-radius: 8px; width: 2.25rem; height: 2.25rem; font-size: 1rem; line-height: 1; }
+.filters { margin-top: 1rem; }
+body.reading .filters { display: none; }
+.search {
+  width: 100%; font: inherit; font-size: .95rem; color: inherit; padding: .55rem .8rem;
+  background: transparent; border: 1px solid var(--rule); border-radius: 8px;
+}
+.search::placeholder { color: var(--muted); }
+.count { font-size: .8rem; margin: .5rem 0 0; }
+.tags { display: flex; gap: .35rem; margin: .6rem -1rem 0; padding: 0 1rem .3rem; overflow-x: auto; scrollbar-width: none; }
+.tag {
+  flex: none; font-size: .8rem; color: var(--muted);
+  background: none; border: 1px solid var(--rule); border-radius: 999px; padding: .1rem .65rem;
+}
+.tag .n { opacity: .6; margin-left: .25rem; }
+.tag[aria-pressed="true"] { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+main { padding: .5rem 1rem 5rem; min-width: 0; }
+
+/* list: 촘촘하게 */
+.month {
+  position: sticky; top: 0; z-index: 1; background: var(--paper);
+  font-size: .78rem; font-weight: 600; color: var(--muted); margin: 0; padding: 1rem 0 .35rem;
+  border-bottom: 1px solid var(--rule);
+}
+.entry { display: block; color: inherit; text-decoration: none; padding: .6rem 0; border-bottom: 1px solid var(--rule); }
+.entry:hover .title { color: var(--link); }
+.row { display: flex; align-items: baseline; gap: .5rem; }
+.title { font-weight: 600; font-size: .98rem; line-height: 1.45; }
+.row .tagline { font-size: .75rem; color: var(--muted); }
+.row .date { margin-left: auto; flex: none; font-size: .75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sum {
+  margin: .1rem 0 0; font-size: .85rem; line-height: 1.55; color: var(--muted);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.empty { padding: 3rem 0; }
+
+/* page */
+.back { display: inline-block; margin: .5rem 0 1.5rem; font-size: .85rem; }
+article h1 { font: 700 1.9rem/1.3 "Gowun Batang", serif; margin: 0 0 .75rem; }
+.tldr { font-size: 1.05rem; margin: 0 0 .75rem; padding-left: .9rem; border-left: 3px solid var(--link); }
+.meta { font-size: .82rem; margin-bottom: 2rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--rule); }
+.meta a { margin-left: .35rem; }
+.toc { font-size: .88rem; }
+.toc ol { list-style: none; margin: 0; padding: 0; }
+.toc li { margin: .2rem 0; }
+.toc li.h3 { padding-left: .9rem; }
+.toc a { color: var(--muted); text-decoration: none; }
+.toc a:hover, .toc a.on { color: var(--link); }
+details.toc { background: var(--panel); border-radius: 8px; padding: .6rem .9rem; margin-bottom: 1.5rem; }
+details.toc summary { cursor: pointer; font-weight: 600; }
+details.toc ol { margin-top: .4rem; }
+aside.toc { display: none; }
+.prose { font-size: 1rem; line-height: 1.8; }
+.prose h2 { font: 700 1.25rem/1.4 "Gowun Batang", serif; margin: 2.5rem 0 .5rem; scroll-margin-top: 1rem; }
+.prose h3 { font-size: 1.02rem; margin: 2rem 0 .25rem; scroll-margin-top: 1rem; }
+.prose blockquote { margin: 1.5rem 0; padding: .6rem 1rem; background: var(--panel); border-radius: 8px; }
+.prose blockquote p { margin: 0; }
+.prose code { font: .86em ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--code); padding: .1em .35em; border-radius: 4px; }
+.prose pre { background: var(--code); padding: 1rem; border-radius: 8px; overflow-x: auto; }
+.prose pre code { padding: 0; background: none; }
+.prose .table { overflow-x: auto; margin: 1.5rem 0; }
+.prose table { border-collapse: collapse; font-size: .9rem; min-width: 100%; }
+.prose th, .prose td { text-align: left; padding: .45rem .9rem .45rem 0; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+.prose th { color: var(--muted); font-weight: 600; }
+.prose img { max-width: 100%; }
+.backlinks { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--rule); font-size: .9rem; }
+.backlinks h2 { font-size: .85rem; color: var(--muted); margin: 0 0 .5rem; }
+.backlinks ul { margin: 0; padding-left: 1.1rem; }
+
+@media (min-width: 960px) {
+  .shell { display: grid; grid-template-columns: 17rem minmax(0, 1fr); }
+  .side {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    padding: 1.5rem 1.25rem; border-right: 1px solid var(--rule); background: var(--panel);
+  }
+  body.reading .filters { display: block; }
+  .tags { flex-direction: column; align-items: stretch; margin: .75rem 0 0; padding: 0; overflow: visible; }
+  .tag { text-align: left; border: 0; border-radius: 6px; padding: .3rem .6rem; font-size: .85rem; display: flex; }
+  .tag .n { margin-left: auto; }
+  main { padding: 1rem 2.5rem 5rem; }
+  .list { max-width: 56rem; }
+  .sum { -webkit-line-clamp: 1; }
+  .page { display: grid; grid-template-columns: minmax(0, 42rem) 13rem; gap: 3rem; }
+  details.toc { display: none; }
+  aside.toc { display: block; position: sticky; top: 1.5rem; align-self: start; padding-top: 3.2rem; }
+  aside.toc .label { font-size: .78rem; font-weight: 600; color: var(--muted); margin: 0 0 .5rem; }
+}
+@media (min-width: 960px) and (max-width: 1199px) {
+  .page { display: block; max-width: 42rem; }
+  details.toc { display: block; }
+  aside.toc { display: none; }
+}
+
+/* 탭 */
+.tabs { display: flex; gap: .2rem; margin-top: 1rem; padding: .2rem; border: 1px solid var(--rule); border-radius: 9px; }
+.tabs a {
+  flex: 1; text-align: center; font-size: .85rem; font-weight: 600; color: var(--muted);
+  text-decoration: none; padding: .35rem 0; border-radius: 6px; white-space: nowrap;
+}
+.tabs a[aria-current="page"] { background: var(--ink); color: var(--paper); }
+body.home .filters { display: none; }
+.group { font-size: .72rem; color: var(--muted); margin: .9rem 0 0; }
+.badge {
+  flex: none; font-size: .7rem; font-weight: 600; padding: 0 .4rem; border-radius: 4px;
+  border: 1px solid var(--rule); color: var(--muted); line-height: 1.6;
+}
+.badge.promoted { border-color: var(--link); color: var(--link); }
+.meta .badge { margin-right: .35rem; }
+.linked { margin: 0 0 2rem; font-size: .9rem; }
+.small { font-size: .78rem; }
+
+/* 보기 전환 (날짜별/주별) */
+.seg { display: inline-flex; gap: .2rem; margin: .25rem 0 .25rem; }
+.seg button { background: none; border: 1px solid var(--rule); border-radius: 6px; font-size: .8rem; padding: .15rem .6rem; color: var(--muted); }
+.seg button[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); font-weight: 600; }
+
+/* 홈·프로젝트 블록 */
+.block { margin: 0 0 2.25rem; }
+.block > h2 { font-size: .9rem; font-weight: 700; margin: 0 0 .5rem; padding-bottom: .35rem; border-bottom: 1px solid var(--rule); }
+.block > h2 .muted { font-weight: 400; margin-left: .35rem; }
+.items { list-style: none; margin: 0; padding: 0; }
+.items li { padding: .4rem 0; border-bottom: 1px solid var(--rule); font-size: .92rem; line-height: 1.55; }
+.items li .muted { font-size: .78rem; }
+.proj { margin: 0 0 1rem; }
+.proj h3 { font-size: .95rem; margin: 0 0 .25rem; }
+.proj h3 a { color: inherit; text-decoration: none; }
+.proj h3 a:hover { color: var(--link); }
+.proj ul { margin: 0; padding-left: 1.1rem; font-size: .9rem; }
+.hello { font: 700 1.5rem/1.3 "Gowun Batang", serif; margin: .5rem 0 .25rem; }
+.stats { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; margin: 0 0 2rem; font-size: .88rem; }
+.stats b { font-size: 1.1rem; margin-right: .2rem; }
+.week { margin-bottom: 1.5rem; }
+.week .proj { padding-left: .1rem; }
+.week .proj ul { list-style: none; padding: 0; }
+.week .proj li { padding: .1rem 0; }
+/* 도구 색 점: 목록을 훑을 때 도구 구분용 */
+.dot { display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; margin-right: .3rem; vertical-align: .05em; background: var(--muted); }
+.dot.claude-code { background: var(--c-claude); }
+.dot.codex { background: var(--c-codex); }
+.dot.opencode { background: var(--c-opencode); }
+
+/* 조용한 링크: 목록 안 링크는 글자색, 올렸을 때만 파랗게 */
+.items a, .proj a, .week a, .rel a { color: inherit; text-decoration: none; }
+.items a:hover, .proj a:hover, .week a:hover, .rel a:hover { color: var(--link); text-decoration: underline; }
+.items .muted a { color: var(--muted); }
+
+/* 필터 접기 (모바일) */
+.filter-toggle {
+  display: none; margin-top: .6rem; background: none; border: 1px solid var(--rule); border-radius: 8px;
+  font-size: .82rem; padding: .3rem .7rem; color: var(--muted);
+}
+.filter-toggle.on { color: var(--ink); border-color: var(--ink); }
+.tag.more { border-style: dashed; }
+.tag .dot { align-self: center; }
+
+/* 주별 제목 */
+.month.wk { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .75rem; padding-top: 1.25rem; }
+.month.wk .range { font-size: .95rem; color: var(--ink); font-weight: 700; }
+.month.wk .sub { font-weight: 400; }
+
+@media (max-width: 959px) {
+  .filter-toggle { display: inline-block; }
+  .filters .count { display: inline-block; margin-left: .5rem; }
+  #chips { display: none; }
+  body.filters-open #chips { display: block; }
+  /* 모바일: 도구·모델·날짜는 제목 아래 줄로 */
+  .row { flex-wrap: wrap; row-gap: 0; }
+  .row .date { order: 3; flex-basis: 100%; margin-left: 0; }
+}
+@media (min-width: 960px) {
+  .group { margin-top: 1.25rem; }
+  .home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 2.5rem; max-width: 64rem; }
+  .home-grid .wide { grid-column: 1 / -1; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="bar">
+      <a class="brand" href="#">My Memory</a>
+      <button class="theme" type="button"></button>
+    </div>
+    <nav class="tabs" aria-label="화면">
+      <a href="#" data-view="home">홈</a>
+      <a href="#wiki" data-view="wiki">위키</a>
+      <a href="#log" data-view="log">기록</a>
+      <a href="#projects" data-view="projects">프로젝트</a>
+    </nav>
+    <div class="filters">
+      <input class="search" type="search" aria-label="검색">
+      <button class="filter-toggle" type="button" aria-expanded="false" aria-controls="chips"></button>
+      <p class="count muted"></p>
+      <div id="chips"></div>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+<script>
+const DATA = /*DATA*/{};
+const WIKI = DATA.wiki || [];
+// 내용 없는 세션은 화면에서 숨김
+const LOG = (DATA.sessions || []).filter(s => s.title !== "(내용 없음)");
+const TOOLS = { "claude-code": "Claude Code", codex: "Codex", opencode: "opencode" };
+const DAYS = "일월화수목금토";
+const main = document.getElementById("main");
+const wikiBy = Object.fromEntries(WIKI.map(p => [p.slug, p]));
+const logBy = Object.fromEntries(LOG.map(s => [s.slug, s]));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
+const list = v => [].concat(v || []).filter(Boolean);
+const toolName = t => TOOLS[t] || t;
+const search = document.querySelector(".search");
+const chips = document.getElementById("chips");
+const state = { view: "home", query: "", tag: "", tool: "", project: "", logMode: "day" };
+try { state.logMode = localStorage.getItem("logMode") || "day"; } catch (e) {}
+
+// 날짜 도우미 (로컬 시간 기준 YYYY-MM-DD)
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const addDays = (s, n) => { const d = new Date(s + "T00:00"); d.setDate(d.getDate() + n); return ymd(d); };
+const monday = s => { const d = new Date(s + "T00:00"); return addDays(s, -((d.getDay() + 6) % 7)); };
+const md = s => `${+s.slice(5, 7)}월 ${+s.slice(8, 10)}일`;
+const TODAY = ymd(new Date());
+
+// 프로젝트: 세션을 프로젝트별로 묶음 (LOG는 최신순)
+const PROJECTS = {};
+for (const s of LOG) (PROJECTS[s.project] ||= []).push(s);
+const projectNames = Object.keys(PROJECTS).sort((a, b) => PROJECTS[b][0].date.localeCompare(PROJECTS[a][0].date));
+const projLink = p => `<a href="#p/${encodeURIComponent(p)}">${esc(p)}</a>`;
+const dot = t => `<span class="dot ${esc(t)}" aria-hidden="true"></span>`;
+// 상대 날짜: 오늘, 어제, n일 전 (한 달 넘으면 날짜)
+const daysAgo = s => Math.round((new Date(TODAY + "T00:00") - new Date(s + "T00:00")) / 864e5);
+const rel = s => { const n = daysAgo(s); return n <= 0 ? "오늘" : n === 1 ? "어제" : n < 31 ? `${n}일 전` : md(s); };
+
+// 테마: 저장된 선택 > 시스템 설정
+const themeBtn = document.querySelector(".theme");
+const isDark = () => (document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")) === "dark";
+function paintThemeBtn() {
+  themeBtn.textContent = isDark() ? "☀" : "☾";
+  themeBtn.setAttribute("aria-label", isDark() ? "라이트 모드로" : "다크 모드로");
+}
+themeBtn.onclick = () => {
+  const next = isDark() ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem("theme", next); } catch (e) {}
+  paintThemeBtn();
+};
+paintThemeBtn();
+
+const tabs = document.querySelectorAll(".tabs a");
+
+function countBy(items, key) {
+  const c = {};
+  items.forEach(it => list(it[key]).forEach(v => c[v] = (c[v] || 0) + 1));
+  return Object.entries(c).sort((a, b) => b[1] - a[1]);
+}
+const CHIP_LIMIT = 8;
+const more = {};
+function chipRow(label, key, entries, total, name = v => "#" + v) {
+  let shown = entries;
+  if (!more[key] && entries.length > CHIP_LIMIT + 1) {
+    shown = entries.slice(0, CHIP_LIMIT);
+    // 선택된 값은 잘려도 보이게
+    const sel = entries.find(([v]) => v === state[key]);
+    if (sel && !shown.includes(sel)) shown.push(sel);
+  }
+  const hidden = entries.length - shown.length;
+  return `${label ? `<p class="group">${label}</p>` : ""}<nav class="tags" aria-label="${label || "태그"}">
+    <button class="tag" type="button" data-key="${key}" data-v="" aria-pressed="${!state[key]}">전체<span class="n">${total}</span></button>
+    ${shown.map(([v, n]) => `<button class="tag" type="button" data-key="${key}" data-v="${esc(v)}" aria-pressed="${state[key] === v}">${key === "tool" ? dot(v) : ""}${esc(name(v))}<span class="n">${n}</span></button>`).join("")}
+    ${hidden ? `<button class="tag more" type="button" data-more="${key}">${hidden}개 더 보기</button>` : ""}
+  </nav>`;
+}
+const filterBtn = document.querySelector(".filter-toggle");
+filterBtn.onclick = () => {
+  const open = document.body.classList.toggle("filters-open");
+  filterBtn.setAttribute("aria-expanded", open);
+};
+function paintFilterBtn() {
+  const active = state.view === "wiki" ? [state.tag && "#" + state.tag]
+    : state.view === "log" ? [state.tool && toolName(state.tool), state.project] : [];
+  const on = active.filter(Boolean);
+  filterBtn.hidden = !chips.innerHTML;
+  filterBtn.classList.toggle("on", on.length > 0);
+  filterBtn.textContent = on.length ? `필터: ${on.join(" · ")}` : "필터";
+}
+function renderChips() {
+  search.placeholder = { wiki: "제목, 요약, 본문 검색", log: "무엇을 했는지 검색", projects: "프로젝트 검색" }[state.view] || "";
+  chips.innerHTML = state.view === "wiki" ? chipRow("", "tag", countBy(WIKI, "tags"), WIKI.length)
+    : state.view === "log" ? chipRow("도구", "tool", countBy(LOG, "tool"), LOG.length, toolName)
+      + chipRow("프로젝트", "project", countBy(LOG, "project"), LOG.length, v => v)
+    : "";
+  paintFilterBtn();
+}
+chips.onclick = e => {
+  const b = e.target.closest(".tag");
+  if (!b) return;
+  if (b.dataset.more) { more[b.dataset.more] = true; return renderChips(); }
+  state[b.dataset.key] = b.dataset.v;
+  location.hash = state.view === "wiki" ? (state.tag ? "tag/" + state.tag : "wiki") : "log";
+  route();
+};
+search.oninput = () => {
+  state.query = search.value;
+  const base = { wiki: "wiki", log: "log", projects: "projects" }[state.view];
+  if (document.body.classList.contains("reading")) location.hash = base;
+  else renderList();
+};
+
+function route() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  let page = null, show = null;
+  if (h === "log" || h.startsWith("log/")) {
+    state.view = "log"; page = logBy[h.slice(4)]; show = showSession;
+  } else if (h === "projects" || h.startsWith("p/")) {
+    state.view = "projects"; page = PROJECTS[h.slice(2)] && h.slice(2); show = showProject;
+  } else if (h === "wiki" || h.startsWith("tag/") || h.startsWith("/")) {
+    state.view = "wiki"; page = h.startsWith("/") && wikiBy[h.slice(1)]; show = showWiki;
+    if (!page) state.tag = h.startsWith("tag/") ? h.slice(4) : "";
+  } else state.view = "home";
+  tabs.forEach(t => t.dataset.view === state.view ? t.setAttribute("aria-current", "page") : t.removeAttribute("aria-current"));
+  document.body.classList.toggle("home", state.view === "home");
+  renderChips();
+  if (page) return show(page);
+  document.body.classList.remove("reading");
+  if (state.view === "home") return showHome();
+  renderList();
+}
+
+function matches(it, fields) {
+  const terms = state.query.toLowerCase().split(/\s+/).filter(Boolean);
+  const hay = fields.map(f => list(it[f]).join(" ")).join(" ").toLowerCase();
+  return terms.every(t => hay.includes(t));
+}
+function setCount(n, total) {
+  document.querySelector(".count").textContent = n === total ? `${total}개` : `${total}개 중 ${n}개`;
+}
+function emptyMsg(total, what) {
+  return `<p class="empty muted">${total ? "검색 결과가 없어요. 검색어나 필터를 바꿔보세요." : what}</p>`;
+}
+function modelLine(s) {
+  const m = list(s.models);
+  return m.length ? esc(m[0]) + (m.length > 1 ? ` +${m.length - 1}` : "") : "";
+}
+function sessionEntry(s, withProject = true) {
+  return `<a class="entry" href="#log/${esc(s.slug)}">
+    <div class="row">
+      <span class="title">${esc(s.title)}</span>
+      ${list(s.promoted).length ? `<span class="badge promoted">위키 반영</span>` : ""}
+      <span class="date">${dot(s.tool)}${esc(toolName(s.tool))}${s.models ? " · " + modelLine(s) : ""}${withProject ? " · " + esc(s.project) : ""}</span>
+    </div>
+    <p class="sum">${esc(s.tldr)}</p>
+  </a>`;
+}
+
+function renderList() {
+  if (state.view === "wiki") return renderWikiList();
+  if (state.view === "projects") return renderProjects();
+  renderLog();
+}
+
+function renderWikiList() {
+  const hits = WIKI.filter(it => (!state.tag || list(it.tags).includes(state.tag)) && matches(it, ["title", "tldr", "tags", "body"]));
+  setCount(hits.length, WIKI.length);
+  if (!hits.length) return main.innerHTML = emptyMsg(WIKI.length, "아직 페이지가 없어요. 에이전트에게 ingest를 시켜보세요.");
+  let html = `<div class="list">`, group = "";
+  for (const it of hits) {
+    const g = it.updated.slice(0, 7);
+    if (g !== group) { group = g; html += `<h2 class="month">${+g.slice(0, 4)}년 ${+g.slice(5, 7)}월</h2>`; }
+    html += `<a class="entry" href="#/${esc(it.slug)}">
+      <div class="row">
+        <span class="title">${esc(it.title)}</span>
+        <span class="tagline">${list(it.tags).map(t => "#" + esc(t)).join(" ")}</span>
+        <span class="date">${it.updated.slice(5).replace("-", ".")}</span>
+      </div>
+      <p class="sum">${esc(it.tldr)}</p>
+    </a>`;
+  }
+  main.innerHTML = html + `</div>`;
+}
+
+function renderLog() {
+  const hits = LOG.filter(s => (!state.tool || s.tool === state.tool) && (!state.project || s.project === state.project)
+    && matches(s, ["title", "tldr", "tags", "project", "models", "next", "decisions", "body"]));
+  setCount(hits.length, LOG.length);
+  const seg = `<div class="seg" role="group" aria-label="보기">
+    <button type="button" data-mode="day" aria-pressed="${state.logMode === "day"}">날짜별</button>
+    <button type="button" data-mode="week" aria-pressed="${state.logMode === "week"}">주별</button></div>`;
+  let html = `<div class="list">${seg}`;
+  if (!hits.length) html += emptyMsg(LOG.length, "아직 기록이 없어요. 에이전트에게 sessions를 시켜보세요.");
+  else if (state.logMode === "day") {
+    let group = "";
+    for (const s of hits) {
+      if (s.date !== group) {
+        group = s.date;
+        html += `<h2 class="month">${md(s.date)} (${DAYS[new Date(s.date + "T00:00").getDay()]})</h2>`;
+      }
+      html += sessionEntry(s);
+    }
+  } else {
+    // 주별: 주 → 프로젝트 → 세션 제목
+    const weeks = {};
+    for (const s of hits) ((weeks[monday(s.date)] ||= {})[s.project] ||= []).push(s);
+    for (const [wk, projs] of Object.entries(weeks)) {
+      const all = Object.values(projs).flat();
+      const tools = countBy(all, "tool").map(([t, n]) => `${dot(t)}${esc(toolName(t))} ${n}`).join("&nbsp;&nbsp;");
+      html += `<h2 class="month wk"><span class="range">${md(wk)} – ${md(addDays(wk, 6))}</span><span class="sub">${all.length}개 세션&nbsp;&nbsp;${tools}</span></h2><div class="week">`;
+      for (const [p, ss] of Object.entries(projs)) {
+        html += `<div class="proj"><h3>${projLink(p)}</h3><ul>${ss.map(s =>
+          `<li><a href="#log/${esc(s.slug)}">${esc(s.title)}</a> <span class="muted small">${md(s.date)} · ${dot(s.tool)}${esc(toolName(s.tool))}</span></li>`).join("")}</ul></div>`;
+      }
+      html += `</div>`;
+    }
+  }
+  main.innerHTML = html + `</div>`;
+  main.querySelectorAll(".seg button").forEach(b => b.onclick = () => {
+    state.logMode = b.dataset.mode;
+    try { localStorage.setItem("logMode", state.logMode); } catch (e) {}
+    renderLog();
+  });
+}
+
+function renderProjects() {
+  const names = projectNames.filter(p => matches({ p, s: PROJECTS[p].map(s => s.title + " " + s.tldr) }, ["p", "s"]));
+  setCount(names.length, projectNames.length);
+  if (!names.length) return main.innerHTML = emptyMsg(projectNames.length, "아직 기록된 프로젝트가 없어요.");
+  main.innerHTML = `<div class="list">${names.map(p => {
+    const ss = PROJECTS[p], last = ss[0];
+    return `<a class="entry" href="#p/${encodeURIComponent(p)}">
+      <div class="row">
+        <span class="title">${esc(p)}</span>
+        <span class="tagline">세션 ${ss.length}개${list(last.next).length ? ` · 남은 일 ${list(last.next).length}` : ""}</span>
+        <span class="date">${last.date.slice(5).replace("-", ".")}</span>
+      </div>
+      <p class="sum">${esc(last.tldr)}</p>
+    </a>`;
+  }).join("")}</div>`;
+}
+
+// 홈: 이번 주, 남은 일, 다시 보기
+function showHome() {
+  const wk = monday(TODAY);
+  const thisWeek = LOG.filter(s => s.date >= wk);
+  const weekProjects = [...new Set(thisWeek.map(s => s.project))];
+  const open = projectNames.filter(p => list(PROJECTS[p][0].next).length).slice(0, 6);
+  const monthAgo = LOG.filter(s => s.date >= addDays(TODAY, -35) && s.date <= addDays(TODAY, -25));
+  const stale = projectNames.filter(p => PROJECTS[p][0].date < addDays(TODAY, -14) && list(PROJECTS[p][0].next).length);
+  const cands = LOG.filter(s => !list(s.promoted).length).flatMap(s => list(s.candidates).map(c => ({ c, s }))).slice(0, 8);
+  const block = (title, body, cls = "", note = "") => body ? `<section class="block ${cls}"><h2>${title}${note ? `<span class="muted">${note}</span>` : ""}</h2>${body}</section>` : "";
+  main.innerHTML = `
+    <p class="hello">${md(TODAY)} (${DAYS[new Date().getDay()]})</p>
+    <div class="stats muted">
+      <span><b>${thisWeek.length}</b>이번 주 세션</span>
+      <span><b>${weekProjects.length}</b>이번 주 프로젝트</span>
+      <span><b>${WIKI.length}</b>위키 페이지</span>
+    </div>
+    <div class="home-grid">
+      ${block("이번 주", thisWeek.length ? `<ul class="items">${thisWeek.map(s =>
+        `<li>${dot(s.tool)}<a href="#log/${esc(s.slug)}">${esc(s.title)}</a> <span class="muted">${rel(s.date)} · ${projLink(s.project)}</span></li>`).join("")}</ul>`
+        : `<p class="muted">이번 주 기록이 아직 없어요.</p>`, "", `<a href="#log" class="small">주별로 보기</a>`)}
+      ${block("남은 일", open.map(p => `<div class="proj"><h3>${projLink(p)} <span class="muted small">${rel(PROJECTS[p][0].date)}</span></h3>
+        <ul>${list(PROJECTS[p][0].next).map(n => `<li>${esc(n)}</li>`).join("")}</ul></div>`).join(""), "", "프로젝트별 최신 세션 기준")}
+      ${block("멈춘 프로젝트", stale.length ? `<ul class="items">${stale.map(p =>
+        `<li>${projLink(p)} <span class="muted">${daysAgo(PROJECTS[p][0].date)}일째 멈춤 · 남은 일 ${list(PROJECTS[p][0].next).length}개</span></li>`).join("")}</ul>` : "", "", "2주 넘게 멈춤")}
+      ${block("한 달 전 이맘때", monthAgo.length ? `<ul class="items">${monthAgo.map(s =>
+        `<li>${dot(s.tool)}<a href="#log/${esc(s.slug)}">${esc(s.title)}</a> <span class="muted">${md(s.date)} · ${esc(s.project)}</span></li>`).join("")}</ul>` : "")}
+      ${block("위키로 옮길 후보", cands.length ? `<ul class="items">${cands.map(({ c, s }) =>
+        `<li>${esc(c)} <span class="muted">← <a href="#log/${esc(s.slug)}">${esc(s.title)}</a></span></li>`).join("")}</ul>` : "", "", "아직 안 옮긴 것")}
+      ${block("최근 위키", WIKI.length ? `<ul class="items">${WIKI.slice(0, 4).map(p =>
+        `<li><a href="#/${esc(p.slug)}">${esc(p.title)}</a> <span class="muted">${rel(p.updated)}</span></li>`).join("")}</ul>` : "")}
+    </div>`;
+}
+
+function renderProse(md, extra = "") {
+  return `<details class="toc"><summary>목차</summary><ol></ol></details>
+    <div class="prose">${DOMPurify.sanitize(marked.parse(md))}</div>${extra}`;
+}
+
+function finishPage(hashBase) {
+  main.querySelectorAll(".prose a[href]").forEach(a => {
+    const href = a.getAttribute("href");
+    const m = href.match(/^(?:\.\.\/wiki\/|\.\/)?([\w-]+)\.md(#.*)?$/);
+    if (m) a.href = "#/" + m[1];
+    else if (/^https?:/.test(href)) { a.target = "_blank"; a.rel = "noopener"; }
+  });
+  main.querySelectorAll(".prose table").forEach(t => {
+    const wrap = document.createElement("div");
+    wrap.className = "table";
+    t.replaceWith(wrap);
+    wrap.append(t);
+  });
+  // 목차: 해시 라우팅과 안 겹치게 링크 대신 스크롤
+  const heads = [...main.querySelectorAll("article h2:not(.backlinks h2)")];
+  if (heads.length < 2) main.querySelectorAll(".toc").forEach(t => t.remove());
+  else {
+    const items = heads.map((h, i) => `<li class="${h.tagName.toLowerCase()}"><a href="${hashBase}" data-i="${i}">${esc(h.textContent)}</a></li>`).join("");
+    main.querySelectorAll(".toc ol").forEach(ol => ol.innerHTML = items);
+    main.querySelectorAll(".toc a").forEach(a => a.onclick = e => {
+      e.preventDefault();
+      heads[a.dataset.i].scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    });
+  }
+  scrollTo(0, 0);
+}
+
+function linkList(title, items, href) {
+  return items.length ? `<section class="backlinks"><h2>${title}</h2><ul>${items.map(it =>
+    `<li><a href="${href(it)}">${esc(it.title)}</a></li>`).join("")}</ul></section>` : "";
+}
+function bullets(title, items) {
+  return items.length ? `<div class="prose"><h2>${title}</h2><ul>${items.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div>` : "";
+}
+
+function showWiki(p) {
+  document.body.classList.add("reading");
+  const refs = WIKI.filter(q => q !== p && new RegExp(`\\]\\((?:\\./)?${p.slug}\\.md`).test(q.body));
+  const from = LOG.filter(s => list(s.promoted).includes(p.slug));
+  main.innerHTML = `
+    <div class="page">
+      <article>
+        <a class="back" href="${state.tag ? "#tag/" + esc(state.tag) : "#wiki"}">위키로</a>
+        <h1>${esc(p.title)}</h1>
+        <p class="tldr">${esc(p.tldr)}</p>
+        <div class="meta muted">${esc(p.updated)} 업데이트${list(p.tags).map(t => `<a href="#tag/${esc(t)}">#${esc(t)}</a>`).join("")}</div>
+        ${renderProse(p.body,
+          linkList("이 글을 참조하는 페이지", refs, q => "#/" + esc(q.slug))
+          + linkList("이 글의 출처가 된 AI 기록", from, s => "#log/" + esc(s.slug)))}
+      </article>
+      <aside class="toc"><p class="label">목차</p><ol></ol></aside>
+    </div>`;
+  finishPage("#/" + p.slug);
+}
+
+// 본문을 "## 결과" 섹션과 나머지로 나눔 (떠올릴 때 결과가 먼저 보이게)
+function splitResult(body) {
+  const parts = body.split(/^(?=## )/m);
+  const i = parts.findIndex(p => /^## 결과/.test(p));
+  return i < 0 ? { result: "", rest: body } : { result: parts[i], rest: parts.filter((_, j) => j !== i).join("") };
+}
+const mdSection = text => text.trim() ? `<div class="prose">${DOMPurify.sanitize(marked.parse(text))}</div>` : "";
+
+function showSession(s) {
+  document.body.classList.add("reading");
+  const sections = splitResult(s.body);
+  const promoted = list(s.promoted).map(slug => wikiBy[slug]).filter(Boolean);
+  main.innerHTML = `
+    <div class="page">
+      <article>
+        <a class="back" href="#log">기록으로</a>
+        <h1>${esc(s.title)}</h1>
+        <p class="tldr">${esc(s.tldr)}</p>
+        <div class="meta muted">
+          <span class="badge">${dot(s.tool)}${esc(toolName(s.tool))}</span>${list(s.models).map(esc).join(", ")}
+          · ${projLink(s.project)} · ${esc(s.date)} ${list(s.tags).map(t => "#" + esc(t)).join(" ")}
+          ${s.summarized_by ? `<br><span class="small">요약: ${esc(s.summarized_by)}</span>` : ""}
+        </div>
+        ${promoted.length
+          ? `<p class="linked">위키에 반영됨: ${promoted.map(w => `<a href="#/${esc(w.slug)}">${esc(w.title)}</a>`).join(", ")}</p>`
+          : `<p class="linked muted">위키로 옮기려면 에이전트에게 <code>/ingest sessions/${esc(s.slug)}.md</code></p>`}
+        <details class="toc"><summary>목차</summary><ol></ol></details>
+        ${mdSection(sections.result)}
+        ${bullets("남은 일", list(s.next))}
+        ${bullets("정한 것", list(s.decisions))}
+        ${bullets("위키 후보", list(s.candidates))}
+        ${mdSection(sections.rest)}
+      </article>
+      <aside class="toc"><p class="label">목차</p><ol></ol></aside>
+    </div>`;
+  finishPage("#log/" + s.slug);
+}
+
+function showProject(name) {
+  document.body.classList.add("reading");
+  const ss = PROJECTS[name], last = ss[0];
+  const decisions = ss.flatMap(s => list(s.decisions).map(d => `${esc(d)} <span class="muted small">${md(s.date)}</span>`));
+  const cands = ss.filter(s => !list(s.promoted).length).flatMap(s => list(s.candidates));
+  const tools = countBy(ss, "tool").map(([t, n]) => `${toolName(t)} ${n}`).join(" · ");
+  const models = countBy(ss, "models").map(([m, n]) => `${m} ${n}`).join(" · ");
+  main.innerHTML = `
+    <div class="page">
+      <article>
+        <a class="back" href="#projects">프로젝트로</a>
+        <h1>${esc(name)}</h1>
+        <p class="tldr">${esc(last.tldr)}</p>
+        <div class="meta muted">세션 ${ss.length}개 · ${md(ss[ss.length - 1].date)} ~ ${md(last.date)}<br>
+          <span class="small">${esc(tools)}${models ? " | " + esc(models) : ""}</span></div>
+        <details class="toc"><summary>목차</summary><ol></ol></details>
+        ${bullets("남은 일", list(last.next))}
+        ${decisions.length ? `<div class="prose"><h2>정한 것</h2><ul>${decisions.map(d => `<li>${d}</li>`).join("")}</ul></div>` : ""}
+        ${bullets("위키 후보", cands)}
+        <div class="prose"><h2>타임라인</h2></div>
+        <div class="list">${ss.map(s => sessionEntry(s, false)).join("")}</div>
+      </article>
+      <aside class="toc"><p class="label">목차</p><ol></ol></aside>
+    </div>`;
+  finishPage("#p/" + encodeURIComponent(name));
+}
+
+addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
