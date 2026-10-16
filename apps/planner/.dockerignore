@@ -1,0 +1,11 @@
+node_modules
+.npm-cache
+.env*
+.omo
+.impeccable
+data
+backups
+dist
+.git
+*.sqlite*
+*.log

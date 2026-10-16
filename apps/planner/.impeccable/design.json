@@ -1,0 +1,722 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-13T02:46:40.643327Z",
+  "title": "Design System: anotar planner",
+  "extensions": {
+    "colorMeta": {
+      "canvas": {
+        "role": "neutral",
+        "displayName": "따뜻한 종이",
+        "tonalRamp": [
+          "oklch(15% 0.00671 97.35)",
+          "oklch(25% 0.00671 97.35)",
+          "oklch(35% 0.00671 97.35)",
+          "oklch(45% 0.00671 97.35)",
+          "oklch(60% 0.00671 97.35)",
+          "oklch(72% 0.00671 97.35)",
+          "oklch(84% 0.00671 97.35)",
+          "oklch(95% 0.00671 97.35)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "흰 입력 표면",
+        "tonalRamp": [
+          "oklch(15% 0.00000 0.00)",
+          "oklch(25% 0.00000 0.00)",
+          "oklch(35% 0.00000 0.00)",
+          "oklch(45% 0.00000 0.00)",
+          "oklch(60% 0.00000 0.00)",
+          "oklch(72% 0.00000 0.00)",
+          "oklch(84% 0.00000 0.00)",
+          "oklch(95% 0.00000 0.00)"
+        ]
+      },
+      "forest": {
+        "role": "primary",
+        "displayName": "짙은 숲색",
+        "tonalRamp": [
+          "oklch(15% 0.02531 175.32)",
+          "oklch(25% 0.02531 175.32)",
+          "oklch(35% 0.02531 175.32)",
+          "oklch(45% 0.02531 175.32)",
+          "oklch(60% 0.02531 175.32)",
+          "oklch(72% 0.02531 175.32)",
+          "oklch(84% 0.02531 175.32)",
+          "oklch(95% 0.02531 175.32)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "본문 잉크",
+        "tonalRamp": [
+          "oklch(15% 0.01562 182.83)",
+          "oklch(25% 0.01562 182.83)",
+          "oklch(35% 0.01562 182.83)",
+          "oklch(45% 0.01562 182.83)",
+          "oklch(60% 0.01562 182.83)",
+          "oklch(72% 0.01562 182.83)",
+          "oklch(84% 0.01562 182.83)",
+          "oklch(95% 0.01562 182.83)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "차분한 보조 잉크",
+        "tonalRamp": [
+          "oklch(15% 0.03466 150.94)",
+          "oklch(25% 0.03466 150.94)",
+          "oklch(35% 0.03466 150.94)",
+          "oklch(45% 0.03466 150.94)",
+          "oklch(60% 0.03466 150.94)",
+          "oklch(72% 0.03466 150.94)",
+          "oklch(84% 0.03466 150.94)",
+          "oklch(95% 0.03466 150.94)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "옅은 경계",
+        "tonalRamp": [
+          "oklch(15% 0.01317 130.79)",
+          "oklch(25% 0.01317 130.79)",
+          "oklch(35% 0.01317 130.79)",
+          "oklch(45% 0.01317 130.79)",
+          "oklch(60% 0.01317 130.79)",
+          "oklch(72% 0.01317 130.79)",
+          "oklch(84% 0.01317 130.79)",
+          "oklch(95% 0.01317 130.79)"
+        ]
+      },
+      "action": {
+        "role": "primary",
+        "displayName": "동작 숲색",
+        "tonalRamp": [
+          "oklch(15% 0.05705 159.15)",
+          "oklch(25% 0.05705 159.15)",
+          "oklch(35% 0.05705 159.15)",
+          "oklch(45% 0.05705 159.15)",
+          "oklch(60% 0.05705 159.15)",
+          "oklch(72% 0.05705 159.15)",
+          "oklch(84% 0.05705 159.15)",
+          "oklch(95% 0.05705 159.15)"
+        ]
+      },
+      "hover": {
+        "role": "neutral",
+        "displayName": "옅은 보조 면",
+        "tonalRamp": [
+          "oklch(15% 0.01432 128.63)",
+          "oklch(25% 0.01432 128.63)",
+          "oklch(35% 0.01432 128.63)",
+          "oklch(45% 0.01432 128.63)",
+          "oklch(60% 0.01432 128.63)",
+          "oklch(72% 0.01432 128.63)",
+          "oklch(84% 0.01432 128.63)",
+          "oklch(95% 0.01432 128.63)"
+        ]
+      },
+      "lime": {
+        "role": "secondary",
+        "displayName": "작은 라임 강조",
+        "tonalRamp": [
+          "oklch(15% 0.06633 120.69)",
+          "oklch(25% 0.06633 120.69)",
+          "oklch(35% 0.06633 120.69)",
+          "oklch(45% 0.06633 120.69)",
+          "oklch(60% 0.06633 120.69)",
+          "oklch(72% 0.06633 120.69)",
+          "oklch(84% 0.06633 120.69)",
+          "oklch(95% 0.06633 120.69)"
+        ]
+      },
+      "plan": {
+        "role": "neutral",
+        "displayName": "계획 면",
+        "tonalRamp": [
+          "oklch(15% 0.02701 118.33)",
+          "oklch(25% 0.02701 118.33)",
+          "oklch(35% 0.02701 118.33)",
+          "oklch(45% 0.02701 118.33)",
+          "oklch(60% 0.02701 118.33)",
+          "oklch(72% 0.02701 118.33)",
+          "oklch(84% 0.02701 118.33)",
+          "oklch(95% 0.02701 118.33)"
+        ]
+      },
+      "actual": {
+        "role": "neutral",
+        "displayName": "선택 날짜 보조 면",
+        "tonalRamp": [
+          "oklch(15% 0.01664 156.90)",
+          "oklch(25% 0.01664 156.90)",
+          "oklch(35% 0.01664 156.90)",
+          "oklch(45% 0.01664 156.90)",
+          "oklch(60% 0.01664 156.90)",
+          "oklch(72% 0.01664 156.90)",
+          "oklch(84% 0.01664 156.90)",
+          "oklch(95% 0.01664 156.90)"
+        ]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "오류 글자",
+        "tonalRamp": [
+          "oklch(15% 0.13625 32.65)",
+          "oklch(25% 0.13625 32.65)",
+          "oklch(35% 0.13625 32.65)",
+          "oklch(45% 0.13625 32.65)",
+          "oklch(60% 0.13625 32.65)",
+          "oklch(72% 0.13625 32.65)",
+          "oklch(84% 0.13625 32.65)",
+          "oklch(95% 0.13625 32.65)"
+        ]
+      },
+      "focus": {
+        "role": "primary",
+        "displayName": "초점 녹색",
+        "tonalRamp": [
+          "oklch(15% 0.05765 149.63)",
+          "oklch(25% 0.05765 149.63)",
+          "oklch(35% 0.05765 149.63)",
+          "oklch(45% 0.05765 149.63)",
+          "oklch(60% 0.05765 149.63)",
+          "oklch(72% 0.05765 149.63)",
+          "oklch(84% 0.05765 149.63)",
+          "oklch(95% 0.05765 149.63)"
+        ]
+      },
+      "journal-boundary": {
+        "role": "neutral",
+        "displayName": "시간 구획",
+        "tonalRamp": [
+          "oklch(15% 0.02760 147.06)",
+          "oklch(25% 0.02760 147.06)",
+          "oklch(35% 0.02760 147.06)",
+          "oklch(45% 0.02760 147.06)",
+          "oklch(60% 0.02760 147.06)",
+          "oklch(72% 0.02760 147.06)",
+          "oklch(84% 0.02760 147.06)",
+          "oklch(95% 0.02760 147.06)"
+        ]
+      },
+      "missed-surface": {
+        "role": "neutral",
+        "displayName": "미이행 면",
+        "tonalRamp": [
+          "oklch(15% 0.01696 56.18)",
+          "oklch(25% 0.01696 56.18)",
+          "oklch(35% 0.01696 56.18)",
+          "oklch(45% 0.01696 56.18)",
+          "oklch(60% 0.01696 56.18)",
+          "oklch(72% 0.01696 56.18)",
+          "oklch(84% 0.01696 56.18)",
+          "oklch(95% 0.01696 56.18)"
+        ]
+      },
+      "note-grid": {
+        "role": "neutral",
+        "displayName": "메모 격자",
+        "tonalRamp": [
+          "oklch(15% 0.05705 159.15)",
+          "oklch(25% 0.05705 159.15)",
+          "oklch(35% 0.05705 159.15)",
+          "oklch(45% 0.05705 159.15)",
+          "oklch(60% 0.05705 159.15)",
+          "oklch(72% 0.05705 159.15)",
+          "oklch(84% 0.05705 159.15)",
+          "oklch(95% 0.05705 159.15)"
+        ]
+      },
+      "planning-range-surface": {
+        "role": "neutral",
+        "displayName": "계획 기간 면",
+        "purpose": "연간 목표 기간과 겹치는 칸의 미세한 면. 완료·성과 색이 아니다.",
+        "tonalRamp": [
+          "oklch(15% 0.05705 159.15)",
+          "oklch(25% 0.05705 159.15)",
+          "oklch(35% 0.05705 159.15)",
+          "oklch(45% 0.05705 159.15)",
+          "oklch(60% 0.05705 159.15)",
+          "oklch(72% 0.05705 159.15)",
+          "oklch(84% 0.05705 159.15)",
+          "oklch(95% 0.05705 159.15)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "중앙 소개 제목",
+        "purpose": "흰 공개 바탕의 큰 750 굵기 제목. PC 40–74px clamp와 모바일 관찰 크기를 따른다."
+      },
+      "headline": {
+        "displayName": "일반 첫 제목",
+        "purpose": "페이지 첫 제목; 날짜·인증·정책에는 관찰된 국소 크기가 있다."
+      },
+      "title": {
+        "displayName": "구역 제목",
+        "purpose": "일반 두 번째 제목."
+      },
+      "section-title": {
+        "displayName": "작은 구역 제목",
+        "purpose": "일반 세 번째 제목."
+      },
+      "body": {
+        "displayName": "본문",
+        "purpose": "일반 문단. 루트 글자 크기는 설정의 14/16/18px에 연결된다."
+      },
+      "label": {
+        "displayName": "라벨과 동작",
+        "purpose": "600 굵기의 폼 라벨과 주요 동작."
+      },
+      "support": {
+        "displayName": "보조 글자",
+        "purpose": "시간, 목록, 짧은 안내의 12px 글자."
+      },
+      "detail": {
+        "displayName": "작은 세부 글자",
+        "purpose": "작은 시각·상태의 11px 글자; 전체 정보의 대체 경로를 유지한다."
+      },
+      "table": {
+        "displayName": "정책 표 읽기",
+        "purpose": "PC 14px/1.7, 모바일 14px/1.75로 읽는 필드 기록."
+      },
+      "journal-heading": {
+        "displayName": "일지 날짜 제목",
+        "purpose": "모든 비미리보기 Journal 보기의 PC·모바일 24px 날짜/기간 제목. PC는 16px 위 여백, 4px 요약 간격, 6px/8px 탭 간격을 공유한다."
+      },
+      "planning-title": {
+        "displayName": "계획 결과 제목",
+        "purpose": "목표·분기 세부 계획의 14px 굵은 제목; 줄바꿈하며 최소 44px 편집 동작 안에 놓인다."
+      },
+      "planning-month": {
+        "displayName": "분기 월 제목",
+        "purpose": "세 달 실행 계획의 18px 월 제목; 월간 일지로 이동한다."
+      },
+      "planning-meta": {
+        "displayName": "계획 보조 정보",
+        "purpose": "기존 조밀한 일지 관례를 이어받는 10px 기간·할 일 상태. 제목·조작을 대신하지 않는다."
+      },
+      "planning-dialog-heading": {
+        "displayName": "계획 모달 제목",
+        "purpose": "네이티브 계획 작성 모달의 20px 접근성 제목."
+      }
+    },
+    "shadows": [
+      {
+        "name": "secondary-inset-border",
+        "value": "inset 0 0 0 1px var(--line)",
+        "purpose": "흰 보조 버튼의 안쪽 경계."
+      },
+      {
+        "name": "planning-modal",
+        "value": "0 20px 60px rgba(32,50,45,.2)",
+        "purpose": "네이티브 계획 편집 모달에만 사용; 계획표는 평평한 경계를 유지한다."
+      }
+    ],
+    "motion": [],
+    "breakpoints": [
+      {
+        "name": "journal-narrow-desktop",
+        "value": "1050px"
+      },
+      {
+        "name": "narrow-desktop",
+        "value": "900px"
+      },
+      {
+        "name": "mobile",
+        "value": "640px"
+      },
+      {
+        "name": "compact-mobile",
+        "value": "360px"
+      }
+    ],
+    "workspaceContainer": {
+      "maxWidthIncludingGutters": 1280,
+      "maxContentWidth": 1216,
+      "desktopGutter": 32,
+      "tabletGutter": 24,
+      "mobileGutter": 18,
+      "tabletBreakpoint": 1050,
+      "mobileBreakpoint": 640,
+      "scope": "app header and journal, plus standalone demo; landing preview preserves its own container"
+    },
+    "viewportOverview": {
+      "minWidth": 641,
+      "minWorkspaceHeight": 420,
+      "bottomInset": 20,
+      "priorityMaxHeight": "45%",
+      "minNoteHeight": 40,
+      "scope": "day grid, including open activity dialog; excludes landing preview",
+      "sizing": "default fit: measured remaining viewport height; 24 equal flexible rows",
+      "comfortableHourHeight": 32,
+      "comfortableNoteMinHeight": 110,
+      "comfortableScroll": "natural page scrolling; desktop only",
+      "comfortableDefault": false
+    },
+    "compactPrivateHeader": {
+      "desktopHeight": 56,
+      "brandFontSize": 22,
+      "brandImageSize": 28,
+      "brandGap": 8,
+      "mobileBrandFontSize": 21,
+      "mobileBrandImageSize": 26,
+      "mobileHeight": 88,
+      "summaryGap": 4,
+      "periodMargins": "0; inside journal-heading, 12px heading bottom spacing",
+      "journalTitleSize": 24,
+      "journalTopInset": 16,
+      "scope": "private header and all non-preview desktop Journal views; daily fit measures these same controls",
+      "journalHeadingLayout": {
+        "wideMinimum": 1200,
+        "wide": "title / centered period controls / date controls",
+        "intermediate": "title + date; centered period controls next row",
+        "mobile": "title / date controls / centered period controls",
+        "review": "title and description only"
+      },
+      "navigation": {
+        "groups": [
+          "Schedule",
+          "Plans",
+          "Review"
+        ],
+        "scheduleViews": [
+          "day",
+          "week",
+          "month"
+        ],
+        "planningViews": [
+          "quarter",
+          "year"
+        ],
+        "routes": {
+          "schedule": "/app",
+          "plans": "/app/plans",
+          "review": "/app/review"
+        },
+        "legacyQueryViews": "supported and normalized",
+        "selectedDate": "retained across groups",
+        "mobileNavHeight": 44,
+        "mobileNavGap": 8
+      }
+    },
+    "activityDialog": {
+      "maxWidth": 480,
+      "viewportInset": 16,
+      "radius": 12,
+      "native": true
+    },
+    "periodOverview": {
+      "views": [
+        "week",
+        "month"
+      ],
+      "maxRangeDays": 366,
+      "monthNavigation": "month picker with Previous month / Next month / This month; title shows current month",
+      "statusFilters": [
+        "done",
+        "partial",
+        "missed",
+        "deferred",
+        "pending",
+        "cancelled"
+      ]
+    },
+    "periodDiary": {
+      "weeklyHours": 24,
+      "weeklyDayCount": 7,
+      "weeklyTrackHeight": 528,
+      "weeklyLaneModel": "single scheduled-plan track; no separate actual activity display",
+      "weeklyHeadingHeight": 64,
+      "deferredSurface": "#e9e3c9",
+      "mobileCalendarColumnsFit": true,
+      "compactTitleBelowMinutes": 100,
+      "timeMarkerBelowMinutes": 50,
+      "shortAnnotationMinHeight": 44
+    },
+    "legacyRecordDiagrams": {
+      "quarterMonthCount": 3,
+      "yearMonthCount": 12,
+      "yearColumns": 4,
+      "mobileYearColumns": 2,
+      "mobileQuarterDateHeight": 44,
+      "scope": "Preserved legacy record-diagram code only; NOT current quarter/year defaults. Existing user diary records remain stored/exportable."
+    },
+    "planningBoards": {
+      "scope": "current quarter/year default UI; established Anotar world, local implementation only",
+      "annual": {
+        "goalColumn": "minmax(160px,.8fr)",
+        "quarterColumns": "repeat(4,minmax(0,1fr))",
+        "headerMinHeight": 64,
+        "cellMinHeight": 132,
+        "cellPadding": 12,
+        "narrowAt": 900,
+        "narrowGoalColumn": "minmax(128px,.8fr)",
+        "narrowCellPadding": 8,
+        "mobileAt": 640,
+        "mobileGoalSpan": "1/-1",
+        "mobileQuarterColumns": "repeat(2,minmax(0,1fr))",
+        "mobileCellMinHeight": 116,
+        "mobileCellPadding": 10
+      },
+      "quarter": {
+        "monthColumns": "repeat(3,minmax(0,1fr))",
+        "columnGap": 28,
+        "narrowGapAt": 900,
+        "narrowGap": 20,
+        "mobileAt": 640,
+        "mobileColumns": "1fr",
+        "mobileGap": 28,
+        "focusPadding": "16px 0 24px",
+        "focusMarginBottom": 24
+      },
+      "controls": {
+        "minActionHeight": 44,
+        "pickers": "native year select, plus quarter select in quarter view",
+        "urlState": [
+          "view",
+          "date"
+        ],
+        "multiMonthStep": "same stored ID appears in every overlapping month/quarter"
+      }
+    },
+    "planningDialog": {
+      "native": true,
+      "width": "min(520px,calc(100vw - 32px))",
+      "maxHeight": "calc(100dvh - 32px)",
+      "viewportInset": 16,
+      "formPadding": "24px",
+      "mobileFormPadding": "22px 18px",
+      "mobileInputFontSize": 16,
+      "backdrop": "rgba(32,50,45,.35)",
+      "basicFields": [
+        "title",
+        "startMonth",
+        "endMonth"
+      ],
+      "optionalFields": [
+        "parentId",
+        "note"
+      ],
+      "draftProtection": [
+        "close",
+        "Escape",
+        "route leave",
+        "beforeunload"
+      ],
+      "focus": "title initially; restore prior control on close",
+      "conflict": "preserve draft; explicit reload of latest plan"
+    },
+    "planningContext": {
+      "views": [
+        "day",
+        "week",
+        "month"
+      ],
+      "defaultOpen": false,
+      "summaryMinHeight": 44,
+      "summaryPadding": "8px 0",
+      "summaryVisibleTitles": 2,
+      "bodyGap": "12px 24px",
+      "bodyPadding": "12px 0",
+      "emptyData": "render nothing",
+      "source": "real owner-isolated saved goals/steps overlapping the period month range",
+      "openAction": "matching quarter plan"
+    },
+    "planningLinks": {
+      "source": "versioned owner-scoped goals and steps; diary contents preserved",
+      "parentId": "optional existing owner goal ID",
+      "schedule": "month heading opens monthly schedule; item-to-activity links are not yet implemented",
+      "future": "direct activity and dated reflection references; proposal only",
+      "tasks": "retired; no picker, standalone task records or task-linked scheduling"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "계획 추가와 저장 등 주요 동작. 최소 44px 조작, 숲색 호버, 키보드 초점을 유지한다.",
+      "html": "<button type=\"button\" class=\"ds-primary\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>계획 추가</button>",
+      "css": ".ds-primary{font-family:'DM Sans',Pretendard,sans-serif;font-size:var(--font-body,14px);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 18px;border:0;border-radius:8px;background:var(--action,#315843);color:var(--surface,#fff);font-weight:600;cursor:pointer}.ds-primary:hover{background:var(--forest,#20322d);color:var(--surface,#fff)}.ds-primary:focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px;}.ds-primary:disabled{background:var(--action,#315843);color:var(--surface,#fff);opacity:.65;cursor:default}.ds-primary svg{flex-shrink:0}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "실제 기록과 취소 같은 보조 동작. 흰 면과 안쪽 1px 경계를 사용한다.",
+      "html": "<button type=\"button\" class=\"ds-secondary\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>실제 기록</button>",
+      "css": ".ds-secondary{font-family:'DM Sans',Pretendard,sans-serif;font-size:var(--font-body,14px);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 18px;border:0;border-radius:8px;background:var(--surface,#fff);color:var(--ink,#202b29);box-shadow:inset 0 0 0 1px var(--line,#e0e5dc);font-weight:600;cursor:pointer}.ds-secondary:hover{background:var(--hover,#e7ece2)}.ds-secondary:focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px;}.ds-secondary:disabled{opacity:.65;cursor:default}.ds-secondary svg{flex-shrink:0}"
+    },
+    {
+      "name": "Text Button",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "짧은 보조 동작의 투명한 면. 삭제 변형은 danger 글자와 명시적인 이름을 사용한다.",
+      "html": "<button type=\"button\" class=\"ds-text-button\">기본값으로 설정</button>",
+      "css": ".ds-text-button{font-family:'DM Sans',Pretendard,sans-serif;font-size:var(--font-body,14px);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:8px;border:0;border-radius:8px;background:transparent;color:var(--action,#315843);font-weight:600;cursor:pointer}.ds-text-button:hover{background:var(--hover,#e7ece2)}.ds-text-button:focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px;}.ds-text-button:disabled{opacity:.65;cursor:default}"
+    },
+    {
+      "name": "Labeled Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "활동과 계정 입력의 흰 필드. 44px 최소 높이와 모바일 16px 글자를 사용한다.",
+      "html": "<label class=\"ds-input-label\" for=\"ds-activity-input\">활동<input class=\"ds-input\" id=\"ds-activity-input\" type=\"text\" placeholder=\"무엇을 할까요?\" maxlength=\"200\" /></label>",
+      "css": ".ds-input-label{font-family:'DM Sans',Pretendard,sans-serif;font-size:var(--font-body,14px);display:block;color:var(--ink,#202b29);font-weight:600}.ds-input{box-sizing:border-box;font-family:'DM Sans',Pretendard,sans-serif;font-size:var(--font-body,14px);display:block;margin-top:8px;width:100%;min-height:44px;padding:12px;border:1px solid var(--line,#e0e5dc);border-radius:8px;background:var(--surface,#fff);color:var(--ink,#202b29);font-weight:400;caret-color:var(--action,#315843)}.ds-input::placeholder{color:var(--muted,#586c5c);opacity:1}.ds-input:focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px;}.ds-input:disabled{opacity:.65;cursor:default}@media(max-width:640px){.ds-input{box-sizing:border-box;font-size:16px}}"
+    },
+    {
+      "name": "App Navigation",
+      "kind": "nav",
+      "refersTo": "app-nav-link",
+      "description": "오늘·할 일을 표시하는 개인 탐색. 현재 항목은 숲색과 아래 2px 선으로 구분한다.",
+      "html": "<nav class=\"ds-app-nav\" aria-label=\"플래너 메뉴\"><a class=\"ds-nav-link ds-nav-active\" aria-current=\"page\" href=\"/app\">일정</a><a class=\"ds-nav-link\" href=\"/app/plans\">계획</a><a class=\"ds-nav-link\" href=\"/app/review\">되짚어보기</a></nav>",
+      "css": ".ds-app-nav{font-family:'DM Sans',Pretendard,sans-serif;font-size:var(--font-body,14px);display:flex;gap:30px;align-items:stretch;height:56px}.ds-nav-link{display:flex;align-items:center;padding:0 4px;border-bottom:2px solid transparent;text-decoration:none;color:var(--muted,#586c5c);font-weight:600}.ds-nav-link:hover{color:var(--action,#315843)}.ds-nav-active,.ds-nav-active:hover{color:var(--action,#315843);border-color:var(--action,#315843)}.ds-nav-link:focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px}@media(max-width:640px){.ds-app-nav{height:44px;gap:8px;justify-content:space-between}.ds-nav-link{justify-content:center;flex:1;min-height:44px;padding:0 4px;font-size:13px}}"
+    },
+    {
+      "name": "Language Select",
+      "kind": "input",
+      "refersTo": "language-control",
+      "description": "공개 헤더·푸터와 개인 데스크톱 헤더·설정의 네이티브 KO/EN 선택기. 앱은 문구·메타·오류 표시를 갱신하고 작성한 자료·편집 초안을 보존한다. 예시는 선택기 자체만 렌더한다.",
+      "html": "<label class=\"ds-language-select\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20\"/></svg><span class=\"ds-language-label\">Language</span><select aria-label=\"Language\"><option value=\"ko\">한국어</option><option value=\"en\" selected>English</option></select></label>",
+      "css": ".ds-language-select{font-family:'DM Sans',Pretendard,sans-serif;font-size:var(--font-body,14px);display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--muted,#586c5c);font-weight:500;flex-shrink:0}.ds-language-select select{font-family:'DM Sans',Pretendard,sans-serif;font-size:var(--font-body,14px);box-sizing:border-box;width:auto;min-height:44px;margin:0;border:0;border-radius:8px;padding:8px 4px;background:transparent;color:inherit;cursor:pointer;font-size:13px;caret-color:var(--action,#315843)}.ds-language-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.ds-language-select select:focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px;}.ds-language-select svg{flex-shrink:0;vertical-align:middle}@media(max-width:640px){.ds-language-select,.ds-language-select select{font-size:12px}.ds-language-select>svg{display:none}}"
+    },
+    {
+      "name": "Journal Timetable / Preview Frame",
+      "kind": "card",
+      "refersTo": "journal-plan",
+      "description": "공유 일지의 24시간·가로 10분 여섯 칸과 소개 프레임. 두 가상 계획의 30분 가로 길이·완료·미이행을 보여주는 정적 HTML/CSS 예시이며 앱의 편집·방향키 로직은 포함하지 않는다.",
+      "html": "<section class=\"ds-journal-frame\" aria-label=\"Example day\"><header class=\"ds-journal-bar\"><strong>anotar</strong><small>Example day</small></header><div class=\"ds-journal-grid\"><div class=\"ds-journal-grid-header\"><span>Time</span><div><span>00</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span></div></div><div class=\"ds-journal-hour ds-journal-boundary\"><time>00:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 00:00\" tabindex=\"0\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 00:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 00:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 00:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 00:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 00:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>01:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 01:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 01:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 01:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 01:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 01:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 01:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>02:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 02:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 02:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 02:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 02:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 02:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 02:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>03:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 03:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 03:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 03:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 03:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 03:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 03:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>04:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 04:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 04:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 04:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 04:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 04:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 04:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>05:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 05:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 05:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 05:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 05:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 05:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 05:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour ds-journal-boundary\"><time>06:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 06:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 06:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 06:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 06:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 06:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 06:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>07:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 07:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 07:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 07:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 07:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 07:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 07:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>08:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 08:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 08:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 08:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 08:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 08:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 08:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>09:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 09:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 09:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 09:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 09:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 09:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 09:50\" tabindex=\"-1\"></button><button class=\"ds-journal-plan\" style=\"left:0%;width:50%;top:2px;height:calc(100% - 4px)\" aria-label=\"Reading 09:00–09:30 Scheduled\" title=\"Reading · 09:00–09:30 · Scheduled\"><span>Reading</span></button></div></div><div class=\"ds-journal-hour\"><time>10:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 10:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 10:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 10:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 10:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 10:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 10:50\" tabindex=\"-1\"></button><button class=\"ds-journal-plan ds-journal-missed\" style=\"left:16.666667%;width:50%;top:2px;height:calc(100% - 4px)\" aria-label=\"Draft proposal 10:10–10:40 Unfinished\" title=\"Draft proposal · 10:10–10:40 · Unfinished\"><span>Draft proposal</span></button></div></div><div class=\"ds-journal-hour\"><time>11:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 11:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 11:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 11:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 11:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 11:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 11:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour ds-journal-boundary\"><time>12:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 12:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 12:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 12:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 12:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 12:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 12:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>13:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 13:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 13:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 13:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 13:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 13:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 13:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>14:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 14:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 14:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 14:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 14:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 14:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 14:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>15:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 15:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 15:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 15:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 15:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 15:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 15:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>16:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 16:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 16:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 16:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 16:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 16:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 16:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>17:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 17:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 17:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 17:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 17:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 17:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 17:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour ds-journal-boundary\"><time>18:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 18:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 18:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 18:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 18:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 18:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 18:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>19:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 19:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 19:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 19:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 19:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 19:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 19:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>20:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 20:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 20:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 20:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 20:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 20:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 20:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>21:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 21:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 21:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 21:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 21:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 21:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 21:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>22:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 22:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 22:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 22:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 22:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 22:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 22:50\" tabindex=\"-1\"></button></div></div><div class=\"ds-journal-hour\"><time>23:00</time><div class=\"ds-journal-track\"><button class=\"ds-journal-cell\" aria-label=\"Add plan at 23:00\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 23:10\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 23:20\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 23:30\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 23:40\" tabindex=\"-1\"></button><button class=\"ds-journal-cell\" aria-label=\"Add plan at 23:50\" tabindex=\"-1\"></button></div></div></div><p class=\"ds-journal-end\">24:00 · Next day</p></section>",
+      "css": ".ds-journal-frame{box-sizing:border-box;width:100%;max-width:900px;background:var(--canvas,#f6f5f0);color:var(--ink,#202b29);border:1px solid var(--line,#e0e5dc);border-radius:14px;overflow:hidden;font-family:DM Sans,Pretendard,sans-serif}.ds-journal-bar{display:flex;gap:24px;align-items:center;padding:12px 24px;background:var(--surface,#fff);border-bottom:1px solid var(--line,#e0e5dc)}.ds-journal-bar strong{font-size:20px;font-weight:750;letter-spacing:-.07em}.ds-journal-bar small{margin-left:auto;color:var(--muted,#586c5c);font-size:11px}.ds-journal-grid{padding:20px 22px 0;--journal-hour:24px}.ds-journal-grid-header,.ds-journal-hour{display:grid;grid-template-columns:44px minmax(0,1fr)}.ds-journal-grid-header{background:var(--hover,#e7ece2);border-bottom:1px solid var(--journal-boundary,#a5b5a6);min-height:28px;color:var(--muted,#586c5c);font-size:11px}.ds-journal-grid-header>span{display:flex;align-items:center;justify-content:center}.ds-journal-grid-header>div{display:flex;justify-content:space-between;padding:4px 6px;font-variant-numeric:tabular-nums}.ds-journal-hour{height:var(--journal-hour);border-bottom:1px solid var(--line,#e0e5dc)}.ds-journal-boundary{border-top:1px solid var(--journal-boundary,#a5b5a6)}.ds-journal-hour time{display:flex;align-items:center;justify-content:center;color:var(--muted,#586c5c);font-size:10px;font-variant-numeric:tabular-nums;border-right:1px solid var(--line,#e0e5dc)}.ds-journal-track{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));min-width:0}.ds-journal-cell{min-width:0;padding:0;border:0;border-right:1px solid var(--line,#e0e5dc);border-radius:0;background:transparent;cursor:pointer}.ds-journal-cell:hover{background:var(--hover,#e7ece2)}.ds-journal-plan{box-sizing:border-box;position:absolute;display:flex;align-items:center;gap:4px;padding:1px 6px;background:var(--plan,#e9eeda);color:var(--ink,#202b29);border:0;border-radius:3px;text-align:left;font:11px DM Sans,Pretendard,sans-serif;overflow:hidden;min-width:0;cursor:pointer}.ds-journal-plan span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-journal-plan svg{flex-shrink:0}.ds-journal-missed{color:var(--danger,#a74330);background:var(--missed-surface,#f3e7df)}.ds-journal-plan:hover{background:var(--lime,#d8e6b5)}.ds-journal-cell:focus-visible,.ds-journal-plan:focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px;z-index:2}.ds-journal-end{text-align:right;color:var(--muted,#586c5c);font-size:11px;margin:6px 22px 24px}@media(max-width:640px){.ds-journal-frame{border-radius:12px}.ds-journal-bar{padding:10px 12px;gap:10px}.ds-journal-bar strong{font-size:16px}.ds-journal-bar small{font-size:10px}.ds-journal-grid{padding:18px 12px 0;--journal-hour:28px}.ds-journal-plan{padding:1px 4px}.ds-journal-end{margin:6px 12px 20px}}"
+    },
+    {
+      "name": "Journal Priorities",
+      "kind": "input",
+      "refersTo": "journal-priority",
+      "description": "체크·번호·투명 입력·시간 잡기의 오늘 우선순위. 정적 시각 예시이며 실제 드롭·계획 폼 연결은 앱에서 제공한다.",
+      "html": "<section class=\"ds-priorities\" aria-label=\"Today’s priorities\"><header class=\"ds-priority-heading\"><h2>Today’s priorities</h2><button aria-label=\"Add a priority\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>Add</button></header><div class=\"ds-priority\"><input type=\"checkbox\" aria-label=\"Complete priority 1\" checked><span>01</span><input aria-label=\"Priority 1\" value=\"Reading\" maxlength=\"300\"><button>Set time</button></div><div class=\"ds-priority\"><input type=\"checkbox\" aria-label=\"Complete priority 2\"><span>02</span><input aria-label=\"Priority 2\" value=\"Draft proposal\" maxlength=\"300\"><button>Set time</button></div><div class=\"ds-priority\"><input type=\"checkbox\" aria-label=\"Complete priority 3\"><span>03</span><input aria-label=\"Priority 3\" value=\"Listen to a lecture\" maxlength=\"300\"><button>Set time</button></div><p class=\"ds-priority-hint\">Drag a task onto the schedule or choose Set time.</p></section>",
+      "css": ".ds-priorities{max-width:440px;min-width:0;font-family:DM Sans,Pretendard,sans-serif;color:var(--ink,#202b29)}.ds-priority-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;margin-bottom:8px}.ds-priority-heading h2{font-size:16px;line-height:1.3;margin:0}.ds-priority-heading button{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:8px;color:var(--muted,#586c5c);font:12px DM Sans,Pretendard,sans-serif;border:0;border-radius:8px;background:transparent;cursor:pointer}.ds-priority{display:grid;grid-template-columns:18px 18px minmax(0,1fr) auto;align-items:center;gap:8px;border-bottom:1px solid var(--line,#e0e5dc);min-height:44px}.ds-priority input[type=checkbox]{width:18px;height:18px;margin:0;accent-color:var(--action,#315843)}.ds-priority>span{color:var(--muted,#586c5c);font-size:11px;font-variant-numeric:tabular-nums}.ds-priority input:not([type=checkbox]){box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:8px 0;border:0;border-radius:0;background:transparent;color:var(--ink,#202b29);font:13px DM Sans,Pretendard,sans-serif;caret-color:var(--action,#315843)}.ds-priority button{min-height:44px;padding:4px;font:11px DM Sans,Pretendard,sans-serif;color:var(--muted,#586c5c);border:0;border-radius:8px;background:transparent;white-space:nowrap;cursor:pointer}.ds-priority-heading button:hover,.ds-priority button:hover{background:var(--hover,#e7ece2)}.ds-priority-heading button:focus-visible,.ds-priority input:focus-visible,.ds-priority button:focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px}.ds-priority-hint{font-size:11px;color:var(--muted,#586c5c);line-height:1.7;margin:10px 0 0}@media(max-width:640px){.ds-priority{grid-template-columns:18px 16px minmax(0,1fr) auto;gap:5px}.ds-priority input:not([type=checkbox]){font-size:16px}}"
+    },
+    {
+      "name": "Journal Daily Notes",
+      "kind": "custom",
+      "refersTo": "journal-note",
+      "description": "생각·아이디어·하루 회고의 투명한 격자 필드. 실제 일지의 세로 늘리기와 모바일 16px 입력을 유지한다.",
+      "html": "<section class=\"ds-journal-notes\" aria-label=\"Daily notes\"><label>Thoughts<textarea aria-label=\"Thoughts\" maxlength=\"20000\" placeholder=\"Write down tasks and thoughts first.\"></textarea></label><label>Ideas<textarea aria-label=\"Ideas\" maxlength=\"20000\" placeholder=\"Ideas to revisit later\"></textarea></label><label>Reflect on your day<textarea aria-label=\"Reflect on your day\" maxlength=\"20000\" placeholder=\"What went well · Why plans changed · What to change tomorrow\"></textarea></label></section>",
+      "css": ".ds-journal-notes{display:flex;flex-direction:column;gap:16px;max-width:440px;font-family:DM Sans,Pretendard,sans-serif;color:var(--ink,#202b29)}.ds-journal-notes label{display:flex;flex-direction:column;min-height:112px;flex:1;font-size:14px;font-weight:600}.ds-journal-notes label:first-child{flex:2;min-height:160px}.ds-journal-notes textarea{box-sizing:border-box;width:100%;flex:1;min-height:80px;margin-top:8px;padding:10px 12px;font:13px/1.75 DM Sans,Pretendard,sans-serif;color:var(--ink,#202b29);caret-color:var(--action,#315843);border:1px solid var(--line,#e0e5dc);border-radius:5px;background-color:transparent;background-image:linear-gradient(to right,var(--note-grid,rgba(49,88,67,.035)) 1px,transparent 1px),linear-gradient(to bottom,var(--note-grid,rgba(49,88,67,.035)) 1px,transparent 1px);background-size:16px 16px;resize:vertical}.ds-journal-notes textarea::placeholder{color:var(--muted,#586c5c);opacity:1}.ds-journal-notes textarea:focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px}@media(max-width:640px){.ds-journal-notes label,.ds-journal-notes label:first-child{min-height:160px;flex:1}.ds-journal-notes textarea{font-size:16px}}"
+    },
+    {
+      "name": "Responsive Policy Table",
+      "kind": "custom",
+      "refersTo": "policy-table",
+      "description": "PC 세 열은 모바일에서 필드 이름을 가진 세로 기록으로 바뀐다. 14px 읽기 크기, 번역된 data-label, scope=col과 headers 연결을 유지한다. 예시는 영어의 계정 정보 한 행이다.",
+      "html": "<table class=\"ds-policy-table\"><thead><tr><th scope=\"col\" id=\"ds-policy-info\">Information</th><th scope=\"col\" id=\"ds-policy-purpose\">Purpose</th><th scope=\"col\" id=\"ds-policy-retention\">Retention</th></tr></thead><tbody><tr><td headers=\"ds-policy-info\" data-label=\"Information\">Username, password hash, recovery code hash, registration time, and accepted terms version</td><td headers=\"ds-policy-purpose\" data-label=\"Purpose\">Account identification, login, and recovery</td><td headers=\"ds-policy-retention\" data-label=\"Retention\">Until account deletion</td></tr></tbody></table>",
+      "css": ".ds-policy-table{font-family:'DM Sans',Pretendard,sans-serif;font-size:var(--font-body,14px);border-collapse:collapse;width:100%;font-size:14px;line-height:1.7;overflow-wrap:anywhere;color:var(--ink,#202b29)}.ds-policy-table th{text-align:left;background:var(--hover,#e7ece2);font-weight:700}.ds-policy-table th,.ds-policy-table td{border-bottom:1px solid var(--line,#e0e5dc);padding:14px;vertical-align:top}.ds-policy-table td:nth-child(1){width:42%}.ds-policy-table td:nth-child(3){width:28%}@media(max-width:640px){.ds-policy-table{display:block;font-size:14px;line-height:1.75;overflow-wrap:break-word;word-break:normal}.ds-policy-table thead{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.ds-policy-table tbody{display:block}.ds-policy-table tbody tr{display:block;padding:18px 0;border-top:1px solid var(--line,#e0e5dc)}.ds-policy-table td{display:block;width:auto!important;padding:0;border:0}.ds-policy-table td+td{margin-top:14px}.ds-policy-table td::before{content:attr(data-label);display:block;font-weight:650;color:var(--ink,#202b29);margin-bottom:4px}}"
+    },
+    {
+      "name": "Annual Goal Roadmap",
+      "kind": "custom",
+      "refersTo": "annual-quarter-cell",
+      "description": "현재 연간 기본 보기: 목표×네 분기. 모바일은 목표 제목 아래 2×2 칸. 아래 제목은 패널 전용 예시이며 사용자 기록이 아니다.",
+      "html": "<section class=\"ds-annual\" aria-label=\"Illustrative annual roadmap\"><header class=\"ds-annual-head\"><span>Focus goals</span><button>Q1<small>1–3</small></button><button>Q2<small>4–6</small></button><button>Q3<small>7–9</small></button><button>Q4<small>10–12</small></button></header><section class=\"ds-annual-row\"><div class=\"ds-annual-goal\"><button><strong>Example: Release to first users</strong><small>Jan — Dec 2026</small></button></div><div class=\"ds-annual-cell\"><button class=\"ds-annual-quarter\">Q1</button><button class=\"ds-annual-step\"><strong>Example: Prepare pilot</strong><small>Jan — Mar 2026</small></button><button class=\"ds-annual-add\">Add step</button></div><div class=\"ds-annual-cell\"><button class=\"ds-annual-quarter\">Q2</button><button class=\"ds-annual-add\">Add step</button></div><div class=\"ds-annual-cell\"><button class=\"ds-annual-quarter\">Q3</button><button class=\"ds-annual-add\">Add step</button></div><div class=\"ds-annual-cell\"><button class=\"ds-annual-quarter\">Q4</button><button class=\"ds-annual-add\">Add step</button></div></section></section>",
+      "css": ".ds-annual{font-family:DM Sans,Pretendard,sans-serif;color:var(--ink,#202b29);}.ds-annual-head,.ds-annual-row{display:grid;grid-template-columns:minmax(160px,.8fr) repeat(4,minmax(0,1fr));border-bottom:1px solid var(--line,#e0e5dc)}.ds-annual-head{min-height:64px;background:var(--hover,#e7ece2)}.ds-annual-head>span{padding:20px 12px;font-size:13px}.ds-annual button{border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;min-height:44px;text-align:left;}.ds-annual button:hover{background:var(--hover,#e7ece2)}.ds-annual button:focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px}.ds-annual-head>button{text-align:center;min-height:64px;font-size:14px;font-weight:650}.ds-annual small{display:block;font-size:10px;font-weight:400;color:var(--muted,#586c5c);margin-top:4px}.ds-annual-goal{padding:16px 12px}.ds-annual-goal button{width:100%;padding:0}.ds-annual-goal strong{font-size:14px;font-weight:650;line-height:1.5;overflow-wrap:anywhere}.ds-annual-cell{min-width:0;padding:12px;min-height:132px;border-left:1px solid var(--line,#e0e5dc);background:rgba(49,88,67,.025)}.ds-annual .ds-annual-quarter{display:none}.ds-annual-step,.ds-annual-add{width:100%;padding:8px 0}.ds-annual-step strong{display:block;font-size:12px;font-weight:650;line-height:1.5;overflow-wrap:anywhere}.ds-annual-add{font-size:11px!important;color:var(--muted,#586c5c)!important}@media(max-width:900px){.ds-annual-head,.ds-annual-row{grid-template-columns:minmax(128px,.8fr) repeat(4,minmax(0,1fr))}.ds-annual-cell{padding:8px}.ds-annual-goal{padding:12px 8px}}@media(max-width:640px){.ds-annual-head{display:none}.ds-annual-row{grid-template-columns:repeat(2,minmax(0,1fr))}.ds-annual-goal{grid-column:1/-1;padding:20px 0 14px}.ds-annual-cell{min-height:116px;padding:10px;border-top:1px solid var(--line,#e0e5dc)}.ds-annual-cell:nth-child(2),.ds-annual-cell:nth-child(4){border-left:0}.ds-annual .ds-annual-quarter{display:block;font-size:13px;font-weight:650;padding:0}}"
+    },
+    {
+      "name": "Quarter Monthly Plans",
+      "kind": "custom",
+      "refersTo": "planning-step",
+      "description": "현재 분기 기본 보기의 집중 목표와 세 달 실행 계획. 모바일은 달을 쌓는다. 패널 전용 예시이며 사용자의 저장 자료가 아니다.",
+      "html": "<section class=\"ds-quarter\" aria-label=\"Illustrative quarterly plan\"><div class=\"ds-quarter-focus\"><h2>Focus this quarter</h2><button><strong>Example: Release to first users</strong><small>Jan — Dec 2026</small></button></div><div class=\"ds-quarter-months\"><section><header><button><h3>Jan 2026</h3><small>Open monthly schedule</small></button><button aria-label=\"Add step for Jan\">+</button></header><article class=\"ds-quarter-step\"><button><strong>Example: Prepare pilot</strong></button><small class=\"ds-quarter-parent\">Example: Release to first users</small><small>Jan — Mar 2026</small><button class=\"ds-quarter-task\"><span>Example: Invite testers<small>To do · Set time</small></span><span aria-hidden=\"true\">→</span></button></article></section><section><header><button><h3>Feb 2026</h3><small>Open monthly schedule</small></button><button aria-label=\"Add step for Feb\">+</button></header><button class=\"ds-quarter-empty\">Plan a result for this month</button></section><section><header><button><h3>Mar 2026</h3><small>Open monthly schedule</small></button><button aria-label=\"Add step for Mar\">+</button></header><button class=\"ds-quarter-empty\">Plan a result for this month</button></section></div></section>",
+      "css": ".ds-quarter{font-family:DM Sans,Pretendard,sans-serif;color:var(--ink,#202b29);}.ds-quarter button{border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;min-height:44px;text-align:left;}.ds-quarter button:hover{background:var(--hover,#e7ece2)}.ds-quarter button:focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px}.ds-quarter small{display:block;font-size:10px;color:var(--muted,#586c5c);margin-top:4px}.ds-quarter-focus{padding:16px 0 24px;margin-bottom:24px;border-bottom:1px solid var(--line,#e0e5dc)}.ds-quarter-focus h2{font-size:14px;margin:0 0 12px}.ds-quarter-focus button{padding:6px 0;max-width:320px}.ds-quarter strong{font-size:14px;font-weight:650;line-height:1.5;overflow-wrap:anywhere}.ds-quarter-focus strong{display:block}.ds-quarter-months{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}.ds-quarter-months>section{min-width:0}.ds-quarter header{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--line,#e0e5dc);padding-bottom:12px}.ds-quarter header button{padding:4px}.ds-quarter header button:last-child{min-width:44px;text-align:center}.ds-quarter h3{font-size:18px;line-height:1.3;margin:0}.ds-quarter-step{padding:20px 0;border-bottom:1px solid var(--line,#e0e5dc)}.ds-quarter-step>button{width:100%;padding:4px 0}.ds-quarter-step>small{line-height:1.7}.ds-quarter .ds-quarter-parent{color:var(--action,#315843);font-weight:600;margin:2px 0 4px}.ds-quarter .ds-quarter-task{display:flex;align-items:center;gap:12px;padding:10px 0}.ds-quarter-task>span:first-child{flex:1;font-size:12px;overflow-wrap:anywhere}.ds-quarter-empty{min-height:64px!important;width:100%;padding:12px 0;color:var(--muted,#586c5c)!important;font-size:12px!important}@media(max-width:900px){.ds-quarter-months{gap:20px}}@media(max-width:640px){.ds-quarter-months{grid-template-columns:1fr;gap:28px}.ds-quarter-focus button{width:100%;max-width:none}}"
+    },
+    {
+      "name": "Native Planning Dialog",
+      "kind": "custom",
+      "refersTo": "planning-dialog",
+      "description": "520px 네이티브 계획 작성 모달의 독립 패널 예시. 실제 앱은 showModal·초점 복원·미저장 확인을 제공하며 이 open 예시는 정적이다.",
+      "html": "<dialog open class=\"ds-planning-dialog\" aria-labelledby=\"ds-planning-title\"><form method=\"dialog\"><h2 id=\"ds-planning-title\">Planning step</h2><label for=\"ds-planning-result\">Result to work toward</label><input id=\"ds-planning-result\" required maxlength=\"200\" placeholder=\"e.g. Release to first users\"><div class=\"ds-planning-pair\"><label>Start month<input type=\"month\" required value=\"2026-01\"></label><label>End month<input type=\"month\" required value=\"2026-03\"></label></div><label class=\"ds-planning-parent\">Related goal<select><option>Independent plan</option></select></label><details class=\"ds-planning-options\"><summary>Note</summary><label>Note<textarea maxlength=\"2000\"></textarea></label></details><div class=\"ds-planning-actions\"><button>Save plan</button><button>Cancel</button></div></form></dialog>",
+      "css": ".ds-planning-dialog{font-family:DM Sans,Pretendard,sans-serif;color:var(--ink,#202b29);position:relative;display:block;width:min(520px,calc(100vw - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:0;border:0;border-radius:12px;box-shadow:0 20px 60px rgba(32,50,45,.2);background:var(--surface,#fff);overflow:auto}.ds-planning-dialog::backdrop{background:rgba(32,50,45,.35)}.ds-planning-dialog form{padding:24px}.ds-planning-dialog h2{font-size:20px;line-height:1.3;margin:0 0 24px}.ds-planning-dialog label{display:block;font-size:13px;font-weight:600}.ds-planning-dialog input,.ds-planning-dialog select,.ds-planning-dialog textarea{display:block;width:100%;box-sizing:border-box;min-height:44px;margin-top:8px;padding:12px;border:1px solid var(--line,#e0e5dc);border-radius:8px;background:var(--surface,#fff);color:var(--ink,#202b29);font:14px DM Sans,Pretendard,sans-serif}.ds-planning-dialog textarea{min-height:96px;resize:vertical}.ds-planning-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:20px}.ds-planning-pair label{font-size:12px;min-width:0}.ds-planning-parent{margin-top:20px}.ds-planning-options{border-top:1px solid var(--line,#e0e5dc);margin-top:20px}.ds-planning-options summary{min-height:44px;padding:16px 0;font-size:12px;line-height:1.5;color:var(--muted,#586c5c);cursor:pointer}.ds-planning-options summary:hover{color:var(--action,#315843)}.ds-planning-actions{display:flex;gap:10px;margin-top:24px}.ds-planning-actions button{min-height:44px;padding:12px 18px;border:0;border-radius:8px;background:var(--action,#315843);color:var(--surface,#fff);font:600 12px DM Sans,Pretendard,sans-serif;cursor:pointer}.ds-planning-actions button:last-child{background:var(--surface,#fff);color:var(--ink,#202b29);box-shadow:inset 0 0 0 1px var(--line,#e0e5dc)}.ds-planning-actions button:hover{background:var(--forest,#20322d)}.ds-planning-actions button:last-child:hover{background:var(--hover,#e7ece2)}.ds-planning-dialog :is(input,select,textarea,summary,button):focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px}@media(max-width:640px){.ds-planning-dialog form{padding:22px 18px}.ds-planning-dialog input,.ds-planning-dialog select,.ds-planning-dialog textarea{font-size:16px}.ds-planning-pair{gap:12px}.ds-planning-actions{flex-wrap:wrap}}"
+    },
+    {
+      "name": "Period Planning Context",
+      "kind": "custom",
+      "refersTo": "planning-context",
+      "description": "일간·주간·월간의 접힌 실제 계획 참고 요약. 실제 자료가 없으면 렌더하지 않는다. 아래는 패널 전용 예시다.",
+      "html": "<details class=\"ds-planning-context\"><summary><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" aria-hidden=\"true\"><path d=\"m9 6 6 6-6 6\"/></svg>Focus for this period<span>Example: Release to first users</span></summary><div><button><strong>Example: Release to first users</strong><small>Jan — Dec 2026</small></button><button>Open quarter plan</button></div></details>",
+      "css": ".ds-planning-context{font-family:DM Sans,Pretendard,sans-serif;color:var(--ink,#202b29);border-bottom:1px solid var(--line,#e0e5dc);margin-bottom:8px}.ds-planning-context>summary{display:flex;align-items:center;gap:14px;min-height:44px;padding:8px 0;font-size:12px;font-weight:600;line-height:1.5;color:var(--muted,#586c5c);cursor:pointer}.ds-planning-context>summary svg{flex-shrink:0}.ds-planning-context[open]>summary svg{transform:rotate(90deg)}.ds-planning-context>summary span{min-width:0;color:var(--action,#315843);font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-planning-context>div{display:flex;flex-wrap:wrap;gap:12px 24px;padding:12px 0}.ds-planning-context button{border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;min-height:44px;text-align:left;font-size:12px}.ds-planning-context strong,.ds-planning-context small{display:block}.ds-planning-context small{font-size:10px;margin-top:4px}.ds-planning-context button:hover,.ds-planning-context>summary:hover{color:var(--action,#315843)}.ds-planning-context :is(button,summary):focus-visible{outline:2px solid var(--focus,#5f8165);outline-offset:3px}@media(max-width:640px){.ds-planning-context>summary{gap:8px}.ds-planning-context>summary span{flex:1}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "조용한 작업대",
+    "overview": "넓은 흰 소개 화면과 따뜻한 종이색 개인 작업 영역을 구분하고, 짙은 숲색의 작은 동작과 단단한 산세리프 글자를 기존 anotar에서 이어받는다. 승인된 빠른 필기 느낌의 소문자 a가 브랜드의 표정이다. 소개에서는 큰 중앙 제목과 실제 조작하는 일지 예시가 사용법을 보여주고, 개인 화면에서는 우선순위·하루 전체 시간표·회고·저장 상태가 중심이다.\n\n밝은 바탕 위에서 본문, 보조 글자, 얇은 경계의 순서로 정보를 구분한다. 일지는 왼쪽의 오늘 꼭 할 일과 생각·아이디어·하루 돌아보기, 오른쪽의 24시간 시간표로 구성된다. 좁은 화면에서는 같은 자료를 시간표·하루 메모 탭으로 읽고 편집한다. 한국어·영어는 같은 글꼴과 구성 안에서 사용하며 작성한 내용과 편집 초안은 언어 전환 때 보존한다.\n\n이 문서는 `src/style.css`, `src/landing.css`, `src/Landing.tsx`, `src/main.tsx`, `src/planner.tsx`, `src/journal/Journal.tsx`, `src/journal/journal.css`, `src/journal/PlanningBoard.tsx`, `src/journal/planning.css`, `src/i18n.tsx`, `src/translations.ts`, `src/legal.tsx`와 승인된 `public/brand/anotar.png`에서 추출했다. 소개의 흰 여백과 중앙 구성은 사용자가 지정한 Notion 참고를, 일지의 기능·배치는 기존 개인 서비스의 /journal 참고 화면을 따른다. 브랜드 언어는 기존 anotar에서 이어받는다. 프런트매터가 토큰의 기준이며 사이드카는 반응형 기준과 독립 렌더 예시를 보완한다. 이번 소개·KO/EN·Journal 변경은 운영 반영 전 로컬 확인용이며 초기 운영 버전과 별개다.",
+    "keyCharacteristics": [
+      "- 넓은 흰 소개 바탕과 따뜻한 종이색 개인 작업면.",
+      "- 승인된 손글씨 a와 조밀한 산세리프 타이포그래피.",
+      "- 오늘 우선순위, 생각·아이디어·회고와 하루 전체 시간표.",
+      "- 한 시간의 가로 여섯 칸과 분 단위 길이를 보존하는 계획 표시.",
+      "- 같은 자료를 편집하는 모바일 시간표·하루 메모와 대체 활동 목록.",
+      "- 가까운 입력, 보이는 저장 상태, 작성 중인 활동의 이동 확인.",
+      "- 한국어·영어 화면 문구와 보존되는 사용자 기록·편집 초안.",
+      "- 연간 목표×네 분기와 분기 목표·세 달 실행 계획, 같은 할 일의 일간 배치."
+    ],
+    "rules": [
+      {
+        "name": "The Quiet Accent Rule",
+        "body": "숲색은 동작과 현재 위치에 집중하고, 공개 영역은 흰 면, 개인 작업 영역은 종이색과 옅은 표면으로 유지한다.",
+        "section": "colors"
+      },
+      {
+        "name": "The Readable Detail Rule",
+        "body": "작은 시간과 상태는 본문을 보조하고, 활동의 전체 이름과 시간은 접근성 이름 또는 활동 목록에서 읽을 수 있게 남긴다.",
+        "section": "typography"
+      },
+      {
+        "name": "The True Time Rule",
+        "body": "한 시간 행 안에서 계획의 가로 길이는 실제 분 단위 기간을 보존한다. 작은 계획의 전체 정보와 수정은 접근성 이름과 활동 목록에서 보완한다.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat Work Rule",
+        "body": "소개 제품 예시, 개인 시간표와 활동 목록은 경계와 옅은 면으로 구분한다.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Content Boundary Rule",
+        "body": "화면 문구와 그대로 남은 예시 제목만 번역하고, 사용자 기록과 편집 중 입력은 보존한다.",
+        "section": "components"
+      },
+      "**Viewport overview.** On desktop (641px and above), the daily grid, including while an activity dialog is open measures the space below its controls and reserves a 20px bottom inset. Timetable and notes share that remaining height; the 24 hour rows flex equally. The workspace has a 420px minimum, so very short windows scroll. Notes retain at least 40px input height, and long priority lists scroll within a maximum 45% sidebar section. Activity dialogs scroll within the viewport; list, period, and mobile views retain natural scrolling. The mobile app header separates account controls and the two navigation links across two rows.",
+      "Private header uses 56px on desktop and two 44px mobile rows (88px), with no added top padding. All non-preview desktop Journal views share the 24px date/period title, 16px top inset, 4px summary gap, and 6px/8px period-tab margins. Daily viewport fitting accounts for these shared compact controls; period boards use natural page scrolling.",
+      "Activity editing now uses a native modal dialog (max width 480px, viewport inset 16px), keeping the measured daily overview intact. Basic fields are title/start/end; more options holds status and task linking. Native focus, Escape and draft confirmation are preserved. Week/month share a period diary overview with planned/occupied time, checked priorities and explicit status filters. Aggregate data is fetched by authenticated date range, up to 366 days. Deferred is a current status count, not a rescheduling-history count.",
+      "Period diaries display scheduled plans and saved daily reflections. Week uses seven date columns, a single plan track and a 24-hour ruler. Its date heading is 64px high. Only overlapping plans share width. Done or partial state alone does not change the block color; explicit unfinished and deferred states do. The two headline totals are planned time and checked daily priorities. Month shows daily priorities, up to two plans and explicit flags. Separate actual entries do not appear in totals, legends, metadata or colors. Legacy entries remain stored and exportable. Dates open daily journals. Status details and calculation notes remain collapsed. At 640px and below all seven month weekday columns fit and week scrolls horizontally.",
+      "**Planning board layout.** Quarter and year now default to stored planning boards. Annual uses `minmax(160px, .8fr) repeat(4, minmax(0, 1fr))`: one goal column and four quarter columns, a 64px header, 132px minimum cells, 12px cell padding, and thin boundaries. At 900px and below, the goal minimum is 128px and cell padding is 8px. At 640px and below, the header disappears; each goal spans the row above a 2×2 quarter grid, with 116px minimum cells and 10px padding. Quarter leads with focus goals and then three equal month columns, 28px apart (20px at 900px and below); mobile stacks the months with 28px gaps. Titles wrap, and add/edit/task actions retain 44px minimum height. Quarter/year use native year/quarter selectors and previous/next/current-period actions. The URL retains the selected date and view across refreshes.",
+      "The previous three-calendar quarter and twelve-record-map year renderers remain legacy code, alongside preserved user diary data. They are not the current quarter/year defaults. Their layout values in the sidecar are explicitly scoped as legacy rather than planning-board instructions.\n"
+    ],
+    "dos": [
+      "Do 승인된 손글씨 a, 흰 소개 바탕과 따뜻한 종이·숲색 작업면을 유지한다.",
+      "Do 새 화면에서는 이 프로젝트의 실제 토큰과 현재 글꼴을 기준으로 삼는다.",
+      "Do 한 시간의 여섯 가로 칸과 계획의 분 단위 길이를 유지하고 작은 활동의 전체 정보와 수정은 목록에서 제공한다.",
+      "Do 일지는 배치한 일정과 회고를 중심으로 표시하고 별도 실제 기록 지표·범례·추가 동작을 만들지 않는다. 이전 entries는 저장·내보내기에 보존한다.",
+      "Do 모바일 조작과 키보드 초점, 저장 상태, 미저장 활동의 이동 확인을 유지한다.",
+      "Do 실패와 충돌에서 현재 입력·기기 초안을 보존하고 다음 동작을 가까이 둔다.",
+      "Do 공유 일지 예시의 모든 선택 화면과 폭에서 번역된 사용 예시 문구를 보인다.",
+      "Do 알려진 시스템 오류를 표시할 때 번역하고 사용자 자료와 편집 초안은 보존한다.",
+      "Do 모바일 정책 표는 필드 이름과 연결된 열 제목을 유지하며 읽기 크기로 세로 배치한다.",
+      "Do 공개 소개와 제품 체험은 사이트 정보 조회가 실패해도 읽고 조작할 수 있게 유지한다."
+    ],
+    "donts": [
+      "Don't 현재 우선순위 끌어 놓기를 계획 블록 이동·기간 늘리기나 자동 저장으로 설명하지 않는다.",
+      "Don't 승인된 anotar 로고를 새 아이콘이나 다른 브랜드 스타일로 바꾸지 않는다.",
+      "Don't 짧은 시간 블록을 크게 늘려 시간 길이를 왜곡하거나 이어진 활동을 가리지 않는다.",
+      "Don't 시간 경과만으로 미이행·실제 기록·할 일 전체 완료를 표시하지 않는다.",
+      "Don't 활동 종류별 새 색이나 부유하는 카드 그림자를 개인 시간표에 덧붙이지 않는다.",
+      "Don't 모바일에서 활동 목록, 설정·로그아웃, 날짜의 오늘·달력 동작을 숨기거나 문구를 쪼개지 않는다.",
+      "Don't 미저장 활동 폼의 이동 확인을 일일 기록 저장 상태로 대신하거나, 구현되지 않은 폼 자동 복구를 약속하지 않는다.",
+      "Don't 파생 색 띠와 기존 서비스의 어두운 팔레트를 현재 플래너의 구현 토큰으로 취급하지 않는다.",
+      "Don't 언어 전환 때문에 사용자 글을 번역하거나 체험 문서·편집 폼을 다시 초기화하지 않는다.",
+      "Don't 예시의 가상 활동을 사용자 기록으로 표현하거나 언어 변경 전 오류 문구를 고정하지 않는다.",
+      "Don't 좁은 정책 표의 글자를 더 작게 줄이거나 일반 영문 단어를 열 폭에 맞춰 쪼개지 않는다."
+    ]
+  }
+}

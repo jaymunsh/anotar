@@ -1,0 +1,32 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,rm,writeFile,utimes,stat} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {openStore} from '../server/store.mjs';
+import {DatabaseSync} from 'node:sqlite';
+import {backupPlanner} from '../scripts/backup.mjs';
+import {restorePlanner} from '../scripts/restore.mjs';
+import {recordDeletion,deletionRecords,purgeDeletions} from '../server/deletions.mjs';
+import {randomUUID} from 'node:crypto';
+test('online backup includes WAL records, verifies integrity and prunes only its expired backups',async t=>{
+  const dir=await mkdtemp(join(tmpdir(),'planner-backup-test-'));t.after(()=>rm(dir,{recursive:true,force:true}));
+  const db=openStore(join(dir,'data'));t.after(()=>db.close());db.prepare('INSERT INTO users(id,username,password,recovery_hash,created_at,terms_version) VALUES(?,?,?,?,?,?)').run('example','example','hash','hash',0,'test');
+  const backups=join(dir,'backups'),first=await backupPlanner({source:join(dir,'data','planner.sqlite'),directory:backups});
+  const copy=new DatabaseSync(first,{readOnly:true});assert.equal(copy.prepare('SELECT username FROM users').get().username,'example');copy.close();assert.equal((await stat(first)).mode&0o777,0o600);
+  const old=Date.now()-8*86400000;await utimes(first,old/1000,old/1000);const unrelated=join(backups,'personal.sqlite');await writeFile(unrelated,'untouched');await utimes(unrelated,old/1000,old/1000);
+  await backupPlanner({source:join(dir,'data','planner.sqlite'),directory:backups,now:Date.now()+1000});await assert.rejects(stat(first),{code:'ENOENT'});assert.equal((await stat(unrelated)).size,9);
+});
+test('restore reapplies account deletions, revokes sessions and refuses to overwrite a directory',async t=>{
+  const dir=await mkdtemp(join(tmpdir(),'planner-restore-test-'));t.after(()=>rm(dir,{recursive:true,force:true}));
+  const data=join(dir,'data'),db=openStore(data);t.after(()=>db.close());const id=randomUUID(),now=Date.now();
+  db.prepare('INSERT INTO users(id,username,password,recovery_hash,created_at,terms_version) VALUES(?,?,?,?,?,?)').run(id,'deleted','hash','hash',now,'test');
+  db.prepare('INSERT INTO sessions VALUES(?,?,?,?)').run('session',id,'csrf',now+100000);
+  const snapshot=await backupPlanner({source:join(data,'planner.sqlite'),directory:join(dir,'backups')});
+  recordDeletion(data,id,now);db.prepare('DELETE FROM users WHERE id=?').run(id);
+  const restored=await restorePlanner(snapshot,join(dir,'restored'),data,now);
+  const copy=new DatabaseSync(restored,{readOnly:true});assert.equal(copy.prepare('SELECT COUNT(*) AS n FROM users').get().n,0);assert.equal(copy.prepare('SELECT COUNT(*) AS n FROM sessions').get().n,0);copy.close();
+  const original=new DatabaseSync(snapshot,{readOnly:true});assert.equal(original.prepare('SELECT COUNT(*) AS n FROM users').get().n,1);original.close();
+  await assert.rejects(restorePlanner(snapshot,join(dir,'restored'),data,now),{code:'EEXIST'});
+  assert.equal(deletionRecords(data,now).length,1);purgeDeletions(data,now+9*86400000);assert.equal(deletionRecords(data,now+9*86400000).length,0);
+});

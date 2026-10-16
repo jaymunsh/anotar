@@ -1,0 +1,12 @@
+node_modules/
+dist/
+data/
+backups/
+.env
+.env.*
+!.env.example
+.impeccable/review/
+.omo
+*.sqlite*
+*.log
+.npm-cache/

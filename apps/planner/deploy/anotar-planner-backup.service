@@ -1,0 +1,9 @@
+[Unit]
+Description=Anotar planner SQLite backup (separate from personal Anotar)
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/srv/anotar-planner/current
+ExecStart=/usr/bin/docker compose -f compose.oracle.yaml exec -T planner node scripts/backup.mjs

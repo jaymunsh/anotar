@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Anotar planner backup
+
+[Timer]
+OnCalendar=*-*-* 04:30:00 Asia/Seoul
+Persistent=true
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target
