@@ -1,4 +1,4 @@
-"""wiki/*.md, sessions/*.md -> site/index.html (viewer.html에 데이터를 넣어 한 파일로).
+"""wiki/*.md, sessions/*.md -> site/index.html (viewer.html에 데이터를 넣어 한 파일로) + site/data.json.
 
 데이터 폴더는 MEMORY_DATA 환경변수, 없으면 현재 폴더. 결과는 <데이터>/site/index.html.
 """
@@ -54,7 +54,9 @@ def main():
     out = DATA / "site"
     out.mkdir(exist_ok=True)
     (out / "index.html").write_text(html, encoding="utf-8")
-    print(f"site/index.html: wiki {len(data['wiki'])}, sessions {len(data['sessions'])}")
+    # anotar의 /wiki 화면이 읽는 원본 데이터 (같은 내용, 화면 없이)
+    (out / "data.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    print(f"site/index.html, data.json: wiki {len(data['wiki'])}, sessions {len(data['sessions'])}")
 
 
 if __name__ == "__main__":

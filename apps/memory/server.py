@@ -1,6 +1,7 @@
 """memory 화면 서버 (표준 라이브러리만).
 
   /memory/          site/index.html (build.py 결과)
+  /memory/data.json build.py가 만든 데이터 (anotar /wiki 화면이 읽음)
   /memory/health    200 "ok"
   그 외             404
 
@@ -55,6 +56,11 @@ def make_handler(site: pathlib.Path):
                     return self._send(503, "아직 빌드된 화면이 없어요 (build.py).".encode())
                 return self._send(200, index.read_bytes(), "text/html; charset=utf-8",
                                   {"Content-Security-Policy": CSP})
+            if path == PREFIX + "/data.json":
+                data = site / "data.json"
+                if not data.is_file():
+                    return self._send(503, b'{"error":"not_built"}', "application/json; charset=utf-8")
+                return self._send(200, data.read_bytes(), "application/json; charset=utf-8")
             self._send(404, b"not found")
 
         do_HEAD = do_GET

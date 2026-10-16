@@ -22,5 +22,6 @@ open http://my.localhost:8780
 ```
 
 - Chrome은 `*.localhost`를 보안 컨텍스트로 봐서 HTTP에서도 `__Host-` Secure 쿠키가 동작한다. curl은 저장하지 않으니 `-H 'Cookie: ...'`로 직접 넘긴다
+- anotar 앱의 **위키**(`/wiki`)는 `/memory/data.json`을 읽는다. 위키 내용을 바꾸면 `build.py`만 다시 실행하면 된다. `apps/memory/server.py`를 고쳤으면 `docker compose restart memory`
 - 데이터는 `infra/personal/.local/` (git 제외). 지우면 새로 시작
 - 공유 댓글 소켓은 named volume에 둔다. macOS bind mount에서는 Unix 소켓이 `ENOTSUP`로 실패한다

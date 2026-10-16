@@ -36,6 +36,7 @@
 - `server/pageConnections.mjs`, `src/memos/CapturePageImport.tsx`, `src/memos/CaptureOrganization.tsx`, `src/pages/PageOrigins.tsx`, `src/pages/AssetBlock.tsx`: 페이지 제목 검색·참조 색인·원자적 메모 정리 완료·입력함 복귀와 지연 선택/출처 화면·첨부 블록. `CaptureRefBlock.tsx`는 기존 문서 호환용으로 숨기며 `shared/pageDocuments.ts`는 저장된 원본 블록을 편집 후에도 보존한다. `usePageResource.ts`는 참조 대상의 조회·누락·재시도를 맡는다.
 - `src/ai/pageContent.ts`, `src/pages/parseMarkdown.ts`: 선택한 완료 AI 결과의 제목·출처 조립과 제출 시 지연 Markdown 파싱. `CapturePageImport.tsx`·`server/pageConnections.mjs`의 선택적 `aiResult: {jobId, document}`로 편집 가능한 Page를 만들며 첫 입력 번들에 편집기·Mermaid를 포함하지 않는다.
 - `server/pageMarkdown.mjs`, `shared/pageMarkdown.ts`, `server/pageAi.mjs`, `src/pages/PageAiPanel.tsx`, `src/ai/pageSubmission.ts`: 저장된 Page 전체/선택의 제한된 Markdown 입력과 동일한 순수 미리보기·불변 문서/제목/버전 사본, 지연 요청·이력과 명시적 추가/선택 교체/하위 Page·직전 수정본 되돌리기. 페이지별 최초 제출 UUID·본문과 마지막 반영 기준을 브라우저에 보존한다.
+- `src/wiki/`: 사이드바 **위키**(`/wiki`, `/wiki/pages|log|projects/:id`). memory의 `site/data.json`을 같은 출처 `/memory/data.json`(앞단 Caddy가 anotar 로그인으로 보호)에서 읽어 홈·위키·AI 기록·프로젝트를 anotar 화면 틀로 보여준다. 쓰기 없음. Markdown은 `renderReadMarkdown`의 `link` 옵션으로 `x.md` 링크를 앱 안 이동으로 바꾼다. 공유 댓글 받은함(`/comments`)은 사이드바에서 빠지고 설정 → 작업 공간과 홈 알림에서 연다.
 - `server/trash.mjs`, `src/trash/`, `scripts/qa-trash.mjs`: 메모·페이지 묶음 휴지통·복원·되돌리기. `events.ts`는 활성 목록·참조를 갱신하며 열린 편집기와 초안은 교체하지 않는다.
 
 기술 기반은 React 19·TypeScript·Vite 6, Node.js 24의 `node:sqlite`, 로컬 파일 저장소다. Docker 이미지는 추후 N100 미니PC로 옮길 수 있도록 구성돼 있다.

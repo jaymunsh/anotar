@@ -3,7 +3,7 @@ import { putPendingShare, MAX_TOTAL_BYTES } from './capture-store.js';
 const APP_VERSION = '__LENEU_OFFLINE_VERSION__';
 const CACHE_NAME = 'leneu-shell-v1-' + APP_VERSION;
 const READY_URL = new URL('/__leneu_shell_ready__', self.location.origin).href;
-const APP_ROUTES = /^(?:\/(?:capture|captures|memo|tasks|ai|comments|prompts|backups|trash|pages|journal|hosting)(?:\/[^?#]*)?|\/)$/;
+const APP_ROUTES = /^(?:\/(?:capture|captures|memo|tasks|ai|comments|prompts|backups|trash|pages|journal|hosting|wiki)(?:\/[^?#]*)?|\/)$/;
 const ASSET_ROUTES = /^(?:\/assets\/[^?#]+|\/fonts\/[A-Za-z0-9_-]+\.(?:woff2|txt)|\/document-fonts\.css|\/index\.html|\/architecture\.html|\/favicon\.png|\/profile\.png|\/capture\.webmanifest|\/capture-store\.js|\/capture-icons\/icon-(?:192|512)\.png)$/;
 async function installShell(){
   const response=await fetch('/offline-manifest.json',{cache:'no-store'});

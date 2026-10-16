@@ -27,6 +27,10 @@ status, headers, body = get("/memory/")
 assert status == 200 and body == b"<p>hi</p>", (status, body)
 assert "frame-ancestors 'none'" in headers["Content-Security-Policy"]
 assert headers["Cache-Control"] == "no-store"
+assert get("/memory/data.json")[0] == 503
+(site / "data.json").write_text('{"wiki":[],"sessions":[]}', encoding="utf-8")
+status, headers, body = get("/memory/data.json")
+assert status == 200 and headers["Content-Type"].startswith("application/json") and b"wiki" in body
 status, headers, _ = get("/memory")
 assert status == 308 and headers["Location"] == "/memory/"
 for bad in ("/", "/memory/../server.py", "/memory/%2e%2e/x", "/memory/index.html/x", "/other"):

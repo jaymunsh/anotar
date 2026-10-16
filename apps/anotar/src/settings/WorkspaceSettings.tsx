@@ -10,6 +10,7 @@ import {
   ExternalLink,
   HardDrive,
   Globe,
+  MessageCircle,
   Info,
   Moon,
   Network,
@@ -61,7 +62,7 @@ export default function WorkspaceSettings({
   theme: 'light' | 'dark';
   onThemeChange: (theme: 'light' | 'dark') => void;
   onClose: () => void;
-  onOpen: (path: '/prompts' | '/backups' | '/trash' | '/hosting') => void;
+  onOpen: (path: '/prompts' | '/backups' | '/trash' | '/hosting' | '/comments') => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [appFont,setAppFont]=useState(savedAppFont);
@@ -185,7 +186,7 @@ export default function WorkspaceSettings({
           {section === 'workspace' && (
             <section className="settings-resources" aria-labelledby="settings-resources-title">
               <h3 id="settings-resources-title">작업 공간</h3>
-              <p className="settings-description">템플릿을 관리하고, 자료를 보관·복원하세요.</p>
+              <p className="settings-description">템플릿과 공유 댓글을 관리하고, 자료를 보관·복원하세요.</p>
               <nav aria-label="작업 공간 설정">
                 {[
                   {
@@ -193,6 +194,12 @@ export default function WorkspaceSettings({
                     title: '프롬프트',
                     description: 'AI 요청에 사용할 템플릿',
                     Icon: WandSparkles,
+                  },
+                  {
+                    path: '/comments' as const,
+                    title: '공유 댓글',
+                    description: '공유한 페이지에 달린 댓글 받은함',
+                    Icon: MessageCircle,
                   },
                   {
                     path: '/hosting' as const,

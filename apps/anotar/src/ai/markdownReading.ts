@@ -1,4 +1,4 @@
-import { createElement as h, Fragment, type ReactNode } from 'react';
+import { createElement as h, Fragment, type MouseEvent, type ReactNode } from 'react';
 import { Lexer, type Token, type MarkedToken } from 'marked';
 
 function text(value: string) {
@@ -28,6 +28,11 @@ function safeHref(value: string) {
     return undefined;
   }
 }
+export type ReadMarkdownOptions = {
+  /** Return props for an in-app link (e.g. a wiki page), or undefined to use the default rule. */
+  link?: (href: string) => { href: string; onClick?: (event: MouseEvent) => void } | undefined;
+};
+let options: ReadMarkdownOptions = {};
 function nodes(tokens: Token[]): ReactNode[] {
   return tokens.map((generic, key) => {
     const token = generic as MarkedToken;
@@ -56,6 +61,13 @@ function nodes(tokens: Token[]): ReactNode[] {
       case 'codespan':
         return h('code', { key }, text(token.text));
       case 'link': {
+        const internal = options.link?.(text(token.href));
+        if (internal)
+          return h(
+            'a',
+            { key, href: internal.href, onClick: internal.onClick, title: token.title ?? undefined },
+            nodes(token.tokens),
+          );
         const href = safeHref(token.href);
         return href
           ? h(
@@ -147,6 +159,11 @@ function nodes(tokens: Token[]): ReactNode[] {
     }
   });
 }
-export function renderReadMarkdown(markdown: string) {
-  return nodes(new Lexer({ gfm: true }).lex(markdown));
+export function renderReadMarkdown(markdown: string, readOptions: ReadMarkdownOptions = {}) {
+  options = readOptions;
+  try {
+    return nodes(new Lexer({ gfm: true }).lex(markdown));
+  } finally {
+    options = {};
+  }
 }

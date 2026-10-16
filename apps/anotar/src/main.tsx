@@ -18,7 +18,7 @@ import {
   Link2,
   ListTodo,
   Menu,
-  MessageCircle,
+  BookOpen,
   Paperclip,
   Pencil,
   Search,
@@ -81,6 +81,7 @@ const TrashWorkspace = React.lazy(() => import('./trash/TrashWorkspace'));
 const BackupWorkspace = React.lazy(() => import('./backups/BackupWorkspace'));
 const HostingWorkspace = React.lazy(() => import('./hosting/HostingWorkspace'));
 const TrashNotice = React.lazy(() => import('./trash/TrashNotice'));
+const WikiWorkspace = React.lazy(() => import('./wiki/WikiWorkspace'));
 const CommentsWorkspace = React.lazy(() =>
   import('./comments').then((module) => ({ default: module.CommentsWorkspace })),
 );
@@ -93,6 +94,8 @@ function currentRoute() {
     return { section: 'hosting' as const, pageId: null, promptId: null };
   if (/^\/journal\/?$/.test(window.location.pathname))
     return { section: 'journal' as const, pageId: null, promptId: null };
+  if (/^\/wiki(?:\/[^?#]*)?$/.test(window.location.pathname))
+    return { section: 'wiki' as const, pageId: null, promptId: null };
   if (/^\/comments\/?$/.test(window.location.pathname))
     return { section: 'comments' as const, pageId: null, promptId: null };
   if (/^\/backups\/?$/.test(window.location.pathname))
@@ -309,6 +312,7 @@ function App() {
   const isAiView = route.section === 'ai';
   const isBackupView = route.section === 'backups';
   const isCommentsView = route.section === 'comments';
+  const isWikiView = route.section === 'wiki';
   const memoScope: MemoScope = isMemoView ? route.memoScope : 'memo';
   const listQuery = isMemoView ? query : '';
   const listFilter = isMemoView ? filter : 'all';
@@ -1130,18 +1134,18 @@ function App() {
                   <span className="nav-label">AI 작업</span>
                 </a>
                 <a
-                  className={`nav-item ${isCommentsView ? 'active' : ''}`}
-                  aria-current={isCommentsView ? 'page' : undefined}
-                  href="/comments"
+                  className={`nav-item ${isWikiView ? 'active' : ''}`}
+                  aria-current={isWikiView ? 'page' : undefined}
+                  href="/wiki"
                   onClick={(event) => {
                     event.preventDefault();
-                    navigate('/comments');
+                    navigate('/wiki');
                   }}
                 >
                   <span className="nav-icon">
-                    <MessageCircle size={18} />
+                    <BookOpen size={18} />
                   </span>
-                  <span className="nav-label">공유 댓글</span>
+                  <span className="nav-label">위키</span>
                 </a>
               </nav>
             </div>
@@ -1240,6 +1244,8 @@ function App() {
                             ? '백업'
                             : isCommentsView
                               ? '공유 댓글'
+                              : isWikiView
+                                ? '위키'
                               : isMemoView
                                 ? '메모'
                                 : isTrashView
@@ -1650,6 +1656,11 @@ function App() {
           {isBackupView && (
             <React.Suspense fallback={<div className="page-route-loading">백업을 여는 중…</div>}>
               <BackupWorkspace />
+            </React.Suspense>
+          )}
+          {isWikiView && (
+            <React.Suspense fallback={<div className="page-route-loading">위키를 여는 중…</div>}>
+              <WikiWorkspace navigate={navigate} pathname={window.location.pathname} />
             </React.Suspense>
           )}
           {isCommentsView && (

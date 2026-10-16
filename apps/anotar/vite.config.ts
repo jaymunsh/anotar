@@ -81,6 +81,11 @@ export default defineConfig({
         target: `http://127.0.0.1:${process.env.DEV_API_PORT || 8787}`,
         changeOrigin: false,
       },
+      // Wiki data (apps/memory/server.py). Dev has no edge, so this is unauthenticated: loopback only.
+      '/memory': {
+        target: `http://127.0.0.1:${process.env.DEV_MEMORY_PORT || 8788}`,
+        changeOrigin: false,
+      },
     },
   },
 });
