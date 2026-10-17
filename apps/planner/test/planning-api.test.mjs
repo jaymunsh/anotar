@@ -31,10 +31,12 @@ test('planning persists goals and steps with owner, CSRF, version and parent pro
  assert.equal((await a('/api/planning/step','PUT',{...step,startMonth:'2025-12'})).status,400);
  assert.equal((await a('/api/planning/step','PUT',{...step,endMonth:'2026-13'})).status,400);
  assert.equal((await a('/api/planning/step','PUT',step)).status,200);
- // Goal colour (0–7) and step done round-trip; out-of-range or misplaced values are refused.
- assert.equal((await a('/api/planning/goal','PUT',{...goal,version:1,color:9})).status,400);
+ // Goal colour (0–15), goal focus and step done round-trip; out-of-range or misplaced values are refused.
+ assert.equal((await a('/api/planning/goal','PUT',{...goal,version:1,color:16})).status,400);
  assert.equal((await a('/api/planning/step','PUT',{...step,version:1,color:2})).status,400);
- assert.equal((await a('/api/planning/goal','PUT',{...goal,version:1,color:3})).value.color,3);
+ assert.equal((await a('/api/planning/step','PUT',{...step,version:1,focus:true})).status,400);
+ assert.equal((await a('/api/planning/goal','PUT',{...goal,version:1,focus:'yes'})).status,400);
+ assert.deepEqual((({color,focus})=>[color,focus])((await a('/api/planning/goal','PUT',{...goal,version:1,color:12,focus:true})).value),[12,true]);
  assert.equal((await a('/api/planning/step','PUT',{...step,version:1,done:true})).value.done,true);
  step.version=2;goal.version=2;
  assert.equal((await a('/api/planning/step','PUT',{...step,version:0,title:'Stale overwrite'})).status,409);

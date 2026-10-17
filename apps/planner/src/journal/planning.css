@@ -95,13 +95,11 @@ strong.goal-title{display:flex;align-items:center}
 .goal-bar{height:3px;margin:6px 0 4px 24px;border-radius:2px;background:var(--line);overflow:hidden}
 .goal-bar i{display:block;height:100%;background:var(--goal)}
 .goal-card ul{list-style:none;margin:6px 0 0;padding:0}
-.goal-step,.goal-step-new{display:grid;grid-template-columns:16px minmax(0,1fr) auto auto 26px;align-items:center;gap:8px;min-height:40px;border-bottom:1px solid var(--line);padding-left:24px}
+.goal-step,.goal-step-new{display:grid;grid-template-columns:16px minmax(0,1fr) auto 26px;align-items:center;gap:8px;min-height:40px;border-bottom:1px solid var(--line);padding-left:24px}
 .goal-step input[type=checkbox]{width:16px;height:16px;margin:0;accent-color:var(--goal)}
 .goal-step-title,.goal-step-new input{min-width:0;min-height:38px;padding:6px 0;border:0;border-radius:0;background:transparent;font-size:14px}
 .goal-step.done .goal-step-title{color:var(--muted);text-decoration:line-through}
 .goal-step-spent{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
-.goal-step-when{min-height:28px;padding:2px 22px 2px 6px;border:0;border-radius:4px;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23586c5c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 6px center;appearance:none;-webkit-appearance:none;font-size:12px;color:var(--muted);cursor:pointer}
-.goal-step-when:hover{background-color:var(--hover)}
 .goal-step-new{grid-template-columns:16px minmax(0,1fr);color:var(--muted);border-bottom:0}
 .goal-time{margin:10px 0 0 24px;font-size:11px;color:var(--muted)}
 .goal-card.no-goal{border-top-color:var(--line)}
@@ -114,3 +112,34 @@ strong.goal-title{display:flex;align-items:center}
 .goal-palette button[aria-pressed=true]{box-shadow:0 0 0 3px var(--canvas),0 0 0 5px var(--ink)}
 @media(max-width:640px){.goal-palette{margin-left:0;gap:8px}.goal-palette button{width:32px;height:32px;min-height:32px;min-width:32px}}
 .goal-card>header>button.goal-dot,.goal-card>header>button.goal-dot[aria-expanded=true]{background:var(--goal)}
+.goal-palette{display:grid;grid-template-columns:repeat(8,minmax(0,30px))}
+@media(max-width:640px){.goal-palette{grid-template-columns:repeat(8,minmax(0,32px));width:auto}.goal-palette button{width:auto;min-width:0;aspect-ratio:1;height:auto}}
+/* 무게: what done looks like, under the title. 집중: pinned goals sit on top with a heavier edge; the rest fold into rows. */
+.goal-note{display:block;width:100%;field-sizing:content;min-height:0;margin:0 0 4px;padding:2px 0 4px 24px;border:0;border-radius:0;background:transparent;resize:none;font-size:13px;line-height:1.55;color:var(--muted)}
+.goal-note::placeholder{color:var(--muted);opacity:.55}
+.goal-note:focus-visible{outline:none;color:var(--ink);box-shadow:inset 0 -1.5px 0 var(--focus)}
+.goal-pin{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:26px;padding:0;border-radius:4px;color:var(--muted);opacity:.4}
+.goal-card header:hover .goal-pin,.goal-pin:focus-visible{opacity:1}
+.goal-pin[aria-pressed=true]{opacity:1;color:var(--goal)}
+.goal-pin[aria-pressed=true] svg{fill:currentColor}
+.goal-card.focus{border-top-width:5px}
+.goal-card.focus .goal-title{font-size:19px}
+.goal-resting-title{margin:28px 0 10px;font-size:13px;font-weight:600;color:var(--muted)}
+.goal-row{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:8px 14px;border:1px solid var(--line);border-left:3px solid var(--goal);border-radius:8px;background:var(--surface);text-align:left;font-size:14px;color:var(--ink)}
+.goal-row:hover{background:var(--hover)}
+.goal-row .goal-dot{box-shadow:none;width:10px;height:10px;min-width:10px;min-height:10px}
+.goal-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.goal-row small{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+/* 시간 흐름: goal rows × 12 months, shaded by time on the timetable. */
+.goal-flow{margin:0 0 22px;padding:12px 16px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.goal-flow-row{--goal:#a7b0aa;display:grid;grid-template-columns:minmax(72px,180px) repeat(12,minmax(0,1fr));gap:3px;align-items:center;min-height:24px}
+.goal-flow-head span{font-size:10px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums}
+.goal-flow-head span.now{color:var(--ink);font-weight:700}
+.goal-flow-name{display:flex;align-items:center;gap:6px;min-width:0;padding-right:8px;white-space:nowrap;font-size:12px;color:var(--muted)}
+.goal-flow-row.focus .goal-flow-name{color:var(--ink);font-weight:600}
+.goal-flow-name span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.goal-flow-name i{flex-shrink:0;width:8px;height:8px;border-radius:50%;background:var(--goal)}
+.goal-flow-row>span[role=cell]{height:18px;border-radius:3px;background:var(--hover);overflow:hidden}
+.goal-flow-row>span[role=cell].now{box-shadow:inset 0 0 0 1px var(--muted)}
+.goal-flow-row>span[role=cell] i{display:block;height:100%;background:var(--goal)}
+@media(max-width:640px){.goal-flow{padding:10px}.goal-flow-row{grid-template-columns:64px repeat(12,minmax(0,1fr));gap:2px}.goal-note{padding-left:0}}

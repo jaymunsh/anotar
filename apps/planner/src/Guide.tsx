@@ -38,8 +38,8 @@ export function Guide(){
 
   <h2>{pair('계획과 루틴','Plans and routines')}</h2>
   <ul>
-   <li>{pair('‘계획 > 목표’에서 그해 목표를 카드로 만들고, 목표마다 끝내야 할 세부 계획을 적어요. 세부 계획에는 기한(달 또는 올해)을 정하고 끝나면 체크해요. 목표 색은 점을 눌러 고르고, 그 목표에 연결한 시간표 블록도 같은 색이에요.','Under Plans > Goals, each goal for the year is a card listing the steps that finish it. Give a step a due month (or this year) and check it off when done. Tap the dot to pick the goal’s colour; linked timetable blocks share it.')}</li>
-   <li>{pair('일간 화면 위 ‘이번 기간’에 지금 기간의 계획이 보여요. 누르면 상위 목표, 이번 주 시간표에 잡은 시간, ‘시간표에 넣기’가 나와요. 넣은 일정에는 그 계획의 색 띠가 붙어요.','“This period” above the day view lists current plans. Open one to see its goal, time scheduled this week, and Add to schedule; linked blocks get the plan’s color.')}</li>
+   <li>{pair('‘계획 > 목표’에서 그해 목표를 카드로 만들고, 제목 아래에 끝났을 때 모습을 한 줄 적은 뒤 끝내야 할 세부 계획을 체크리스트로 적어요. 핀을 눌러 지금 집중하는 목표를 정하면 위에 크게 놓이고, 나머지는 ‘묵혀 둔 목표’로 접혀요. 맨 위 12달 띠는 달마다 그 목표에 시간표를 얼마나 썼는지 저절로 보여 줘요. 목표 색(16가지)은 점을 눌러 고르고, 연결한 시간표 블록도 같은 색이에요.','Under Plans > Goals, each goal for the year is a card: a line on what done looks like, then the steps that finish it. Pin the goals you are focusing on; they sit on top and the rest fold under “Resting goals”. The 12-month strip on top shows, by itself, how much timetable time each goal got per month. Tap the dot to pick one of 16 colours; linked timetable blocks share it.')}</li>
+   <li>{pair('일간 화면 위 ‘이번 기간’에 지금 기간의 계획이 보여요(집중 목표가 있으면 그 목표의 세부 계획만). 누르면 상위 목표, 이번 주 시간표에 잡은 시간, ‘시간표에 넣기’가 나와요. 넣은 일정에는 그 계획의 색 띠가 붙어요.','“This period” above the day view lists current plans (only focused goals’ steps once you pin one). Open one to see its goal, time scheduled this week, and Add to schedule; linked blocks get the plan’s color.')}</li>
    <li>{pair('루틴은 자주 하는 일의 이름이에요. 계획 메뉴의 ‘편의’ 탭 루틴 카드에서 만들고, 일정 화면 위 루틴을 누르면 바로 시간표에 들어가요.','Routines are names of things you do often. Create them on the Tools tab under Plans; tap one above the schedule to add it.')}</li>
   </ul>
 
