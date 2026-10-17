@@ -24,7 +24,10 @@ export function useDay(date:string,user:User|undefined,csrf:string,demo:boolean)
   useEffect(()=>{
     const epoch=++generation.current;setLoading(true);setError('');setPendingDraft(null);blocked.current=false;dirty.current=false;version.current=0;
     function loaded(value:Day,v:number){if(epoch!==generation.current)return;latest.current=value;setDocument(value);version.current=v;setLoading(false);setState(demo?'demo':'saved');
-      if(user&&!demo){try{const raw=localStorage.getItem(draftKey(user,date));if(raw){const draft=JSON.parse(raw);if(Array.isArray(draft.document?.plans)&&Array.isArray(draft.document?.entries)&&draft.document?.notes){if(JSON.stringify(draft.document)!==JSON.stringify(value))setPendingDraft(draft);else localStorage.removeItem(draftKey(user,date));}}}catch{setError("기기 초안을 읽지 못했어요. 저장된 기록은 정상적으로 불러왔어요.");}}
+      if(user&&!demo){try{const raw=localStorage.getItem(draftKey(user,date));if(raw){const draft=JSON.parse(raw);if(Array.isArray(draft.document?.plans)&&Array.isArray(draft.document?.entries)&&draft.document?.notes){if(JSON.stringify(draft.document)===JSON.stringify(value))localStorage.removeItem(draftKey(user,date));
+          // Same version = nothing changed on the server since the draft (e.g. a save failed while offline): just carry on saving it. Only a real conflict asks.
+          else if(draft.version===v){latest.current=draft.document;setDocument(draft.document);dirty.current=true;setState('pending');timer.current=setTimeout(()=>saveRef.current(),900);}
+          else setPendingDraft(draft);}}}catch{setError("기기 초안을 읽지 못했어요. 저장된 기록은 정상적으로 불러왔어요.");}}
     }
     if(demo)loaded(demoDay(),0);else request<{document:Day;version:number}>(`/api/days/${date}`).then(r=>loaded(r.document,r.version)).catch(e=>{if(epoch===generation.current){setError(e.message);setLoading(false);setState('load-error');}});
     return()=>{clearTimeout(timer.current);generation.current++;};

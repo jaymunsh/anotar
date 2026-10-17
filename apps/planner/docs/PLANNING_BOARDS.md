@@ -39,9 +39,7 @@ API는 GET /api/planning, PUT·DELETE /api/planning/:id다. 로그인·Origin·C
 
 ## 로컬 샘플
 
-기존 로컬 샘플 요청에 따라 jaymunsh·test1234의 빈 계획표에 각 14개 목표·세부 계획을 추가했다. 모든 샘플 메모에 로컬 미리보기임을 표시했다. 기존 일지와 할 일 내용은 변경하지 않았다.
-
-scripts/seed-local-planning.mjs는 고정된 .omo/preview-data DB와 두 계정만 대상으로 한다. 기본은 확인만 하며 --apply일 때 추가한다. 기존 계획이 있으면 건너뛴다. 추가 전 sample-backups 아래에 SQLite 백업을 만들고 local-planning-manifest.json에 기록한다. 운영에는 이 스크립트를 사용하지 않는다.
+scripts/seed-local-samples.mjs는 고정된 .omo/preview-data DB의 jaymunsh·test1234만 대상으로, 개발자 취준생의 2026년 6–12월(목표 4개·세부 계획·루틴, 6/1–10/31 일정과 11–12월 면접 일정, 일정 대부분이 세부 계획에 연결)로 두 계정의 일지·계획을 **바꿔 넣는다**. 기본은 검증만 하고 --apply일 때 sample-backups에 SQLite 백업을 만든 뒤 적용하고 manifest를 남긴다. 운영에는 사용하지 않는다.
 
 ## 검증
 
