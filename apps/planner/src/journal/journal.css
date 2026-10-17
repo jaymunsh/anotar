@@ -138,7 +138,7 @@
 .journal-hour.now time{color:var(--danger);font-weight:600}
 .journal-now{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--danger);z-index:2;pointer-events:none}
 .journal-now::before{content:'';position:absolute;top:-3px;left:-3px;width:8px;height:8px;border-radius:50%;background:var(--danger)}
-.journal-plan.now{box-shadow:inset 0 0 0 1.5px var(--action);font-weight:600}
+.journal-plan.now{background:#f6e7b8;box-shadow:inset 0 0 0 1px #d9b860;font-weight:600}
 /* Tasks already on the timetable show their time; the rest offer 시간 잡기 on hover (always on touch). */
 .journal-time-priority.scheduled{justify-content:flex-end;text-align:right;color:var(--action);font-weight:600;font-variant-numeric:tabular-nums}
 @media(hover:hover){.journal-priority .journal-time-priority:not(.scheduled){opacity:0}.journal-priority:hover .journal-time-priority,.journal-priority:focus-within .journal-time-priority{opacity:1}}
@@ -163,7 +163,7 @@
 /* Rows past the first three start after a little air. */
 .journal-priority.top+.journal-priority:not(.top){margin-top:10px}
 /* A checked task fades its blocks on the timetable. */
-.journal-plan.task-done{opacity:.5}.journal-plan.task-done>span{text-decoration:line-through}
+.journal-plan.task-done{opacity:.5}.journal-plan.task-done>span:first-child{text-decoration:line-through}
 /* Plan card under a 이번 기간 chip. */
 .planning-context{position:relative}
 .planning-card{position:absolute;top:calc(100% + 6px);z-index:20;width:320px;max-width:100%;padding:14px 16px;border-radius:10px;background:var(--surface);box-shadow:0 0 0 1px var(--line),0 12px 32px rgba(32,50,45,.14);font-size:12px;color:var(--ink)}
@@ -308,16 +308,23 @@
  .journal-page .journal-routines>.planning-context-more{margin-left:auto}
 }
 .journal-routine-chips button span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* 지금 줄: under the timetable heading, today only. One slim line: a red edge, what is on, time left, what is next. */
-.journal-live{display:flex;align-items:center;gap:12px;min-height:30px;margin:-6px 0 10px;padding:0 0 0 10px;border-left:3px solid #b4483c;font-size:13px;line-height:1.3}
-.journal-live p{flex:1;min-width:0;margin:0;display:flex;align-items:baseline;gap:8px;overflow:hidden;white-space:nowrap}
-.journal-live p>*{flex-shrink:0}
-.journal-live b{flex-shrink:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-weight:650;color:var(--ink)}
-.journal-live-label{font-size:11px;font-weight:700;color:#b4483c}
-.journal-live-left{color:#b4483c;font-variant-numeric:tabular-nums}
-.journal-live-next{flex-shrink:1!important;min-width:0;overflow:hidden;text-overflow:ellipsis;color:var(--muted);font-size:12px;margin-left:6px}
-.journal-live-postpone{flex-shrink:0;display:flex;align-items:center;gap:2px;font-size:12px;color:var(--muted)}
-.journal-live-postpone span{margin-right:4px}
-.journal-live-postpone button{min-height:26px;padding:0 6px;border-radius:5px;font-size:12px;color:var(--action);font-variant-numeric:tabular-nums}
-.journal-live-postpone button:hover{background:var(--hover)}
-@media(max-width:640px){.journal-live{align-items:start;padding-top:2px}.journal-live p{flex-wrap:wrap;row-gap:2px}.journal-live-next{flex-basis:100%;margin-left:0}}
+/* +30 on the block under way (hover), beside the × */
+.journal-plan-push{display:none;flex-shrink:0;margin-left:auto;padding:0 5px;border-radius:3px;font-size:10px;font-weight:700;color:#8a6a12;cursor:pointer;font-variant-numeric:tabular-nums}
+.journal-plan-push:hover{background:rgba(255,255,255,.7)}
+.journal-plan-push+.journal-plan-miss{margin-left:4px}
+@media(hover:hover){.journal-plan:hover .journal-plan-push{display:inline-flex}}
+/* 하루 틀 menu beside the timetable heading */
+.journal-schedule-title{display:flex;align-items:center;gap:6px}
+.journal-template{position:relative}
+.journal-template>summary{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:6px;color:var(--muted);cursor:pointer;list-style:none}
+.journal-template>summary::-webkit-details-marker{display:none}
+.journal-template>summary:hover,.journal-template[open]>summary{background:var(--hover);color:var(--ink)}
+.journal-template-menu{position:absolute;top:calc(100% + 6px);left:0;z-index:30;width:260px;padding:8px;border-radius:10px;background:var(--surface);box-shadow:0 0 0 1px var(--line),0 12px 32px rgba(32,50,45,.14);font-size:13px;font-weight:400}
+.journal-template-menu>button{display:flex;align-items:baseline;gap:8px;width:100%;min-height:36px;padding:6px 8px;border-radius:6px;text-align:left;color:var(--ink)}
+.journal-template-menu>button:hover{background:var(--hover)}
+.journal-template-menu>button span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.journal-template-menu small{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.journal-template-menu p{margin:6px 8px;font-size:12px;color:var(--muted)}
+.journal-template-menu .journal-template-save{align-items:center;gap:6px;margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 6px 6px;color:var(--action);font-size:12px}
+.journal-template-menu .journal-template-save span{font-weight:400}
+.journal-template-menu>a{display:flex;align-items:center;gap:4px;padding:8px 8px 4px;font-size:12px;color:var(--muted)}

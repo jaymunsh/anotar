@@ -59,6 +59,11 @@ try{
   await page.goto(base+'/app?date=2026-10-21&view=day');await page.getByRole('button',{name:'‘틀 1’ 틀 깔기 (2개)'}).click();await page.getByText('서버에 저장됨').first().waitFor();await page.waitForTimeout(1500);
   assert.deepEqual((await (await context.request.get(base+'/api/days/2026-10-21')).json()).document.plans.map(p=>[p.title,p.start,p.end,p.status]),[['운동',540,570,'pending'],['독서',570,630,'pending']]);
   checks.push('a day template starts from the latest timetable, takes new blocks, and lays down on an empty day');
+  page.on('dialog',d=>d.accept().catch(()=>{}));await page.locator('.journal-template>summary').click();await page.getByRole('menuitem',{name:'이 날 시간표를 틀로 저장'}).click();await page.waitForTimeout(1000);
+  assert.equal((await (await context.request.get(base+'/api/planning')).json()).items.filter(i=>i.kind==='template').length,2);
+  await page.locator('.journal-template>summary').click();await page.getByRole('menuitem',{name:/^틀 1/}).click();await page.waitForTimeout(1500);
+  assert.equal((await (await context.request.get(base+'/api/days/2026-10-21')).json()).document.plans.length,2);
+  checks.push('the template icon by the timetable saves this day as a template and lays one down (asking before replacing)');
   assert.deepEqual(errors,[]);
   console.log(JSON.stringify({checks,errors},null,2));
 }finally{await browser.close();await app.close();await rm(dir,{recursive:true,force:true});}

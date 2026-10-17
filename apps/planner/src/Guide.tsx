@@ -31,7 +31,7 @@ export function Guide(){
   <ul>
    <li>{pair('한 줄이 한 시간, 한 칸이 10분이에요. 빈 칸을 누르면 그 시각에 새 일정이 생기고, 블록을 누르면 고칠 수 있어요.','Each row is an hour and each cell 10 minutes. Click an empty cell for a new plan; click a block to edit it.')}</li>
    <li>{pair('마우스로 블록을 끌어 옮기고, 블록 오른쪽 끝을 끌어 길이를 바꿔요. 10분 단위로 맞춰져요.','Drag a block to move it, drag its right edge to change its length, in 10-minute steps.')}</li>
-   <li>{pair('오늘을 볼 때는 빨간 선이 지금 시각이에요. 지금 하고 있어야 할 일정은 테두리로 강조되고, 시간표 위 ‘지금’ 줄에 남은 시간과 다음 일정이 보여요. 계획이 밀렸으면 ‘이후 미루기’로 지금 일정과 그 뒤를 10분·30분·1시간 한 번에 밀어요.','When viewing today, the red line is now, and the block in progress is outlined. The Now line above the timetable shows time left and what is next; if you are running late, Push back moves the current block and everything after it by 10, 30 or 60 minutes.')}</li>
+   <li>{pair('오늘을 볼 때는 빨간 선이 지금 시각이에요. 지금 하고 있어야 할 일정은 노란색으로 강조돼요. 계획이 밀렸으면 그 블록에 마우스를 올려 ‘+30’을 누르면 그 일정과 뒤 일정이 함께 30분 밀려요.','When viewing today, the red line is now, and the block in progress is outlined. The block under way is highlighted; running late? Hover it and press +30 to push it and everything after it back.')}</li>
    <li>{pair('‘하루’와 ‘목록’ 보기를 바꿀 수 있어요. 폰은 목록으로 시작해요.','Switch between Day and List. Phones start with the list.')}</li>
    <li>{pair('블록마다 완료를 표시할 필요는 없어요. 끝난 건 할 일 체크로 충분하고, 못 한 일정만 블록에 마우스를 올려 ×를 누르거나 일정 창에서 ‘미이행’ 버튼을 눌러요. 취소선으로 표시돼요.','You don’t need to mark each block. Checking tasks is enough; for a plan you skipped, hover it and press × or press Unfinished in its window. It gets a strike-through.')}</li>
   </ul>
@@ -40,7 +40,7 @@ export function Guide(){
   <ul>
    <li>{pair('‘계획 > 목표’에서 그해 목표를 카드로 만들고, 제목 아래에 끝났을 때 모습을 한 줄 적은 뒤 끝내야 할 세부 계획을 체크리스트로 적어요. 핀을 눌러 지금 집중하는 목표를 정하면 맨 앞에 놓여요. 목표 색(16가지)은 점을 눌러 고르고, 연결한 시간표 블록도 같은 색이에요.','Under Plans > Goals, each goal for the year is a card: a line on what done looks like, then the steps that finish it. Pin the goals you are focusing on; they come first. Tap the dot to pick one of 16 colours; linked timetable blocks share it.')}</li>
    <li>{pair('일간 화면 위 ‘집중’에 핀을 꽂은 목표와 그 목표의 다음 할 일이 보여요. 누르면 끝났을 때 모습, 남은 세부 계획(+를 누르면 시간표에 넣기), 이번 주 시간표에 잡은 시간이 나와요. 넣은 일정에는 그 목표의 색 띠가 붙어요.','“Focus” above the day view shows your pinned goals, each with its next step. Open one to see what done looks like, its open steps (+ puts one on the timetable) and time scheduled this week; linked blocks get the goal’s colour.')}</li>
-   <li>{pair('루틴은 자주 하는 일의 이름이에요. 계획 메뉴의 ‘편의’ 탭 루틴 카드에서 만들고, 일정 화면 위 루틴을 누르면 바로 시간표에 들어가요. 같은 탭의 ‘하루 틀’에는 시간까지 정한 하루 시간표를 저장해 두고, 일정이 빈 날에 ‘틀 깔기’로 한 번에 넣어요.','Routines are names of things you do often. Create them on the Tools tab under Plans; tap one above the schedule to add it. Day templates in the same tab save a whole timed day; an empty day lays one down in one tap.')}</li>
+   <li>{pair('루틴은 자주 하는 일의 이름이에요. 계획 메뉴의 ‘편의’ 탭 루틴 카드에서 만들고, 일정 화면 위 루틴을 누르면 바로 시간표에 들어가요. 같은 탭의 ‘하루 틀’에는 시간까지 정한 하루 시간표를 저장해 두고, ‘하루 시간표’ 옆 틀 아이콘으로 한 번에 깔거나(빈 날엔 시간표 위 버튼도 있어요), 그날 시간표를 틀로 저장해요.','Routines are names of things you do often. Create them on the Tools tab under Plans; tap one above the schedule to add it. Day templates in the same tab save a whole timed day; an empty day lays one down in one tap.')}</li>
   </ul>
 
   <h2>{pair('주간 · 월간 · 되짚어보기','Week, month and review')}</h2>
