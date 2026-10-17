@@ -20,3 +20,22 @@
 .routine-list li button{width:44px;height:44px;color:var(--muted);display:grid;place-items:center}
 .routine-list form{display:flex;gap:8px;margin-top:16px}
 .routine-list form .secondary{white-space:nowrap}
+/* Plan board, compact: steps grouped under their goal in each month, one line each, with time spent. */
+.quarter-goal-group{padding:14px 0 10px;border-bottom:1px solid var(--line)}
+.quarter-goal-name{display:flex;align-items:center;margin:0 0 4px;font-size:11px;font-weight:600;color:var(--muted);overflow-wrap:anywhere}
+.planning-board .planning-step{display:block;width:100%;padding:8px 0 8px 12px;border:0;border-radius:0;text-align:left}
+.planning-board .planning-step:hover{background:var(--hover)}
+.planning-board .planning-step-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;min-height:0;padding:0}
+.planning-board .planning-step-title strong{font-size:14px;line-height:1.45}
+.planning-board .planning-step>small{display:block;font-size:10px;color:var(--muted);margin-top:2px}
+.planning-board .planning-step>p{margin-top:2px;font-size:12px;color:var(--muted);white-space:normal;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+.planning-spent{flex-shrink:0;font-size:11px;font-weight:600;color:var(--action);font-variant-numeric:tabular-nums}
+.planning-spent.none{color:var(--muted);font-weight:400}
+.planning-focus strong .planning-context-dot,.annual-goal-name strong .planning-context-dot{vertical-align:2px}
+.annual-quarter-spent{margin:0 0 4px;font-size:11px}
+.routine-list>summary{display:flex;align-items:baseline;gap:12px;cursor:pointer;list-style:none;min-height:44px}
+.routine-list>summary::-webkit-details-marker{display:none}
+.routine-list>summary::after{content:'펼치기';margin-left:auto;font-size:12px;color:var(--muted)}
+.routine-list[open]>summary::after{content:'접기'}
+.routine-list>summary span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.planning-toolbar:has(>p:empty){min-height:0;margin:0 0 -36px;justify-content:flex-end;position:relative;z-index:1}
