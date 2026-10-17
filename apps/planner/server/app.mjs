@@ -105,7 +105,7 @@ export function makeApp(options={}) {
         let file=target;
         try {if(!(await stat(file)).isFile()) file=resolve(dist,'index.html');}catch {file=resolve(dist,'index.html');}
         if(extname(path)&&file.endsWith('index.html')&&path!=='/index.html') throw apiError(404,'파일을 찾을 수 없어요.');
-        const type={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.png':'image/png','.woff2':'font/woff2','.svg':'image/svg+xml','.json':'application/json'}[extname(file)]||'application/octet-stream';
+        const type={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.png':'image/png','.woff2':'font/woff2','.svg':'image/svg+xml','.json':'application/json','.webmanifest':'application/manifest+json'}[extname(file)]||'application/octet-stream';
         res.writeHead(200,{'Content-Type':type,'Cache-Control':path.startsWith('/assets/')?'public, max-age=31536000, immutable':'no-cache'});
         return res.end(req.method==='HEAD'?undefined:await readFile(file));
       }

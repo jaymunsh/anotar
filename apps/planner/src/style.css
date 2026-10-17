@@ -35,3 +35,4 @@ body:has(.journal-page:not(.journal-preview)) .public-header{padding-inline:max(
 .site-header .brand img{width:28px;height:28px;border-radius:7px}
 @media(max-width:640px){.site-header .brand{font-size:21px}.site-header .brand img{width:26px;height:26px}}
 @media(max-width:640px){.app-header .app-nav{gap:8px;justify-content:space-between}.app-header .app-nav a{justify-content:center;min-height:44px;flex:1;padding-inline:4px}}
+.recovery-actions{display:flex;flex-wrap:wrap;gap:8px}.auth-page .recovery-kept{margin-top:20px;font-size:13px}
