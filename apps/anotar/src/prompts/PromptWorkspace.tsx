@@ -8,6 +8,7 @@ import {
   Check,
   ChevronDown,
   Download,
+  History,
   Upload,
   ArrowDownUp,
   Copy,
@@ -701,11 +702,14 @@ export default function PromptWorkspace({
                   {current && (
                     <button
                       type="button"
+                      className="prompt-icon-button"
+                      aria-label="수정 이력"
+                      title="수정 이력"
                       disabled={!ready || busy}
                       aria-expanded={historyOpen}
                       onClick={() => setHistoryOpen((v) => !v)}
                     >
-                      수정 이력
+                      <History size={16} />
                     </button>
                   )}
                   {current && (

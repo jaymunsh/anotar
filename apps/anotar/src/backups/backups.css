@@ -64,6 +64,10 @@
   padding: 22px 0;
   border-top: 1px solid var(--theme-line);
 }
+/* The toolbar already draws the line above the first section. */
+.backup-status {
+  border-top: 0;
+}
 .backup-section h2 {
   margin: 0 0 16px;
   font-size: 16px;
