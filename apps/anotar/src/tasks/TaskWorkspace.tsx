@@ -3,7 +3,7 @@ import { WorkspaceToolbar } from '../workspace/WorkspaceToolbar';
 import { subscribeRecordChanges } from '../trash/events';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowUpRight, Check, Columns3, FileText, List, ListTodo, Pencil, Plus } from 'lucide-react';
+import { ArrowUpRight, BookOpen, Check, Columns3, FileText, List, ListTodo, Pencil, Plus } from 'lucide-react';
 import type { Task, TaskList, TaskStatus, TaskStage } from './types';
 import type { PageSummary } from '../pages/types';
 import PagePicker from '../pages/PagePicker';
@@ -634,6 +634,27 @@ export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate
                 <ArrowUpRight size={12} aria-hidden="true" />
               </a>
             )}
+            {task.source?.startsWith('wiki:') && (() => {
+              const project = task.source.split(':')[1];
+              const href = '/wiki/projects/' + encodeURIComponent(project);
+              return (
+                <a
+                  className="task-page-link"
+                  href={href}
+                  draggable={false}
+                  title="이 할 일이 나온 위키 프로젝트"
+                  onClick={(event) => {
+                    if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                    event.preventDefault();
+                    onNavigate(href);
+                  }}
+                >
+                  <BookOpen size={13} aria-hidden="true" />
+                  <span>위키 · {project}</span>
+                  <ArrowUpRight size={12} aria-hidden="true" />
+                </a>
+              );
+            })()}
             {full && !board ? (
               <label className="task-stage-control">
                 <span>상태</span>

@@ -7,6 +7,7 @@ export type Task = {
   stage: TaskStage;
   dueDate: string | null;
   pageId?: string | null;
+  source?: string | null;
   position: number;
   createdAt: string;
   updatedAt: string;

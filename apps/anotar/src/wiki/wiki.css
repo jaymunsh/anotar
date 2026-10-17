@@ -108,6 +108,25 @@
   padding-left: 20px;
 }
 .wiki-project-next li { margin: 3px 0; }
+.wiki-project-next li > span { margin-right: 6px; }
+.wiki-workspace .wiki-next-task {
+  min-height: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px;
+  border: 1px solid var(--theme-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--theme-muted);
+  font: inherit;
+  font-size: 11px;
+  vertical-align: 1px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.wiki-workspace .wiki-next-task:hover:not(:disabled) { background: var(--theme-soft); color: var(--theme-ink); }
+.wiki-workspace .wiki-next-task.is-added { border-color: transparent; color: var(--theme-accent); }
 .wiki-dot {
   display: inline-block;
   width: 7px;

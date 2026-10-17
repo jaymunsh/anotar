@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, useSyncExternalStore, type MouseEvent, type ReactNode } from 'react';
-import { ArrowLeft, RefreshCw, Search } from 'lucide-react';
+import { ArrowLeft, Check, Plus, RefreshCw, Search } from 'lucide-react';
 import { authenticationRequired, getAuthSnapshot, subscribeAuth } from '../auth/state';
 import { WorkspaceToolbar } from '../workspace/WorkspaceToolbar';
+import { publishRecordChange, subscribeRecordChanges } from '../trash/events';
 import { renderReadMarkdown } from '../ai/markdownReading';
 import {
   addDays,
@@ -158,9 +159,42 @@ function Section({ title, note, children }: { title: string; note?: ReactNode; c
 }
 const ToolDot = ({ tool }: { tool: string }) => <span className={`wiki-dot is-${tool}`} aria-hidden />;
 
+type WikiTask = { id: string; status: 'open' | 'done'; source: string };
+/** A 남은 일 line's task key. anotar's task is the source of truth for whether it is done. */
+const nextSource = (project: string, item: string) => `wiki:${project}:${item}`;
+
+function useWikiTasks() {
+  const [tasks, setTasks] = useState(new Map<string, WikiTask>());
+  const load = () =>
+    fetch('/api/tasks?source=wiki:')
+      .then((response) => (response.ok ? response.json() : { items: [] }))
+      .then((data: { items: WikiTask[] }) => setTasks(new Map(data.items.map((task) => [task.source, task]))))
+      .catch(() => {});
+  useEffect(() => {
+    void load();
+    return subscribeRecordChanges(() => void load());
+  }, []);
+  async function add(project: string, item: string) {
+    const response = await fetch('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: item.slice(0, 500), source: nextSource(project, item), requestId: crypto.randomUUID() }),
+    });
+    if (response.ok) publishRecordChange('tasks');
+    await load();
+  }
+  return { tasks, add };
+}
+
 function WikiHome({ data, link }: { data: Prepared; link: Link }) {
   const today = ymd(new Date());
   const home = useMemo(() => homeSummary(data, today), [data, today]);
+  const wikiTasks = useWikiTasks();
+  const [adding, setAdding] = useState('');
+  // Lines whose task is done drop out; the session summary itself is history and stays as written.
+  const open = home.open
+    .map((p) => ({ p, items: list(p.last.next).filter((n) => wikiTasks.tasks.get(nextSource(p.name, n))?.status !== 'done') }))
+    .filter(({ items }) => items.length);
   return (
     <div className="wiki-home">
       <div className="wiki-home-grid">
@@ -179,15 +213,43 @@ function WikiHome({ data, link }: { data: Prepared; link: Link }) {
             <p className="wiki-muted">이번 주 기록이 아직 없어요.</p>
           )}
         </Section>
-        {home.open.length > 0 && (
+        {open.length > 0 && (
           <Section title="남은 일" note="프로젝트별 최신 기록 기준">
-            {home.open.map((p) => (
+            {open.map(({ p, items }) => (
               <div className="wiki-project-next" key={p.name}>
                 <h3>
                   <a {...link(projectPath(p.name))}>{p.name}</a>
                   <span className="wiki-muted"> {relativeDay(p.last.date, today)}</span>
                 </h3>
-                <ul>{list(p.last.next).map((n) => <li key={n}>{n}</li>)}</ul>
+                <ul>
+                  {items.map((n) => {
+                    const task = wikiTasks.tasks.get(nextSource(p.name, n));
+                    const key = nextSource(p.name, n);
+                    return (
+                      <li key={n}>
+                        <span>{n}</span>
+                        {task ? (
+                          <a className="wiki-next-task is-added" {...link('/tasks?taskId=' + task.id)}>
+                            <Check size={12} aria-hidden /> 할 일에 있음
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            className="wiki-next-task"
+                            disabled={adding === key}
+                            aria-label={`${n} 할 일로 추가`}
+                            onClick={() => {
+                              setAdding(key);
+                              void wikiTasks.add(p.name, n).finally(() => setAdding(''));
+                            }}
+                          >
+                            <Plus size={12} aria-hidden /> 할 일
+                          </button>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
             ))}
           </Section>

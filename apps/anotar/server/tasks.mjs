@@ -121,13 +121,18 @@ export function createTaskStore(db) {
     CREATE INDEX IF NOT EXISTS tasks_completed_order ON tasks(status, completed_at DESC, position, id);`);
   if (!db.prepare('PRAGMA table_info(tasks)').all().some((column) => column.name === 'page_id'))
     db.exec('ALTER TABLE tasks ADD COLUMN page_id TEXT');
+  // Where a task came from, e.g. 'wiki:<project>:<남은 일>'; lets the wiki show what is already a task.
+  if (!db.prepare('PRAGMA table_info(tasks)').all().some((column) => column.name === 'source'))
+    db.exec('ALTER TABLE tasks ADD COLUMN source TEXT');
   const fields =
-    "id, title, status, CASE WHEN status = 'done' THEN 'done' WHEN in_progress = 1 THEN 'doing' ELSE 'todo' END AS stage, due_date AS dueDate, page_id AS pageId, position, created_at AS createdAt, updated_at AS updatedAt, completed_at AS completedAt, version";
+    "id, title, status, CASE WHEN status = 'done' THEN 'done' WHEN in_progress = 1 THEN 'doing' ELSE 'todo' END AS stage, due_date AS dueDate, page_id AS pageId, position, created_at AS createdAt, updated_at AS updatedAt, completed_at AS completedAt, version, source";
   const getTask = (id) => db.prepare(`SELECT ${fields} FROM tasks WHERE id = ?`).get(id) || null;
   return {
     getTask,
-    createTask({ title, dueDate = null, pageId = null, requestId = null, syncId = null }) {
+    createTask({ title, dueDate = null, pageId = null, requestId = null, syncId = null, source = null }) {
       const cleanTitle = titleValue(title);
+      if (source !== null && (typeof source !== 'string' || !/^wiki:[^\n]{1,400}$/.test(source)))
+        throw new TaskValidationError('할 일 출처가 올바르지 않습니다.');
       const cleanDate = dateValue(dueDate);
       const cleanPage = pageValue(pageId);
       if (
@@ -137,7 +142,13 @@ export function createTaskStore(db) {
       )
         throw new TaskValidationError('추가 요청이 올바르지 않습니다.');
       // Keep existing request receipts valid when no reference was specified.
-      const payload = JSON.stringify(cleanPage === null ? [cleanTitle, cleanDate] : [cleanTitle, cleanDate, cleanPage]);
+      const payload = JSON.stringify(
+        source !== null
+          ? [cleanTitle, cleanDate, cleanPage, source]
+          : cleanPage === null
+            ? [cleanTitle, cleanDate]
+            : [cleanTitle, cleanDate, cleanPage],
+      );
       if (requestId) {
         const previous = db
           .prepare('SELECT id, create_payload AS payload FROM tasks WHERE create_request_id = ?')
@@ -154,8 +165,8 @@ export function createTaskStore(db) {
         .prepare('SELECT COALESCE(MAX(position), -1) + 1 AS next FROM tasks')
         .get().next;
       db.prepare(
-        'INSERT INTO tasks (id, title, due_date, page_id, position, created_at, updated_at, create_request_id, create_payload) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      ).run(id, cleanTitle, cleanDate, cleanPage, position, now, now, requestId, payload);
+        'INSERT INTO tasks (id, title, due_date, page_id, position, created_at, updated_at, create_request_id, create_payload, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      ).run(id, cleanTitle, cleanDate, cleanPage, position, now, now, requestId, payload, source);
       return getTask(id);
     },
     updateTask({ id, expectedVersion, title, dueDate, status, stage, pageId }) {
@@ -209,6 +220,14 @@ export function createTaskStore(db) {
       if (!result.changes)
         throw new TaskConflictError('다른 곳에서 먼저 수정한 할 일입니다.', getTask(id));
       return getTask(id);
+    },
+    /** Open and done tasks whose source starts with the prefix (e.g. 'wiki:'). */
+    listTasksBySource(prefix) {
+      if (typeof prefix !== 'string' || !/^wiki:/.test(prefix) || prefix.length > 400)
+        throw new TaskValidationError('할 일 출처가 올바르지 않습니다.');
+      return db
+        .prepare(`SELECT ${fields} FROM tasks WHERE substr(source, 1, ?) = ? ORDER BY created_at LIMIT 500`)
+        .all(prefix.length, prefix);
     },
     listTasks({
       status = 'open',

@@ -481,6 +481,8 @@ const server = createServer(async (request, response) => {
       );
     }
     if (url.pathname === '/api/tasks') {
+      if (request.method === 'GET' && url.searchParams.has('source'))
+        return json(response, 200, { items: store.listTasksBySource(url.searchParams.get('source')) });
       if (request.method === 'GET')
         return json(
           response,
@@ -499,6 +501,7 @@ const server = createServer(async (request, response) => {
             title: body.title,
             dueDate: body.dueDate,
             requestId: body.requestId,
+            source: body.source ?? null,
           }),
         });
       }
