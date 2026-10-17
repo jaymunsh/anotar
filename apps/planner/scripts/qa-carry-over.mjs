@@ -1,0 +1,43 @@
+// Carry-over from an earlier day: copy the nearest earlier schedule, bring unfinished priorities,
+// phones open the list view. Isolated temporary account and DB on port 8798.
+import {chromium} from 'playwright-core';
+import {makeApp} from '../server/app.mjs';
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import assert from 'node:assert/strict';
+
+const dir=await mkdtemp(join(tmpdir(),'anotar-carry-')),base='http://127.0.0.1:8798';
+const app=makeApp({dataDirectory:dir,origin:base,registration:true,legalReviewed:true,legal:{publishedAt:'2026-10-12',hostingRegion:'Osaka'}});
+await new Promise(r=>app.server.listen(8798,'127.0.0.1',r));
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||undefined}),checks=[],errors=[];
+try{
+  for(const [width,height,name] of [[1280,900,'pc'],[390,844,'phone']]){
+    const context=await browser.newContext({viewport:{width,height}}),page=await context.newPage();
+    page.on('pageerror',e=>errors.push(e.message));
+    const response=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{username:'carry_'+name,password:'temporary-test-password',termsVersion:'2026-10-11-v1',ageConfirmed:true}});
+    assert.equal(response.status(),201);
+    const {csrf}=await response.json();
+    // Friday has a routine, a cancelled item, one done and two open priorities; Monday is empty.
+    const friday={plans:[{id:'a',title:'기상·스트레칭',start:420,end:450,status:'done'},{id:'b',title:'집중 작업',start:540,end:660,status:'missed'},{id:'c',title:'취소된 약속',start:720,end:780,status:'cancelled'}],entries:[],notes:{thoughts:'',ideas:'',review:''},priorities:[{id:'p1',text:'보고서 마감',done:false},{id:'p2',text:'운동',done:true},{id:'p3',text:'은행 가기',done:false}]};
+    assert.equal((await context.request.put(base+'/api/days/2026-10-16',{headers:{Origin:base,'X-CSRF-Token':csrf},data:{document:friday,version:0}})).status(),200);
+    await page.goto(base+'/app?date=2026-10-19&view=day');
+    const offers=page.locator('.journal-carry');
+    await offers.first().waitFor();
+    assert.deepEqual(await offers.allInnerTexts(),['10월 16일 (금) 못 한 일 2개 가져오기','10월 16일 (금) 일정 2개 가져오기']);
+    checks.push(`${name}: Monday offers Friday's schedule (cancelled excluded) and unfinished priorities (done excluded)`);
+    assert.equal(await page.locator('.segmented .selected').first().innerText(),name==='phone'?'목록':'하루');
+    checks.push(`${name}: schedule opens in ${name==='phone'?'list':'day grid'} view`);
+    while(await offers.count()){await offers.first().click();await page.waitForTimeout(300);}
+    await page.getByText('서버에 저장됨').first().waitFor();
+    const saved=(await (await context.request.get(base+'/api/days/2026-10-19')).json()).document;
+    assert.deepEqual(saved.plans.map(p=>[p.title,p.start,p.end,p.status]),[['기상·스트레칭',420,450,'pending'],['집중 작업',540,660,'pending']]);
+    assert.deepEqual(saved.priorities.map(p=>[p.text,p.done]),[['보고서 마감',false],['은행 가기',false],['',false]]);
+    assert.ok(saved.plans.every(p=>!['a','b'].includes(p.id)),'copies get new ids');
+    checks.push(`${name}: copies come in as new pending items and fill empty priority slots, then the offers disappear`);
+    assert.equal(await offers.count(),0);
+    await context.close();
+  }
+  assert.deepEqual(errors,[]);
+  console.log(JSON.stringify({checks,errors},null,2));
+}finally{await browser.close();await app.close();await rm(dir,{recursive:true,force:true});}

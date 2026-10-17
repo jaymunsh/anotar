@@ -90,3 +90,9 @@
 @media(max-width:640px){.journal-broad-picker select{flex:1;font-size:16px;padding:8px 4px}.journal-date:has(.journal-broad-picker)>button:nth-of-type(3){grid-column:1/-1;justify-self:center}}
 .journal-plan[data-tag]{border-left:3px solid var(--tag)}
 .planning-pick{display:grid;gap:4px;margin:4px 0 8px}.planning-pick select{min-height:44px;max-width:100%}
+/* Carry-over from an earlier day: one quiet action under a section heading. */
+.journal-carry{display:inline-flex;width:fit-content;justify-self:start;align-self:start;align-items:center;min-height:36px;margin:0 0 8px;padding:6px 10px;border-radius:8px;background:var(--hover);color:var(--action);font-size:12px;font-weight:600}
+.journal-carry:hover{background:var(--lime)}
+/* Carry-over from an earlier day: one quiet action under a section heading. */
+.journal-carry{display:inline-flex;width:fit-content;justify-self:start;align-self:start;align-items:center;min-height:36px;margin:0 0 8px;padding:6px 10px;border-radius:8px;background:var(--hover);color:var(--action);font-size:12px;font-weight:600}
+.journal-carry:hover{background:var(--lime)}
