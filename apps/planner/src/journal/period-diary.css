@@ -52,3 +52,6 @@
 .month-more{font-size:10px;color:var(--muted)}
 .month-day.weekend{background-color:rgba(32,50,45,.025)}
 .month-day.today{box-shadow:inset 0 0 0 2px var(--action)}
+/* Week fits the screen; daily reviews sit below it. The legend added nothing. */
+.week-diary .diary-legend{display:none}
+@media(min-width:641px){.week-hours,.week-day-track{height:clamp(400px,calc(100dvh - 360px),760px)}}

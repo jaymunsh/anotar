@@ -26,6 +26,7 @@ try{
   const stored=(await (await context.request.get(base+'/api/planning')).json()).items.map(i=>[i.kind,i.title]);
   assert.deepEqual(stored,[['routine','운동'],['routine','독서 30분']]);
   checks.push('routines are created and renamed in 계획 and stored as planning kind=routine');
+  await page.goto(base+'/app/plans?view=quarter&date=2026-10-19');await page.locator('.quarter-plan-columns').waitFor();
   assert.equal(await page.locator('.quarter-plan-columns').getByText('운동').count(),0);
   checks.push('routines do not appear as goals or steps on the quarter board');
   // Day view: chips, tap opens the activity dialog prefilled, save adds an ordinary activity.
@@ -42,7 +43,7 @@ try{
   assert.equal(Object.hasOwn(day.plans[0],'planningId'),false);
   checks.push('tapping a routine chip adds an ordinary 30-minute activity at 09:00 after confirming the dialog');
   // Deleting the routine leaves the activity on the day.
-  await page.goto(base+'/app/plans?view=quarter#routines');
+  await page.goto(base+'/app/plans?view=routines');
   await page.locator('#routines').getByRole('button',{name:'운동 삭제'}).click();
   await page.waitForTimeout(800);
   assert.deepEqual((await (await context.request.get(base+'/api/planning')).json()).items.map(i=>i.title),['독서 30분']);

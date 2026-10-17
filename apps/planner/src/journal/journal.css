@@ -219,3 +219,10 @@
 /* Year/quarter/month selects: one quiet chevron instead of the native arrow. */
 .journal-broad-picker select{appearance:none;-webkit-appearance:none;padding:8px 30px 8px 12px;border-radius:8px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23586c5c' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;cursor:pointer}
 .journal-broad-picker select:hover{border-color:var(--focus)}
+/* Week/month head: the range on the left, totals on the right, one row. */
+.period-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--line)}
+.period-head h2{margin:0}
+.period-head .period-totals{padding:0;border:0;gap:12px 32px}
+.period-head .period-totals>div{display:flex;align-items:baseline;gap:8px}
+.period-head .period-totals dd{margin:0;font-size:18px}
+.period-overview:has(>.period-head){padding-top:0}
