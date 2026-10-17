@@ -79,11 +79,12 @@ test('journal priorities and unfinished plans persist without changing legacy re
  const legacy=emptyDay();legacy.plans=[{id:'legacy',title:'Legacy minute precision',start:101,end:137,status:'partial'}];legacy.entries=[{id:'actual',title:'Original actual',start:104,end:140,planId:'legacy'}];legacy.notes.ideas='Original note';
  assert.equal((await a.send('/api/days/2026-10-12','PUT',{version:0,document:legacy})).status,200);
  assert.deepEqual((await a.send('/api/days/2026-10-12')).value.document,legacy);
- const updated=structuredClone(legacy);updated.priorities=[{id:'priority',text:'My task',done:true}];updated.plans.push({id:'new',title:'Unfinished',start:540,end:570,status:'missed',priorityId:'priority'});
+ const updated=structuredClone(legacy);updated.priorities=[{id:'priority',text:'My task',done:true,steps:[{id:'step',text:'First step',done:false}]}];updated.plans.push({id:'new',title:'Unfinished',start:540,end:570,status:'missed',priorityId:'priority'});
  assert.equal((await a.send('/api/days/2026-10-12','PUT',{version:1,document:updated})).status,200);
  assert.deepEqual((await a.send('/api/days/2026-10-12')).value.document,updated);assert.equal((await b.send('/api/export')).value.days.length,0);
  const invalid=structuredClone(updated);invalid.plans[1].priorityId='missing';assert.equal((await a.send('/api/days/2026-10-12','PUT',{version:2,document:invalid})).status,400);
  invalid.plans[1].priorityId='priority';invalid.priorities.push({...invalid.priorities[0]});assert.equal((await a.send('/api/days/2026-10-12','PUT',{version:2,document:invalid})).status,400);
+ const badStep=structuredClone(updated);badStep.priorities[0].steps[0].done='no';assert.equal((await a.send('/api/days/2026-10-12','PUT',{version:2,document:badStep})).status,400);
  assert.deepEqual((await a.send('/api/days/2026-10-12')).value.document,updated);
 });
 

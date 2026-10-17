@@ -3,7 +3,9 @@ export type Site = {legal:{operator:string;representative:string;businessNumber:
 export type User = {id:string;username:string;timezone:string};
 export type Plan = {id:string;title:string;start:number;end:number;status:'pending'|'partial'|'done'|'deferred'|'cancelled'|'missed';priorityId?:string;planningId?:string};
 export type Entry = {id:string;title:string;start:number;end:number;planId?:string};
-export type Day = {plans:Plan[];entries:Entry[];notes:{thoughts:string;ideas:string;review:string};priorities?:{id:string;text:string;done:boolean}[]};
+export type Day = {plans:Plan[];entries:Entry[];notes:{thoughts:string;ideas:string;review:string};priorities?:Priority[]};
+export type Step={id:string;text:string;done:boolean};
+export type Priority={id:string;text:string;done:boolean;steps?:Step[]};
 export type Routine={id:string;kind:'routine';title:string;version:number};
 export type PlanningItem={id:string;kind:'goal'|'step';title:string;startMonth:string;endMonth:string;note:string;parentId:string|null;version:number};
 export class ApiError extends Error {constructor(public status:number,message:string){super(message);}}

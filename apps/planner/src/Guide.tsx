@@ -21,6 +21,7 @@ export function Guide(){
   <ul>
    <li>{pair('체크하면 끝난 일이 되고, 그 일에 연결된 시간표 블록도 흐려져요.','Checking a task marks it done and fades its blocks on the timetable.')}</li>
    <li>{pair('내용을 지우면 할 일도 지워져요. 1–3번은 빈 칸으로 남아요.','Clearing a task removes it. Rows 1–3 stay as blank slots.')}</li>
+   <li>{pair('할 일 줄 끝의 목록 아이콘을 누르면 아래에 세부 할 일을 적을 수 있어요. 평소엔 접혀 있고 ‘1/3’처럼 개수만 보여요. 세부 할 일을 다 해도 할 일은 직접 체크해요.','The list icon at the end of a task opens steps under it. They stay folded, showing a count like “1/3”. Finishing every step doesn’t check the task for you.')}</li>
    <li>{pair('하나의 할 일을 여러 번에 나눠 해도 돼요. 시간을 여러 번 잡으면 ‘09:00 +1’처럼 보여요.','A task can be split across several blocks; it then shows like “09:00 +1”.')}</li>
    <li>{pair('어제 못 한 일이 있으면 제목 옆 ‘어제 N개’를 눌러 가져와요. 일정이 빈 날에는 최근 날의 일정을 가져올 수 있어요.','Unfinished tasks from yesterday come over with the “N from yesterday” button. An empty day can copy the most recent day’s schedule.')}</li>
   </ul>

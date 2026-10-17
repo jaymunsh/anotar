@@ -45,11 +45,15 @@ export function validDate(value) {
   const d=new Date(value+'T12:00:00Z');
   return Number.isFinite(d.valueOf())&&d.toISOString().slice(0,10)===value;
 }
+function validateSteps(steps) {
+  if(!Array.isArray(steps)||steps.length>20) throw Error('세부 할 일은 20개까지 작성할 수 있어요.');
+  return steps.map(s=>{if(!s||typeof s.id!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(s.id)||typeof s.text!=='string'||s.text.length>200||typeof s.done!=='boolean')throw Error('세부 할 일의 내용을 확인해 주세요.');return {id:s.id,text:s.text,done:s.done};});
+}
 export const emptyDay = () => ({plans:[],entries:[],notes:{thoughts:'',ideas:'',review:''}});
 export function validateDay(raw, db, userId) {
   if(!raw||!Array.isArray(raw.plans)||!Array.isArray(raw.entries)||raw.plans.length>100||raw.entries.length>100) throw Error('하루에 기록할 수 있는 항목은 각 100개까지예요.');
   let priorities;
-  if(raw.priorities!==undefined){if(!Array.isArray(raw.priorities)||raw.priorities.length>20)throw Error('오늘 할 일은 20개까지 작성할 수 있어요.');const ids=new Set();priorities=raw.priorities.map(p=>{if(!p||typeof p.id!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(p.id)||ids.has(p.id)||typeof p.text!=='string'||p.text.length>300||typeof p.done!=='boolean')throw Error('오늘 할 일의 내용을 확인해 주세요.');ids.add(p.id);return {id:p.id,text:p.text,done:p.done};});}
+  if(raw.priorities!==undefined){if(!Array.isArray(raw.priorities)||raw.priorities.length>20)throw Error('오늘 할 일은 20개까지 작성할 수 있어요.');const ids=new Set();priorities=raw.priorities.map(p=>{if(!p||typeof p.id!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(p.id)||ids.has(p.id)||typeof p.text!=='string'||p.text.length>300||typeof p.done!=='boolean')throw Error('오늘 할 일의 내용을 확인해 주세요.');ids.add(p.id);return {id:p.id,text:p.text,done:p.done,...(p.steps!==undefined?{steps:validateSteps(p.steps)}:{})};});}
   const identifiers=new Set();
   function item(raw,actual=false) {
     if(!raw||typeof raw.id!=='string'||!/^[a-zA-Z0-9_-]{1,80}$/.test(raw.id)||identifiers.has(raw.id)) throw Error('항목 식별자가 올바르지 않아요.');

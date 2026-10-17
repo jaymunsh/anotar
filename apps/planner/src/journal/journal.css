@@ -229,3 +229,17 @@
 .period-head .period-totals>div{display:flex;align-items:baseline;gap:8px}
 .period-head .period-totals dd{margin:0;font-size:18px}
 .period-overview:has(>.period-head){padding-top:0}
+/* 세부 할 일: a count (or a hover-only icon) at the row's end, steps folded below, indented past the number. */
+.journal-page .journal-priority{grid-template-columns:18px 18px minmax(0,1fr) auto 28px}
+.journal-page .journal-priority .journal-steps-toggle{min-width:28px;padding:4px 2px;font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.journal-page .journal-priority .journal-steps-toggle:hover,.journal-steps-toggle[aria-expanded=true]{color:var(--action)}
+.journal-priority:not(.has-steps):not(:hover):not(:focus-within) .journal-steps-toggle:not([aria-expanded=true]){opacity:0}
+.journal-steps{display:grid;padding:2px 0 8px 52px;border-bottom:1px solid var(--line)}
+.journal-step{display:grid;grid-template-columns:14px minmax(0,1fr);align-items:center;gap:8px}
+.journal-step input[type=checkbox]{width:14px;height:14px;margin:0;accent-color:var(--action)}
+.journal-step input:not([type=checkbox]){min-height:30px;padding:4px 0;border:0;border-radius:0;background:transparent;font-size:13px}
+.journal-step.done input:not([type=checkbox]){color:var(--muted);text-decoration:line-through}
+.journal-step-add{justify-self:start;display:inline-flex;align-items:center;gap:4px;min-height:28px;padding:2px 0;font-size:12px;color:var(--muted)}
+.journal-step-add:hover{color:var(--action)}
+.journal-priority:has(+.journal-steps){border-bottom-color:transparent}
+@media(hover:none){.journal-page .journal-priority .journal-steps-toggle{opacity:1}}
