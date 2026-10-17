@@ -39,7 +39,7 @@ export function SyncStatus({ onNavigate, onOpenStorage }: {
     offline = status.state === 'offline';
   const label =
     status.state === 'access'
-      ? '로그인·접근 확인 필요'
+      ? '로그인 확인 필요'
       : warning
         ? `변경 확인 필요${status.conflicts ? ' ' + status.conflicts + '건' : ''}`
         : offline

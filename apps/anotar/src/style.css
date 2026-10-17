@@ -58,6 +58,9 @@ body {
 body {
   margin: 0;
   min-width: 320px;
+  /* Korean wraps at spaces, not mid-word; a single over-long word still breaks. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 ::selection {
   background: var(--theme-soft);

@@ -31,8 +31,9 @@
 }
 .sync-status-trigger span {
   min-width: 0;
-  overflow-wrap: anywhere;
-  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .sync-status-trigger:hover {
   background: var(--sidebar-hover, rgba(255, 255, 255, 0.07));
