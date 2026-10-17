@@ -281,3 +281,4 @@
 .journal-page .journal-priority>input:not([type=checkbox]){text-overflow:ellipsis;white-space:nowrap;overflow:hidden}
 .journal-expand{display:inline-flex;align-items:center;gap:3px;color:var(--muted)}
 .journal-expand[aria-pressed=true]{color:var(--action)}
+.journal-priority-title{display:flex;align-items:center;gap:10px;min-width:0}
