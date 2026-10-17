@@ -51,3 +51,4 @@ body:has(.journal-page:not(.journal-preview)) .public-header{padding-inline:max(
 .header-save [data-state=error]::before,.header-save [data-state=conflict]::before,.header-save [data-state=load-error]::before{background:var(--danger)}
 .header-save [data-state=error],.header-save [data-state=conflict],.header-save [data-state=load-error]{color:var(--danger)}
 @media(max-width:640px){.header-save{margin-left:auto;padding:0 4px}.header-save [role=status]{font-size:0;gap:0}.app-header .header-save+.account-actions{margin-left:0}}
+.form-shift{display:flex;align-items:center;gap:2px;margin:-4px 0 12px;font-size:12px;color:var(--muted)}.form-shift span{margin-right:6px}.form-shift button{min-height:28px;padding:2px 8px;border-radius:6px;font-size:12px;color:var(--action);font-variant-numeric:tabular-nums}
