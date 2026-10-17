@@ -52,6 +52,13 @@ try{
       const after=(await (await context.request.get(base+'/api/days/2026-10-19')).json()).document;
       assert.deepEqual(after.priorities[0].steps.map(s=>[s.text,s.done]),[['결론 쓰기',true],['검토 요청',false]]);
       checks.push('pc: steps fold under a task, Enter adds the next, folding drops the empty one and shows 1/2');
+      await toggle.click();await page.locator('.journal-step').nth(1).hover();await page.getByRole('button',{name:'세부 할 일 2 지우기'}).click();
+      assert.equal(await toggle.innerText(),'1/1');
+      page.once('dialog',d=>d.accept());await page.locator('.journal-priority').first().hover();await page.getByRole('button',{name:'오늘 할 일 1 지우기'}).click();
+      await page.getByText('서버에 저장됨').first().waitFor();await page.waitForTimeout(1200);
+      const removed=(await (await context.request.get(base+'/api/days/2026-10-19')).json()).document;
+      assert.deepEqual(removed.priorities.map(p=>p.text),['은행 가기','','']);
+      checks.push('pc: × removes a step, and a task (asking first when it has steps); 1–3 keep three slots');
     }
     await context.close();
   }
