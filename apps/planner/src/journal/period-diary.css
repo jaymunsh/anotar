@@ -71,3 +71,9 @@
 /* Weekends: no grey wash, just the label — Sunday red, Saturday a soft slate. */
 .week-day.sun .week-day-heading strong,.month-weekdays .sun,.month-day.sun>time{color:#b4483c}
 .week-day.sat .week-day-heading strong,.month-weekdays .sat,.month-day.sat>time{color:#5f7189}
+/* Month plans: start time in a fixed small slate column, +N tucked into the cell's bottom-right corner. */
+.month-sheet:not(.compact):not(.record-map) .month-day{position:relative}
+.month-sheet:not(.compact):not(.record-map) .month-activities{gap:2px}
+.month-sheet:not(.compact):not(.record-map) .month-activities>span{line-height:12px;padding:2px 4px}
+.month-clock{display:inline-block;width:30px;font-style:normal;font-size:9px;color:#6b7a70;font-variant-numeric:tabular-nums}
+.month-sheet:not(.compact):not(.record-map) .month-more{position:absolute;right:8px;bottom:4px;font-size:10px}
