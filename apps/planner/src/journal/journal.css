@@ -248,4 +248,9 @@
 /* 4번부터: a small muted number centred under the big ones. */
 .journal-priority:not(.top) .journal-priority-number{font-size:11px;text-align:center;color:var(--muted)}
 /* Wide screens: when 할 일·메모 run long, the page scrolls the left column while the timetable stays put. */
-@media(min-width:1200px){.journal-workspace .journal-schedule{position:sticky;top:16px;align-self:start;max-height:calc(100dvh - 32px);overflow:auto}}
+@media(min-width:1200px){
+ .journal-workspace .journal-schedule{position:sticky;top:16px;align-self:start;max-height:calc(100dvh - 32px);overflow:auto}
+ /* 한눈에: keep the timetable at the fitted height it always had; only the workspace grows with the left column. */
+ .journal-overview .journal-workspace{height:auto;min-height:var(--journal-available,calc(100dvh - 250px))}
+ .journal-overview .journal-workspace .journal-schedule{height:var(--journal-available,calc(100dvh - 250px));min-height:420px;max-height:none;overflow:visible}
+}
