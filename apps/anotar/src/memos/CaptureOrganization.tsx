@@ -15,12 +15,12 @@ export default function CaptureOrganization({
   const key = 'leneu:capture-unorganize:' + capture.id;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [pageState, setPageState] = useState<'loading' | 'active' | 'missing' | 'error'>('loading');
+  const [pageState, setPageState] = useState<'loading' | 'active' | 'archived' | 'missing' | 'error'>('loading');
   useEffect(() => {
     const controller = new AbortController();
     setPageState('loading');
     if (!capture.organizedPageId) {
-      setPageState('missing');
+      setPageState('archived');
       return;
     }
     void fetch('/api/pages/' + capture.organizedPageId, { signal: controller.signal })
@@ -71,6 +71,7 @@ export default function CaptureOrganization({
   return (
     <section className="capture-organization" aria-label="메모 정리 상태">
       <p>정리 완료</p>
+      {pageState === 'archived' && <p>페이지에 넣지 않고 보관했어요.</p>}
       {pageState === 'missing' && (
         <p>
           연결 페이지가 휴지통에 있거나 사라졌어요. <a href="/trash">휴지통에서 확인</a>하거나

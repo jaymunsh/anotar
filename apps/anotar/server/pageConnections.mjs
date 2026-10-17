@@ -417,6 +417,36 @@ export function createPageConnections(db, getStore) {
         return { ...result, replayed: false };
       });
     },
+    // Done with a memo without filing it into a page. Undo is the usual unorganize.
+    archiveCapture({ id, operationId }) {
+      const cleanId = cleanRequestId(operationId);
+      const request = JSON.stringify({ id, archive: true });
+      return pageTransaction(db, () => {
+        const receipt = db
+          .prepare('SELECT request,result FROM capture_organization_operations WHERE operation_id=?')
+          .get(cleanId);
+        if (receipt) {
+          if (receipt.request !== request)
+            throw new PageImportConflictError('같은 작업 ID의 정리 상태가 달라졌어요.');
+          return { ...JSON.parse(receipt.result), replayed: true };
+        }
+        const item = getStore().getCapture(id);
+        if (!item) throw new PageImportNotFoundError('원본 메모를 찾을 수 없어요.');
+        if (item.organizedAt)
+          throw new PageImportConflictError('이미 정리한 메모예요. 최신 상태를 확인해 주세요.');
+        db.prepare(
+          'UPDATE captures SET organized_at=?,organized_page_id=NULL,organized_operation_id=? WHERE id=?',
+        ).run(new Date().toISOString(), cleanId, id);
+        const result = { item: getStore().getCapture(id) };
+        db.prepare('INSERT INTO capture_organization_operations VALUES (?,?,?,?)').run(
+          cleanId,
+          request,
+          JSON.stringify(result),
+          new Date().toISOString(),
+        );
+        return { ...result, replayed: false };
+      });
+    },
     unorganizeCapture({ id, operationId, expectedOrganizedOperationId }) {
       const cleanId = cleanRequestId(operationId);
       const expected = cleanRequestId(expectedOrganizedOperationId);

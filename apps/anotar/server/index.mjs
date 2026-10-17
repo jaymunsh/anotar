@@ -391,6 +391,13 @@ const server = createServer(async (request, response) => {
         items ? { items } : { error: '페이지를 찾을 수 없어요.' },
       );
     }
+    const archiveMatch = url.pathname.match(/^\/api\/captures\/([a-f0-9-]+)\/archive$/);
+    if (archiveMatch && request.method === 'POST')
+      return json(
+        response,
+        200,
+        store.archiveCapture({ ...(await readCaptureJson(request)), id: archiveMatch[1] }),
+      );
     const unorganizeMatch = url.pathname.match(/^\/api\/captures\/([a-f0-9-]+)\/unorganize$/);
     if (unorganizeMatch && request.method === 'POST')
       return json(
