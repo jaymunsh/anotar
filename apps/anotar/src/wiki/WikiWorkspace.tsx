@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore, type MouseEvent, type ReactNode } from 'react';
 import { ArrowLeft, RefreshCw, Search } from 'lucide-react';
+import { authenticationRequired, getAuthSnapshot, subscribeAuth } from '../auth/state';
 import { WorkspaceToolbar } from '../workspace/WorkspaceToolbar';
 import { renderReadMarkdown } from '../ai/markdownReading';
 import {
@@ -38,8 +39,11 @@ async function loadMemory(signal: AbortSignal): Promise<Prepared> {
   }
   if (response.status === 503) throw Error('아직 위키가 빌드되지 않았어요. memory의 build.py를 실행해 주세요.');
   // The edge redirects a signed-out request to the app shell, which is HTML.
-  if (response.redirected || response.headers.get('content-type')?.includes('text/html'))
-    throw Error('다시 로그인한 뒤 위키를 열어 주세요.');
+  // Same as a sync 401: show the app's login banner instead of a dead-end message.
+  if (response.redirected || response.headers.get('content-type')?.includes('text/html')) {
+    authenticationRequired();
+    throw Error('로그인 시간이 지났어요. 아래 로그인 버튼으로 다시 로그인해 주세요.');
+  }
   if (!response.ok || !response.headers.get('content-type')?.includes('application/json'))
     throw Error('위키를 불러오지 못했어요. 다시 불러와 주세요.');
   return prepare((await response.json()) as MemoryData);
@@ -63,6 +67,8 @@ const projectPath = (name: string) => '/wiki/projects/' + encodeURIComponent(nam
 export default function WikiWorkspace({ navigate, pathname }: { navigate: Navigate; pathname: string }) {
   const [load, setLoad] = useState<Load>({ state: 'loading' });
   const [attempt, setAttempt] = useState(0);
+  // Reload once the login banner signs the user back in.
+  const authState = useSyncExternalStore(subscribeAuth, () => getAuthSnapshot().state);
   const route = parseWikiRoute(pathname);
   const link = useLink(navigate);
   useEffect(() => {
@@ -73,7 +79,7 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
       (error) => !controller.signal.aborted && setLoad({ state: 'error', message: error.message }),
     );
     return () => controller.abort();
-  }, [attempt]);
+  }, [attempt, authState]);
 
   const tabs: { path: string; label: string; active: boolean }[] = [
     { path: '/wiki', label: '홈', active: route.view === 'home' },
