@@ -584,6 +584,7 @@ export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate
           </form>
         ) : (
           <>
+            <div className="task-title-line">
             <button
               className="task-title-button"
               title={task.title}
@@ -594,6 +595,43 @@ export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate
               <span>{task.title}</span>
               <Pencil size={12} aria-hidden="true" />
             </button>
+              {task.pageId && (
+                <a
+                  className="task-page-link"
+                  href={`/pages/${task.pageId}`}
+                  draggable={false}
+                  title={pages.find(page => page.id === task.pageId)?.title || '참조 페이지 열기'}
+                  aria-label={`참조 페이지: ${pages.find(page => page.id === task.pageId)?.title || '연결된 페이지'}`}
+                  onClick={(event) => {
+                    if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                    event.preventDefault();
+                    onNavigate(`/pages/${task.pageId}`);
+                  }}
+                >
+                  <FileText size={14} aria-hidden="true" />
+                </a>
+              )}
+              {task.source?.startsWith('wiki:') && (() => {
+                const project = task.source.split(':')[1];
+                const href = '/wiki/projects/' + encodeURIComponent(project);
+                return (
+                  <a
+                    className="task-page-link"
+                    href={href}
+                    draggable={false}
+                    title={`위키 · ${project}`}
+                    aria-label={`이 할 일이 나온 위키 프로젝트: ${project}`}
+                    onClick={(event) => {
+                      if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                      event.preventDefault();
+                      onNavigate(href);
+                    }}
+                  >
+                    <BookOpen size={14} aria-hidden="true" />
+                  </a>
+                );
+              })()}
+            </div>
             <span className="task-dates">
               {task.status === 'done' ? (
                 task.completedAt && (
@@ -606,42 +644,6 @@ export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate
                   작성 {stampLabel(task.createdAt)}
                 </time>
               )}
-            {task.pageId && (
-              <a
-                className="task-page-link"
-                href={`/pages/${task.pageId}`}
-                draggable={false}
-                title={pages.find(page => page.id === task.pageId)?.title || '참조 페이지 열기'}
-                aria-label={`참조 페이지: ${pages.find(page => page.id === task.pageId)?.title || '연결된 페이지'}`}
-                onClick={(event) => {
-                  if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                  event.preventDefault();
-                  onNavigate(`/pages/${task.pageId}`);
-                }}
-              >
-                <FileText size={14} aria-hidden="true" />
-              </a>
-            )}
-            {task.source?.startsWith('wiki:') && (() => {
-              const project = task.source.split(':')[1];
-              const href = '/wiki/projects/' + encodeURIComponent(project);
-              return (
-                <a
-                  className="task-page-link"
-                  href={href}
-                  draggable={false}
-                  title={`위키 · ${project}`}
-                  aria-label={`이 할 일이 나온 위키 프로젝트: ${project}`}
-                  onClick={(event) => {
-                    if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-                    event.preventDefault();
-                    onNavigate(href);
-                  }}
-                >
-                  <BookOpen size={14} aria-hidden="true" />
-                </a>
-              );
-            })()}
               {task.dueDate && (
                 <time
                   className={`task-due ${task.status === 'open' && task.dueDate < today ? 'task-overdue' : ''}`}

@@ -281,7 +281,17 @@
   color: var(--theme-muted);
   font-size: 11px;
 }
-/* Linked page / wiki project: an icon mark on the meta line; the name is the tooltip. */
+/* Title, then linked page / wiki project marks at its right end; the name is the tooltip. */
+.task-title-line {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+.task-title-line .task-title-button {
+  flex: 1;
+  min-width: 0;
+}
 .task-page-link {
   display: inline-grid;
   place-items: center;
@@ -670,9 +680,16 @@
 }
 .task-stamp {
   margin-right: auto;
+}
+/* 작성/완료 time and due date share one look; only an overdue date turns red. */
+.task-row .task-dates :is(.task-stamp, .task-due) {
+  margin-top: 0;
   white-space: nowrap;
   color: var(--theme-subtle, var(--theme-muted));
   font-size: 11px;
   line-height: 1.6;
   font-variant-numeric: tabular-nums;
+}
+.task-row .task-dates .task-overdue {
+  color: var(--theme-error-ink);
 }
