@@ -128,6 +128,7 @@ test('public HTTP server writes through broker with same-origin JSON only and ex
   fixture(async ({ dir, store, page, link, socketPath }) => {
     const port = 18000 + Math.floor(Math.random() * 1000),
       base = 'http://127.0.0.1:' + port;
+    store.publishShareSnapshots();
     const child = spawn(process.execPath, ['server/public.mjs'], {
       cwd: process.cwd(),
       env: {

@@ -52,6 +52,17 @@ const commentBroker = createSharedCommentBroker({
   socketPath: process.env.COMMENT_SOCKET_PATH || join(dataDir, 'share-comments.sock'),
 });
 await commentBroker.start();
+// Public share snapshots: right after share changes, and every 2s for page edits, trash, expiry and
+// shared plan tasks. ponytail: polling all active shares; switch to save hooks if shares get many.
+function publishShares() {
+  try {
+    store.publishShareSnapshots();
+  } catch (error) {
+    console.error('Share snapshots failed', error);
+  }
+}
+publishShares();
+const shareTimer = setInterval(publishShares, 2000);
 const ocrWorker = createOcrWorker({ store, dataDir });
 const backups = createAutomaticBackups({
   dataDir,
@@ -781,6 +792,7 @@ const server = createServer(async (request, response) => {
     if (pageSharesMatch && request.method === 'POST') {
       const body = await readPageJson(request);
       const result = store.createPageShare(pageSharesMatch[1], body);
+      publishShares();
       return json(response, result ? 201 : 404, result || { error: '페이지를 찾을 수 없어요.' });
     }
     const shareLinkMatch = url.pathname.match(/^\/api\/pages\/([a-f0-9-]+)\/shares\/([a-f0-9-]+)\/link$/);
@@ -793,6 +805,7 @@ const server = createServer(async (request, response) => {
     const shareMatch = url.pathname.match(/^\/api\/pages\/([a-f0-9-]+)\/shares\/([a-f0-9-]+)$/);
     if (shareMatch && request.method === 'PATCH') {
       const item = store.updatePageShare(shareMatch[1], shareMatch[2], await readPageJson(request));
+      publishShares();
       return json(
         response,
         item ? 200 : 404,
@@ -801,6 +814,7 @@ const server = createServer(async (request, response) => {
     }
     if (shareMatch && request.method === 'DELETE') {
       const revoked = store.revokePageShare(shareMatch[1], shareMatch[2]);
+      publishShares();
       return json(
         response,
         revoked ? 200 : 404,
@@ -1081,6 +1095,7 @@ async function shutdown() {
   await ocrWorker.stop();
   await backups.stop();
   await commentBroker.stop();
+  clearInterval(shareTimer);
   server.close(() => store.close());
 }
 process.on('SIGTERM', shutdown);

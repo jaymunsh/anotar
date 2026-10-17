@@ -17,15 +17,20 @@ services:
       PRIVATE_ALLOWED_ORIGINS: ${MY_ORIGIN:-http://my.localhost:8780}
       BACKUP_DIR: /backups
       HOSTED_SITES_DIR: /sites
+      # Public stack (infra/public) reads these folders; the personal app is the only writer.
+      PUBLIC_SHARES_DIR: /public/shares
+      PUBLIC_SHARE_ORIGIN: ${SHARE_ORIGIN:-http://127.0.0.1:8790}
+      PUBLIC_SITES_ORIGIN: ${SITES_ORIGIN:-http://127.0.0.1:8792}
       AI_RUNNER_KIND: ${AI_RUNNER_KIND:-disabled}
       AI_OPENCODE_ENABLED: ${AI_OPENCODE_ENABLED:-false}
       AI_OPENCODE_MODEL: ${AI_OPENCODE_MODEL:-}
-      # Share-comment socket; removed when the public stack stops reading the personal DB.
+      # Guest comments from the public share server arrive on this socket (volume shared with infra/public).
       COMMENT_SOCKET_PATH: /run/leneu/share-comments.sock
     volumes:
       - ${PERSONAL_DIR:-./.local}/data:/data
       - ${PERSONAL_DIR:-./.local}/backups:/backups
-      - ${PERSONAL_DIR:-./.local}/sites:/sites
+      - ${PUBLIC_DIR:-../public/.local}/sites:/sites
+      - ${PUBLIC_DIR:-../public/.local}/shares:/public/shares
       - comment-ipc:/run/leneu
     networks: [personal]
     healthcheck:
@@ -84,5 +89,6 @@ networks:
 
 volumes:
   comment-ipc:
+    name: anotar-comment-ipc
   caddy-data:
   caddy-config:

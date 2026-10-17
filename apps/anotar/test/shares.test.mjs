@@ -67,12 +67,21 @@ test('share tokens expose only an active page on the public server', async () =>
   assert.match(rendered, /철학의 길/);
   const second = store.createPageShare(page.id, { expiresInDays: null });
   assert.ok(store.listPageShares(page.id).find((share) => share.id === first.item.id).revokedAt);
+  store.publishShareSnapshots();
   store.close();
+  // The public server gets only the snapshot folder; its DATA_DIR has no personal DB or blobs.
+  const publicDataDir = await mkdtemp(join(tmpdir(), 'leneu-share-public-'));
 
   const port = 8800 + Math.floor(Math.random() * 500);
   const server = spawn(process.execPath, ['server/public.mjs'], {
     cwd: process.cwd(),
-    env: { ...process.env, DATA_DIR: dir, PUBLIC_PORT: String(port), PUBLIC_HOST: '127.0.0.1' },
+    env: {
+      ...process.env,
+      DATA_DIR: publicDataDir,
+      PUBLIC_SHARES_DIR: join(dir, 'public-shares'),
+      PUBLIC_PORT: String(port),
+      PUBLIC_HOST: '127.0.0.1',
+    },
     stdio: 'pipe',
   });
   const base = `http://127.0.0.1:${port}`;
@@ -112,10 +121,58 @@ test('share tokens expose only an active page on the public server', async () =>
       second.item.id,
     );
     db.close();
+    const reopened = openStore(dir);
+    reopened.publishShareSnapshots();
+    reopened.close();
     assert.equal((await fetch(base + '/s/' + second.token)).status, 404);
   } finally {
     server.kill('SIGTERM');
     await new Promise((resolve) => server.once('exit', resolve));
+    await rm(dir, { recursive: true, force: true });
+    await rm(publicDataDir, { recursive: true, force: true });
+  }
+});
+
+test('share snapshots follow edits and vanish on revoke or trash', async () => {
+  const { readFile, readdir } = await import('node:fs/promises');
+  const { createHash } = await import('node:crypto');
+  const dir = await mkdtemp(join(tmpdir(), 'leneu-share-snap-'));
+  const store = openStore(dir);
+  try {
+    await mkdir(join(dir, 'blobs'));
+    await writeFile(join(dir, 'blobs', 'k1'), 'bytes');
+    const capture = store.createCapture({ kind: 'file', text: 'f', url: null, files: [{ key: 'k1', name: 'a.txt', mime: 'text/plain', size: 5 }] });
+    const assetId = store.getCapture(capture.id).files[0].id;
+    let page = store.createPage({ title: '공유 문서' });
+    const share = store.createPageShare(page.id);
+    const snapshotDir = join(dir, 'public-shares');
+    const file = join(snapshotDir, createHash('sha256').update(share.token).digest('hex') + '.json');
+    const read = async () => JSON.parse(await readFile(file, 'utf8'));
+    store.publishShareSnapshots();
+    assert.equal((await read()).page.title, '공유 문서');
+    page = store.updatePage({
+      id: page.id,
+      title: '고친 제목',
+      expectedVersion: page.version,
+      document: { schemaVersion: 1, blocks: [block('asset', [], { assetId, display: 'file' })] },
+    });
+    store.publishShareSnapshots();
+    assert.equal((await read()).page.title, '고친 제목');
+    assert.deepEqual((await read()).assets.map((a) => a.id), [assetId]);
+    assert.equal(await readFile(join(snapshotDir, 'assets', assetId), 'utf8'), 'bytes');
+    store.trashRecord({ kind: 'page', id: page.id, expectedVersion: page.version, operationId: randomUUID() });
+    store.publishShareSnapshots();
+    assert.deepEqual(await readdir(snapshotDir), ['assets']);
+    assert.deepEqual(await readdir(join(snapshotDir, 'assets')), []);
+    const other = store.createPage({ title: '다른 문서' });
+    const second = store.createPageShare(other.id);
+    store.publishShareSnapshots();
+    assert.equal((await readdir(snapshotDir)).length, 2);
+    store.revokePageShare(other.id, second.item.id);
+    store.publishShareSnapshots();
+    assert.deepEqual(await readdir(snapshotDir), ['assets']);
+  } finally {
+    store.close();
     await rm(dir, { recursive: true, force: true });
   }
 });

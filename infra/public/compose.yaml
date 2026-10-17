@@ -1,0 +1,67 @@
+# Public stack: share. (공유 문서·댓글) + host. (정적 사이트). Anyone with a link reaches these.
+# They read only what the personal app publishes into ${PUBLIC_DIR}: shares/ (page snapshots and
+# their attachments) and sites/. No personal DB, blobs or keys are mounted here.
+# Guest comments go through the personal app's comment socket (named volume shared with infra/personal).
+# Local:  cd infra/public && docker compose up -d --build   (start infra/personal first)
+name: public
+services:
+  share:
+    build:
+      context: ../../apps/anotar
+      dockerfile: Dockerfile
+    image: ${ANOTAR_PUBLIC_IMAGE:-anotar-public:local}
+    command: ['node', 'server/public.mjs']
+    environment:
+      PUBLIC_HOST: 0.0.0.0
+      PUBLIC_PORT: 8790
+      PUBLIC_SHARE_ORIGIN: ${SHARE_ORIGIN:-http://127.0.0.1:8790}
+      PUBLIC_SHARES_DIR: /public/shares
+      COMMENT_SOCKET_PATH: /run/leneu/share-comments.sock
+    ports:
+      - '127.0.0.1:${SHARE_PORT:-8790}:8790'
+    volumes:
+      - ${PUBLIC_DIR:-./.local}/shares:/public/shares:ro
+      - comment-ipc:/run/leneu:ro
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    networks: [public]
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:8790/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+
+  sites:
+    image: ${ANOTAR_PUBLIC_IMAGE:-anotar-public:local}
+    depends_on: [share] # same image, built once by share
+    command: ['node', 'server/sites.mjs']
+    environment:
+      SITES_HOST: 0.0.0.0
+      SITES_PORT: 8792
+      HOSTED_SITES_DIR: /sites
+    ports:
+      - '127.0.0.1:${SITES_PORT:-8792}:8792'
+    volumes:
+      - ${PUBLIC_DIR:-./.local}/sites:/sites:ro
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    networks: [public]
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:8792/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+networks:
+  public:
+
+volumes:
+  comment-ipc:
+    name: anotar-comment-ipc

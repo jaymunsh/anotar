@@ -647,6 +647,7 @@ test('public server serves current direct Page assets while refusing revision/te
   });
   page = save(store, page, document(page.document.blocks[1]));
   const share = store.createPageShare(page.id);
+  store.publishShareSnapshots();
   const port = 9100 + Math.floor(Math.random() * 500);
   const child = spawn(process.execPath, ['server/public.mjs'], {
     cwd: process.cwd(),

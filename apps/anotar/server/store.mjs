@@ -29,6 +29,7 @@ import { createAiSettingsStore } from './ai/settings.mjs';
 import { createAiJobStore } from './ai/jobs.mjs';
 import { createPageAiStore } from './pageAi.mjs';
 import { createShareStore } from './shares.mjs';
+import { createShareSnapshots, shareSnapshotDir } from './shareSnapshots.mjs';
 import { createPageTools, initializePageAssets } from './pageTools.mjs';
 import { captureFingerprint, cleanRequestId } from './ai/contracts.mjs';
 import { inferInputUrl, storeRequestSnapshot } from '../shared/aiRequests.ts';
@@ -145,6 +146,7 @@ export function openStore(dataDir) {
     ...createTaskStore(db),
     ...createPromptStore(db),
     ...shareStore,
+    publishShareSnapshots: createShareSnapshots(db, dataDir, shareSnapshotDir(dataDir)),
     getStagingPage() {
       const role = db.prepare("SELECT page_id FROM page_roles WHERE role = 'staging'").get();
       return role ? this.getPage(role.page_id) : null;

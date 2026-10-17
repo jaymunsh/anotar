@@ -1,20 +1,29 @@
 import { createServer } from 'node:http';
 import { createReadStream } from 'node:fs';
 import { stat, readFile } from 'node:fs/promises';
-import { DatabaseSync } from 'node:sqlite';
+import { createHash } from 'node:crypto';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pipeline } from 'node:stream/promises';
 import { readCommentJson, requestSharedCommentBroker } from './sharedCommentBroker.mjs';
-import { lookupSharedPage } from './shares.mjs';
-import { referencedAssetIds, renderSharedPage } from './publicPage.mjs';
-import { publicPlanTaskProjection } from './planConnections.mjs';
+import { renderSharedPage } from './publicPage.mjs';
 import { FONT_FILES } from './fontFiles.mjs';
 
 const dataDir = resolve(
   process.env.DATA_DIR || fileURLToPath(new URL('../data/', import.meta.url)),
 );
-const db = new DatabaseSync(join(dataDir, 'storage.sqlite'), { readOnly: true });
+// Only snapshots the private app published (shareSnapshots.mjs); never the personal DB or blobs.
+// Same default as shareSnapshotDir() in shareSnapshots.mjs (not imported: keeps private code out).
+const sharesDir = resolve(process.env.PUBLIC_SHARES_DIR || join(dataDir, 'public-shares'));
+async function readSnapshot(token) {
+  const hash = createHash('sha256').update(token).digest('hex');
+  const snapshot = await readFile(join(sharesDir, hash + '.json'), 'utf8')
+    .then(JSON.parse)
+    .catch(() => null);
+  // Expiry is re-checked here so a link closes on time even between private refreshes.
+  if (!snapshot || (snapshot.expiresAt && snapshot.expiresAt <= new Date().toISOString())) return null;
+  return snapshot;
+}
 const host = process.env.PUBLIC_HOST || '127.0.0.1';
 const port = Number(process.env.PUBLIC_PORT || 8790);
 const securityHeaders = {
@@ -74,7 +83,7 @@ const server = createServer(async (request, response) => {
   const path = new URL(request.url || '/', 'http://localhost').pathname;
   if (path === '/health' && ['GET', 'HEAD'].includes(request.method)) {
     try {
-      db.prepare('SELECT 1 FROM pages LIMIT 1').get();
+      if (!(await stat(sharesDir)).isDirectory()) throw new Error();
       response.writeHead(200, { ...securityHeaders, 'Content-Type': 'application/json' });
       response.end(request.method === 'HEAD' ? undefined : '{"ok":true}');
     } catch {
@@ -146,16 +155,13 @@ const server = createServer(async (request, response) => {
   const match = /^\/s\/([A-Za-z0-9_-]{43})(?:\/assets\/([a-f0-9-]+))?$/.exec(path);
   if (!match || !['GET', 'HEAD'].includes(request.method)) return missing(response);
   try {
-    const page = lookupSharedPage(db, match[1]);
-    if (!page) return missing(response);
-    const ids = referencedAssetIds(page.document);
+    const snapshot = await readSnapshot(match[1]);
+    if (!snapshot) return missing(response);
+    const assets = new Map(snapshot.assets.map((asset) => [asset.id, asset]));
     if (match[2]) {
-      if (!ids.has(match[2])) return missing(response);
-      const asset = db
-        .prepare(`SELECT id, storage_key AS key, name, mime, size FROM assets WHERE id = ?`)
-        .get(match[2]);
+      const asset = assets.get(match[2]);
       if (!asset) return missing(response);
-      const file = join(dataDir, 'blobs', asset.key);
+      const file = join(sharesDir, 'assets', asset.id);
       const stats = await stat(file).catch(() => null);
       if (!stats?.isFile()) return missing(response);
       const inline = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/avif'].includes(
@@ -170,14 +176,9 @@ const server = createServer(async (request, response) => {
       if (request.method === 'HEAD') return response.end();
       return await pipeline(createReadStream(file), response);
     }
-    const assets = new Map();
-    for (const id of ids) {
-      const asset = db.prepare(`SELECT id, name, mime, size FROM assets WHERE id = ?`).get(id);
-      if (asset) assets.set(id, asset);
-    }
-    const html = renderSharedPage(page, match[1], assets, {
-      commentsEnabled: page.commentsEnabled,
-      planTasks: publicPlanTaskProjection(db, page),
+    const html = renderSharedPage(snapshot.page, match[1], assets, {
+      commentsEnabled: snapshot.commentsEnabled,
+      planTasks: snapshot.planTasks,
     });
     response.writeHead(200, { ...securityHeaders, 'Content-Type': 'text/html; charset=utf-8' });
     response.end(request.method === 'HEAD' ? undefined : html);
@@ -189,7 +190,7 @@ const server = createServer(async (request, response) => {
 
 server.listen(port, host, () => console.log(`Public shares: http://${host}:${port}`));
 function shutdown() {
-  server.close(() => db.close());
+  server.close();
 }
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
