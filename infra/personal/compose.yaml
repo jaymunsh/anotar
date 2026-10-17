@@ -5,7 +5,10 @@
 name: personal
 services:
   anotar:
-    build: ../../apps/anotar
+    # Same image as production: includes the opencode and devin CLIs for AI requests.
+    build:
+      context: ../../apps/anotar
+      dockerfile: Dockerfile.oracle
     image: ${ANOTAR_IMAGE:-anotar:local}
     environment:
       AUTH_MODE: required
@@ -15,6 +18,8 @@ services:
       BACKUP_DIR: /backups
       HOSTED_SITES_DIR: /sites
       AI_RUNNER_KIND: ${AI_RUNNER_KIND:-disabled}
+      AI_OPENCODE_ENABLED: ${AI_OPENCODE_ENABLED:-false}
+      AI_OPENCODE_MODEL: ${AI_OPENCODE_MODEL:-}
       # Share-comment socket; removed when the public stack stops reading the personal DB.
       COMMENT_SOCKET_PATH: /run/leneu/share-comments.sock
     volumes:
