@@ -9,6 +9,7 @@ import { readCommentJson, requestSharedCommentBroker } from './sharedCommentBrok
 import { lookupSharedPage } from './shares.mjs';
 import { referencedAssetIds, renderSharedPage } from './publicPage.mjs';
 import { publicPlanTaskProjection } from './planConnections.mjs';
+import { FONT_FILES } from './fontFiles.mjs';
 
 const dataDir = resolve(
   process.env.DATA_DIR || fileURLToPath(new URL('../data/', import.meta.url)),
@@ -61,10 +62,8 @@ const viewerAssets = {
     'text/css; charset=utf-8',
   ],
 };
-for (const family of ['dm-sans', 'noto-sans-kr', 'pretendard', 'ridibatang']) {
-  viewerAssets[`/fonts/${family}.woff2`] = [join(appRoot, 'dist', 'fonts', `${family}.woff2`), 'font/woff2'];
-  viewerAssets[`/fonts/${family}-OFL.txt`] = [join(appRoot, 'dist', 'fonts', `${family}-OFL.txt`), 'text/plain; charset=utf-8'];
-}
+for (const file of FONT_FILES)
+  viewerAssets[`/fonts/${file}`] = [join(appRoot, 'dist', 'fonts', file), file.endsWith('.txt') ? 'text/plain; charset=utf-8' : 'font/woff2'];
 
 function missing(response) {
   response.writeHead(404, { ...securityHeaders, 'Content-Type': 'text/plain; charset=utf-8' });

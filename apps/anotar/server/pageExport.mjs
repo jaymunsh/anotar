@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { renderSharedPage, referencedAssetIds } from './publicPage.mjs';
 import { PageConflictError, PageValidationError } from './pages.mjs';
 import { PageToolsNotFoundError } from './pageTools.mjs';
+import { FONT_FILES } from './fontFiles.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const token = 'offline';
 export function preparePageExport({ store, pageId, expectedVersion, dataDir }) {
@@ -86,9 +87,8 @@ export function preparePageExport({ store, pageId, expectedVersion, dataDir }) {
       data: name === 'document-fonts.css' ? Buffer.from(data.toString('utf8').replaceAll("'/fonts/", "'../fonts/")) : data,
     });
   }
-  for (const family of ['dm-sans', 'noto-sans-kr', 'pretendard', 'ridibatang'])
-    for (const suffix of ['.woff2', '-OFL.txt'])
-      entries.push({ name: `fonts/${family}${suffix}`, data: readFileSync(join(root, existsSync(join(root, 'public', 'fonts')) ? 'public' : 'dist', 'fonts', family + suffix)) });
+  for (const file of FONT_FILES)
+    entries.push({ name: `fonts/${file}`, data: readFileSync(join(root, existsSync(join(root, 'public', 'fonts')) ? 'public' : 'dist', 'fonts', file)) });
   entries.push({
     name: 'README.txt',
     data: Buffer.from(
