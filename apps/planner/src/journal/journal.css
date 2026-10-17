@@ -124,16 +124,13 @@
  .journal-page:not(.journal-preview) .journal-heading:has(>.planning-context) .journal-date{grid-row:3}
  .journal-page:not(.journal-preview) .journal-heading:has(>.planning-context) .journal-period-tabs{grid-row:4}
 }
-/* Wide screens: 오늘 꼭 할 일 then 아이디어 on the left, 머릿속 생각 then 하루 돌아보기 in the (wider) middle, timetable on the right.
-   The notes box dissolves so each note can take its own grid area. */
+/* Wide screens: 할 일 and the three notes share a fixed left column, the timetable takes the rest.
+   Notes grow with what is written (field-sizing), so empty ones stay short. */
 @media(min-width:1200px){
- .journal-workspace{grid-template-columns:minmax(260px,.85fr) minmax(300px,1fr) minmax(480px,1.6fr);grid-template-areas:"side think sched" "idea think sched" "idea review sched";grid-template-rows:minmax(0,max-content) minmax(120px,1fr) minmax(120px,1fr);column-gap:32px;row-gap:16px}
- .journal-notes{display:contents}
- .journal-notes>label:nth-child(1){grid-area:think;padding-top:11px}
- .journal-notes>label:nth-child(2){grid-area:idea}
- .journal-notes>label:nth-child(3){grid-area:review}
- .journal-overview .journal-notes label,.journal-overview .journal-notes label:first-child{min-height:0}
- .journal-notes>label{font-size:15px;font-weight:600}.journal-notes textarea{font-weight:400}
+ .journal-workspace{grid-template-columns:minmax(320px,380px) minmax(0,1fr);grid-template-rows:max-content 1fr;column-gap:40px}
+ .journal-workspace .journal-notes{display:flex;flex-direction:column;gap:16px;overflow:visible;align-self:start}
+ .journal-workspace .journal-notes label,.journal-workspace .journal-notes label:first-child{min-height:0;flex:none;font-size:15px;font-weight:600}
+ .journal-workspace .journal-notes textarea{field-sizing:content;min-height:5.5em;max-height:60vh;flex:none;resize:none;font-weight:400}
 }
 /* Phones: each group is one row that scrolls sideways. */
 @media(max-width:640px){.journal-page .planning-context{display:grid;gap:6px;margin-bottom:4px}.journal-page .planning-context>div,.journal-page .journal-routine-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.planning-context>div>*,.journal-routine-chips>*{flex-shrink:0}.journal-routines{margin-left:0}.journal-routine-chips button,.planning-context-item{min-height:36px;white-space:nowrap}}
