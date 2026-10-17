@@ -737,6 +737,33 @@ a {
 .capture-draft-status.error {
   color: var(--theme-error-ink);
 }
+/* Where the quick memo goes: memo (default) or task, with a detected due date. */
+.composer-save-as {
+  display: flex;
+  gap: 6px;
+  padding: 0 25px 12px;
+}
+.composer-save-as button {
+  min-height: 30px;
+  padding: 4px 12px;
+  border: 1px solid var(--theme-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--theme-muted);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.composer-save-as button[aria-checked='true'] {
+  border-color: var(--theme-accent);
+  background: var(--theme-soft);
+  color: var(--theme-ink);
+  font-weight: 600;
+}
+.composer-save-as button:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
 .composer-footer {
   border-top: 1px solid #f0f1ed;
   padding: 16px 25px;

@@ -62,6 +62,7 @@ import MemoDetailSurface from './memos/MemoDetailSurface';
 import { hasPendingCaptureBatch } from './memos/captureBatchState';
 import type { TrashEntry } from './trash/types';
 import { publishRecordChange, subscribeRecordChanges } from './trash/events';
+import { kstToday, parseDueDate, shortDue } from './tasks/dueDate';
 
 const PageWorkspace = React.lazy(() => import('./pages/PageWorkspace'));
 const SyncConflictReview = React.lazy(() => import('./sync/SyncConflictReview'));
@@ -252,6 +253,8 @@ function App() {
   const [editError, setEditError] = useState('');
   const [conflictCapture, setConflictCapture] = useState<Capture | null>(null);
   const [busy, setBusy] = useState(false);
+  // Save the quick memo as a task instead (plain text only). Off = memo, the default.
+  const [saveAsTask, setSaveAsTask] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [listError, setListError] = useState('');
@@ -683,7 +686,37 @@ function App() {
       setKind(next.every((file) => file.type.startsWith('image/')) ? 'image' : 'file');
   }
 
+  const taskEligible = kind === 'note' && !files.length && !aiEnabled;
+  const detectedDue = taskEligible ? parseDueDate(text, kstToday()) : null;
+  async function saveTask() {
+    const title = text.trim().replace(/\s+/g, ' ');
+    if (!title) return textInput.current?.focus();
+    if (title.length > 500) return setError('할 일은 500자까지 저장할 수 있어요. 메모로 저장해 주세요.');
+    setBusy(true);
+    setError('');
+    const submitted = snapshot();
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, dueDate: detectedDue, requestId: crypto.randomUUID() }),
+      });
+      if (!response.ok)
+        throw new Error(((await response.json().catch(() => ({}))) as { error?: string }).error || '할 일을 저장하지 못했어요.');
+      clearIfUnchanged(submitted);
+      setSaveAsTask(false);
+      setNoticeAi(false);
+      setNotice(detectedDue ? `할 일에 추가했어요 · ${shortDue(detectedDue)}까지` : '할 일에 추가했어요');
+      publishRecordChange('tasks');
+      if (mobileComposerOpen) setMobileComposerOpen(false);
+    } catch (cause) {
+      setError(cause instanceof TypeError ? '연결을 확인한 뒤 다시 저장해 주세요. 입력은 남아 있어요.' : cause instanceof Error ? cause.message : '할 일을 저장하지 못했어요.');
+    } finally {
+      setBusy(false);
+    }
+  }
   async function save(includeAi = aiEnabled) {
+    if (saveAsTask && taskEligible) return void (busy || saveTask());
     if (
       busy ||
       !filesReady ||
@@ -1512,6 +1545,16 @@ function App() {
                         {error}
                       </div>
                     )}
+                    {taskEligible && (
+                      <div className="composer-save-as" role="radiogroup" aria-label="저장할 곳">
+                        <button type="button" role="radio" aria-checked={!saveAsTask} onClick={() => setSaveAsTask(false)}>
+                          메모
+                        </button>
+                        <button type="button" role="radio" aria-checked={saveAsTask} onClick={() => setSaveAsTask(true)}>
+                          할 일{detectedDue ? ` · ${shortDue(detectedDue)}` : ''}
+                        </button>
+                      </div>
+                    )}
                     <div className="composer-footer">
                       <div className="composer-tools">
                         <input
@@ -1564,7 +1607,9 @@ function App() {
                                 ? '템플릿 확인 중…'
                                 : aiEnabled
                                   ? '저장하고 AI 요청'
-                                  : '저장'}
+                                  : saveAsTask && taskEligible
+                                    ? '할 일로 저장'
+                                    : '저장'}
                         </span>
                         <ArrowRight size={18} />
                       </button>

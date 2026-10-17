@@ -273,7 +273,7 @@ export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate
   useEffect(
     () =>
       subscribeRecordChanges((source) => {
-        if (source === 'local-sync' || source === 'ai-tasks' || source === 'external' || source === 'focus')
+        if (['local-sync', 'ai-tasks', 'tasks', 'external', 'focus'].includes(source))
           void currentView.current.load();
       }),
     [],
