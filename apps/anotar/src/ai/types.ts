@@ -5,6 +5,7 @@ export type AiJobSummary = {
   status: AiStatus;
   sourceVersion: number;
   errorCode: string | null;
+  reviewedAt?: string | null;
   updatedAt: string;
 };
 export type AiRunner = { label: string; mode: 'test' | 'live' };
@@ -24,6 +25,7 @@ export type AiActivityItem = {
   organized: boolean;
   status: AiStatus;
   errorCode: string | null;
+  reviewed?: boolean;
   createdAt: string;
   updatedAt: string;
   startedAt: string | null;

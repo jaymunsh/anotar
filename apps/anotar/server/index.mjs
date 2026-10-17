@@ -427,6 +427,11 @@ const server = createServer(async (request, response) => {
         200,
         store.adoptAiTasks({ ...(await readPageJson(request)), jobId: adoptMatch[1] }),
       );
+    const reviewedMatch = url.pathname.match(/^\/api\/ai-jobs\/([a-f0-9-]+)\/reviewed$/);
+    if (reviewedMatch && request.method === 'POST') {
+      const item = store.markAiJobReviewed(reviewedMatch[1]);
+      return json(response, item ? 200 : 404, item ? { item } : { error: 'AI 요청을 찾을 수 없어요.' });
+    }
     const aiJobMatch = url.pathname.match(/^\/api\/ai-jobs\/([a-f0-9-]+)$/);
     if (aiJobMatch && request.method === 'GET') {
       const item = store.getAiJob(aiJobMatch[1]);

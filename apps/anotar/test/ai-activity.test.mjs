@@ -51,7 +51,7 @@ test('activity monitors memo and page jobs with bounded summaries and exact owne
   const running = store.claimAiJob({ label: '검증 실행기', mode: 'test' });
   assert.equal(running.captureId, capture.id);
   const activity = store.listAiActivity();
-  assert.deepEqual(activity.counts, { queued: 1, running: 1, result_ready: 0, failed: 0 });
+  assert.deepEqual(activity.counts, { queued: 1, running: 1, result_ready: 0, reviewed: 0, failed: 0 });
   assert.equal(activity.items.length, 2);
   const memo = activity.items.find((item) => item.id === running.id);
   assert.equal(memo.ownerKind, 'memo');
@@ -131,6 +131,7 @@ test('activity excludes trash and validates filter and result bounds', async (t)
     queued: 0,
     running: 0,
     result_ready: 0,
+    reviewed: 0,
     failed: 0,
   });
   assert.throws(() => store.listAiActivity({ status: 'bogus' }), /상태/);
@@ -138,4 +139,22 @@ test('activity excludes trash and validates filter and result bounds', async (t)
   assert.equal(store.listAiActivity().items.length, 50);
   assert.equal(store.listAiActivity().total, 55);
   assert.equal(store.listAiActivity({ compact: true }).items.length, 3);
+});
+
+test('opening a ready result marks it reviewed and drops it from 확인할 결과', async (t) => {
+  const store = await fixture(t);
+  note(store);
+  const run = store.claimAiJob({ label: '검증 실행기', mode: 'test' });
+  store.completeAiJob(run.id, run.runToken, { markdown: '결과', sources: [], usage: null });
+  assert.equal(store.listAiActivity({ status: 'result_ready' }).items.length, 1);
+  assert.equal(store.getAiJob(run.id).reviewedAt, null);
+  const reviewed = store.markAiJobReviewed(run.id);
+  assert.ok(reviewed.reviewedAt);
+  assert.equal(store.markAiJobReviewed(run.id).reviewedAt, reviewed.reviewedAt); // idempotent
+  const activity = store.listAiActivity();
+  assert.equal(activity.counts.result_ready, 0);
+  assert.equal(activity.counts.reviewed, 1);
+  assert.equal(activity.total, 1);
+  assert.equal(activity.items[0].reviewed, true);
+  assert.equal(store.listAiActivity({ status: 'result_ready' }).items.length, 0);
 });

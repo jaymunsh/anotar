@@ -59,6 +59,9 @@ export function createAiJobStore(db, getStore) {
       capture_id TEXT NOT NULL REFERENCES captures(id), created_at TEXT NOT NULL
     );
   `);
+  // Opening a ready result marks it reviewed; 확인할 결과 lists only unreviewed ones.
+  if (!db.prepare('PRAGMA table_info(ai_jobs)').all().some((column) => column.name === 'reviewed_at'))
+    db.exec('ALTER TABLE ai_jobs ADD COLUMN reviewed_at TEXT');
   const select = `SELECT j.*, COALESCE(c.version,p.version) AS current_version, COALESCE(c.deleted_at,p.deleted_at) AS owner_deleted_at FROM ai_jobs j LEFT JOIN captures c ON c.id=j.capture_id LEFT JOIN pages p ON p.id=j.page_id`;
   function hydrate(row, internal = false) {
     if (!row) return null;
@@ -78,6 +81,7 @@ export function createAiJobStore(db, getStore) {
       runner: row.runner_json ? JSON.parse(row.runner_json) : null,
       result: row.result_json ? JSON.parse(row.result_json) : null,
       errorCode: row.error_code,
+      reviewedAt: row.reviewed_at ?? null,
       error: row.error_code ? AI_ERRORS[row.error_code] || AI_ERRORS.runner_failed : null,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
@@ -136,15 +140,19 @@ export function createAiJobStore(db, getStore) {
           ? " AND j.status IN ('queued','running')"
           : status === 'all'
             ? ''
-            : ' AND j.status=?';
+            : status === 'result_ready'
+              ? " AND j.status='result_ready' AND j.reviewed_at IS NULL"
+              : ' AND j.status=?';
       db.exec('SAVEPOINT ai_activity');
       try {
-        const counts = { queued: 0, running: 0, result_ready: 0, failed: 0 };
+        const counts = { queued: 0, running: 0, result_ready: 0, reviewed: 0, failed: 0 };
         for (const row of db
-          .prepare(`SELECT j.status, COUNT(*) AS count ${owners} GROUP BY j.status`)
+          .prepare(
+            `SELECT CASE WHEN j.status='result_ready' AND j.reviewed_at IS NOT NULL THEN 'reviewed' ELSE j.status END AS status, COUNT(*) AS count ${owners} GROUP BY 1`,
+          )
           .all())
           counts[row.status] = row.count;
-        const args = status === 'result_ready' || status === 'failed' ? [status] : [];
+        const args = status === 'failed' ? [status] : [];
         const items = db
           .prepare(
             `SELECT j.id, j.capture_id AS captureId, j.page_id AS pageId,
@@ -156,13 +164,14 @@ export function createAiJobStore(db, getStore) {
           substr(COALESCE(json_extract(j.runner_json,'$.label'),CASE json_extract(j.request_json,'$.execution.profileId') WHEN 'hive' THEN 'Hive' WHEN 'devin' THEN 'Devin CLI' ELSE '' END),1,140) AS executionLabel,
           substr(COALESCE(json_extract(j.request_json,'$.execution.model'),''),1,120) AS model,
           json_extract(j.request_json,'$.template.version') AS templateVersion,
-          c.organized_at IS NOT NULL AS organized
+          c.organized_at IS NOT NULL AS organized, j.reviewed_at IS NOT NULL AS reviewed
           ${owners}${state} ORDER BY ${compact ? "CASE WHEN j.status IN ('queued','running') THEN 0 ELSE 1 END," : ''} j.rowid DESC LIMIT ${compact ? 3 : 50}`,
           )
           .all(...args)
           .map((row) => ({
             ...row,
             organized: !!row.organized,
+            reviewed: !!row.reviewed,
             ownerKind: row.pageId ? 'page' : 'memo',
             href: `${row.pageId ? '/pages/' + row.pageId : '/captures/' + row.captureId}?aiJob=${row.id}`,
           }));
@@ -179,6 +188,12 @@ export function createAiJobStore(db, getStore) {
         db.exec('RELEASE ai_activity');
         throw error;
       }
+    },
+    markAiJobReviewed(id) {
+      db.prepare(
+        "UPDATE ai_jobs SET reviewed_at=? WHERE id=? AND status='result_ready' AND reviewed_at IS NULL",
+      ).run(new Date().toISOString(), id);
+      return getStore().getAiJob(id);
     },
     enqueueAiJob({ captureId, requestId, expectedVersion, retryOf = null, selection }) {
       const cleanId = cleanRequestId(requestId);

@@ -106,6 +106,13 @@ export default function AiJobPanel({
   }, [capture.id, capture.version, reload, pendingSubmission]);
 
   const selected = jobs.find((job) => job.id === jobId) ?? jobs[0];
+  // Seeing a ready result counts as reviewing it (like a read mail); 확인할 결과 drops it.
+  useEffect(() => {
+    if (selected?.status !== 'result_ready' || selected.reviewedAt) return;
+    void fetch(`/api/ai-jobs/${selected.id}/reviewed`, { method: 'POST' })
+      .then((response) => response.ok && publishRecordChange('ai-reviewed'))
+      .catch(() => {});
+  }, [selected?.id, selected?.status, selected?.reviewedAt]);
   const active = jobs.some(activeAiJob) || pendingSubmission;
   async function request(retryOf?: string) {
     if (busy || active || (!retryOf && (!execution || (!enabled && navigator.onLine)))) return;

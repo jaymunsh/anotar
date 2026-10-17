@@ -35,7 +35,7 @@ function State({ item }: { item: AiActivityItem }) {
   return (
     <span className={`activity-state activity-state-${item.status}`}>
       <Icon size={14} aria-hidden="true" />
-      {item.status === 'result_ready' ? '확인할 결과' : aiStatusLabel(item)}
+      {item.status === 'result_ready' ? (item.reviewed ? '확인함' : '확인할 결과') : aiStatusLabel(item)}
     </span>
   );
 }
