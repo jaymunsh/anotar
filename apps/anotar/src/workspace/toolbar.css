@@ -27,6 +27,10 @@
   flex: 1;
   min-width: 0;
 }
+/* Until a screen fills the slot, keep the fallback title on the left, where the real title lands. */
+.workspace-toolbar-slot:empty {
+  display: none;
+}
 .workspace-toolbar-slot:not(:empty) + .toolbar-fallback {
   display: none;
 }

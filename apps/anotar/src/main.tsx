@@ -1624,7 +1624,7 @@ function App() {
             </React.Suspense>
           )}
           {isJournalView && (
-            <React.Suspense fallback={<p role="status">일지를 여는 중…</p>}>
+            <React.Suspense fallback={<div className="page-route-loading" role="status">일지를 여는 중…</div>}>
               <JournalWorkspace />
             </React.Suspense>
           )}
@@ -1638,34 +1638,34 @@ function App() {
           )}
           {isAiView && (
             <main className="memo-workspace">
-              <React.Suspense fallback={<p role="status">AI 요청을 여는 중…</p>}>
+              <React.Suspense fallback={<div className="page-route-loading" role="status">AI 요청을 여는 중…</div>}>
                 <AiActivity onNavigate={navigate} onCreate={startAiRequest} />
               </React.Suspense>
             </main>
           )}
           {isTrashView && (
-            <React.Suspense fallback={<div className="page-route-loading">휴지통을 여는 중…</div>}>
+            <React.Suspense fallback={<div className="page-route-loading" role="status">휴지통을 여는 중…</div>}>
               <TrashWorkspace navigate={navigate} />
             </React.Suspense>
           )}
           {isHostingView && (
-            <React.Suspense fallback={<p role="status">호스팅 목록을 여는 중…</p>}>
+            <React.Suspense fallback={<div className="page-route-loading" role="status">호스팅 목록을 여는 중…</div>}>
               <HostingWorkspace />
             </React.Suspense>
           )}
           {isBackupView && (
-            <React.Suspense fallback={<div className="page-route-loading">백업을 여는 중…</div>}>
+            <React.Suspense fallback={<div className="page-route-loading" role="status">백업을 여는 중…</div>}>
               <BackupWorkspace />
             </React.Suspense>
           )}
           {isWikiView && (
-            <React.Suspense fallback={<div className="page-route-loading">위키를 여는 중…</div>}>
+            <React.Suspense fallback={<div className="page-route-loading" role="status">위키를 여는 중…</div>}>
               <WikiWorkspace navigate={navigate} pathname={window.location.pathname} />
             </React.Suspense>
           )}
           {isCommentsView && (
             <main className="memo-workspace">
-              <React.Suspense fallback={<p role="status">공유 댓글을 여는 중…</p>}>
+              <React.Suspense fallback={<div className="page-route-loading" role="status">공유 댓글을 여는 중…</div>}>
                 <CommentsWorkspace onNavigate={navigate} />
               </React.Suspense>
             </main>
@@ -1673,7 +1673,7 @@ function App() {
           {promptsVisited && (
             <React.Suspense
               fallback={
-                isPromptView ? <div className="page-route-loading">프롬프트를 여는 중…</div> : null
+                isPromptView ? <div className="page-route-loading" role="status">프롬프트를 여는 중…</div> : null
               }
             >
               <PromptWorkspace
@@ -1709,7 +1709,7 @@ function App() {
           />
           <React.Suspense
             fallback={
-              isPageView ? <div className="page-route-loading">페이지를 여는 중…</div> : null
+              isPageView ? <div className="page-route-loading" role="status">페이지를 여는 중…</div> : null
             }
           >
             <PageWorkspace
