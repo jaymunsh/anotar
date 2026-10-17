@@ -190,7 +190,7 @@
 .journal-plan-resize{position:absolute;top:0;right:0;bottom:0;width:8px;cursor:ew-resize;touch-action:none}
 .journal-plan-resize::after{content:'';position:absolute;top:25%;bottom:25%;right:2px;width:2px;border-radius:1px;background:var(--action);opacity:0}
 .journal-plan:hover .journal-plan-resize::after{opacity:.45}
-.journal-plan-miss{display:none;flex-shrink:0;margin-left:auto;margin-right:6px;padding:1px;border-radius:3px;color:var(--muted);cursor:pointer}
+.journal-plan-miss{display:none;flex-shrink:0;margin-left:auto;margin-right:10px;padding:1px;border-radius:3px;color:var(--muted);cursor:pointer}
 .journal-plan-miss:hover{color:var(--danger);background:var(--hover)}
 @media(hover:hover){.journal-plan:hover .journal-plan-miss,.journal-plan.missed .journal-plan-miss{display:inline-flex}}
 .journal-empty-hint{margin:0 0 8px;padding:8px 12px;border-radius:8px;background:var(--hover);color:var(--muted);font-size:12px}
