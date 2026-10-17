@@ -268,3 +268,6 @@
 .journal-page .journal-priority{grid-template-columns:18px 18px minmax(0,1fr) 28px auto 20px}
 .journal-page .journal-priority .journal-remove-priority,.journal-step-remove{opacity:.4}
 .journal-page .journal-priority:hover .journal-remove-priority,.journal-page .journal-priority:focus-within .journal-remove-priority,.journal-step:hover .journal-step-remove,.journal-step:focus-within .journal-step-remove{opacity:1}
+/* Row end: fixed cells, centred, so counts and times line up row to row. */
+.journal-page .journal-priority{grid-template-columns:18px 18px minmax(0,1fr) 36px 60px 20px}
+.journal-page .journal-priority .journal-steps-toggle,.journal-page .journal-priority .journal-time-priority,.journal-page .journal-priority .journal-time-priority.scheduled{justify-content:center;text-align:center;padding-inline:0}
