@@ -194,8 +194,9 @@
 .wiki-entry:hover strong { text-decoration: underline; text-underline-offset: 3px; }
 .wiki-entry-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 10px;
+  gap: 2px 10px;
 }
 .wiki-entry-row strong {
   font-weight: 600;
@@ -206,6 +207,9 @@
 .wiki-entry-row time,
 .wiki-entry-row .wiki-meta {
   margin-left: auto;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--theme-subtle);
   font-size: 12px;
   white-space: nowrap;

@@ -3,6 +3,7 @@
 데이터 폴더는 MEMORY_DATA 환경변수, 없으면 현재 폴더. 결과는 <데이터>/site/data.json.
 """
 import json, os, pathlib, re, sys
+from datetime import datetime, timezone
 
 DATA = pathlib.Path(os.environ.get("MEMORY_DATA", os.getcwd()))
 WIKI_KEYS = ("title", "tldr", "tags", "updated")
@@ -40,7 +41,8 @@ def load(folder, required, sort_key):
 
 def main():
     data = {"wiki": load("wiki", WIKI_KEYS, "updated"),
-            "sessions": load("sessions", SESSION_KEYS, "date")}
+            "sessions": load("sessions", SESSION_KEYS, "date"),
+            "builtAt": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     wiki_slugs = {p["slug"] for p in data["wiki"]}
     for s in data["sessions"]:
         if isinstance(s.get("promoted"), str):

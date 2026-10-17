@@ -10,6 +10,7 @@ import {
   splitResult,
   matches,
   monday,
+  builtAgo,
 } from '../src/wiki/model.ts';
 import { renderReadMarkdown } from '../src/ai/markdownReading.ts';
 
@@ -75,4 +76,14 @@ test('markdown link option routes wiki links in-app and keeps external links saf
   // Option does not leak into the next call.
   const plain = renderToStaticMarkup(createElement('div', null, renderReadMarkdown('[old](./old.md)')));
   assert.doesNotMatch(plain, /href/);
+});
+
+test('builtAgo says how old the Mac build is', () => {
+  const now = Date.parse('2026-10-17T12:00:00Z');
+  assert.equal(builtAgo(null, now), null);
+  assert.equal(builtAgo('nope', now), null);
+  assert.equal(builtAgo('2026-10-17T11:59:40Z', now), '방금');
+  assert.equal(builtAgo('2026-10-17T11:15:00Z', now), '45분 전');
+  assert.equal(builtAgo('2026-10-17T09:00:00Z', now), '3시간 전');
+  assert.equal(builtAgo('2026-10-15T12:00:00Z', now), '2일 전');
 });

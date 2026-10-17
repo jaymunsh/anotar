@@ -23,7 +23,7 @@ export type Session = {
   summarized_by?: string;
   body: string;
 };
-export type MemoryData = { wiki: WikiPage[]; sessions: Session[] };
+export type MemoryData = { wiki: WikiPage[]; sessions: Session[]; builtAt?: string };
 
 export type WikiRoute =
   | { view: 'home' }
@@ -69,6 +69,17 @@ export function relativeDay(day: string, today: string) {
   return n <= 0 ? '오늘' : n === 1 ? '어제' : n < 31 ? `${n}일 전` : monthDay(day);
 }
 
+/** How long ago build.py ran on the Mac: the wiki is only as fresh as its last build. */
+export function builtAgo(builtAt: string | null, now: number) {
+  const at = builtAt ? Date.parse(builtAt) : NaN;
+  if (!Number.isFinite(at)) return null;
+  const minutes = Math.max(0, Math.floor((now - at) / 60000));
+  if (minutes < 1) return '방금';
+  if (minutes < 60) return `${minutes}분 전`;
+  if (minutes < 24 * 60) return `${Math.floor(minutes / 60)}시간 전`;
+  return `${Math.floor(minutes / (24 * 60))}일 전`;
+}
+
 /** Sessions without content are hidden; sessions stay newest first. */
 export function prepare(data: MemoryData) {
   const sessions = (data.sessions ?? [])
@@ -77,7 +88,7 @@ export function prepare(data: MemoryData) {
   const wiki = [...(data.wiki ?? [])].sort((a, b) => b.updated.localeCompare(a.updated));
   const projects = new Map<string, Session[]>();
   for (const s of sessions) projects.set(s.project, [...(projects.get(s.project) ?? []), s]);
-  return { wiki, sessions, projects };
+  return { wiki, sessions, projects, builtAt: data.builtAt ?? null };
 }
 export type Prepared = ReturnType<typeof prepare>;
 

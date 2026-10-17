@@ -14,6 +14,7 @@ import {
   parseWikiRoute,
   prepare,
   relativeDay,
+  builtAgo,
   splitResult,
   toolName,
   weekday,
@@ -128,6 +129,9 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
           data ? (
             <span className="wiki-toolbar-stats">
               이번 주 기록 <b>{thisWeek}</b> · 위키 <b>{data.wiki.length}</b> · AI 기록 <b>{data.sessions.length}</b>
+              {data.builtAt && (
+                <span title={new Date(data.builtAt).toLocaleString('ko-KR')}> · 갱신 {builtAgo(data.builtAt, Date.now())}</span>
+              )}
             </span>
           ) : undefined
         }
