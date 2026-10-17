@@ -88,7 +88,7 @@ export async function runWorkspaceUiQa(browser, base) {
       1,
       'Every private screen has one shared toolbar',
     );
-    assert.equal(await page.locator('.workspace-topbar h1').innerText(), '입력함');
+    assert.equal(await page.locator('.workspace-topbar h1').innerText(), '홈');
     assert.ok(
       (await page.locator('.composer-heading').boundingBox()).height <= 39,
       'Compact capture heading',
@@ -292,7 +292,7 @@ export async function runWorkspaceUiQa(browser, base) {
       'Navigation and display settings never write the document',
     );
     const toolbarRoutes = [
-      ['/', '입력함', null],
+      ['/', '홈', null],
       ['/memo', '메모', '기록하기'],
       ['/journal', '일지', null],
       ['/tasks', '할 일', '새 할 일 작성'],

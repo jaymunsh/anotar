@@ -190,8 +190,12 @@ export function createSearchStore(db) {
       const task = taskState.get(row.target_id);
       context = task?.status === 'done' ? '완료한 할 일' : task?.in_progress ? '진행 중 할 일' : '대기 중 할 일';
     }
+    let aiLabel = '', body = row.body || row.url;
     if(row.target_kind==='ai_job'){
-      const job=db.prepare('SELECT capture_id,page_id FROM ai_jobs WHERE id=?').get(row.target_id);
+      const job=db.prepare("SELECT capture_id,page_id,json_extract(request_json,'$.input.content') AS input FROM ai_jobs WHERE id=?").get(row.target_id);
+      // Name the result after its request and drop Markdown marks from the preview.
+      aiLabel=searchSnippet(job.input,[],80);
+      body=body.replace(/[*_`#>|~]+/g,'');
       href=(job.page_id?'/pages/'+job.page_id:'/captures/'+job.capture_id)+'?aiJob='+row.target_id;context='완료된 AI 결과';
     }
     if(row.target_kind==='ocr'){
@@ -201,7 +205,7 @@ export function createSearchStore(db) {
     const original = row.target_kind === 'capture' ? captureLabel.get(row.target_id) : null;
     const label = original
       ? searchSnippet(original.text || original.url, [], 180) || '첨부 메모'
-      : row.title;
+      : aiLabel || row.title;
     const previewTerms = terms.filter((term) => !foldSearchText(label).includes(term));
     return {
       id: row.target_id,
@@ -210,7 +214,7 @@ export function createSearchStore(db) {
       snippet:
         original && !previewTerms.length
           ? ''
-          : searchSnippet(row.body || row.url, original ? previewTerms : terms),
+          : searchSnippet(body, original ? previewTerms : terms),
       icon: row.icon,
       kind: row.kind,
       createdAt: row.created_at,

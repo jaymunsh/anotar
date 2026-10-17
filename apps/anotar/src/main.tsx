@@ -567,7 +567,8 @@ function App() {
         return;
       }
       if (document.querySelector('.workspace-settings[open]')) return;
-      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+      // code: a Korean IME reports key 'ㅏ' for the K key.
+      if ((event.metaKey || event.ctrlKey) && (event.code === 'KeyK' || event.key.toLowerCase() === 'k')) {
         event.preventDefault();
         setMobileMenu(false);
         setSearchOpen(true);
@@ -1250,11 +1251,11 @@ function App() {
                                 ? '메모'
                                 : isTrashView
                                   ? '휴지통'
-                                  : '입력함'}
+                                  : '홈'}
             </span>
           </header>
           {isInboxView && (
-            <WorkspaceToolbar title="입력함">
+            <WorkspaceToolbar title="홈">
               <button
                 className="toolbar-icon-mobile home-desktop-action"
                 onClick={() => setSearchOpen(true)}
@@ -1854,8 +1855,13 @@ function App() {
                     </p>
                   )}
                   <div className="detail-top">
+                    {/* The AI result has its own heading; a plain memo shows its kind once, here. */}
                     <span className="detail-eyebrow">
-                      {aiResultView ? 'AI 결과' : selected.aiRequest ? '요청 원본' : '메모'}
+                      {aiResultView
+                        ? ''
+                        : selected.aiRequest
+                          ? '요청 원본'
+                          : kinds.find((option) => option.id === selected.kind)?.label}
                     </span>
                     <div className="detail-top-actions">
                       {!editingCapture && (
@@ -1883,9 +1889,6 @@ function App() {
                       <div className={`detail-icon capture-icon-${selected.kind}`}>
                         {React.createElement(iconFor(selected.kind), { size: 26 })}
                       </div>
-                      <span className="detail-type">
-                        {kinds.find((option) => option.id === selected.kind)?.label}
-                      </span>
                       <RecordTimestamps
                         createdAt={selected.createdAt}
                         updatedAt={selected.updatedAt}
