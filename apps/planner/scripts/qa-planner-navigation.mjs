@@ -25,7 +25,7 @@ try{
    const expectedPath=section==='plans'?'/app/plans':section==='review'?'/app/review':'/app';assert.equal(new URL(page.url()).pathname,expectedPath);
    assert.equal(await page.locator('.app-nav [aria-current=page]').innerText(),({ko:{schedule:'일정',plans:'계획',review:'되짚어보기'},en:{schedule:'Schedule',plans:'Plans',review:'Review'}})[language][section]);
    assert.equal(await page.locator('.app-nav a').count(),3);
-   assert.deepEqual(await page.locator('.journal-period-tabs button').allTextContents(),view==='review'?[]:section==='plans'?(language==='ko'?['분기','연간','루틴']:['Quarter','Year','Routines']):(language==='ko'?['일간','주간','월간']:['Day','Week','Month']));
+   assert.deepEqual(await page.locator('.journal-period-tabs button').allTextContents(),view==='review'?[]:section==='plans'?(language==='ko'?['분기','연간','편의']:['Quarter','Year','Tools']):(language==='ko'?['일간','주간','월간']:['Day','Week','Month']));
    if(width>=1200&&view!=='review'){
     const positions=await page.locator('.journal-heading').evaluate(el=>{const root=el.getBoundingClientRect(),tabs=el.querySelector('.journal-period-tabs').getBoundingClientRect(),title=el.querySelector('h1').getBoundingClientRect(),date=el.querySelector('.journal-date').getBoundingClientRect();return {center:tabs.x+tabs.width/2,rootCenter:root.x+root.width/2,tabsTop:tabs.top,titleTop:title.top,dateTop:date.top,tabsRight:tabs.right,dateLeft:date.left};});
     assert.ok(Math.abs(positions.center-positions.rootCenter)<1,'period tabs centered');assert.ok(Math.abs(positions.tabsTop-positions.titleTop)<3,'tabs on heading row');assert.ok(positions.tabsRight<positions.dateLeft,'tabs do not overlap date controls');

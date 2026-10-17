@@ -12,8 +12,9 @@ export function RoutineList({state}:{state:PlanningState}){
  function add(){const title=name.trim();if(!title)return;void run(async()=>{await state.save<Routine>({id:crypto.randomUUID(),kind:'routine',title,version:0});setName('');});}
  function rename(item:Routine,title:string){title=title.trim();if(title&&title!==item.title)void run(()=>state.save<Routine>({...item,title}));}
  // Its own tab under 계획 (view=routines). Rows look like 오늘 꼭 할 일: a dot, the name, a quiet ×; the last row adds.
- return <section className="routine-list" id="routines" aria-label={pair('루틴','Routines')}>
-  <p className="routine-count">{pair(`저장한 루틴 ${state.routines.length}`,`${state.routines.length} saved`)}<span> / 50</span></p>
+ return <div className="tool-cards"><section className="tool-card routine-list" id="routines" aria-labelledby="routines-title">
+  <header><h2 id="routines-title">{pair('루틴','Routines')}</h2><span className="routine-count">{state.routines.length}<span> / 50</span></span></header>
+  <p className="tool-card-lead">{pair('자주 하는 일을 저장해 두면 일정 화면 위 칩으로 한 번에 넣어요. 누르면 다음 빈 시간에 30분으로 들어가요.','Saved here, they show as chips on the schedule; a tap adds 30 minutes at the next free slot.')}</p>
   <ul>{state.routines.map(item=><li key={item.id}>
    <i className="routine-dot" aria-hidden="true"/>
    <input defaultValue={item.title} maxLength={100} aria-label={pair(`루틴 이름: ${item.title}`,`Routine name: ${item.title}`)} disabled={busy} onBlur={e=>rename(item,e.target.value)} onKeyDown={e=>{if(e.key==='Enter')e.currentTarget.blur();}}/>
@@ -23,6 +24,6 @@ export function RoutineList({state}:{state:PlanningState}){
    <form onSubmit={e=>{e.preventDefault();add();}}><input value={name} maxLength={100} placeholder={state.routines.length?pair('루틴 추가','Add a routine'):pair('예: 운동, 독서, 영어 공부','e.g. Workout, Reading')} aria-label={pair('새 루틴 이름','New routine name')} disabled={busy} onChange={e=>setName(e.target.value)}/>{name.trim()&&<button className="text-button" disabled={busy}>{pair('추가','Add')}</button>}</form>
   </li>}</ul>
   {error&&<p className="error" role="alert">{error}</p>}
-  {state.routines.length>0&&<div className="routine-preview"><p>{pair('일정 화면 위에서는 이렇게 보여요. 누르면 다음 빈 시간에 30분으로 들어가요.','On the schedule they show as chips; a tap adds 30 minutes at the next free slot.')}</p><div className="journal-routine-chips" aria-hidden="true">{state.routines.map(item=><span key={item.id} className="routine-chip"><Plus size={12}/>{item.title}</span>)}</div></div>}
- </section>;
+  {state.routines.length>0&&<div className="routine-preview"><p>{pair('일정 화면에서는','On the schedule')}</p><div className="journal-routine-chips" aria-hidden="true">{state.routines.map(item=><span key={item.id} className="routine-chip"><Plus size={12}/>{item.title}</span>)}</div></div>}
+ </section></div>;
 }

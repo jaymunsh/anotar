@@ -45,7 +45,6 @@
 .journal-content>.routine-list{margin-top:8px;padding-top:0;border-top:0}
 .journal-content>.routine-list>p:first-child{margin-top:0}
 /* 루틴 tab: the same quiet rows as 오늘 꼭 할 일, then a preview of the chips the day view shows. */
-.journal-content>.routine-list{max-width:520px}
 .routine-count{margin:0 0 6px;font-size:12px;color:var(--muted)}
 .routine-count span{opacity:.6}
 .routine-list ul{margin-top:0;border-top:1px solid var(--line)}
@@ -62,3 +61,15 @@
 .routine-preview{margin-top:36px}
 .routine-preview p{margin:0 0 10px;font-size:12px;color:var(--muted)}
 .routine-chip{display:inline-flex;align-items:center;gap:4px;min-height:30px;padding:4px 10px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line);background:var(--surface);font-size:12px}
+/* 편의 tab: a grid of cards, 루틴 first; later tools add a card. */
+.tool-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:20px;align-items:start;margin-top:8px}
+.tool-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px 20px}
+.journal-content .tool-card.routine-list{margin:0;padding-top:18px;border-top:1px solid var(--line);max-width:none}
+.tool-card>header{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.tool-card>header h2{font-size:16px}
+.tool-card .routine-count{margin:0;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tool-card-lead{margin:6px 0 14px;font-size:12px;line-height:1.6;color:var(--muted)}
+.tool-card .routine-preview{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line)}
+.tool-card .routine-preview p{margin-bottom:8px;font-size:11px}
+.tool-card .routine-chip{background:var(--canvas)}
+.tool-card.routine-list li.routine-new{border-bottom:0}
