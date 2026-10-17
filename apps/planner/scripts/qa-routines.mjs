@@ -42,6 +42,9 @@ try{
   assert.deepEqual(day.plans.map(p=>[p.title,p.start,p.end,p.status]),[['운동',540,570,'pending']]);
   assert.equal(Object.hasOwn(day.plans[0],'planningId'),false);
   checks.push('tapping a routine chip adds an ordinary 30-minute activity at 09:00 after confirming the dialog');
+  await page.getByRole('button',{name:'루틴 전체 보기',exact:true}).click();const routineList=page.getByRole('dialog',{name:'루틴'});await routineList.waitFor();assert.deepEqual(await routineList.locator('li span').allInnerTexts(),['운동','독서 30분']);assert.ok(await routineList.getByRole('link',{name:'루틴 관리'}).isVisible());
+  await routineList.getByRole('button',{name:'독서 30분 시간표에 넣기',exact:true}).click();await page.locator('#item-title').waitFor();assert.equal(await page.locator('#item-title').inputValue(),'독서 30분');await page.getByRole('dialog').getByRole('button',{name:'취소'}).click();
+  checks.push('the › opens the full routine list; + puts a routine on the timetable, 루틴 관리 sits at the bottom');
   // Deleting the routine leaves the activity on the day.
   await page.goto(base+'/app/plans?view=routines');
   await page.locator('#routines').getByRole('button',{name:'운동 삭제'}).click();
