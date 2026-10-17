@@ -264,3 +264,7 @@
 .journal-priority:hover .journal-remove-priority,.journal-priority:focus-within .journal-remove-priority,.journal-step:hover .journal-step-remove,.journal-step:focus-within .journal-step-remove{opacity:1}
 @media(hover:none){.journal-page .journal-priority .journal-remove-priority,.journal-step-remove{opacity:.6}}
 .journal-preview .journal-priority .journal-remove-priority{display:none}
+/* Row end reads [1/3] [time] [×]; × is always there, just quiet until hovered. */
+.journal-page .journal-priority{grid-template-columns:18px 18px minmax(0,1fr) 28px auto 20px}
+.journal-page .journal-priority .journal-remove-priority,.journal-step-remove{opacity:.4}
+.journal-page .journal-priority:hover .journal-remove-priority,.journal-page .journal-priority:focus-within .journal-remove-priority,.journal-step:hover .journal-step-remove,.journal-step:focus-within .journal-step-remove{opacity:1}
