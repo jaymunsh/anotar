@@ -3,7 +3,6 @@ import React,{useEffect,useRef,useState} from 'react';
 import {ArrowRight,Check,ChevronLeft,ChevronRight,Plus,Trash2,Download,Settings,Save} from 'lucide-react';
 import {ApiError,Day,Entry,Plan,PlanningItem,User,clock,download,duration,emptyDay,recorded,request,today} from './api';
 
-const statuses:Record<Plan['status'],string>={pending:'예정',partial:'일부 수행',done:'수행 완료',deferred:'다시 계획',cancelled:'취소',missed:'미이행'};
 const copy=<T,>(value:T):T=>structuredClone(value);
 const recentKey='anotar-planner:recent-planning';
 const recentIds=():string[]=>{try{const v=JSON.parse(localStorage.getItem(recentKey)||'[]');return Array.isArray(v)?v.filter(x=>typeof x==='string'):[];}catch{return [];}};
@@ -67,7 +66,7 @@ export function ItemForm({editor,planning=[],onSave,onCancel,onDelete,onDirty,he
   return <form className="item-form" onSubmit={submit}><h2 id={headingId}>{item&&!editor.newItem?t("항목 수정"):editor.kind==='plan'?t("계획 추가"):t("실제로 한 일 기록")}</h2><label htmlFor="item-title">{t("활동")}</label><input id="item-title" autoFocus required maxLength={200} value={title} onChange={e=>setTitle(e.target.value)} placeholder={t("무엇을 할까요?")}/>
     <div className="form-pair"><label>{t("시작")}<input type="time" step={item||plan?60:600} required value={start} onChange={e=>setStart(e.target.value)}/></label><label>{t("종료")}<select value={end} onChange={e=>setEnd(e.target.value)} required>{Array.from({length:145},(_,i)=>clock(i*10)).filter(t=>t==='24:00'||t!=='00:00').concat(end).filter((t,i,a)=>a.indexOf(t)===i).sort().map(t=><option key={t}>{t}</option>)}</select></label></div>
     {editor.kind==='plan'&&planning.length>0&&<label className="planning-pick">{pair('계획','Plan')}<select aria-label={pair('연결할 계획','Related plan')} value={planningId} onChange={e=>setPlanningId(e.target.value)}><option value="">{pair('연결 안 함','No plan')}</option>{recent.length>0&&<optgroup label={pair('최근 선택','Recent')}>{recent.map(p=><option value={p.id} key={'r'+p.id}>{p.title}</option>)}</optgroup>}<optgroup label={pair('이번 달 계획','This month')}>{rest.map(p=><option value={p.id} key={p.id}>{p.title}</option>)}</optgroup></select></label>}
-    {editor.kind==='plan'&&<details className="activity-options" open={Boolean(item&&!editor.newItem)}><summary>{pair('추가 설정','More options')}</summary><div className="form-pair"><label>{t("일정 상태")}<select value={status} onChange={e=>setStatus(e.target.value as Plan['status'])}>{Object.entries(statuses).map(([v,l])=><option value={v} key={v}>{t(l)}</option>)}</select></label></div></details>}
+    {editor.kind==='plan'&&<label className="missed-field"><input type="checkbox" checked={status==='missed'} onChange={e=>setStatus(e.target.checked?'missed':'pending')}/>{pair('미이행','Unfinished')}</label>}
     {plan&&<p className="muted">{pair(`‘${plan.title}’ 계획에 연결해요. 실제 시간은 수정할 수 있어요.`, `Linked to “${plan.title}”. You can adjust the actual times.`)}</p>}{error&&<p role="alert" className="error">{t(error)}</p>}
     <div className="form-actions"><button className="primary"><Check size={16}/>{t("저장")}</button><button type="button" onClick={onCancel} className="secondary">{t("취소")}</button>{item&&!editor.newItem&&<button type="button" className="danger text-button" onClick={onDelete}><Trash2 size={16}/>{t("항목 삭제")}</button>}</div></form>;
 }
