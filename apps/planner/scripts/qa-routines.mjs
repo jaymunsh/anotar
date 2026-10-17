@@ -20,7 +20,7 @@ try{
   await page.getByRole('link',{name:'만들기'}).click();
   await page.waitForURL(/\/app\/plans/);
   const list=page.locator('#routines');await list.waitFor();
-  for(const name of ['운동','독서']){await list.getByLabel('새 루틴 이름').fill(name);await list.getByRole('button',{name:'루틴 추가'}).click();await list.getByLabel(`루틴 이름: ${name}`).waitFor();}
+  for(const name of ['운동','독서']){await list.getByLabel('새 루틴 이름').fill(name);await list.getByLabel('새 루틴 이름').press('Enter');await list.getByLabel(`루틴 이름: ${name}`).waitFor();}
   const rename=list.getByLabel('루틴 이름: 독서');await rename.fill('독서 30분');await rename.press('Enter');
   await page.waitForTimeout(500);
   const stored=(await (await context.request.get(base+'/api/planning')).json()).items.map(i=>[i.kind,i.title]);
