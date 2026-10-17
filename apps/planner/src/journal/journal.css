@@ -33,7 +33,11 @@
 .activity-dialog .item-form{border:0;margin:0;padding:24px;background:transparent}
 .activity-dialog .item-form h2{font-size:20px;padding-right:36px;margin-bottom:20px}
 .activity-close{position:absolute;right:12px;top:12px;min-width:44px;min-height:44px;color:var(--muted)}
-.item-form .missed-field{display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--muted)}
+.item-form .missed-field{display:flex;align-items:center;gap:8px;margin-top:16px;font-size:14px;color:var(--ink)}
+.activity-dialog .item-form .planning-pick{margin:16px 0 0}
+.activity-dialog .form-actions{justify-content:flex-end;gap:8px;margin-top:28px}
+.activity-dialog .form-actions>button{min-height:40px;margin:0;padding:0 16px;font-size:14px;letter-spacing:0}
+.activity-dialog .form-actions>.danger{margin-right:auto;padding:0 8px}
 .item-form .missed-field input{width:16px;min-height:16px;margin:0;accent-color:var(--action)}
 
 @media(max-width:640px){.activity-dialog .item-form{padding:22px 18px}.activity-dialog .form-actions{gap:8px;flex-wrap:wrap}}
@@ -219,7 +223,7 @@
 @media(max-width:640px){.weekly-stats dd{font-size:16px}}
 .journal-review-more>summary{padding:14px 0;font-size:13px;color:var(--action);cursor:pointer}
 /* Year/quarter/month selects: one quiet chevron instead of the native arrow. */
-.journal-broad-picker select{appearance:none;-webkit-appearance:none;padding:8px 30px 8px 12px;border-radius:8px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23586c5c' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;cursor:pointer}
+.journal-broad-picker select,.activity-dialog select{appearance:none;-webkit-appearance:none;padding:8px 30px 8px 12px;border-radius:8px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23586c5c' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center;cursor:pointer}.activity-dialog select{padding-right:36px;font-variant-numeric:tabular-nums}
 .journal-broad-picker select:hover{border-color:var(--focus)}
 /* Week/month head: the range on the left, totals on the right, one row. */
 .period-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--line)}

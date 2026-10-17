@@ -52,6 +52,8 @@ export function useDay(date:string,user:User|undefined,csrf:string,demo:boolean)
   return{document,change,loading,state,error,pendingDraft,restore,discard,save,canLeave};
 }
 
+// 10-minute steps plus the current value, so odd times from drag or old data stay selectable.
+const times=(from:number,to:number,current:string)=>Array.from({length:(to-from)/10+1},(_,i)=>clock(from+i*10)).concat(current).filter((t,i,a)=>a.indexOf(t)===i).sort();
 export type Editor={newItem?:boolean;kind:'plan'|'entry';item?:Plan|Entry;plan?:Plan;draftId?:string;originalTitle?:string};
 export function ItemForm({editor,planning=[],onSave,onCancel,onDelete,onDirty,headingId}:{editor:Editor;planning?:PlanningItem[];onSave:(item:Plan|Entry)=>void;onCancel:()=>void;onDelete:()=>void;onDirty:(dirty:boolean)=>void;headingId?:string}){
   const item=editor.item,plan=editor.plan;
@@ -64,11 +66,11 @@ export function ItemForm({editor,planning=[],onSave,onCancel,onDelete,onDirty,he
     const value={id:item?.id||uuid(),title:title.trim(),start:a,end:b,...((item as Plan)?.priorityId?{priorityId:(item as Plan).priorityId}:{})};if(editor.kind==='plan'&&planningId)rememberPlanning(planningId);onSave(editor.kind==='plan'?{...value,status,...(planningId?{planningId}:{})}:{...value,...((item as Entry)?.planId||plan?.id?{planId:(item as Entry)?.planId||plan?.id}:{})});
   }
   return <form className="item-form" onSubmit={submit}><h2 id={headingId}>{item&&!editor.newItem?t("항목 수정"):editor.kind==='plan'?t("계획 추가"):t("실제로 한 일 기록")}</h2><label htmlFor="item-title">{t("활동")}</label><input id="item-title" autoFocus required maxLength={200} value={title} onChange={e=>setTitle(e.target.value)} placeholder={t("무엇을 할까요?")}/>
-    <div className="form-pair"><label>{t("시작")}<input type="time" step={item||plan?60:600} required value={start} onChange={e=>setStart(e.target.value)}/></label><label>{t("종료")}<select value={end} onChange={e=>setEnd(e.target.value)} required>{Array.from({length:145},(_,i)=>clock(i*10)).filter(t=>t==='24:00'||t!=='00:00').concat(end).filter((t,i,a)=>a.indexOf(t)===i).sort().map(t=><option key={t}>{t}</option>)}</select></label></div>
+    <div className="form-pair"><label>{t("시작")}<select value={start} onChange={e=>setStart(e.target.value)} required>{times(0,1430,start).map(t=><option key={t}>{t}</option>)}</select></label><label>{t("종료")}<select value={end} onChange={e=>setEnd(e.target.value)} required>{times(10,1440,end).map(t=><option key={t}>{t}</option>)}</select></label></div>
     {editor.kind==='plan'&&planning.length>0&&<label className="planning-pick">{pair('계획','Plan')}<select aria-label={pair('연결할 계획','Related plan')} value={planningId} onChange={e=>setPlanningId(e.target.value)}><option value="">{pair('연결 안 함','No plan')}</option>{recent.length>0&&<optgroup label={pair('최근 선택','Recent')}>{recent.map(p=><option value={p.id} key={'r'+p.id}>{p.title}</option>)}</optgroup>}<optgroup label={pair('이번 달 계획','This month')}>{rest.map(p=><option value={p.id} key={p.id}>{p.title}</option>)}</optgroup></select></label>}
     {editor.kind==='plan'&&<label className="missed-field"><input type="checkbox" checked={status==='missed'} onChange={e=>setStatus(e.target.checked?'missed':'pending')}/>{pair('미이행','Unfinished')}</label>}
     {plan&&<p className="muted">{pair(`‘${plan.title}’ 계획에 연결해요. 실제 시간은 수정할 수 있어요.`, `Linked to “${plan.title}”. You can adjust the actual times.`)}</p>}{error&&<p role="alert" className="error">{t(error)}</p>}
-    <div className="form-actions"><button className="primary"><Check size={16}/>{t("저장")}</button><button type="button" onClick={onCancel} className="secondary">{t("취소")}</button>{item&&!editor.newItem&&<button type="button" className="danger text-button" onClick={onDelete}><Trash2 size={16}/>{t("항목 삭제")}</button>}</div></form>;
+    <div className="form-actions">{item&&!editor.newItem&&<button type="button" className="danger text-button" onClick={onDelete}><Trash2 size={16}/>{t("항목 삭제")}</button>}<button type="button" onClick={onCancel} className="secondary">{t("취소")}</button><button className="primary"><Check size={16}/>{t("저장")}</button></div></form>;
 }
 
 export function SettingsPage({user,csrf}:{user:User;csrf:string}){
