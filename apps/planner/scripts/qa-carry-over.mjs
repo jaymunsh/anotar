@@ -24,7 +24,7 @@ try{
     await page.goto(base+'/app?date=2026-10-19&view=day');
     const offers=page.locator('.journal-carry');
     await offers.first().waitFor();
-    assert.deepEqual(await offers.allInnerTexts(),['10월 16일 (금) 못 한 일 2개 가져오기','10월 16일 (금) 일정 2개 가져오기']);
+    assert.deepEqual(await offers.allInnerTexts(),['10월 16일 (금) 2개','10월 16일 (금) 일정 2개 가져오기']);
     checks.push(`${name}: Monday offers Friday's schedule (cancelled excluded) and unfinished priorities (done excluded)`);
     assert.equal(await page.locator('.segmented .selected').first().innerText(),name==='phone'?'목록':'하루');
     checks.push(`${name}: schedule opens in ${name==='phone'?'list':'day grid'} view`);

@@ -1,12 +1,14 @@
-import {useCallback,useEffect,useId,useRef,useState} from 'react';
+import React,{useCallback,useEffect,useId,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
-import {Plus,X,ArrowRight,Pencil,ChevronRight} from 'lucide-react';
-import {ApiError,PlanningItem,Routine,request} from '../api';
+import {Plus,X,ArrowRight,Pencil} from 'lucide-react';
+import {ApiError,PlanningItem,Routine,duration,request} from '../api';
 import {RoutineList} from './Routines';
 import {getLanguage,pair,t} from '../i18n';
 import {periodRange} from './period';
 import './planning.css';
 
+// Stable color per planning item: the stripe on linked timetable blocks and the dot on the plan bar.
+export const tagColor=(id:string)=>{let h=0;for(const c of id)h=(h*31+c.charCodeAt(0))%360;return `hsl(${h} 38% 42%)`;};
 export const monthName=(month:string)=>new Intl.DateTimeFormat(getLanguage()==='en'?'en-US':'ko-KR',{year:'numeric',month:'short',timeZone:'UTC'}).format(new Date(month+'-01T12:00:00Z'));
 const overlaps=(item:PlanningItem,from:string,to:string)=>item.startMonth<=to&&item.endMonth>=from;
 export function usePlanning(demo:boolean,csrf:string){
@@ -81,8 +83,16 @@ export function PlanningBoard({date,period,state,onMonth,onQuarter}:{date:string
   {editing&&<PlanningDialog key={editing.id+'-'+editing.version} initial={editing} items={state.items} state={state} onClose={()=>setEditing(null)} onReplace={setEditing}/>}
  </section>;
 }
-export function PlanningContext({date,period,items,onOpen}:{date:string;period:'day'|'week'|'month';items:PlanningItem[];onOpen:()=>void}){
- const range=period==='day'?{start:date,end:date}:periodRange(date,period),related=items.filter(item=>overlaps(item,range.start.slice(0,7),range.end.slice(0,7)));
- if(!related.length)return null;
- return <details className="planning-context"><summary><ChevronRight size={14}/>{pair('이번 기간 계획','Focus for this period')}<span>{related.slice(0,2).map(item=>item.title).join(' · ')}{related.length>2?` +${related.length-2}`:''}</span></summary><div>{related.map(item=><button key={item.id} onClick={onOpen}><strong>{item.title}</strong><small>{monthName(item.startMonth)} — {monthName(item.endMonth)}</small></button>)}<button className="text-button" onClick={onOpen}>{pair('분기 계획표 열기','Open quarter plan')}<ArrowRight size={14}/></button></div></details>;
+// One line above the day: what this period is for, and routines one tap away (day view only).
+// A plan chip opens a small card: where it sits in the plan, time scheduled for it this week, and a way to put it on today.
+export function PlanningContext({date,period,items,onOpen,routines,onRoutine,minutes,onPlace}:{date:string;period:'day'|'week'|'month';items:PlanningItem[];onOpen:()=>void;routines?:Routine[];onRoutine?:(title:string)=>void;minutes?:(ids:string[])=>number;onPlace?:(item:PlanningItem)=>void}){
+ const range=period==='day'?{start:date,end:date}:periodRange(date,period),related=items.filter(item=>overlaps(item,range.start.slice(0,7),range.end.slice(0,7))).sort((a,b)=>(a.kind==='step'?0:1)-(b.kind==='step'?0:1));
+ const [card,setCard]=useState<{id:string;left:number}|null>(null),root=useRef<HTMLDivElement>(null);
+ useEffect(()=>{if(!card)return;const close=(e:Event)=>{if(e instanceof KeyboardEvent?e.key==='Escape':!root.current?.querySelector('.planning-card')?.contains(e.target as Node)&&!(e.target as Element).closest?.('.planning-context-item'))setCard(null);};document.addEventListener('pointerdown',close);document.addEventListener('keydown',close);return()=>{document.removeEventListener('pointerdown',close);document.removeEventListener('keydown',close);};},[card]);
+ if(!related.length&&!routines)return null;
+ const shown=card&&items.find(item=>item.id===card.id),parent=shown?.parentId?items.find(item=>item.id===shown.parentId):undefined,children=shown?.kind==='goal'?items.filter(item=>item.parentId===shown.id&&overlaps(item,range.start.slice(0,7),range.end.slice(0,7))):[];
+ function toggle(e:React.MouseEvent<HTMLButtonElement>,id:string){if(card?.id===id){setCard(null);return;}const box=root.current!.getBoundingClientRect(),chip=e.currentTarget.getBoundingClientRect();setCard({id,left:Math.max(0,Math.min(chip.left-box.left,box.width-320))});}
+ return <div className="planning-context" ref={root}>{related.length>0&&<div className="planning-context-plans" aria-label={pair('이번 기간 계획','Focus for this period')} role="group"><span className="planning-context-label">{pair('이번 기간','This period')}</span>{related.slice(0,3).map(item=><button key={item.id} className={`planning-context-item ${item.kind}`} aria-expanded={card?.id===item.id} title={`${item.title} · ${monthName(item.startMonth)} — ${monthName(item.endMonth)}`} onClick={e=>toggle(e,item.id)}><i className="planning-context-dot" style={{background:tagColor(item.id)}}/>{item.title}</button>)}<button className="planning-context-more" aria-label={pair('분기 계획표 열기','Open quarter plan')} title={pair('분기 계획표 열기','Open quarter plan')} onClick={onOpen}>{related.length>3&&`+${related.length-3}`}<ArrowRight size={14}/></button></div>}
+ {routines&&<div className="journal-routines" role="group" aria-label={pair('루틴','Routines')}><span className="planning-context-label">{pair('루틴','Routines')}</span>{routines.length>0&&<div className="journal-routine-chips">{routines.map(r=><button key={r.id} draggable onDragStart={e=>e.dataTransfer.setData('application/anotar-routine',r.title)} onClick={()=>onRoutine?.(r.title)}><Plus size={13}/>{r.title}</button>)}</div>}<a className="journal-routines-manage" href="/app/plans?view=quarter#routines">{routines.length?pair('관리','Manage'):pair('만들기','Create')}</a></div>}
+ {shown&&card&&<div className="planning-card" role="dialog" aria-label={shown.title} style={{left:card.left}}><p className="planning-card-kind"><i className="planning-context-dot" style={{background:tagColor(shown.id)}}/>{shown.kind==='step'?pair(`${monthName(shown.startMonth)} 세부 계획`,`${monthName(shown.startMonth)} step`):pair(`목표 · ${monthName(shown.startMonth)} — ${monthName(shown.endMonth)}`,`Goal · ${monthName(shown.startMonth)} — ${monthName(shown.endMonth)}`)}<button className="planning-card-close" aria-label={pair('닫기','Close')} onClick={()=>setCard(null)}><X size={14}/></button></p><strong>{shown.title}</strong>{parent&&<p className="planning-card-parent">{pair('목표','Goal')} · {parent.title}</p>}{children.length>0&&<ul>{children.map(child=><li key={child.id}>{monthName(child.startMonth)} · {child.title}</li>)}</ul>}{shown.note&&<p className="planning-card-note">{shown.note}</p>}{minutes&&<p className="planning-card-time">{pair('이번 주 시간표에 잡은 시간','Scheduled this week')}<b>{duration(minutes([shown.id,...children.map(child=>child.id)]))}</b></p>}<div className="planning-card-actions">{onPlace&&<button className="primary" onClick={()=>{onPlace(shown);setCard(null);}}><Plus size={14}/>{pair('시간표에 넣기','Add to schedule')}</button>}<button className="text-button" onClick={onOpen}>{pair('계획표에서 보기','View in plan')}<ArrowRight size={14}/></button></div></div>}</div>;
 }
