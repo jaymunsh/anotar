@@ -1,6 +1,6 @@
 import React,{useCallback,useEffect,useId,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
-import {Plus,X,ArrowRight,Pencil,Pin,ChevronUp} from 'lucide-react';
+import {Plus,X,ArrowRight,Pencil,Pin} from 'lucide-react';
 import {ApiError,PlanningItem,Routine,duration,request} from '../api';
 import {getLanguage,pair,t} from '../i18n';
 import {periodRange} from './period';
@@ -42,21 +42,17 @@ export type PlanningState=ReturnType<typeof usePlanning>;
 
 const monthEnd=(month:string)=>`${month}-${String(new Date(Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7)),0)).getUTCDate()).padStart(2,'0')}`;
 type Minutes=(ids:string[],from:string,to:string)=>number;
-// 계획 > 목표: a card per goal for the year. Once a goal is 집중 (pinned), the others fold into one-line rows under 묵혀 둔 목표.
-export function PlanningBoard({date,state,minutes}:{date:string;state:PlanningState;minutes?:Minutes}){
- const year=date.slice(0,4),from=`${year}-01`,to=`${year}-12`,now=new Date().toISOString().slice(0,7);
- const [error,setError]=useState(''),[palette,setPalette]=useState<string|null>(null),[focusId,setFocusId]=useState<string|null>(null),[opened,setOpened]=useState<string|null>(null);
- const goals=state.items.filter(item=>item.kind==='goal'&&overlaps(item,from,to)),focused=goals.filter(goal=>goal.focus),resting=focused.length?goals.filter(goal=>!goal.focus):[];
+// 계획 > 목표: a card per goal for the year — about the plan, not time spent (that lives in 되짚어보기). 집중 (pinned) goals come first.
+export function PlanningBoard({date,state}:{date:string;state:PlanningState}){
+ const year=date.slice(0,4),from=`${year}-01`,to=`${year}-12`;
+ const [error,setError]=useState(''),[palette,setPalette]=useState<string|null>(null),[focusId,setFocusId]=useState<string|null>(null);
+ const goals=state.items.filter(item=>item.kind==='goal'&&overlaps(item,from,to)).sort((a,b)=>Number(Boolean(b.focus))-Number(Boolean(a.focus)));
  const steps=state.items.filter(item=>item.kind==='step');
  const orphans=steps.filter(step=>(!step.parentId||!state.items.some(goal=>goal.id===step.parentId))&&overlaps(step,from,to));
- const spent=(ids:string[])=>minutes?.(ids,from+'-01',monthEnd(to))||0;
- // 시간 흐름: per goal, time the timetable actually gave it each month. Nothing to fill in; shade is relative to the busiest month.
- const months=Array.from({length:12},(_,i)=>`${year}-${String(i+1).padStart(2,'0')}`);
- const flow=minutes?[...focused,...(focused.length?resting:goals)].map(goal=>{const ids=[goal.id,...steps.filter(step=>step.parentId===goal.id).map(step=>step.id)];return {goal,cells:months.map(m=>minutes(ids,m+'-01',monthEnd(m)))};}):[],peak=Math.max(0,...flow.flatMap(row=>row.cells));
  useEffect(()=>{if(focusId){const el=document.querySelector<HTMLInputElement>(`[data-plan="${focusId}"]`);if(el){el.focus();el.select();setFocusId(null);}}},[focusId,state.items]);
  async function run(action:()=>Promise<unknown>){setError('');try{await action();}catch(e){setError((e as Error).message);}}
  const save=(item:PlanningItem)=>run(()=>state.save(item));
- function addGoal(){const used=new Set(goals.map((goal,i)=>goal.color??i%8)),free=goalColors.findIndex((_,i)=>!used.has(i)),id=crypto.randomUUID();void run(async()=>{await state.save({id,kind:'goal',title:pair('새 목표','New goal'),startMonth:from,endMonth:to,note:'',parentId:null,color:free<0?goals.length%goalColors.length:free,version:0});setOpened(id);setFocusId(id);});}
+ function addGoal(){const used=new Set(goals.map((goal,i)=>goal.color??i%8)),free=goalColors.findIndex((_,i)=>!used.has(i)),id=crypto.randomUUID();void run(async()=>{await state.save({id,kind:'goal',title:pair('새 목표','New goal'),startMonth:from,endMonth:to,note:'',parentId:null,color:free<0?goals.length%goalColors.length:free,version:0});setFocusId(id);});}
  // A step has no date of its own any more: it spans its goal (the server keeps steps inside the goal's months).
  function addStep(goal:PlanningItem|null,title:string){return run(()=>state.save({id:crypto.randomUUID(),kind:'step',title,startMonth:goal?.startMonth||from,endMonth:goal?.endMonth||to,note:'',parentId:goal?.id||null,done:false,version:0}));}
  function rename(item:PlanningItem,title:string){title=title.trim();if(title===item.title)return;if(!title){if(item.kind==='step')void run(()=>state.remove(item));return;}void save({...item,title});}
@@ -65,42 +61,47 @@ export function PlanningBoard({date,state,minutes}:{date:string;state:PlanningSt
  const stepRows=(list:PlanningItem[])=>list.map(step=><li key={step.id} className={`goal-step${step.done?' done':''}`}>
   <input type="checkbox" checked={Boolean(step.done)} aria-label={pair(`${step.title} 완료`,`Complete ${step.title}`)} onChange={e=>void save({...step,done:e.target.checked})}/>
   <input key={step.version} data-plan={step.id} className="goal-step-title" defaultValue={step.title} maxLength={200} aria-label={pair('세부 계획','Step')} onBlur={e=>rename(step,e.target.value)} onKeyDown={blurOnEnter}/>
-  {(value=>value?<span className="goal-step-spent">{duration(value)}</span>:<span/>)(spent([step.id]))}
   <button className="goal-remove" aria-label={pair(`${step.title} 지우기`,`Delete ${step.title}`)} title={pair('지우기','Delete')} onClick={()=>void run(()=>state.remove(step))}><X size={14}/></button>
  </li>);
  const addRow=(goal:PlanningItem|null)=><li className="goal-step-new"><Plus size={14} aria-hidden="true"/><input placeholder={pair('세부 계획 추가','Add a step')} maxLength={200} aria-label={pair(`${goal?.title||'목표 없음'} 세부 계획 추가`,`Add a step to ${goal?.title||'No goal'}`)} onKeyDown={e=>{if(e.key!=='Enter'||e.nativeEvent.isComposing)return;e.preventDefault();const input=e.currentTarget,title=input.value.trim();if(!title)return;void addStep(goal,title).then(()=>{input.value='';input.focus();});}}/></li>;
- const card=(goal:PlanningItem)=>{const own=steps.filter(step=>step.parentId===goal.id),done=own.filter(step=>step.done).length,color=tagColor(goal.id),total=spent([goal.id,...own.map(step=>step.id)]),folded=resting.includes(goal);
-  if(folded&&opened!==goal.id)return <button className="goal-row" key={goal.id} style={{'--goal':color} as React.CSSProperties} aria-label={pair(`${goal.title} 펼치기`,`Open ${goal.title}`)} onClick={()=>setOpened(goal.id)}><i className="goal-dot"/><span>{goal.title}</span><small>{own.length?`${done}/${own.length}`:''}</small></button>;
+ const card=(goal:PlanningItem)=>{const own=steps.filter(step=>step.parentId===goal.id),done=own.filter(step=>step.done).length,color=tagColor(goal.id);
   return <article className={`goal-card${goal.focus?' focus':''}`} key={goal.id} style={{'--goal':color} as React.CSSProperties}>
    <header>
     <button className="goal-dot" aria-label={pair('목표 색 바꾸기','Change goal colour')} aria-expanded={palette===goal.id} onClick={()=>setPalette(palette===goal.id?null:goal.id)}/>
     <input key={goal.version} data-plan={goal.id} className="goal-title" defaultValue={goal.title} maxLength={200} aria-label={pair('목표','Goal')} onBlur={e=>rename(goal,e.target.value)} onKeyDown={blurOnEnter}/>
     <span className="goal-progress">{own.length?`${done}/${own.length}`:''}</span>
-    <button className="goal-pin" aria-pressed={Boolean(goal.focus)} aria-label={pair(`${goal.title} 집중`,`Focus on ${goal.title}`)} title={goal.focus?pair('집중 해제','Stop focusing'):pair('집중','Focus')} onClick={()=>{setOpened(null);void save({...goal,focus:!goal.focus});}}><Pin size={15}/></button>
-    {folded&&<button className="goal-remove" aria-label={pair('접기','Fold')} title={pair('접기','Fold')} onClick={()=>setOpened(null)}><ChevronUp size={15}/></button>}
+    <button className="goal-pin" aria-pressed={Boolean(goal.focus)} aria-label={pair(`${goal.title} 집중`,`Focus on ${goal.title}`)} title={goal.focus?pair('집중 해제','Stop focusing'):pair('집중','Focus')} onClick={()=>void save({...goal,focus:!goal.focus})}><Pin size={15}/></button>
     <button className="goal-remove" aria-label={pair(`${goal.title} 지우기`,`Delete ${goal.title}`)} title={pair('목표 지우기','Delete goal')} onClick={()=>removeGoal(goal)}><X size={15}/></button>
    </header>
    <textarea key={goal.version} className="goal-note" rows={1} defaultValue={goal.note} maxLength={2000} placeholder={pair('끝났을 때 모습','What done looks like')} aria-label={pair(`${goal.title} 끝났을 때 모습`,`${goal.title}: what done looks like`)} onBlur={e=>{const note=e.target.value.trim();if(note!==goal.note)void save({...goal,note});}} onKeyDown={blurOnEnter}/>
    {palette===goal.id&&<div className="goal-palette" role="group" aria-label={pair('목표 색','Goal colour')}>{goalColors.map((c,i)=><button key={c} style={{background:c}} aria-label={pair(`색 ${i+1}`,`Colour ${i+1}`)} aria-pressed={color===c} onClick={()=>{setPalette(null);void save({...goal,color:i});}}/>)}</div>}
    {own.length>0&&<div className="goal-bar" aria-hidden="true"><i style={{width:`${done/own.length*100}%`}}/></div>}
    <ul>{stepRows(own)}{addRow(goal)}</ul>
-   {total>0&&<p className="goal-time">{pair(`올해 시간표에 ${duration(total)}`,`${duration(total)} on the timetable this year`)}</p>}
   </article>;};
  return <section className="planning-board goal-board" aria-label={pair(`${year}년 목표`,`${year} goals`)}>
   {state.loading?<p role="status">{pair('목표를 불러오는 중…','Loading goals…')}</p>:state.error?<div className="notice" role="alert"><p>{t(state.error)}</p><button className="secondary" onClick={()=>state.reload().catch(()=>{})}>{pair('다시 불러오기','Retry')}</button></div>:<>
    <div className="goal-board-head"><p>{goals.length?pair(`목표 ${goals.length}개 · 세부 계획 ${steps.filter(s=>goals.some(g=>g.id===s.parentId)).filter(s=>s.done).length}/${steps.filter(s=>goals.some(g=>g.id===s.parentId)).length} 완료`,`${goals.length} goals · ${steps.filter(s=>goals.some(g=>g.id===s.parentId)&&s.done).length}/${steps.filter(s=>goals.some(g=>g.id===s.parentId)).length} steps done`):pair('올해 이루고 싶은 것을 목표로 적고, 끝내야 할 일을 세부 계획으로 나눠요.','Write what you want this year as goals, then split them into steps.')}</p><button className="secondary" onClick={addGoal}><Plus size={15}/>{pair('목표 추가','Add goal')}</button></div>
    {error&&<p className="error" role="alert">{t(error)}</p>}
-   {flow.length>0&&!peak&&<p className="goal-flow-hint">{pair('시간표 일정을 열어 ‘관련 계획’에 목표나 세부 계획을 고르면, 여기에 달마다 그 목표에 쓴 시간이 색으로 쌓여요.','Link a timetable plan to a goal or step (“Related plan”) and this spot fills with the time each goal got per month.')}</p>}
-   {peak>0&&<div className="goal-flow" role="table" aria-label={pair('달마다 시간표에 쓴 시간','Time on the timetable by month')}>
-    <div className="goal-flow-row goal-flow-head" role="row"><span role="columnheader" className="goal-flow-caption">{pair('달마다 시간표에 쓴 시간','Timetable time by month')}</span>{months.map(m=><span role="columnheader" key={m} className={m===now?'now':undefined}>{Number(m.slice(5))}</span>)}</div>
-    {flow.map(({goal,cells})=><div className={`goal-flow-row${goal.focus?' focus':''}`} role="row" key={goal.id} style={{'--goal':tagColor(goal.id)} as React.CSSProperties}><span role="rowheader" className="goal-flow-name"><i/><span>{goal.title}</span></span>{cells.map((value,i)=>{const label=value?`${monthName(months[i])} · ${duration(value)}`:monthName(months[i]);return <span role="cell" key={months[i]} className={months[i]===now?'now':undefined} title={label} aria-label={label}>{value>0&&<i style={{opacity:.18+.82*value/peak}}/>}</span>;})}</div>)}
-   </div>}
-   <div className="goal-cards">{(focused.length?focused:goals).map(card)}{!resting.length&&orphans.length>0&&noGoal()}</div>
-   {resting.length>0&&<><h2 className="goal-resting-title">{pair('묵혀 둔 목표','Resting goals')}</h2><div className="goal-cards">{resting.map(card)}{orphans.length>0&&noGoal()}</div></>}
+   <div className="goal-cards">{goals.map(card)}{orphans.length>0&&noGoal()}</div>
    {!goals.length&&!orphans.length&&<div className="goal-empty"><button className="primary" onClick={addGoal}><Plus size={16}/>{pair('첫 목표 정하기','Set your first goal')}</button></div>}
   </>}
  </section>;
  function noGoal(){return <article className="goal-card no-goal"><header><i className="goal-dot"/><strong className="goal-title">{pair('목표 없음','No goal')}</strong></header><ul>{stepRows(orphans)}{addRow(null)}</ul></article>;}
+}
+// 되짚어보기 > 올해 흐름: goal rows × 12 months, shaded by time the timetable gave each goal (its steps included). Nothing to fill in.
+export function GoalFlow({year,items,minutes}:{year:string;items:PlanningItem[];minutes:Minutes}){
+ const now=new Date().toISOString().slice(0,7),months=Array.from({length:12},(_,i)=>`${year}-${String(i+1).padStart(2,'0')}`);
+ const goals=items.filter(item=>item.kind==='goal'&&overlaps(item,`${year}-01`,`${year}-12`));
+ const flow=goals.map(goal=>{const ids=[goal.id,...items.filter(step=>step.parentId===goal.id).map(step=>step.id)];return {goal,cells:months.map(m=>minutes(ids,m+'-01',monthEnd(m)))};}),peak=Math.max(0,...flow.flatMap(row=>row.cells));
+ if(!goals.length)return null;
+ return <>
+  <h2>{pair(`${year}년 흐름`,`${year} at a glance`)}</h2>
+  {!peak&&<p className="goal-flow-hint">{pair('시간표 일정을 열어 ‘관련 계획’에 목표나 세부 계획을 고르면, 여기에 달마다 그 목표에 쓴 시간이 색으로 쌓여요.','Link a timetable plan to a goal or step (“Related plan”) and this spot fills with the time each goal got per month.')}</p>}
+{peak>0&&<div className="goal-flow" role="table" aria-label={pair('달마다 시간표에 쓴 시간','Time on the timetable by month')}>
+    <div className="goal-flow-row goal-flow-head" role="row"><span role="columnheader" className="goal-flow-caption">{pair('달마다 시간표에 쓴 시간','Timetable time by month')}</span>{months.map(m=><span role="columnheader" key={m} className={m===now?'now':undefined}>{Number(m.slice(5))}</span>)}</div>
+    {flow.map(({goal,cells})=><div className={`goal-flow-row${goal.focus?' focus':''}`} role="row" key={goal.id} style={{'--goal':tagColor(goal.id)} as React.CSSProperties}><span role="rowheader" className="goal-flow-name"><i/><span>{goal.title}</span></span>{cells.map((value,i)=>{const label=value?`${monthName(months[i])} · ${duration(value)}`:monthName(months[i]);return <span role="cell" key={months[i]} className={months[i]===now?'now':undefined} title={label} aria-label={label}>{value>0&&<i style={{opacity:.18+.82*value/peak}}/>}</span>;})}</div>)}
+   </div>}
+ </>;
 }
 // One line above the day: what this period is for, and routines one tap away (day view only).
 // A plan chip opens a small card: where it sits in the plan, time scheduled for it this week, and a way to put it on today.
