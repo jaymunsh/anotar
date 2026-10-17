@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom';
 import { ArrowUpRight, Check, Columns3, FileText, List, ListTodo, Pencil, Plus } from 'lucide-react';
 import type { Task, TaskList, TaskStatus, TaskStage } from './types';
 import type { PageSummary } from '../pages/types';
+import PagePicker from '../pages/PagePicker';
 import TaskBoard, {
   emptyTaskColumns,
   taskStages,
@@ -533,23 +534,16 @@ export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate
                 </select>
               </label>
             )}
-            <label className="task-page-field">
-              <span>참조 페이지</span>
-              <select
-                aria-label="참조 페이지"
+            <div className="task-page-field">
+              <span aria-hidden>참조 페이지</span>
+              <PagePicker
+                label="참조 페이지"
+                pages={pages}
                 value={edit.pageId}
                 disabled={edit.busy}
-                onChange={(event) => setEdit({ ...edit, pageId: event.target.value })}
-              >
-                <option value="">연결 안 함</option>
-                {edit.pageId && !pages.some((page) => page.id === edit.pageId) && (
-                  <option value={edit.pageId}>연결된 페이지 · 목록에서 확인할 수 없어요</option>
-                )}
-                {pages.map((page) => (
-                  <option key={page.id} value={page.id}>{page.title || '제목 없음'}</option>
-                ))}
-              </select>
-            </label>
+                onChange={(pageId) => setEdit({ ...edit, pageId })}
+              />
+            </div>
             {pageError && (
               <div className="task-error" role="alert">
                 <span>{pageError}</span>
