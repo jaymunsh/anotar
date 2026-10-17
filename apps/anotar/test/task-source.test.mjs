@@ -25,3 +25,18 @@ test('tasks remember a wiki source and can be listed by it, open or done', async
   assert.throws(() => store.createTask({ title: 'x', source: 'evil' }), /출처/);
   assert.throws(() => store.listTasksBySource('pages:'), /출처/);
 });
+
+test('a page lists the tasks that reference it, open first', async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), 'anotar-task-page-'));
+  const store = openStore(dir);
+  t.after(async () => {
+    store.close();
+    await rm(dir, { recursive: true, force: true });
+  });
+  const page = store.createPage({ title: '교토' });
+  const done = store.createTask({ title: '숙소 예약', pageId: page.id });
+  store.updateTask({ id: done.id, expectedVersion: done.version, status: 'done' });
+  store.createTask({ title: '항공권', pageId: page.id });
+  store.createTask({ title: '상관없는 일' });
+  assert.deepEqual(store.listTasksByPage(page.id).map((task) => task.title), ['항공권', '숙소 예약']);
+});

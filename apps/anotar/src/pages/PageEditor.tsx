@@ -121,6 +121,7 @@ import {
 } from './pageComments';
 import { PageNavContext } from './pageNav';
 import { createPageLinkBlockSpec, getPageLinkSlashMenuItems } from './PageLinkBlock';
+import { getPageMentionItems } from './pageMention';
 import { createBookmarkBlockSpec, refreshBookmark } from './BookmarkBlock';
 import { createCalloutBlockSpec, getCalloutSlashMenuItems } from './CalloutBlock';
 import { calloutIcons, calloutIconLabels } from '../../shared/callout';
@@ -153,6 +154,7 @@ import './pageWorkspace.css';
 
 const PageAiPanel = lazy(() => import('./PageAiPanel'));
 const PageOrigins = lazy(() => import('./PageOrigins'));
+const PageBacklinks = lazy(() => import('./PageBacklinks'));
 const PageSharePanel = lazy(() => import('./PageSharePanel'));
 const AssetOcr = lazy(() => import('../ocr/AssetOcr'));
 function hasOcrAsset(blocks: any[], assetId: string): boolean {
@@ -2244,6 +2246,10 @@ export default function PageEditor({
                   )
                 }
               />
+              <SuggestionMenuController
+                triggerCharacter="[["
+                getItems={(query) => getPageMentionItems(editor, query, page.id)}
+              />
               <GridSuggestionMenuController triggerCharacter=":" columns={10} />
               <SideMenuController sideMenu={PageSideMenu} />
             </BlockNoteView>
@@ -2279,6 +2285,11 @@ export default function PageEditor({
       </AssetAttachmentProvider>
       {urlPaste && <UrlPasteChoice url={urlPaste.url} internalPage={Boolean(urlPaste.pageId)} onChoose={chooseUrlPaste}/>}
       {bookmarkNotice && <p className="bookmark-error" role="status">{bookmarkNotice}</p>}
+      {!markdownOpen && (
+        <Suspense fallback={null}>
+          <PageBacklinks pageId={page.id} />
+        </Suspense>
+      )}
       {markdownOpen && (
         <textarea
           className="page-markdown-source"

@@ -270,7 +270,9 @@ const server = createServer(async (request, response) => {
     const backlinksMatch = url.pathname.match(/^\/api\/pages\/([a-f0-9-]+)\/backlinks$/);
     if (request.method === 'GET' && backlinksMatch) {
       if (!store.getPage(backlinksMatch[1])) return json(response, 404, { error: '페이지를 찾을 수 없어요.' });
-      return json(response, 200, store.listPageBacklinks(backlinksMatch[1], { offset: Number(url.searchParams.get('offset') || 0) }));
+      const offset = Number(url.searchParams.get('offset') || 0);
+      const backlinks = store.listPageBacklinks(backlinksMatch[1], { offset });
+      return json(response, 200, offset ? backlinks : { ...backlinks, tasks: store.listTasksByPage(backlinksMatch[1]) });
     }
     if (request.method === 'POST' && url.pathname === '/capture/share') {
       request.resume();

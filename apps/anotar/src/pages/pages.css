@@ -1147,3 +1147,47 @@
 .dashboard-page-section .dashboard-section-heading h2 { white-space:nowrap; }
 .dashboard-page-create-actions { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-left:auto; }
 .dashboard-page-create-actions button { white-space:nowrap; }
+
+/* 이 페이지를 참조하는 곳: quiet list under the page body. */
+.page-backlinks {
+  margin: 48px 0 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--theme-line);
+}
+.page-backlinks h2 {
+  margin: 0 0 8px;
+  color: var(--theme-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.page-backlinks ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.page-backlinks a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  color: var(--theme-ink);
+  font-size: 14px;
+  text-decoration: none;
+}
+.page-backlinks a:hover span:last-child {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.page-backlinks svg {
+  flex: none;
+  color: var(--theme-muted);
+}
+.page-backlinks span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.page-backlinks .is-done span:last-child {
+  color: var(--theme-muted);
+  text-decoration: line-through;
+}

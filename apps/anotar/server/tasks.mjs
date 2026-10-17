@@ -229,6 +229,11 @@ export function createTaskStore(db) {
         .prepare(`SELECT ${fields} FROM tasks WHERE substr(source, 1, ?) = ? ORDER BY created_at LIMIT 500`)
         .all(prefix.length, prefix);
     },
+    listTasksByPage(pageId) {
+      return db
+        .prepare(`SELECT ${fields} FROM tasks WHERE page_id = ? ORDER BY status = 'done', created_at DESC LIMIT 50`)
+        .all(pageId);
+    },
     listTasks({
       status = 'open',
       stage = null,
