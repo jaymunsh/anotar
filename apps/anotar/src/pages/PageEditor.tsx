@@ -487,6 +487,7 @@ export default function PageEditor({
   readMode.current = documentLocked;
   const onlineReason=useOnlineAction('page',page.id);
   const basePage = useRef(page);
+  const lastPersisted = useRef<PageRecord | null>(null);
   const editorRevision=useRef(page.localRevision??0);
   const [localSaveError,setLocalSaveError]=useState('');
   const localTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -995,7 +996,8 @@ export default function PageEditor({
     saving.current = true;
     const commit = (async () => {
       try {
-        const item = await persistLocalPage(page.id, {...snapshot,icon:snapshot.icon??''}, basePage.current,editorRevision.current,syncDeadline.current);
+        const item = await persistLocalPage(page.id, {...snapshot,icon:snapshot.icon??''}, basePage.current,editorRevision.current,syncDeadline.current,lastPersisted.current);
+        lastPersisted.current = item;
         editorRevision.current=item.localRevision??editorRevision.current;setLocalSaveError('');
         committedRevision.current = snapshotChange;
         rawDocument.current = item.document;

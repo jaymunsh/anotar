@@ -43,6 +43,7 @@ export async function persistLocalPage(
   base: PageRecord,
   expectedLocalRevision?: number,
   stableAt = 0,
+  lastPersisted?: Pick<PageRecord, 'title' | 'icon' | 'document'> | null,
 ) {
   const { workspaceId } = await getWorkspaceRuntime(),
     entity = await readLocalEntity({ workspaceId, kind: 'page', id: pageId });
@@ -53,6 +54,13 @@ export async function persistLocalPage(
     title: changes.title.trim() || '제목 없음',
     updatedAt: new Date().toISOString(),
   };
+  // A clean entity still holding exactly what this editor last saved got its newer base from
+  // our own acknowledged save; the editor's base may lag behind it, so trust the stored one.
+  const current = entity.current as Partial<PageRecord>;
+  const ownAck =
+    !entity.dirty && !!entity.base && !!lastPersisted &&
+    current.title === lastPersisted.title && current.icon === lastPersisted.icon &&
+    JSON.stringify(current.document) === JSON.stringify(lastPersisted.document);
   if (new TextEncoder().encode(JSON.stringify(value.document)).length > 1024 * 1024)
     throw Error('페이지 본문은 1MB까지 저장할 수 있어요.');
   return (await queueValue(
@@ -64,7 +72,7 @@ export async function persistLocalPage(
     [],
     true,
     stableAt,
-    entity.dirty || !entity.base ? entity.base : base,
+    entity.dirty || !entity.base || ownAck ? entity.base : base,
     expectedLocalRevision,
     true,
   )) as PageRecord;
