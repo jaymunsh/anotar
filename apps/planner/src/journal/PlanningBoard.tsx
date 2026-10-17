@@ -52,7 +52,7 @@ export function PlanningBoard({date,state,minutes}:{date:string;state:PlanningSt
  const spent=(ids:string[])=>minutes?.(ids,from+'-01',monthEnd(to))||0;
  // 시간 흐름: per goal, time the timetable actually gave it each month. Nothing to fill in; shade is relative to the busiest month.
  const months=Array.from({length:12},(_,i)=>`${year}-${String(i+1).padStart(2,'0')}`);
- const flow=minutes?[...focused,...(focused.length?resting:goals)].map(goal=>{const ids=[goal.id,...steps.filter(step=>step.parentId===goal.id).map(step=>step.id)];return {goal,cells:months.map(m=>minutes(ids,m+'-01',monthEnd(m)))};}):[],peak=Math.max(1,...flow.flatMap(row=>row.cells));
+ const flow=minutes?[...focused,...(focused.length?resting:goals)].map(goal=>{const ids=[goal.id,...steps.filter(step=>step.parentId===goal.id).map(step=>step.id)];return {goal,cells:months.map(m=>minutes(ids,m+'-01',monthEnd(m)))};}):[],peak=Math.max(0,...flow.flatMap(row=>row.cells));
  useEffect(()=>{if(focusId){const el=document.querySelector<HTMLInputElement>(`[data-plan="${focusId}"]`);if(el){el.focus();el.select();setFocusId(null);}}},[focusId,state.items]);
  async function run(action:()=>Promise<unknown>){setError('');try{await action();}catch(e){setError((e as Error).message);}}
  const save=(item:PlanningItem)=>run(()=>state.save(item));
@@ -90,8 +90,9 @@ export function PlanningBoard({date,state,minutes}:{date:string;state:PlanningSt
   {state.loading?<p role="status">{pair('목표를 불러오는 중…','Loading goals…')}</p>:state.error?<div className="notice" role="alert"><p>{t(state.error)}</p><button className="secondary" onClick={()=>state.reload().catch(()=>{})}>{pair('다시 불러오기','Retry')}</button></div>:<>
    <div className="goal-board-head"><p>{goals.length?pair(`목표 ${goals.length}개 · 세부 계획 ${steps.filter(s=>goals.some(g=>g.id===s.parentId)).filter(s=>s.done).length}/${steps.filter(s=>goals.some(g=>g.id===s.parentId)).length} 완료`,`${goals.length} goals · ${steps.filter(s=>goals.some(g=>g.id===s.parentId)&&s.done).length}/${steps.filter(s=>goals.some(g=>g.id===s.parentId)).length} steps done`):pair('올해 이루고 싶은 것을 목표로 적고, 끝내야 할 일을 세부 계획으로 나눠요.','Write what you want this year as goals, then split them into steps.')}</p><button className="secondary" onClick={addGoal}><Plus size={15}/>{pair('목표 추가','Add goal')}</button></div>
    {error&&<p className="error" role="alert">{t(error)}</p>}
-   {flow.length>0&&<div className="goal-flow" role="table" aria-label={pair('달마다 시간표에 쓴 시간','Time on the timetable by month')}>
-    <div className="goal-flow-row goal-flow-head" role="row"><span role="columnheader"/>{months.map(m=><span role="columnheader" key={m} className={m===now?'now':undefined}>{Number(m.slice(5))}</span>)}</div>
+   {flow.length>0&&!peak&&<p className="goal-flow-hint">{pair('시간표 일정을 열어 ‘관련 계획’에 목표나 세부 계획을 고르면, 여기에 달마다 그 목표에 쓴 시간이 색으로 쌓여요.','Link a timetable plan to a goal or step (“Related plan”) and this spot fills with the time each goal got per month.')}</p>}
+   {peak>0&&<div className="goal-flow" role="table" aria-label={pair('달마다 시간표에 쓴 시간','Time on the timetable by month')}>
+    <div className="goal-flow-row goal-flow-head" role="row"><span role="columnheader" className="goal-flow-caption">{pair('달마다 시간표에 쓴 시간','Timetable time by month')}</span>{months.map(m=><span role="columnheader" key={m} className={m===now?'now':undefined}>{Number(m.slice(5))}</span>)}</div>
     {flow.map(({goal,cells})=><div className={`goal-flow-row${goal.focus?' focus':''}`} role="row" key={goal.id} style={{'--goal':tagColor(goal.id)} as React.CSSProperties}><span role="rowheader" className="goal-flow-name"><i/><span>{goal.title}</span></span>{cells.map((value,i)=>{const label=value?`${monthName(months[i])} · ${duration(value)}`:monthName(months[i]);return <span role="cell" key={months[i]} className={months[i]===now?'now':undefined} title={label} aria-label={label}>{value>0&&<i style={{opacity:.18+.82*value/peak}}/>}</span>;})}</div>)}
    </div>}
    <div className="goal-cards">{(focused.length?focused:goals).map(card)}{!resting.length&&orphans.length>0&&noGoal()}</div>
