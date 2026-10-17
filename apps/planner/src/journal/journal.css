@@ -301,9 +301,10 @@
  .journal-page .planning-context:has(>.journal-routines){display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:24px}
  .journal-page .planning-context>div,.journal-page .journal-routine-chips{flex-wrap:nowrap;min-width:0;overflow:hidden}
  .journal-page .planning-context>div>*{flex:0 1 auto;min-width:0}
- .journal-page .journal-routine-chips{flex-wrap:wrap;height:30px;overflow:hidden;justify-content:flex-end}
+ .journal-page .journal-routine-chips{flex-wrap:wrap;height:30px;overflow:hidden}
  .journal-page .journal-routine-chips>*{flex:0 0 auto}
  .journal-page .planning-context :is(.planning-context-label,.planning-context-more,.journal-routines-manage){flex:0 0 auto}
- .journal-page .journal-routines{margin-left:0;justify-content:flex-end}
+ .journal-page .journal-routines{margin-left:0;gap:4px}
+ .journal-page .journal-routines>.planning-context-more{margin-left:auto}
 }
 .journal-routine-chips button span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
