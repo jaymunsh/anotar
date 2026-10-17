@@ -100,6 +100,8 @@ export function makeApp(options={}) {
         if(/^\/(pages(?:\/|$)|journal(?:\/|$)|memo(?:\/|$)|tasks(?:\/|$)|ai(?:\/|$)|ai-jobs(?:\/|$)|comments(?:\/|$))/.test(path)) {
           res.writeHead(302,{Location:'https://personal.leneu.store'+path+url.search,'Cache-Control':'no-store'});return res.end();
         }
+        // Signed in: home and the sign-in pages go straight to the schedule.
+        if(['/','/login','/signup'].includes(path)&&session(req)){res.writeHead(302,{Location:'/app','Cache-Control':'no-store'});return res.end();}
         const target=resolve(dist,'.'+decodeURIComponent(path));
         if(!target.startsWith(dist+sep)&&target!==dist) throw apiError(404,'찾을 수 없어요.');
         let file=target;
