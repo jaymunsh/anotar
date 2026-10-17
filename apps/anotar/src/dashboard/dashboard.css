@@ -659,12 +659,6 @@
 .home-dashboard .dashboard-primary > .composer:not(.mobile-open) {
   display: none;
 }
-/* Recent memos: one row height whether or not a memo has an attachment line
-   (beats the compact density rule in workspace/density.css). */
-.content-area .home-dashboard .memo-recent .capture-card {
-  min-height: 82px;
-}
-
 /* 정리할 것 */
 .organize-queue {
   margin: 0 0 20px;

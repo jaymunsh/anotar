@@ -45,16 +45,19 @@ export function capturePreview(item: Capture) {
   );
 }
 function captureSecondary(item: Capture) {
-  if (item.aiRequest) return item.aiRequest.template?.name || '직접 요청';
-  if (item.url && item.text) {
+  return item.aiRequest ? item.aiRequest.template?.name || '직접 요청' : null;
+}
+// Short facts that ride next to the time instead of taking their own line.
+function captureMeta(item: Capture) {
+  if (item.aiRequest || !item.text) return null;
+  if (item.url) {
     try {
       return new URL(item.url).hostname.replace(/^www\./, '');
     } catch {
       return item.url;
     }
   }
-  if (item.files.length && item.text) return `${item.files.length}개의 첨부 파일`;
-  return null;
+  return item.files.length ? `첨부 ${item.files.length}` : null;
 }
 type Props = {
   items: Capture[];
@@ -314,6 +317,7 @@ export default function CaptureCollection(props: Props) {
               const Icon = item.aiRequest ? WandSparkles : iconFor(item.kind);
               const image = item.files.find((file) => file.mime.startsWith('image/'));
               const secondary = captureSecondary(item);
+              const meta = captureMeta(item);
               return (
                 <div className={selecting ? 'capture-select-row' : 'capture-row'} key={item.id}>
                   {selecting && (
@@ -350,6 +354,7 @@ export default function CaptureCollection(props: Props) {
                         >
                           {formatKoreanTime(item.createdAt)}
                         </time>
+                        {meta && <span className="capture-meta">{meta}</span>}
                         {item.syncState === 'pending' && <span className="capture-sync-pending">전송 대기</span>}
                       </span>
                       <span className="capture-preview">{capturePreview(item)}</span>

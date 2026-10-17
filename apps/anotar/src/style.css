@@ -1059,6 +1059,13 @@ kbd {
   color: #a3aea4;
   white-space: nowrap;
 }
+.capture-meta {
+  flex-shrink: 10;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .capture-preview {
   grid-column: 2;
   grid-row: 2;
