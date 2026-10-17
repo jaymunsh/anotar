@@ -93,6 +93,8 @@ Period diaries: Week is a seven-day plan/actual timetable, Month an activity cal
 
 상단은 일정·계획·되짚어보기. 독립 할 일 메뉴·API·등록 내용·연결 필드는 제거했다. 일간의 오늘 꼭 할 일(우선순위)은 별도 기능으로 유지한다. `/app/tasks`는 계획으로 이동하고 `/api/tasks`는410을 반환한다. 로컬 삭제 전에 백업하고 일지122개/계획28개 본문을 보존했다. [삭제·후속 연결 방향](docs/PLAN_CONNECTIONS.md). 운영 반영은 하지 않았다.
 
-`qa.mjs`, `qa-bilingual.mjs`, `qa-journal.mjs`, `qa-overview.mjs`에는 이전 할 일/구형 랜딩 전제 검증이 남아 있어 현재 기능의 승인 근거로 사용하지 않는다. 현재 기본 검증은 `qa-planner-navigation.mjs`·`qa-planning-board.mjs`·`qa-period-diary.mjs`·`qa-carry-over.mjs`다(실행: `CHROME_PATH=<Chrome 경로> node scripts/<이름>.mjs`). 이 스크립트들은 시간표를 모든 폭에서 '하루' 보기로 시작한다(휴대폰 기본은 '목록').
+`qa.mjs`, `qa-bilingual.mjs`, `qa-journal.mjs`, `qa-overview.mjs`에는 이전 할 일/구형 랜딩 전제 검증이 남아 있어 현재 기능의 승인 근거로 사용하지 않는다. 현재 기본 검증은 `qa-planner-navigation.mjs`·`qa-planning-board.mjs`·`qa-period-diary.mjs`·`qa-carry-over.mjs`·`qa-routines.mjs`다(실행: `CHROME_PATH=<Chrome 경로> node scripts/<이름>.mjs`). 이 스크립트들은 시간표를 모든 폭에서 '하루' 보기로 시작한다(휴대폰 기본은 '목록').
 
-**지난 날에서 가져오기**: 일정이 빈 날에는 최근 7일 안에서 일정이 있는 가장 가까운 날의 일정(취소 제외)을 새 '예정' 항목으로 복사하는 버튼이, 가장 최근에 오늘 할 일을 적은 날에 체크하지 않은 항목이 있으면 빈 칸부터 채워 넣는 버튼이 나온다. 하루/목록 선택은 브라우저에 기억하고, 처음엔 760px 이하에서 목록으로 연다. 최신 인계 문서에서 실제 실행 여부를 확인한다.
+**지난 날에서 가져오기**: 일정이 빈 날에는 최근 7일 안에서 일정이 있는 가장 가까운 날의 일정(취소 제외)을 새 '예정' 항목으로 복사하는 버튼이, 가장 최근에 오늘 할 일을 적은 날에 체크하지 않은 항목이 있으면 빈 칸부터 채워 넣는 버튼이 나온다. 하루/목록 선택은 브라우저에 기억하고, 처음엔 760px 이하에서 목록으로 연다.
+
+**루틴**: 이름만 있는 저장 목록이다(`/api/planning`의 `kind:'routine'`, 계정당 50개). 계획 화면 맨 아래에서 만들고·이름 바꾸고·지운다. 일정 화면의 루틴 칩을 누르면 09:00–09:30 활동 창이 열리고(PC는 시간표로 끌어 놓기도 됨), 저장하면 그날만의 일반 활동이 된다. 반복 규칙·자동 배치·횟수 목표는 없다. 루틴을 지워도 이미 넣은 활동은 남는다. 최신 인계 문서에서 실제 실행 여부를 확인한다.

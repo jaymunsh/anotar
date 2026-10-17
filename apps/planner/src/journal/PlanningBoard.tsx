@@ -1,7 +1,8 @@
 import {useCallback,useEffect,useId,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Plus,X,ArrowRight,Pencil,ChevronRight} from 'lucide-react';
-import {ApiError,PlanningItem,request} from '../api';
+import {ApiError,PlanningItem,Routine,request} from '../api';
+import {RoutineList} from './Routines';
 import {getLanguage,pair,t} from '../i18n';
 import {periodRange} from './period';
 import './planning.css';
@@ -9,25 +10,26 @@ import './planning.css';
 export const monthName=(month:string)=>new Intl.DateTimeFormat(getLanguage()==='en'?'en-US':'ko-KR',{year:'numeric',month:'short',timeZone:'UTC'}).format(new Date(month+'-01T12:00:00Z'));
 const overlaps=(item:PlanningItem,from:string,to:string)=>item.startMonth<=to&&item.endMonth>=from;
 export function usePlanning(demo:boolean,csrf:string){
- const [items,setItems]=useState<PlanningItem[]>([]),[loading,setLoading]=useState(!demo),[error,setError]=useState('');
+ // Goals/steps and routines share /api/planning; screens get them apart.
+ const [all,setItems]=useState<(PlanningItem|Routine)[]>([]),items=all.filter((item):item is PlanningItem=>item.kind!=='routine'),routines=all.filter((item):item is Routine=>item.kind==='routine'),[loading,setLoading]=useState(!demo),[error,setError]=useState('');
  const reload=useCallback(async()=>{
   if(demo)return items;
   setLoading(true);setError('');
-  try{const result=await request<{items:PlanningItem[]}>('/api/planning');setItems(result.items);return result.items;}
+  try{const result=await request<{items:(PlanningItem|Routine)[]}>('/api/planning');setItems(result.items);return result.items.filter((item):item is PlanningItem=>item.kind!=='routine');}
   catch(e){setError((e as Error).message);throw e;}finally{setLoading(false);}
  },[demo,items]);
- useEffect(()=>{if(demo)return;let alive=true;request<{items:PlanningItem[]}>('/api/planning').then(result=>{if(alive)setItems(result.items);}).catch(e=>{if(alive)setError(e.message);}).finally(()=>{if(alive)setLoading(false);});return()=>{alive=false;};},[demo]);
- async function save(item:PlanningItem){
-  const result=demo?{...item,version:item.version+1}:await request<PlanningItem>('/api/planning/'+item.id,'PUT',item,csrf);
+ useEffect(()=>{if(demo)return;let alive=true;request<{items:(PlanningItem|Routine)[]}>('/api/planning').then(result=>{if(alive)setItems(result.items);}).catch(e=>{if(alive)setError(e.message);}).finally(()=>{if(alive)setLoading(false);});return()=>{alive=false;};},[demo]);
+ async function save<T extends PlanningItem|Routine>(item:T){
+  const result=demo?{...item,version:item.version+1}:await request<T>('/api/planning/'+item.id,'PUT',item,csrf);
   setItems(old=>old.some(value=>value.id===result.id)?old.map(value=>value.id===result.id?result:value):[...old,result]);return result;
  }
- async function remove(item:PlanningItem){
-  if(demo){setItems(old=>old.filter(value=>value.id!==item.id).map(value=>value.parentId===item.id?{...value,parentId:null,version:value.version+1}:value));return;}
+ async function remove(item:PlanningItem|Routine){
+  if(demo){setItems(old=>old.filter(value=>value.id!==item.id).map(value=>value.kind!=='routine'&&value.parentId===item.id?{...value,parentId:null,version:value.version+1}:value));return;}
   await request('/api/planning/'+item.id,'DELETE',{version:item.version},csrf);await reload();
  }
- return {items,loading,error,reload,save,remove};
+ return {items,routines,loading,error,reload,save,remove};
 }
-type PlanningState=ReturnType<typeof usePlanning>;
+export type PlanningState=ReturnType<typeof usePlanning>;
 
 function PlanningDialog({initial,items,state,onClose,onReplace}:{initial:PlanningItem;items:PlanningItem[];state:PlanningState;onClose:()=>void;onReplace:(item:PlanningItem)=>void}){
  const [draft,setDraft]=useState(initial),[busy,setBusy]=useState(false),[error,setError]=useState(''),[conflict,setConflict]=useState(false);
@@ -75,6 +77,7 @@ export function PlanningBoard({date,period,state,onMonth,onQuarter}:{date:string
     {!groups.length&&<div className="annual-plan-empty"><p>{pair('올해 집중하고 싶은 목표를 하나 정해보세요. 각 분기에 세부 계획을 넣을 수 있어요.','Choose one goal for the year, then add steps to each quarter.')}</p><button className="secondary" onClick={()=>add('goal')}><Plus size={16}/>{pair('첫 목표 정하기','Set your first goal')}</button></div>}
    </>}
   </>}
+  <RoutineList state={state}/>
   {editing&&<PlanningDialog key={editing.id+'-'+editing.version} initial={editing} items={state.items} state={state} onClose={()=>setEditing(null)} onReplace={setEditing}/>}
  </section>;
 }

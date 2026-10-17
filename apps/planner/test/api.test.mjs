@@ -113,3 +113,15 @@ test('activity planningId keeps only the owner’s existing planning item and su
   assert.equal((await a.send('/api/days/2026-10-12','PUT',{version:saved.version,document:saved.document})).status,200);
   assert.equal(Object.hasOwn((await a.send('/api/days/2026-10-12')).value.document.plans[0],'planningId'),false);
 });
+test('routines are named entries in planning, owner-only, with version checks',async t=>{
+  const {client,register}=await fixture(t),a=client(),b=client();await register(a,'alice_routine');await register(b,'bob_routine');
+  const saved=await a.send('/api/planning/r1','PUT',{kind:'routine',title:'  운동  ',version:0});
+  assert.equal(saved.status,200);assert.deepEqual(saved.value,{kind:'routine',title:'운동',id:'r1',version:1});
+  assert.equal((await a.send('/api/planning/r1','PUT',{kind:'routine',title:'운동 30분',version:0})).status,409);
+  assert.equal((await a.send('/api/planning/r1','PUT',{kind:'routine',title:'',version:1})).status,400);
+  assert.equal((await a.send('/api/planning/r1','PUT',{kind:'goal',title:'목표',startMonth:'2026-10',endMonth:'2026-10',note:'',parentId:null,version:1})).status,400);
+  assert.deepEqual((await a.send('/api/planning')).value.items,[{kind:'routine',title:'운동',id:'r1',version:1}]);
+  assert.deepEqual((await b.send('/api/planning')).value.items,[]);
+  assert.equal((await a.send('/api/planning/r1','DELETE',{version:1})).status,200);
+  assert.deepEqual((await a.send('/api/planning')).value.items,[]);
+});

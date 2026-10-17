@@ -6,6 +6,19 @@ const rowValue=row=>{const {taskIds,...document}=JSON.parse(row.document);return
 export function listPlanning(db,userId){return db.prepare('SELECT id,document,version FROM planning WHERE user_id=? ORDER BY rowid').all(userId).map(rowValue);}
 export function savePlanning(db,userId,id,data,now){
  if(!Number.isInteger(data.version)||data.version<0)fail(400,'저장 버전을 확인해 주세요.');
+ // A routine is just a saved name the day view can drop onto the timetable.
+ if(data.kind==='routine'){
+  if(typeof data.title!=='string'||!data.title.trim()||data.title.length>100)fail(400,'루틴 이름을 1–100자로 입력해 주세요.');
+  return transaction(db,()=>{
+   const current=db.prepare('SELECT document,version FROM planning WHERE user_id=? AND id=?').get(userId,id);
+   if((current?.version||0)!==data.version)fail(409,'계획이 다른 기기에서 변경됐어요. 새로 불러온 뒤 확인해 주세요.');
+   if(current&&JSON.parse(current.document).kind!=='routine')fail(400,'계획 종류는 변경할 수 없어요.');
+   if(!current&&db.prepare("SELECT COUNT(*) n FROM planning WHERE user_id=? AND json_extract(document,'$.kind')='routine'").get(userId).n>=50)fail(400,'루틴은 50개까지 만들 수 있어요.');
+   const value={kind:'routine',title:data.title.trim()};
+   db.prepare('INSERT INTO planning VALUES(?,?,?,?,?) ON CONFLICT(user_id,id) DO UPDATE SET document=excluded.document,version=excluded.version,updated_at=excluded.updated_at').run(id,userId,JSON.stringify(value),data.version+1,now);
+   return {...value,id,version:data.version+1};
+  });
+ }
  if(!['goal','step'].includes(data.kind)||typeof data.title!=='string'||!data.title.trim()||data.title.length>200||!validMonth(data.startMonth)||!validMonth(data.endMonth)||data.startMonth>data.endMonth||typeof data.note!=='string'||data.note.length>2000)fail(400,'계획의 제목과 기간을 확인해 주세요.');
  const value={kind:data.kind,title:data.title.trim(),startMonth:data.startMonth,endMonth:data.endMonth,note:data.note,parentId:data.parentId||null};
  if(value.kind==='goal'&&value.parentId)fail(400,'목표에는 상위 목표를 연결하지 않아요.');

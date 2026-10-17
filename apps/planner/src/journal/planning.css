@@ -9,3 +9,14 @@
 @media(max-width:640px){.planning-toolbar{align-items:start;gap:12px;margin-top:8px}.planning-toolbar>p{font-size:12px;flex:1}.planning-focus>div{display:block}.planning-focus button{display:block;max-width:none;width:100%}.quarter-plan-columns{grid-template-columns:1fr;gap:28px}.quarter-plan-month>header h3{font-size:18px}.planning-step-title svg{opacity:1}.annual-plan-head{display:none}.annual-plan-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:0}.annual-goal-name{grid-column:1/-1;padding:20px 0 14px}.annual-quarter-cell{border-top:1px solid var(--line);padding:10px;min-height:116px}.annual-quarter-cell:nth-child(2),.annual-quarter-cell:nth-child(4){border-left:0}.annual-quarter-label{display:block;min-height:44px;padding:0;font-size:13px;font-weight:650}.annual-plan-step strong{font-size:12px}.planning-dialog form{padding:22px 18px}.planning-dialog input,.planning-dialog input[type=month],.planning-dialog select,.planning-dialog textarea{font-size:16px}.planning-dialog .form-actions{flex-wrap:wrap}.planning-context>summary{gap:8px}.planning-context>summary span{flex:1}}
 
 .planning-focus-goal{min-width:0;flex:1;max-width:340px}
+/* Routine list at the bottom of 계획. */
+.routine-list{margin-top:48px;padding-top:28px;border-top:1px solid var(--line);max-width:560px}
+.routine-list h2{font-size:18px}
+.routine-list>p{margin-top:8px;color:var(--muted);font-size:13px}
+.routine-list ul{list-style:none;margin:16px 0 0;padding:0}
+.routine-list li{display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--line)}
+.routine-list li input{border-color:transparent;background:transparent;padding:10px 4px}
+.routine-list li input:hover,.routine-list li input:focus{border-color:var(--line);background:var(--surface)}
+.routine-list li button{width:44px;height:44px;color:var(--muted);display:grid;place-items:center}
+.routine-list form{display:flex;gap:8px;margin-top:16px}
+.routine-list form .secondary{white-space:nowrap}

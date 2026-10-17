@@ -96,3 +96,9 @@
 /* Carry-over from an earlier day: one quiet action under a section heading. */
 .journal-carry{display:inline-flex;width:fit-content;justify-self:start;align-self:start;align-items:center;min-height:36px;margin:0 0 8px;padding:6px 10px;border-radius:8px;background:var(--hover);color:var(--action);font-size:12px;font-weight:600}
 .journal-carry:hover{background:var(--lime)}
+/* Routine chips: tap opens the time dialog, drag drops onto the grid (PC). */
+.journal-routines{margin-top:20px}
+.journal-routines-manage{font-size:12px;color:var(--muted)}
+.journal-routine-chips{display:flex;flex-wrap:wrap;gap:6px}
+.journal-routine-chips button{display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:6px 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line);background:var(--surface);font-size:13px;color:var(--ink)}
+.journal-routine-chips button:hover{background:var(--hover)}
