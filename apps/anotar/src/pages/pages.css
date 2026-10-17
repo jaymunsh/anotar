@@ -1191,3 +1191,12 @@
   color: var(--theme-muted);
   text-decoration: line-through;
 }
+
+/* #태그 inside a page (tagHighlight.ts). */
+.page-tag {
+  color: var(--theme-accent);
+}
+.bn-editor .page-tag:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

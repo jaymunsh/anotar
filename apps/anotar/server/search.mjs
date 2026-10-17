@@ -1,3 +1,4 @@
+import { extractTags, pageTagText } from '../shared/tags.ts';
 import {initializeExtendedSearch} from './searchExtensions.mjs';
 import { pageTransaction } from './pageConnections.mjs';
 import {
@@ -223,12 +224,40 @@ export function createSearchStore(db) {
       context,
     };
   }
+  // ponytail: tags are read straight from search_documents (instr scan); add a tag index table if this gets slow.
+  const taggedRows = (needle, type) =>
+    db
+      .prepare(
+        `SELECT * FROM search_documents WHERE category IN ('memo','ai','page','task')
+         ${type === 'all' ? '' : 'AND category=?'} AND instr(lower(title||char(10)||body),?)>0
+         ORDER BY updated_at DESC,row_id DESC LIMIT 2000`,
+      )
+      .all(...(type === 'all' ? [] : [type]), needle);
+  const pageDocument = db.prepare('SELECT document FROM pages WHERE id=?');
+  // Pages are read from their document so code spans and links don't make tags (the index text drops marks).
+  const rowTags = (row) =>
+    extractTags(
+      row.title + '\n' +
+        (row.target_kind === 'page' ? pageTagText(JSON.parse(pageDocument.get(row.target_id)?.document ?? 'null')) : row.body),
+    );
   return {
     rebuildSearchIndex,
+    listTags() {
+      const counts = new Map();
+      for (const row of taggedRows('#', 'all'))
+        for (const tag of rowTags(row)) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+      return [...counts].map(([tag, count]) => ({ tag, count })).sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+    },
     searchRecords({ query = '', type = 'all', cursor = null } = {}) {
       if (typeof query !== 'string' || query.length > 160)
         throw new SearchValidationError('검색어는 160자까지 입력해 주세요.');
       if (!types.includes(type)) throw new SearchValidationError('검색 종류가 올바르지 않아요.');
+      const tag = query.trim().match(/^#([^\s#]+)$/u)?.[1]?.toLowerCase();
+      if (tag) {
+        // Exact tag: #교토 finds #교토 but not #교토여행 or plain 교토.
+        const rows = taggedRows('#' + tag, type).filter((row) => rowTags(row).includes(tag));
+        return { items: rows.slice(0, 20).map((row) => result(row, [])), nextCursor: null, reset: false, reason: null };
+      }
       const q = foldSearchText(query);
       const terms = q ? [...new Set(q.split(' '))] : [];
       if (q && q.split(' ').length > 12)

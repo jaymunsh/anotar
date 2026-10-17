@@ -41,13 +41,15 @@ export default function SearchPalette({
   onNavigate,
   onCommand,
   pageId,
+  initialQuery = '',
 }: {
+  initialQuery?: string;
   onClose: () => void;
   onNavigate: (path: string) => void;
   onCommand?: (id: WorkspaceCommandId) => void;
   pageId?: string | null;
 }) {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const [mode, setMode] = useState<'search' | 'commands'>('search');
   const commands = workspaceCommands(query, Boolean(pageId));
   function executeCommand(id: WorkspaceCommandId) {
@@ -68,7 +70,11 @@ export default function SearchPalette({
   const generation = useRef(0);
   const controller = useRef<AbortController | null>(null);
   const listId = useId();
+  // "#" alone lists every tag; picking one searches "#tag".
+  const tagList = mode === 'search' && query.trim() === '#';
+  const [tags, setTags] = useState<{ tag: string; count: number }[] | null>(null);
   const short =
+    !tagList &&
     query.trim().length > 0 &&
     !query
       .trim()
@@ -120,8 +126,8 @@ export default function SearchPalette({
     setIndex(0);
     setMore(false);
     setError(null);
-    setLoading(mode === 'search' && !composing && !short);
-    if (mode === 'commands' || composing || short) return;
+    setLoading(mode === 'search' && !composing && !short && !tagList);
+    if (mode === 'commands' || composing || short || tagList) return;
     const abort = new AbortController();
     controller.current = abort;
     const timer = window.setTimeout(
@@ -145,7 +151,17 @@ export default function SearchPalette({
       controller.current?.abort();
       ++generation.current;
     };
-  }, [query, type, reload, composing, short, mode]);
+  }, [query, type, reload, composing, short, mode, tagList]);
+
+  useEffect(() => {
+    if (!tagList) return;
+    const abort = new AbortController();
+    void fetch('/api/tags', { signal: abort.signal })
+      .then((response) => (response.ok ? response.json() : { items: [] }))
+      .then((data: { items: { tag: string; count: number }[] }) => setTags(data.items))
+      .catch(() => {});
+    return () => abort.abort();
+  }, [tagList, reload]);
 
   useEffect(() => {
     panel.current
@@ -235,7 +251,7 @@ export default function SearchPalette({
             value={query}
             maxLength={160}
             aria-label="통합 검색어"
-            placeholder={mode === 'commands' ? '실행할 작업 찾기' : '메모, 페이지, 파일 찾기'}
+            placeholder={mode === 'commands' ? '실행할 작업 찾기' : '메모, 페이지, 파일 찾기 · # 태그'}
             onChange={(event) => changeQuery(event.target.value)}
             onCompositionStart={() => {
               invalidate();
@@ -392,9 +408,20 @@ export default function SearchPalette({
                 );
               })}
           </div>
+          {tagList && (
+            <div className="search-tags" aria-label="태그">
+              {tags?.length
+                ? tags.map(({ tag, count }) => (
+                    <button key={tag} type="button" onClick={() => changeQuery('#' + tag)}>
+                      #{tag} <span>{count}</span>
+                    </button>
+                  ))
+                : <p>{tags ? '아직 태그가 없어요. 메모나 페이지에 #태그 를 쓰면 생겨요.' : '태그를 불러오는 중…'}</p>}
+            </div>
+          )}
           <div role="status" aria-live="polite" className="search-status">
-            {mode === 'commands' ? (
-              commands.length ? null : (
+            {mode === 'commands' || tagList ? (
+              tagList || commands.length ? null : (
                 <p>일치하는 작업이 없어요.</p>
               )
             ) : composing ? (
@@ -435,7 +462,9 @@ export default function SearchPalette({
         <p className="page-search-foot">
           {mode === 'commands'
             ? '실행할 작업을 선택하세요'
-            : query.trim()
+            : query.trim().startsWith('#')
+              ? '태그 · 메모 · 페이지 · 할 일'
+              : query.trim()
               ? '메모 · 페이지 본문 · 파일명'
               : '최근 기록'}
           <span>↑↓ 선택 · Enter 열기 · Esc 닫기</span>

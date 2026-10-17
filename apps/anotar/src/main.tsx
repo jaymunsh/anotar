@@ -68,6 +68,7 @@ import { kstToday, parseDueDate, shortDue } from './tasks/dueDate';
 const PageWorkspace = React.lazy(() => import('./pages/PageWorkspace'));
 const SyncConflictReview = React.lazy(() => import('./sync/SyncConflictReview'));
 const SearchPalette = React.lazy(() => import('./search/SearchPalette'));
+import { openSearchEvent } from './search/openSearch';
 const PromptWorkspace = React.lazy(() => import('./prompts/PromptWorkspace'));
 const AiRequestFields = React.lazy(() => import('./prompts/AiRequestFields'));
 const AssetOcr = React.lazy(() => import('./ocr/AssetOcr'));
@@ -267,6 +268,15 @@ function App() {
     /^\/capture\/?$/.test(window.location.pathname),
   );
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  useEffect(() => {
+    const open = (event: Event) => {
+      setSearchQuery((event as CustomEvent<string>).detail);
+      setSearchOpen(true);
+    };
+    window.addEventListener(openSearchEvent, open);
+    return () => window.removeEventListener(openSearchEvent, open);
+  }, []);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [aiSettingsRequested, setAiSettingsRequested] = useState(false);
   const [storageSettingsRequested, setStorageSettingsRequested] = useState(false);
@@ -1237,7 +1247,12 @@ function App() {
         {searchOpen && (
           <React.Suspense fallback={null}>
             <SearchPalette
-              onClose={() => setSearchOpen(false)}
+              key={searchQuery}
+              initialQuery={searchQuery}
+              onClose={() => {
+                setSearchOpen(false);
+                setSearchQuery('');
+              }}
               onNavigate={navigate}
               pageId={route.pageId}
               onCommand={(id) => void executeWorkspaceCommand(id)}

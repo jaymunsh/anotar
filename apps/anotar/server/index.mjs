@@ -578,6 +578,8 @@ const server = createServer(async (request, response) => {
       if (request.method === 'POST')
         return json(response, 200, { item: store.ensureStagingPage() });
     }
+    if (request.method === 'GET' && url.pathname === '/api/tags')
+      return json(response, 200, { items: store.listTags() });
     if (request.method === 'GET' && url.pathname === '/api/search')
       return json(
         response,

@@ -122,6 +122,7 @@ import {
 import { PageNavContext } from './pageNav';
 import { createPageLinkBlockSpec, getPageLinkSlashMenuItems } from './PageLinkBlock';
 import { getPageMentionItems } from './pageMention';
+import { tagHighlightPlugin } from './tagHighlight';
 import { createBookmarkBlockSpec, refreshBookmark } from './BookmarkBlock';
 import { createCalloutBlockSpec, getCalloutSlashMenuItems } from './CalloutBlock';
 import { calloutIcons, calloutIconLabels } from '../../shared/callout';
@@ -194,6 +195,7 @@ const schema = BlockNoteSchema.create({
 // 기본 `>` 인용 규칙은 quote-block-shortcuts를 꺼서 제거합니다.
 const notionInputShortcuts = createExtension({
   key: 'notion-input-shortcuts',
+  prosemirrorPlugins: [tagHighlightPlugin],
   inputRules: [
     {
       find: /^>\s$/,
