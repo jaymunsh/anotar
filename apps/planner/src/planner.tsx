@@ -1,6 +1,6 @@
 import {t,pair,getLanguage,LanguageSelect} from './i18n';
 import React,{useEffect,useRef,useState} from 'react';
-import {ArrowRight,Check,ChevronLeft,ChevronRight,Plus,Trash2,Download,Settings,Save} from 'lucide-react';
+import {X,ArrowRight,Check,ChevronLeft,ChevronRight,Plus,Trash2,Download,Settings,Save} from 'lucide-react';
 import {ApiError,Day,Entry,Plan,PlanningItem,User,clock,download,duration,emptyDay,recorded,request,today} from './api';
 
 const copy=<T,>(value:T):T=>structuredClone(value);
@@ -68,9 +68,9 @@ export function ItemForm({editor,planning=[],onSave,onCancel,onDelete,onDirty,he
   return <form className="item-form" onSubmit={submit}><h2 id={headingId}>{item&&!editor.newItem?t("항목 수정"):editor.kind==='plan'?t("계획 추가"):t("실제로 한 일 기록")}</h2><label htmlFor="item-title">{t("활동")}</label><input id="item-title" autoFocus required maxLength={200} value={title} onChange={e=>setTitle(e.target.value)} placeholder={t("무엇을 할까요?")}/>
     <div className="form-pair"><label>{t("시작")}<select value={start} onChange={e=>setStart(e.target.value)} required>{times(0,1430,start).map(t=><option key={t}>{t}</option>)}</select></label><label>{t("종료")}<select value={end} onChange={e=>setEnd(e.target.value)} required>{times(10,1440,end).map(t=><option key={t}>{t}</option>)}</select></label></div>
     {editor.kind==='plan'&&planning.length>0&&<label className="planning-pick">{pair('계획','Plan')}<select aria-label={pair('연결할 계획','Related plan')} value={planningId} onChange={e=>setPlanningId(e.target.value)}><option value="">{pair('연결 안 함','No plan')}</option>{recent.length>0&&<optgroup label={pair('최근 선택','Recent')}>{recent.map(p=><option value={p.id} key={'r'+p.id}>{p.title}</option>)}</optgroup>}<optgroup label={pair('이번 달 계획','This month')}>{rest.map(p=><option value={p.id} key={p.id}>{p.title}</option>)}</optgroup></select></label>}
-    {editor.kind==='plan'&&<label className="missed-field"><input type="checkbox" checked={status==='missed'} onChange={e=>setStatus(e.target.checked?'missed':'pending')}/>{pair('미이행','Unfinished')}</label>}
+    
     {plan&&<p className="muted">{pair(`‘${plan.title}’ 계획에 연결해요. 실제 시간은 수정할 수 있어요.`, `Linked to “${plan.title}”. You can adjust the actual times.`)}</p>}{error&&<p role="alert" className="error">{t(error)}</p>}
-    <div className="form-actions">{item&&!editor.newItem&&<button type="button" className="danger text-button" onClick={onDelete}><Trash2 size={16}/>{t("항목 삭제")}</button>}<button type="button" onClick={onCancel} className="secondary">{t("취소")}</button><button className="primary"><Check size={16}/>{t("저장")}</button></div></form>;
+    <div className="form-actions">{item&&!editor.newItem&&<button type="button" className="danger text-button" onClick={onDelete}><Trash2 size={16}/>{t("항목 삭제")}</button>}{editor.kind==='plan'&&<button type="button" className="secondary missed-toggle" aria-pressed={status==='missed'} onClick={()=>setStatus(status==='missed'?'pending':'missed')}><X size={16}/>{pair('미이행','Unfinished')}</button>}<button type="button" onClick={onCancel} className="secondary">{t("취소")}</button><button className="primary"><Check size={16}/>{t("저장")}</button></div></form>;
 }
 
 export function SettingsPage({user,csrf}:{user:User;csrf:string}){

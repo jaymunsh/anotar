@@ -33,12 +33,12 @@
 .activity-dialog .item-form{border:0;margin:0;padding:24px;background:transparent}
 .activity-dialog .item-form h2{font-size:20px;padding-right:36px;margin-bottom:20px}
 .activity-close{position:absolute;right:12px;top:12px;min-width:44px;min-height:44px;color:var(--muted)}
-.item-form .missed-field{display:flex;align-items:center;gap:8px;margin-top:16px;font-size:14px;color:var(--ink)}
 .activity-dialog .item-form .planning-pick{margin:16px 0 0}
 .activity-dialog .form-actions{justify-content:flex-end;gap:8px;margin-top:28px}
 .activity-dialog .form-actions>button{min-height:40px;margin:0;padding:0 16px;font-size:14px;letter-spacing:0}
 .activity-dialog .form-actions>.danger{margin-right:auto;padding:0 8px}
-.item-form .missed-field input{width:16px;min-height:16px;margin:0;accent-color:var(--action)}
+.activity-dialog .missed-toggle{gap:4px;color:var(--muted)}
+.activity-dialog .missed-toggle[aria-pressed=true]{background:#f9e9e6;color:#9c3431;box-shadow:inset 0 0 0 1px #e8c4bf}
 
 @media(max-width:640px){.activity-dialog .item-form{padding:22px 18px}.activity-dialog .form-actions{gap:8px;flex-wrap:wrap}}
 .period-overview{padding-top:8px}.period-overview h2{font-size:17px;margin-bottom:20px;font-variant-numeric:tabular-nums}
