@@ -57,22 +57,30 @@ export function useDay(date:string,user:User|undefined,csrf:string,demo:boolean)
 
 // 10-minute steps plus the current value, so odd times from drag or old data stay selectable.
 export const times=(from:number,to:number,current:string)=>Array.from({length:(to-from)/10+1},(_,i)=>clock(from+i*10)).concat(current).filter((t,i,a)=>a.indexOf(t)===i).sort();
+// Activities after `from` that [start,end) would overlap, moved later just enough to clear it (chain-wise); null if any would pass 24:00.
+export function ripple(others:Plan[],from:number,start:number,end:number):Plan[]|null{
+  const moved:Plan[]=[];let cursor=end;
+  for(const p of others.filter(p=>p.status!=='cancelled'&&p.start>=from&&p.end>start).sort((a,b)=>a.start-b.start)){if(p.start>=cursor)break;const next=p.end+cursor-p.start;if(next>1440)return null;moved.push({...p,start:cursor,end:next});cursor=next;}
+  return moved;
+}
 export type Editor={newItem?:boolean;kind:'plan'|'entry';item?:Plan|Entry;plan?:Plan;draftId?:string;originalTitle?:string};
-export function ItemForm({editor,planning=[],onSave,onCancel,onDelete,onDirty,headingId}:{editor:Editor;planning?:PlanningItem[];onSave:(item:Plan|Entry)=>void;onCancel:()=>void;onDelete:()=>void;onDirty:(dirty:boolean)=>void;headingId?:string}){
+export function ItemForm({editor,planning=[],others=[],onSave,onCancel,onDelete,onDirty,headingId}:{editor:Editor;planning?:PlanningItem[];others?:Plan[];onSave:(item:Plan|Entry,moved?:Plan[])=>void;onCancel:()=>void;onDelete:()=>void;onDirty:(dirty:boolean)=>void;headingId?:string}){
   const item=editor.item,plan=editor.plan;
-  const [title,setTitle]=useState(item?.title||plan?.title||''),[start,setStart]=useState(clock(item?.start??plan?.start??540)),[end,setEnd]=useState(clock(item?.end??plan?.end??600)),[status,setStatus]=useState<Plan['status']>((item as Plan)?.status||'pending'),[planningId,setPlanningId]=useState((item as Plan)?.planningId||''),[error,setError]=useState('');
+  const [title,setTitle]=useState(item?.title||plan?.title||''),[start,setStart]=useState(clock(item?.start??plan?.start??540)),[end,setEnd]=useState(clock(item?.end??plan?.end??600)),[status,setStatus]=useState<Plan['status']>((item as Plan)?.status||'pending'),[planningId,setPlanningId]=useState((item as Plan)?.planningId||''),[error,setError]=useState(''),[pushed,setPushed]=useState(false);
   const recent=recentIds().map(id=>planning.find(p=>p.id===id)).filter((p):p is PlanningItem=>Boolean(p)),rest=planning.filter(p=>!recent.includes(p));
   const initial=useRef(JSON.stringify([title,start,end,status,planningId]));
   useEffect(()=>{onDirty(JSON.stringify([title,start,end,status,planningId])!==initial.current);},[title,start,end,status,planningId,onDirty]);
-  // 미루기: move this one item later, keeping its length (24:00 is the wall). Saved with 저장.
-  function shift(n:number){const m=(v:string)=>Number(v.slice(0,2))*60+Number(v.slice(3)),a=m(start),b=m(end),next=Math.min(a+n,1440-Math.max(10,b-a));setStart(clock(next));setEnd(clock(Math.min(1440,next+Math.max(10,b-a))));}
+  // 미루기 keeps the length; later activities it would now overlap move just enough (never past 24:00, never into tomorrow).
+  const toMinutes=(v:string)=>Number(v.slice(0,2))*60+Number(v.slice(3));
+  const shifted=(n:number):[number,number]|null=>{const a=toMinutes(start)+n,b=toMinutes(end)+n;return b<=1440&&ripple(others,item?.start??a,a,b)?[a,b]:null;};
+  const moved=pushed?ripple(others,item?.start??toMinutes(start),toMinutes(start),toMinutes(end)):null;
   function submit(e?:React.FormEvent,nextStatus=status){e?.preventDefault();const minutes=(s:string)=>{const [h,m]=s.split(':').map(Number);return h*60+m;};const a=minutes(start),b=minutes(end);
     if(!title.trim()||!Number.isFinite(a)||!Number.isFinite(b)||b<=a){setError("제목을 적고 종료 시간을 시작 시간 뒤로 맞춰 주세요.");return;}
-    const value={id:item?.id||uuid(),title:title.trim(),start:a,end:b,...((item as Plan)?.priorityId?{priorityId:(item as Plan).priorityId}:{})};if(editor.kind==='plan'&&planningId)rememberPlanning(planningId);onSave(editor.kind==='plan'?{...value,status:nextStatus,...(planningId?{planningId}:{})}:{...value,...((item as Entry)?.planId||plan?.id?{planId:(item as Entry)?.planId||plan?.id}:{})});
+    const value={id:item?.id||uuid(),title:title.trim(),start:a,end:b,...((item as Plan)?.priorityId?{priorityId:(item as Plan).priorityId}:{})};if(editor.kind==='plan'&&planningId)rememberPlanning(planningId);if(editor.kind==='plan'&&pushed&&!moved){setError('뒤 일정을 밀면 24:00을 넘어요. 시간을 다시 골라 주세요.');return;}onSave(editor.kind==='plan'?{...value,status:nextStatus,...(planningId?{planningId}:{})}:{...value,...((item as Entry)?.planId||plan?.id?{planId:(item as Entry)?.planId||plan?.id}:{})},moved||undefined);
   }
   return <form className="item-form" onSubmit={submit}><h2 id={headingId}>{item&&!editor.newItem?t("항목 수정"):editor.kind==='plan'?t("계획 추가"):t("실제로 한 일 기록")}</h2><label htmlFor="item-title">{t("활동")}</label><input id="item-title" autoFocus required maxLength={200} value={title} onChange={e=>setTitle(e.target.value)} placeholder={t("무엇을 할까요?")}/>
     <div className="form-pair"><label>{t("시작")}<select value={start} onChange={e=>setStart(e.target.value)} required>{times(0,1430,start).map(t=><option key={t}>{t}</option>)}</select></label><label>{t("종료")}<select value={end} onChange={e=>setEnd(e.target.value)} required>{times(10,1440,end).map(t=><option key={t}>{t}</option>)}</select></label></div>
-    <div className="form-shift" role="group" aria-label={pair('이 일정 미루기','Push this back')}><span>{pair('미루기','Push back')}</span>{[10,30,60].map(n=><button type="button" key={n} onClick={()=>shift(n)}>+{duration(n)}</button>)}</div>
+    {editor.kind==='plan'&&<div className="form-shift" role="group" aria-label={pair('이 일정 미루기','Push this back')}><span>{pair('미루기','Push back')}</span>{[10,30,60].map(n=>{const next=shifted(n);return <button type="button" key={n} disabled={!next} title={next?undefined:pair('24:00을 넘겨 미룰 수 없어요','Can’t go past midnight')} onClick={()=>{if(!next)return;setStart(clock(next[0]));setEnd(clock(next[1]));setPushed(true);}}>+{duration(n)}</button>;})}{pushed&&moved&&moved.length>0&&<small>{pair(`뒤 일정 ${moved.length}개도 함께 밀려요`,`${moved.length} later ${moved.length>1?'activities move':'activity moves'} too`)}</small>}</div>}
     {editor.kind==='plan'&&planning.length>0&&<label className="planning-pick">{pair('계획','Plan')}<select aria-label={pair('연결할 계획','Related plan')} value={planningId} onChange={e=>setPlanningId(e.target.value)}><option value="">{pair('연결 안 함','No plan')}</option>{recent.length>0&&<optgroup label={pair('최근 선택','Recent')}>{recent.map(p=><option value={p.id} key={'r'+p.id}>{p.title}</option>)}</optgroup>}<optgroup label={pair('이번 달 계획','This month')}>{rest.map(p=><option value={p.id} key={p.id}>{p.title}</option>)}</optgroup></select></label>}
     
     {plan&&<p className="muted">{pair(`‘${plan.title}’ 계획에 연결해요. 실제 시간은 수정할 수 있어요.`, `Linked to “${plan.title}”. You can adjust the actual times.`)}</p>}{error&&<p role="alert" className="error">{t(error)}</p>}

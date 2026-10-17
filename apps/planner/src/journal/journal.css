@@ -308,11 +308,6 @@
  .journal-page .journal-routines>.planning-context-more{margin-left:auto}
 }
 .journal-routine-chips button span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* +30 on the block under way (hover), beside the × */
-.journal-plan-push{display:none;flex-shrink:0;margin-left:auto;padding:0 5px;border-radius:3px;font-size:10px;font-weight:700;color:#8a6a12;cursor:pointer;font-variant-numeric:tabular-nums}
-.journal-plan-push:hover{background:rgba(255,255,255,.7)}
-.journal-plan-push+.journal-plan-miss{margin-left:4px}
-@media(hover:hover){.journal-plan:hover .journal-plan-push{display:inline-flex}}
 /* 하루 틀 menu beside the timetable heading */
 .journal-schedule-title{display:flex;align-items:center;gap:6px}
 .journal-template{position:relative}

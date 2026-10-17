@@ -31,7 +31,7 @@ export function Guide(){
   <ul>
    <li>{pair('한 줄이 한 시간, 한 칸이 10분이에요. 빈 칸을 누르면 그 시각에 새 일정이 생기고, 블록을 누르면 고칠 수 있어요.','Each row is an hour and each cell 10 minutes. Click an empty cell for a new plan; click a block to edit it.')}</li>
    <li>{pair('마우스로 블록을 끌어 옮기고, 블록 오른쪽 끝을 끌어 길이를 바꿔요. 10분 단위로 맞춰져요.','Drag a block to move it, drag its right edge to change its length, in 10-minute steps.')}</li>
-   <li>{pair('오늘을 볼 때는 빨간 선이 지금 시각이에요. 지금 하고 있어야 할 일정은 노란색으로 강조돼요. 계획이 밀렸으면 그 블록에 마우스를 올려 ‘+30’을 누르면 그 일정과 뒤 일정이 함께 30분 밀려요.','When viewing today, the red line is now, and the block in progress is outlined. The block under way is highlighted; running late? Hover it and press +30 to push it and everything after it back.')}</li>
+   <li>{pair('오늘을 볼 때는 빨간 선이 지금 시각이에요. 지금 하고 있어야 할 일정은 노란색으로 강조돼요. 계획이 밀렸으면 일정 창의 ‘미루기 +10분·+30분·+1시간’을 눌러요. 겹치게 되는 뒤 일정만 함께 밀리고, 24:00을 넘기지는 않아요.','When viewing today, the red line is now, and the block in progress is outlined. The block under way is highlighted; running late? In its dialog, Push back +10/+30/+1 hr moves it, and only the later activities it would overlap, never past midnight.')}</li>
    <li>{pair('‘하루’와 ‘목록’ 보기를 바꿀 수 있어요. 폰은 목록으로 시작해요.','Switch between Day and List. Phones start with the list.')}</li>
    <li>{pair('블록마다 완료를 표시할 필요는 없어요. 끝난 건 할 일 체크로 충분하고, 못 한 일정만 블록에 마우스를 올려 ×를 누르거나 일정 창에서 ‘미이행’ 버튼을 눌러요. 취소선으로 표시돼요.','You don’t need to mark each block. Checking tasks is enough; for a plan you skipped, hover it and press × or press Unfinished in its window. It gets a strike-through.')}</li>
   </ul>
