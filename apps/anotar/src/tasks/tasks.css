@@ -681,3 +681,20 @@
     background: transparent;
   }
 }
+
+/* Due date, then 작성/완료 day, on one quiet line. */
+.task-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+.task-dates .task-due {
+  display: inline;
+}
+.task-stamp {
+  margin-top: 1px;
+  color: var(--theme-subtle, var(--theme-muted));
+  font-size: 11px;
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
+}

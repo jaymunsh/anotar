@@ -63,15 +63,23 @@ const jsonRequest = (method: string, body: unknown) => ({
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(body),
 });
-function koreanToday() {
+function koreanToday(at = new Date()) {
   const parts = new Intl.DateTimeFormat('en', {
     timeZone: 'Asia/Seoul',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).formatToParts(new Date());
+  }).formatToParts(at);
   const part = (type: string) => parts.find((value) => value.type === type)!.value;
   return `${part('year')}-${part('month')}-${part('day')}`;
+}
+/** When a task was written (open) or finished (done): 오늘 · 어제 · 10월 3일. */
+function stampLabel(iso: string, today: string) {
+  const day = koreanToday(new Date(iso));
+  if (day === today) return '오늘';
+  if (day === koreanToday(new Date(Date.parse(today + 'T12:00:00+09:00') - 864e5))) return '어제';
+  const [year, month, date] = day.split('-').map(Number);
+  return `${year !== Number(today.slice(0, 4)) ? `${year}년 ` : ''}${month}월 ${date}일`;
 }
 function dateLabel(date: string, today: string) {
   if (date === today) return '오늘까지';
@@ -588,14 +596,27 @@ export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate
               <span>{task.title}</span>
               <Pencil size={12} aria-hidden="true" />
             </button>
-            {task.dueDate && (
-              <time
-                className={`task-due ${task.status === 'open' && task.dueDate < today ? 'task-overdue' : ''}`}
-                dateTime={task.dueDate}
-              >
-                {dateLabel(task.dueDate, today)}
-              </time>
-            )}
+            <span className="task-dates">
+              {task.dueDate && (
+                <time
+                  className={`task-due ${task.status === 'open' && task.dueDate < today ? 'task-overdue' : ''}`}
+                  dateTime={task.dueDate}
+                >
+                  {dateLabel(task.dueDate, today)}
+                </time>
+              )}
+              {task.status === 'done' ? (
+                task.completedAt && (
+                  <time className="task-stamp" dateTime={task.completedAt}>
+                    완료 {stampLabel(task.completedAt, today)}
+                  </time>
+                )
+              ) : (
+                <time className="task-stamp" dateTime={task.createdAt}>
+                  작성 {stampLabel(task.createdAt, today)}
+                </time>
+              )}
+            </span>
             {task.pageId && (
               <a
                 className="task-page-link"

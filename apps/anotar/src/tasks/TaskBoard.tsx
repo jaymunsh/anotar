@@ -32,6 +32,8 @@ type Props = {
   activeTask: Task | null;
 };
 
+const DONE_PREVIEW = 5;
+
 export default function TaskBoard({
   columns,
   counts,
@@ -45,6 +47,8 @@ export default function TaskBoard({
 }: Props) {
   const [active, setActive] = useState<TaskStage>('todo');
   const [over, setOver] = useState<TaskStage | null>(null);
+  // Finished work piles up: show the latest few, expand on request.
+  const [allDone, setAllDone] = useState(false);
   useEffect(() => {
     if (activeTask) setActive(activeTask.stage);
   }, [activeTask?.id, activeTask?.stage]);
@@ -69,7 +73,11 @@ export default function TaskBoard({
       <div className="task-board" aria-busy={loading} onDragEnd={() => setOver(null)}>
         {taskStages.map((stage) => {
           const Icon = icons[stage];
-          const tasks = [...all.values()].filter((task) => task.stage === stage);
+          const staged = [...all.values()].filter((task) => task.stage === stage);
+          if (stage === 'done')
+            staged.sort((a, b) => (b.completedAt || '').localeCompare(a.completedAt || ''));
+          const hidden = stage === 'done' && !allDone ? Math.max(0, staged.length - DONE_PREVIEW) : 0;
+          const tasks = hidden ? staged.slice(0, DONE_PREVIEW) : staged;
           return (
             <section
               key={stage}
@@ -112,7 +120,16 @@ export default function TaskBoard({
                         : '새로운 할 일을 추가해보세요.'}
                 </p>
               )}
-              {columns[stage].nextCursor && (
+              {hidden > 0 && (
+                <button
+                  className="task-text-button task-board-more"
+                  onClick={() => setAllDone(true)}
+                >
+                  <ArrowDown size={14} aria-hidden="true" />
+                  완료 {hidden}개 더 보기
+                </button>
+              )}
+              {!hidden && columns[stage].nextCursor && (
                 <button
                   className="task-text-button task-board-more"
                   disabled={locked || loading}
