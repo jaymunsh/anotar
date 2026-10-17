@@ -37,3 +37,18 @@
 
 
 
+/* Week, quieter: short plans are readable blocks instead of hairlines, goal stripe, today and now. */
+.week-activity.short{min-height:13px;padding:0 3px;line-height:13px;font-size:9px}
+.week-activity.short span{display:block;white-space:nowrap;-webkit-line-clamp:unset}
+.week-activity[data-tag]{border-left:3px solid var(--tag)}
+.week-day.today .week-day-heading{background:var(--lime)}
+.week-day.weekend .week-day-track{background-color:rgba(32,50,45,.025)}
+.week-now{position:absolute;left:0;right:0;height:2px;margin-top:-1px;background:var(--danger);z-index:3;pointer-events:none}
+.week-now::before{content:'';position:absolute;left:-3px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--danger)}
+/* Month: a cell is time planned, priorities done and the first three plans. */
+.month-summary{display:flex;gap:8px;align-items:baseline;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;min-height:16px}
+.month-summary b{font-weight:600;color:var(--ink)}.month-summary b.all-done{color:var(--action)}
+.month-activities>span[data-tag]{border-left:3px solid var(--tag)}
+.month-more{font-size:10px;color:var(--muted)}
+.month-day.weekend{background-color:rgba(32,50,45,.025)}
+.month-day.today{box-shadow:inset 0 0 0 2px var(--action)}

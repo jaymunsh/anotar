@@ -216,3 +216,6 @@
 @media(max-width:640px){.weekly-stats{gap:8px}.weekly-stats>div{padding:10px}.weekly-stats dd{font-size:18px}.weekly-notes li{grid-template-columns:1fr;gap:2px}}
 @media(max-width:640px){.weekly-stats dd{font-size:16px}}
 .journal-review-more>summary{padding:14px 0;font-size:13px;color:var(--action);cursor:pointer}
+/* Year/quarter/month selects: one quiet chevron instead of the native arrow. */
+.journal-broad-picker select{appearance:none;-webkit-appearance:none;padding:8px 30px 8px 12px;border-radius:8px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23586c5c' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;cursor:pointer}
+.journal-broad-picker select:hover{border-color:var(--focus)}

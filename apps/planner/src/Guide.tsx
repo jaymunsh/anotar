@@ -43,7 +43,7 @@ export function Guide(){
 
   <h2>{pair('주간 · 월간 · 되짚어보기','Week, month and review')}</h2>
   <ul>
-   <li>{pair('주간·월간은 그 기간의 기록을 한눈에 보여 줘요. 날짜를 누르면 그날로 가요.','Week and Month show the period at a glance; click a date to open that day.')}</li>
+   <li>{pair('주간·월간은 그 기간의 기록을 한눈에 보여 줘요. 날짜를 누르면 그날로 가요. 월간 칸에는 계획한 시간, 꼭 할 일 완료(✓ 2/3), 일정 3개까지가 보여요. 계획에 연결된 일정에는 그 계획 색 띠가 붙어요.','Week and Month show the period at a glance; click a date to open that day. A month cell shows time planned, priorities done (✓ 2/3) and up to three plans; plans linked to a goal carry its color.')}</li>
    <li>{pair('되짚어보기는 한 주를 모아 보여 줘요: 계획한 시간, 꼭 할 일 완료, 목표별 시간, 그 주에 쓴 하루 돌아보기. 따로 적을 건 없어요. 아래에는 미이행으로 표시한 계획이 있고 바로 다시 계획할 수 있어요.','Review gathers a week: time planned, priorities done, time per goal and that week’s daily reviews, with nothing extra to fill in. Below are plans you marked unfinished, ready to plan again.')}</li>
   </ul>
 
