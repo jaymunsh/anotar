@@ -2,6 +2,7 @@
 //   node scripts/seed-examples.mjs [DATA_DIR]          (default: $DATA_DIR or ./data)
 // Additive only: a page whose id already exists is skipped, never overwritten.
 // Page ids are kept so the guide's link to the architecture page keeps working.
+import { randomUUID } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { openStore } from '../server/store.mjs';
@@ -17,7 +18,8 @@ files.sort((a, b) => order.indexOf(a.replace('.page.json', '')) - order.indexOf(
 const store = openStore(dataDir);
 const result = { dataDir, created: [], skipped: [] };
 try {
-  if (!store.getPage(parentId)) {
+  const newParent = !store.getPage(parentId);
+  if (newParent) {
     store.createPage({ syncId: parentId, title: 'Anotar 안내', icon: '📚' });
     result.created.push('Anotar 안내');
   }
@@ -29,6 +31,12 @@ try {
     }
     store.createPage({ syncId: page.id, title: page.title, icon: page.icon, parentId, document: page.document });
     result.created.push(page.title);
+  }
+  // Write the child links now, in the editor's normalized shape, so the first open does not save a new version.
+  if (newParent) {
+    const parent = store.getPage(parentId);
+    const blank = { id: randomUUID(), type: 'paragraph', props: { backgroundColor: 'default', textColor: 'default', textAlignment: 'left' }, content: [], children: [] };
+    store.updatePage({ ...parent, document: store.withChildPageLinks(parentId, { schemaVersion: 1, blocks: [blank] }), expectedVersion: parent.version });
   }
 } finally {
   store.close();
