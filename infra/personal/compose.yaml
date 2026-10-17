@@ -1,4 +1,4 @@
-# Personal stack: anotar (private app) + memory viewer behind one Caddy edge.
+# Personal stack: anotar (private app) + memory (wiki data) behind one Caddy edge.
 # Local:  cd infra/personal && cp .env.example .env && docker compose up -d --build
 #         open http://my.localhost:8780
 # Only Caddy publishes a port, on loopback. Cloudflare tunnel points my./personal. at it.
@@ -41,7 +41,7 @@ services:
       PYTHONDONTWRITEBYTECODE: '1'
     volumes:
       - ../../apps/memory:/app:ro
-      - ${MEMORY_DATA_DIR:-../../data/memory}/site:/data/site:ro # built page only, never raw/
+      - ${MEMORY_DATA_DIR:-../../data/memory}/site:/data/site:ro # built data only, never raw/
     user: '65534:65534'
     read_only: true
     cap_drop: [ALL]

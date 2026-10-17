@@ -1,10 +1,9 @@
-"""wiki/*.md, sessions/*.md -> site/index.html (viewer.html에 데이터를 넣어 한 파일로) + site/data.json.
+"""wiki/*.md, sessions/*.md -> site/data.json (anotar /wiki 화면이 읽음).
 
-데이터 폴더는 MEMORY_DATA 환경변수, 없으면 현재 폴더. 결과는 <데이터>/site/index.html.
+데이터 폴더는 MEMORY_DATA 환경변수, 없으면 현재 폴더. 결과는 <데이터>/site/data.json.
 """
 import json, os, pathlib, re, sys
 
-ROOT = pathlib.Path(__file__).parent
 DATA = pathlib.Path(os.environ.get("MEMORY_DATA", os.getcwd()))
 WIKI_KEYS = ("title", "tldr", "tags", "updated")
 SESSION_KEYS = ("title", "tldr", "tool", "project", "date")
@@ -49,14 +48,10 @@ def main():
         for slug in s.get("promoted") or []:
             if slug not in wiki_slugs:
                 sys.exit(f"sessions/{s['slug']}.md: promoted의 '{slug}' 위키 페이지가 없음")
-    blob = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
-    html = (ROOT / "viewer.html").read_text(encoding="utf-8").replace("/*DATA*/{}", blob)
     out = DATA / "site"
     out.mkdir(exist_ok=True)
-    (out / "index.html").write_text(html, encoding="utf-8")
-    # anotar의 /wiki 화면이 읽는 원본 데이터 (같은 내용, 화면 없이)
     (out / "data.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-    print(f"site/index.html, data.json: wiki {len(data['wiki'])}, sessions {len(data['sessions'])}")
+    print(f"site/data.json: wiki {len(data['wiki'])}, sessions {len(data['sessions'])}")
 
 
 if __name__ == "__main__":

@@ -21,21 +21,17 @@ def get(path, method="GET"):
 
 
 assert get("/memory/health")[0] == 200
-assert get("/memory/")[0] == 503  # 아직 빌드 전
-(site / "index.html").write_text("<p>hi</p>", encoding="utf-8")
-status, headers, body = get("/memory/")
-assert status == 200 and body == b"<p>hi</p>", (status, body)
-assert "frame-ancestors 'none'" in headers["Content-Security-Policy"]
-assert headers["Cache-Control"] == "no-store"
+for old in ("/memory", "/memory/", "/memory/index.html"):
+    status, headers, _ = get(old)
+    assert status == 302 and headers["Location"] == "/wiki", (old, status)
 assert get("/memory/data.json")[0] == 503
 (site / "data.json").write_text('{"wiki":[],"sessions":[]}', encoding="utf-8")
 status, headers, body = get("/memory/data.json")
 assert status == 200 and headers["Content-Type"].startswith("application/json") and b"wiki" in body
-status, headers, _ = get("/memory")
-assert status == 308 and headers["Location"] == "/memory/"
 for bad in ("/", "/memory/../server.py", "/memory/%2e%2e/x", "/memory/index.html/x", "/other"):
     assert get(bad)[0] == 404, bad
-status, _, body = get("/memory/", "HEAD")
+assert headers["Cache-Control"] == "no-store"
+status, _, body = get("/memory/data.json", "HEAD")
 assert status == 200 and body == b""
 srv.shutdown()
 print("ok")
