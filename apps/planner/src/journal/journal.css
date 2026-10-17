@@ -176,8 +176,9 @@
 .planning-card ul.planning-card-steps{list-style:none;padding:0;margin-top:10px;color:var(--ink)}
 .planning-card-steps li{display:flex;align-items:center;gap:8px;min-height:32px;border-top:1px solid var(--line)}
 .planning-card-steps span{flex:1;min-width:0;font-size:13px;line-height:1.4}
-.planning-card-steps button{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;min-height:28px;padding:0;border-radius:6px;color:var(--action)}
-.planning-card-steps button:hover{background:var(--lime)}
+.planning-card-steps button{display:flex;align-items:center;gap:8px;width:calc(100% + 12px);min-height:34px;padding:4px 6px;margin:0 -6px;border-radius:6px;text-align:left;color:var(--ink)}
+.planning-card-steps button svg{flex-shrink:0;color:var(--action)}
+.planning-card-steps button:hover{background:var(--hover)}
 .planning-context-item b{font-weight:600}
 .planning-context-next{color:var(--muted);margin-left:8px}
 .planning-context-next::before{content:'→ ';opacity:.6}
