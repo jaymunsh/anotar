@@ -55,3 +55,9 @@
 /* Week fits the screen; daily reviews sit below it. The legend added nothing. */
 .week-diary .diary-legend{display:none}
 @media(min-width:641px){.week-hours,.week-day-track{height:clamp(400px,calc(100dvh - 360px),760px)}}
+/* The day closes at 24:00 with a firm line; 하루 돌아보기 is one row under it, a cell per day so the columns end together. */
+.week-day{display:flex;flex-direction:column}
+.week-day-track,.week-hours{border-bottom:1px solid #b9c4bb}
+.week-hours .end{display:none}
+.week-note{flex:1;min-height:88px}
+.week-note.empty{border-top:1px solid var(--line)}
