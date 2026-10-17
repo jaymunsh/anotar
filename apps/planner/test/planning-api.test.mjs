@@ -31,13 +31,19 @@ test('planning persists goals and steps with owner, CSRF, version and parent pro
  assert.equal((await a('/api/planning/step','PUT',{...step,startMonth:'2025-12'})).status,400);
  assert.equal((await a('/api/planning/step','PUT',{...step,endMonth:'2026-13'})).status,400);
  assert.equal((await a('/api/planning/step','PUT',step)).status,200);
+ // Goal colour (0–7) and step done round-trip; out-of-range or misplaced values are refused.
+ assert.equal((await a('/api/planning/goal','PUT',{...goal,version:1,color:9})).status,400);
+ assert.equal((await a('/api/planning/step','PUT',{...step,version:1,color:2})).status,400);
+ assert.equal((await a('/api/planning/goal','PUT',{...goal,version:1,color:3})).value.color,3);
+ assert.equal((await a('/api/planning/step','PUT',{...step,version:1,done:true})).value.done,true);
+ step.version=2;goal.version=2;
  assert.equal((await a('/api/planning/step','PUT',{...step,version:0,title:'Stale overwrite'})).status,409);
- assert.equal((await a('/api/planning/goal','PUT',{...goal,version:1,endMonth:'2026-09'})).status,400);
- assert.equal((await a('/api/planning/goal','PUT',{...goal,version:1,kind:'step'})).status,400);
+ assert.equal((await a('/api/planning/goal','PUT',{...goal,version:2,endMonth:'2026-09'})).status,400);
+ assert.equal((await a('/api/planning/goal','PUT',{...goal,version:2,kind:'step'})).status,400);
  const exported=(await a('/api/export')).value;assert.equal(exported.planning.length,2);assert.equal(Object.hasOwn(exported,'tasks'),false);
  assert.equal((await a('/api/planning/goal','DELETE',{version:0})).status,400);
- assert.equal((await a('/api/planning/goal','DELETE',{version:1})).status,200);
- const remaining=(await a('/api/planning')).value.items;assert.equal(remaining.length,1);assert.equal(remaining[0].id,'step');assert.equal(remaining[0].parentId,null);assert.equal(remaining[0].version,2);assert.equal(Object.hasOwn(remaining[0],'taskIds'),false);
+ assert.equal((await a('/api/planning/goal','DELETE',{version:2})).status,200);
+ const remaining=(await a('/api/planning')).value.items;assert.equal(remaining.length,1);assert.equal(remaining[0].id,'step');assert.equal(remaining[0].parentId,null);assert.equal(remaining[0].version,3);assert.equal(Object.hasOwn(remaining[0],'taskIds'),false);
  assert.equal((await a('/api/planning/step','PUT',{...step,parentId:null,version:1})).status,409);
  assert.equal((await a('/api/account','DELETE',{confirmation:'planning_alice',password})).status,200);
  assert.equal(app.db.prepare('SELECT COUNT(*) n FROM planning').get().n,0);

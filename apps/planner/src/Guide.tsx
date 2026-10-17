@@ -38,7 +38,7 @@ export function Guide(){
 
   <h2>{pair('계획과 루틴','Plans and routines')}</h2>
   <ul>
-   <li>{pair('‘계획’ 메뉴에서 분기·연간 목표와 달마다의 세부 계획을 적어요. 달마다 목표별로 묶여 보이고, 각 계획 옆에는 그 계획에 연결해 시간표에 잡은 시간이 보여요. 0분이면 아직 시간을 쓰지 않은 계획이에요.','Under Plans, write quarterly or yearly goals and monthly steps. Each month groups steps by goal and shows the time scheduled for each; 0 min means nothing yet.')}</li>
+   <li>{pair('‘계획 > 목표’에서 그해 목표를 카드로 만들고, 목표마다 끝내야 할 세부 계획을 적어요. 세부 계획에는 기한(달 또는 올해)을 정하고 끝나면 체크해요. 목표 색은 점을 눌러 고르고, 그 목표에 연결한 시간표 블록도 같은 색이에요.','Under Plans > Goals, each goal for the year is a card listing the steps that finish it. Give a step a due month (or this year) and check it off when done. Tap the dot to pick the goal’s colour; linked timetable blocks share it.')}</li>
    <li>{pair('일간 화면 위 ‘이번 기간’에 지금 기간의 계획이 보여요. 누르면 상위 목표, 이번 주 시간표에 잡은 시간, ‘시간표에 넣기’가 나와요. 넣은 일정에는 그 계획의 색 띠가 붙어요.','“This period” above the day view lists current plans. Open one to see its goal, time scheduled this week, and Add to schedule; linked blocks get the plan’s color.')}</li>
    <li>{pair('루틴은 자주 하는 일의 이름이에요. 계획 메뉴의 ‘편의’ 탭 루틴 카드에서 만들고, 일정 화면 위 루틴을 누르면 바로 시간표에 들어가요.','Routines are names of things you do often. Create them on the Tools tab under Plans; tap one above the schedule to add it.')}</li>
   </ul>

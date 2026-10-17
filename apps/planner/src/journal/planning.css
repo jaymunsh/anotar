@@ -73,3 +73,38 @@
 .tool-card .routine-preview p{margin-bottom:8px;font-size:11px}
 .tool-card .routine-chip{background:var(--canvas)}
 .tool-card.routine-list li.routine-new{border-bottom:0}
+/* 계획 > 목표: a card per goal; its steps are the checklist. Rows match 오늘 꼭 할 일 (quiet ×, underline focus). */
+.goal-board-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:4px 0 16px}
+.goal-board-head p{margin:0;font-size:13px;color:var(--muted)}
+.goal-board-head .secondary{min-height:36px;padding:6px 12px;font-size:13px;margin:0}
+.goal-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:18px;align-items:start}
+.goal-card{--goal:#a7b0aa;background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--goal);border-radius:10px;padding:14px 18px 16px}
+.goal-card>header{display:flex;align-items:center;gap:10px}
+.goal-dot{flex-shrink:0;width:14px;height:14px;min-width:14px;min-height:14px;padding:0;border-radius:50%;background:var(--goal);box-shadow:0 0 0 3px var(--surface),0 0 0 4px var(--line)}
+button.goal-dot:hover{box-shadow:0 0 0 3px var(--surface),0 0 0 4px var(--goal)}
+.goal-card .goal-title{flex:1;min-width:0;min-height:40px;padding:6px 0;border:0;border-radius:0;background:transparent;font-size:17px;font-weight:650;color:var(--ink)}
+strong.goal-title{display:flex;align-items:center}
+.goal-card input:not([type=checkbox]):focus-visible{outline:none;box-shadow:inset 0 -1.5px 0 var(--focus)}
+.goal-progress{font-size:13px;font-weight:600;color:var(--goal);font-variant-numeric:tabular-nums}
+.goal-remove{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:26px;padding:0;border-radius:4px;color:var(--muted);opacity:.4}
+.goal-card header:hover .goal-remove,.goal-step:hover .goal-remove,.goal-remove:focus-visible{opacity:1}
+.goal-remove:hover{color:var(--danger)}
+.goal-palette{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px 24px}
+.goal-palette button{width:22px;height:22px;min-height:22px;padding:0;border-radius:50%}
+.goal-palette button[aria-pressed=true]{box-shadow:0 0 0 2px var(--surface),0 0 0 3.5px var(--ink)}
+.goal-bar{height:3px;margin:6px 0 4px 24px;border-radius:2px;background:var(--line);overflow:hidden}
+.goal-bar i{display:block;height:100%;background:var(--goal)}
+.goal-card ul{list-style:none;margin:6px 0 0;padding:0}
+.goal-step,.goal-step-new{display:grid;grid-template-columns:16px minmax(0,1fr) auto auto 26px;align-items:center;gap:8px;min-height:40px;border-bottom:1px solid var(--line);padding-left:24px}
+.goal-step input[type=checkbox]{width:16px;height:16px;margin:0;accent-color:var(--goal)}
+.goal-step-title,.goal-step-new input{min-width:0;min-height:38px;padding:6px 0;border:0;border-radius:0;background:transparent;font-size:14px}
+.goal-step.done .goal-step-title{color:var(--muted);text-decoration:line-through}
+.goal-step-spent{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.goal-step-when{min-height:28px;padding:2px 22px 2px 6px;border:0;border-radius:4px;background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23586c5c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 6px center;appearance:none;-webkit-appearance:none;font-size:12px;color:var(--muted);cursor:pointer}
+.goal-step-when:hover{background-color:var(--hover)}
+.goal-step-new{grid-template-columns:16px minmax(0,1fr);color:var(--muted);border-bottom:0}
+.goal-time{margin:10px 0 0 24px;font-size:11px;color:var(--muted)}
+.goal-card.no-goal{border-top-color:var(--line)}
+.goal-card.no-goal .goal-dot{background:#a7b0aa}
+.goal-empty{padding:40px 0;text-align:center}
+@media(max-width:640px){.goal-step,.goal-step-new,.goal-bar,.goal-palette,.goal-time{padding-left:0;margin-left:0}.goal-step{gap:6px}}

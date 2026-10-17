@@ -20,7 +20,10 @@ export function savePlanning(db,userId,id,data,now){
   });
  }
  if(!['goal','step'].includes(data.kind)||typeof data.title!=='string'||!data.title.trim()||data.title.length>200||!validMonth(data.startMonth)||!validMonth(data.endMonth)||data.startMonth>data.endMonth||typeof data.note!=='string'||data.note.length>2000)fail(400,'계획의 제목과 기간을 확인해 주세요.');
- const value={kind:data.kind,title:data.title.trim(),startMonth:data.startMonth,endMonth:data.endMonth,note:data.note,parentId:data.parentId||null};
+ // Goals may carry one of 8 palette colours; steps may be checked off (끝났다고 체크).
+ if(data.color!==undefined&&(data.kind!=='goal'||!Number.isInteger(data.color)||data.color<0||data.color>7))fail(400,'목표 색을 확인해 주세요.');
+ if(data.done!==undefined&&(data.kind!=='step'||typeof data.done!=='boolean'))fail(400,'세부 계획의 완료 표시를 확인해 주세요.');
+ const value={kind:data.kind,title:data.title.trim(),startMonth:data.startMonth,endMonth:data.endMonth,note:data.note,parentId:data.parentId||null,...(data.color!==undefined?{color:data.color}:{}),...(data.done!==undefined?{done:data.done}:{})};
  if(value.kind==='goal'&&value.parentId)fail(400,'목표에는 상위 목표를 연결하지 않아요.');
  return transaction(db,()=>{
   const current=db.prepare('SELECT id,document,version FROM planning WHERE user_id=? AND id=?').get(userId,id);

@@ -26,9 +26,9 @@ try{
   const stored=(await (await context.request.get(base+'/api/planning')).json()).items.map(i=>[i.kind,i.title]);
   assert.deepEqual(stored,[['routine','운동'],['routine','독서 30분']]);
   checks.push('routines are created and renamed in 계획 and stored as planning kind=routine');
-  await page.goto(base+'/app/plans?view=quarter&date=2026-10-19');await page.locator('.quarter-plan-columns').waitFor();
-  assert.equal(await page.locator('.quarter-plan-columns').getByText('운동').count(),0);
-  checks.push('routines do not appear as goals or steps on the quarter board');
+  await page.goto(base+'/app/plans?date=2026-10-19');await page.locator('.goal-board').waitFor();
+  assert.equal(await page.evaluate(()=>[...document.querySelectorAll('.goal-board input')].some(e=>e.value==='운동')),false);
+  checks.push('routines do not appear as goals or steps on the goal board');
   // Day view: chips, tap opens the activity dialog prefilled, save adds an ordinary activity.
   await page.goto(base+'/app?date=2026-10-19&view=day');
   const chips=page.locator('.journal-routine-chips button');await chips.first().waitFor();
