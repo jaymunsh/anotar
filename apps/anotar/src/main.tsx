@@ -41,6 +41,7 @@ import { inferCaptureUrl } from './capture/shareStore.js';
 import { CaptureImportPanel } from './capture/CaptureImportPanel';
 import FloatingCreateMenu from './capture/FloatingCreateMenu';
 import CaptureComposerSurface from './capture/CaptureComposerSurface';
+import OrganizeQueue from './dashboard/OrganizeQueue';
 import { CaptureInstallHelp } from './capture/CaptureInstallHelp';
 import { prepareCaptureSubmission, forgetCaptureSubmission } from './drafts/captureSubmission';
 import type { AiJob, AiJobSummary } from './ai/types';
@@ -228,6 +229,7 @@ function App() {
     organization: Organization;
   } | null>(null);
   const [noticeAi, setNoticeAi] = useState(false);
+  const [noticeTask, setNoticeTask] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
   const [organization, setOrganization] = useState<Organization>('inbox');
   const [query, setQuery] = useState('');
@@ -261,10 +263,8 @@ function App() {
   const [notice, setNotice] = useState('');
   const [dragging, setDragging] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [mobileComposerOpen, setMobileComposerOpen] = useState(
-    () =>
-      /^\/capture\/?$/.test(window.location.pathname) &&
-      window.matchMedia('(max-width: 760px)').matches,
+  const [mobileComposerOpen, setMobileComposerOpen] = useState(() =>
+    /^\/capture\/?$/.test(window.location.pathname),
   );
   const [searchOpen, setSearchOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -471,7 +471,7 @@ function App() {
       setAiEnabled(true);
       setAiTemplateId(id);
       navigate('/');
-      if (window.matchMedia('(max-width: 760px)').matches) setMobileComposerOpen(true);
+      setMobileComposerOpen(true);
     });
     (kind === 'link' ? urlInput : textInput).current?.focus();
   }
@@ -706,6 +706,7 @@ function App() {
       clearIfUnchanged(submitted);
       setSaveAsTask(false);
       setNoticeAi(false);
+      setNoticeTask(true);
       setNotice(detectedDue ? `할 일에 추가했어요 · ${shortDue(detectedDue)}까지` : '할 일에 추가했어요');
       publishRecordChange('tasks');
       if (mobileComposerOpen) setMobileComposerOpen(false);
@@ -773,6 +774,7 @@ function App() {
       setNow(Date.now());
       const cleared = clearIfUnchanged(submitted);
       setNoticeAi(withAi);
+      setNoticeTask(false);
       if (cleared && fileInput.current) fileInput.current.value = '';
       setNotice(
         data.local
@@ -948,7 +950,7 @@ function App() {
     flushSync(() => {
       if (memoScope === 'ai') setAiEnabled(true);
       navigate('/');
-      if (window.matchMedia('(max-width: 760px)').matches) setMobileComposerOpen(true);
+      setMobileComposerOpen(true);
     });
     (kind === 'link' ? urlInput : textInput).current?.focus();
   }
@@ -1316,6 +1318,7 @@ function App() {
             <div className="dashboard-grid">
               <div ref={setDashboardContinueTarget} className="dashboard-continue" />
               <div className="dashboard-primary">
+                {isInboxView && <OrganizeQueue onNavigate={navigate} />}
                 <CaptureComposerSurface
                   open={mobileComposerOpen}
                   onClose={() => setMobileComposerOpen(false)}
@@ -1633,9 +1636,9 @@ function App() {
                     <span>{notice}</span>
                     <button
                       className="memo-notice-link"
-                      onClick={() => (noticeAi ? navigate('/ai') : openMemo())}
+                      onClick={() => (noticeTask ? navigate('/tasks') : noticeAi ? navigate('/ai') : openMemo())}
                     >
-                      {noticeAi ? '요청 보기' : '메모 보기'}
+                      {noticeTask ? '할 일 보기' : noticeAi ? '요청 보기' : '메모 보기'}
                     </button>
                   </div>
                 )}
@@ -1791,8 +1794,8 @@ function App() {
         {notice && !isInboxView && (
           <div className="capture-context-notice" role="status">
             <span>{notice}</span>
-            <button onClick={() => (noticeAi ? navigate('/ai') : openMemo())}>
-              {noticeAi ? '요청 보기' : '메모 보기'}
+            <button onClick={() => (noticeTask ? navigate('/tasks') : noticeAi ? navigate('/ai') : openMemo())}>
+              {noticeTask ? '할 일 보기' : noticeAi ? '요청 보기' : '메모 보기'}
             </button>
           </div>
         )}
