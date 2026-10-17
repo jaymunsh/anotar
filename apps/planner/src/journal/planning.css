@@ -108,3 +108,9 @@ strong.goal-title{display:flex;align-items:center}
 .goal-card.no-goal .goal-dot{background:#a7b0aa}
 .goal-empty{padding:40px 0;text-align:center}
 @media(max-width:640px){.goal-step,.goal-step-new,.goal-bar,.goal-palette,.goal-time{padding-left:0;margin-left:0}.goal-step{gap:6px}}
+/* Bigger swatches: easier to hit, easier to tell apart. */
+.goal-palette{gap:10px;margin:10px 0 8px 24px;padding:10px 12px;border-radius:8px;background:var(--canvas);width:fit-content}
+.goal-palette button{width:30px;height:30px;min-height:30px;min-width:30px}
+.goal-palette button[aria-pressed=true]{box-shadow:0 0 0 3px var(--canvas),0 0 0 5px var(--ink)}
+@media(max-width:640px){.goal-palette{margin-left:0;gap:8px}.goal-palette button{width:32px;height:32px;min-height:32px;min-width:32px}}
+.goal-card>header>button.goal-dot,.goal-card>header>button.goal-dot[aria-expanded=true]{background:var(--goal)}
