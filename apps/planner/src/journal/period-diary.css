@@ -62,7 +62,8 @@
 .week-note{flex:1;min-height:88px}
 .week-note.empty{border-top:1px solid var(--line)}
 /* Month fits one screen: rows share the height left under the header; date and totals share the first line; two plans then +N. */
-.month-sheet:not(.compact):not(.record-map) .month-calendar{height:max(420px,calc(100dvh - 300px));grid-auto-rows:minmax(0,1fr)}
+/* Rows are a fifth of the room under the header, so a 5-week month fits and a 6-week one scrolls one row. */
+.month-sheet:not(.compact):not(.record-map) .month-calendar{grid-auto-rows:calc(max(420px,100dvh - 300px) / 5)}
 .month-sheet:not(.compact):not(.record-map) .month-day,.month-sheet:not(.compact):not(.record-map) .month-padding{min-height:0;overflow:hidden;padding:6px 8px;gap:3px;display:grid;grid-template-columns:auto 1fr;align-content:start;column-gap:8px}
 .month-sheet:not(.compact):not(.record-map) .month-day>.month-summary{justify-self:end}
 .month-sheet:not(.compact):not(.record-map) .month-day>.month-activities{grid-column:1/-1}
@@ -75,5 +76,5 @@
 .month-sheet:not(.compact):not(.record-map) .month-day{position:relative}
 .month-sheet:not(.compact):not(.record-map) .month-activities{gap:2px}
 .month-sheet:not(.compact):not(.record-map) .month-activities>span{line-height:12px;padding:2px 4px}
-.month-clock{display:inline-block;width:30px;font-style:normal;font-size:9px;color:#6b7a70;font-variant-numeric:tabular-nums}
+.month-clock{display:inline-block;width:30px;margin-right:4px;text-align:center;font-style:normal;font-size:9px;color:#6b7a70;font-variant-numeric:tabular-nums}
 .month-sheet:not(.compact):not(.record-map) .month-more{position:absolute;right:8px;bottom:4px;font-size:10px}
