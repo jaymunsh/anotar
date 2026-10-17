@@ -193,6 +193,19 @@ export default function AiJobPanel({
               )}
             </p>
           )}
+          {(() => {
+            // What was asked, in view: the full input and prompt stay in the details below.
+            const request = selected?.request || capture.aiRequest;
+            if (!request) return null;
+            const asked = [request.input.content, request.input.url].filter(Boolean).join('\n');
+            return (
+              <div className="ai-job-request">
+                <span>요청</span>
+                <p>{asked || '글 없이 요청'}</p>
+                {request.additional && <p className="ai-job-request-extra">추가 지시 · {request.additional}</p>}
+              </div>
+            );
+          })()}
           {selected?.stale && (
             <p className="ai-job-stale" role="status">
               <strong>이전 내용 기준</strong>

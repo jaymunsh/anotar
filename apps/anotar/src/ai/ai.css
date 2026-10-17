@@ -339,3 +339,36 @@
   .composer-ai .capture-ai-options { grid-template-columns: minmax(0,1fr); gap: 6px; }
   .ai-additional-options summary { min-height: 36px; }
 }
+
+/* The request above the result: clamped; the full text is in 요청 당시 입력·프롬프트. */
+.ai-job-request {
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--theme-line);
+  background: var(--theme-soft);
+  border-radius: 0 6px 6px 0;
+}
+.ai-job-request > span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--theme-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.ai-job-request p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ai-job-request .ai-job-request-extra {
+  margin-top: 6px;
+  color: var(--theme-muted);
+  font-size: 13px;
+  -webkit-line-clamp: 2;
+}
