@@ -117,12 +117,12 @@
  .journal-overview .journal-notes textarea{min-height:64px}
 }
 /* 이번 기간 계획 is its own heading row under the title, so the period tabs keep one position in every view. */
-.journal-page:not(.journal-preview) .journal-heading>.planning-context{grid-column:1/-1;grid-row:2;padding-top:4px}
-.journal-page:not(.journal-preview) .journal-heading:has(>.planning-context) .journal-period-tabs{grid-row:3}
-@media(min-width:1200px){.journal-page:not(.journal-preview) .journal-heading:has(>.planning-context){row-gap:0}.journal-page:not(.journal-preview) .journal-heading:has(>.planning-context) .journal-period-tabs{grid-row:1}}
+.journal-page:not(.journal-preview) .journal-heading>:is(.planning-context,.heading-totals){grid-column:1/-1;grid-row:2;padding-top:4px}
+.journal-page:not(.journal-preview) .journal-heading:has(>:is(.planning-context,.heading-totals)) .journal-period-tabs{grid-row:3}
+@media(min-width:1200px){.journal-page:not(.journal-preview) .journal-heading:has(>:is(.planning-context,.heading-totals)){row-gap:0}.journal-page:not(.journal-preview) .journal-heading:has(>:is(.planning-context,.heading-totals)) .journal-period-tabs{grid-row:1}}
 @media(max-width:640px){
- .journal-page:not(.journal-preview) .journal-heading:has(>.planning-context) .journal-date{grid-row:3}
- .journal-page:not(.journal-preview) .journal-heading:has(>.planning-context) .journal-period-tabs{grid-row:4}
+ .journal-page:not(.journal-preview) .journal-heading:has(>:is(.planning-context,.heading-totals)) .journal-date{grid-row:3}
+ .journal-page:not(.journal-preview) .journal-heading:has(>:is(.planning-context,.heading-totals)) .journal-period-tabs{grid-row:4}
 }
 /* Wide screens: 할 일 and the three notes share a fixed left column, the timetable takes the rest.
    Notes grow with what is written (field-sizing), so empty ones stay short. */
@@ -282,3 +282,8 @@
 .journal-expand{display:inline-flex;align-items:center;gap:3px;color:var(--muted)}
 .journal-expand[aria-pressed=true]{color:var(--action)}
 .journal-priority-title{display:flex;align-items:center;gap:10px;min-width:0}
+/* Month totals sit in the header row where 이번 기간 is on the day view: one quiet line. */
+.journal-page .journal-heading>.heading-totals{display:flex;gap:28px;padding:4px 0 0;border:0}
+.journal-page .heading-totals>div{display:flex;align-items:baseline;gap:8px}
+.journal-page .heading-totals dt{font-size:12px}
+.journal-page .heading-totals dd{margin:0;font-size:16px}
