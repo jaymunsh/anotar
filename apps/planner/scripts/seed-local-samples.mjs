@@ -43,6 +43,8 @@ const planning=[
  {id:'r-cs',kind:'routine',title:'면접 질문 5개'},
  {id:'r-gym',kind:'routine',title:'헬스 1시간'},
  {id:'r-retro',kind:'routine',title:'하루 회고'},
+ {id:'t-weekday',kind:'template',title:'평일',blocks:[{title:'기상 · 아침',start:480,end:510},{title:'알고리즘 풀기',start:540,end:660},{title:'면접 질문 정리',start:660,end:720},{title:'점심',start:720,end:780},{title:'포트폴리오 · 지원서',start:810,end:1050},{title:'저녁',start:1140,end:1200},{title:'공부 정리',start:1230,end:1320}]},
+ {id:'t-weekend',kind:'template',title:'주말',blocks:[{title:'늦잠 · 브런치',start:600,end:660},{title:'모의 코딩테스트',start:780,end:930},{title:'장보기 · 방 정리',start:960,end:1050},{title:'한 주 돌아보기',start:1260,end:1320}]},
 ];
 
 // What the season looks like: portfolio first (Jun–Aug), then applications and coding tests (Sep–), interviews (Oct–).

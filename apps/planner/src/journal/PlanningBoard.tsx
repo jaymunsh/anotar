@@ -1,7 +1,7 @@
 import React,{useCallback,useEffect,useId,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Plus,X,ArrowRight,Ellipsis,Pencil,Pin} from 'lucide-react';
-import {ApiError,PlanningItem,Routine,duration,request} from '../api';
+import {ApiError,DayTemplate,PlanningItem,Routine,duration,request} from '../api';
 import {getLanguage,pair,t} from '../i18n';
 import './planning.css';
 
@@ -14,28 +14,30 @@ export const tagColor=(id:string)=>colorOf.get(id)||noGoal;
 function paint(items:PlanningItem[]){const next=new Map<string,string>();items.filter(i=>i.kind==='goal').forEach((goal,i)=>next.set(goal.id,goalColors[goal.color??i%8]));for(const step of items)if(step.kind==='step')next.set(step.id,(step.parentId&&next.get(step.parentId))||noGoal);colorOf=next;}
 export const monthName=(month:string)=>new Intl.DateTimeFormat(getLanguage()==='en'?'en-US':'ko-KR',{year:'numeric',month:'short',timeZone:'UTC'}).format(new Date(month+'-01T12:00:00Z'));
 const overlaps=(item:PlanningItem,from:string,to:string)=>item.startMonth<=to&&item.endMonth>=from;
+type Stored=PlanningItem|Routine|DayTemplate;
+const isPlan=(item:Stored):item is PlanningItem=>item.kind==='goal'||item.kind==='step';
 export function usePlanning(demo:boolean,csrf:string){
  // Goals/steps and routines share /api/planning; screens get them apart.
- const [all,setItems]=useState<(PlanningItem|Routine)[]>([]),items=all.filter((item):item is PlanningItem=>item.kind!=='routine'),routines=all.filter((item):item is Routine=>item.kind==='routine'),[loading,setLoading]=useState(!demo),[error,setError]=useState('');
+ const [all,setItems]=useState<Stored[]>([]),items=all.filter(isPlan),routines=all.filter((item):item is Routine=>item.kind==='routine'),templates=all.filter((item):item is DayTemplate=>item.kind==='template'),[loading,setLoading]=useState(!demo),[error,setError]=useState('');
  paint(items);
  const reload=useCallback(async()=>{
   if(demo)return items;
   setLoading(true);setError('');
-  try{const result=await request<{items:(PlanningItem|Routine)[]}>('/api/planning');setItems(result.items);return result.items.filter((item):item is PlanningItem=>item.kind!=='routine');}
+  try{const result=await request<{items:Stored[]}>('/api/planning');setItems(result.items);return result.items.filter(isPlan);}
   catch(e){setError((e as Error).message);throw e;}finally{setLoading(false);}
  },[demo,items]);
- useEffect(()=>{if(demo)return;let alive=true;request<{items:(PlanningItem|Routine)[]}>('/api/planning').then(result=>{if(alive)setItems(result.items);}).catch(e=>{if(alive)setError(e.message);}).finally(()=>{if(alive)setLoading(false);});return()=>{alive=false;};},[demo]);
- async function save<T extends PlanningItem|Routine>(item:T){
+ useEffect(()=>{if(demo)return;let alive=true;request<{items:Stored[]}>('/api/planning').then(result=>{if(alive)setItems(result.items);}).catch(e=>{if(alive)setError(e.message);}).finally(()=>{if(alive)setLoading(false);});return()=>{alive=false;};},[demo]);
+ async function save<T extends Stored>(item:T){
   // Show an edit to an existing item at once; the server's answer (new version) replaces it, a failure reloads.
   setItems(old=>old.map(value=>value.id===item.id?item:value));
-  let result:T;try{result=demo?{...item,version:item.version+1}:await request<T>('/api/planning/'+item.id,'PUT',item,csrf);}catch(e){if(!demo)request<{items:(PlanningItem|Routine)[]}>('/api/planning').then(r=>setItems(r.items)).catch(()=>{});throw e;}
+  let result:T;try{result=demo?{...item,version:item.version+1}:await request<T>('/api/planning/'+item.id,'PUT',item,csrf);}catch(e){if(!demo)request<{items:Stored[]}>('/api/planning').then(r=>setItems(r.items)).catch(()=>{});throw e;}
   setItems(old=>old.some(value=>value.id===result.id)?old.map(value=>value.id===result.id?result:value):[...old,result]);return result;
  }
- async function remove(item:PlanningItem|Routine){
-  if(demo){setItems(old=>old.filter(value=>value.id!==item.id).map(value=>value.kind!=='routine'&&value.parentId===item.id?{...value,parentId:null,version:value.version+1}:value));return;}
+ async function remove(item:Stored){
+  if(demo){setItems(old=>old.filter(value=>value.id!==item.id).map(value=>isPlan(value)&&value.parentId===item.id?{...value,parentId:null,version:value.version+1}:value));return;}
   await request('/api/planning/'+item.id,'DELETE',{version:item.version},csrf);await reload();
  }
- return {items,routines,loading,error,reload,save,remove};
+ return {items,routines,templates,loading,error,reload,save,remove};
 }
 export type PlanningState=ReturnType<typeof usePlanning>;
 

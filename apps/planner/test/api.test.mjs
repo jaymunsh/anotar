@@ -126,3 +126,13 @@ test('routines are named entries in planning, owner-only, with version checks',a
   assert.equal((await a.send('/api/planning/r1','DELETE',{version:1})).status,200);
   assert.deepEqual((await a.send('/api/planning')).value.items,[]);
 });
+test('day templates keep sorted, valid timed blocks, owner-only, with version checks',async t=>{
+  const {client,register}=await fixture(t),a=client(),b=client();await register(a,'alice_template');await register(b,'bob_template');
+  const saved=await a.send('/api/planning/t1','PUT',{kind:'template',title:' 평일 ',blocks:[{title:'운동',start:1080,end:1140},{title:' 알고리즘 ',start:540,end:660}],version:0});
+  assert.equal(saved.status,200);assert.deepEqual(saved.value,{kind:'template',title:'평일',blocks:[{title:'알고리즘',start:540,end:660},{title:'운동',start:1080,end:1140}],id:'t1',version:1});
+  for(const blocks of [[{title:'x',start:600,end:600}],[{title:'',start:0,end:10}],[{title:'x',start:-10,end:10}],[{title:'x',start:0,end:1450}],'nope'])assert.equal((await a.send('/api/planning/t1','PUT',{kind:'template',title:'평일',blocks,version:1})).status,400);
+  assert.equal((await a.send('/api/planning/t1','PUT',{kind:'template',title:'평일',blocks:[],version:0})).status,409);
+  assert.equal((await a.send('/api/planning/t1','PUT',{kind:'routine',title:'평일',version:1})).status,400);
+  assert.deepEqual((await b.send('/api/planning')).value.items,[]);
+  assert.equal((await a.send('/api/planning/t1','DELETE',{version:1})).status,200);
+});

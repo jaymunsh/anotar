@@ -7,6 +7,8 @@ export type Day = {plans:Plan[];entries:Entry[];notes:{thoughts:string;ideas:str
 export type Step={id:string;text:string;done:boolean};
 export type Priority={id:string;text:string;done:boolean;steps?:Step[]};
 export type Routine={id:string;kind:'routine';title:string;version:number};
+export type TemplateBlock={title:string;start:number;end:number};
+export type DayTemplate={id:string;kind:'template';title:string;blocks:TemplateBlock[];version:number};
 export type PlanningItem={id:string;kind:'goal'|'step';title:string;startMonth:string;endMonth:string;note:string;parentId:string|null;version:number;color?:number;done?:boolean;focus?:boolean};
 export class ApiError extends Error {constructor(public status:number,message:string){super(message);}}
 export async function request<T>(path:string,method='GET',data?:unknown,csrf?:string):Promise<T> {

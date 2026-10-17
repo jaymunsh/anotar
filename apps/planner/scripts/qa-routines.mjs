@@ -52,6 +52,13 @@ try{
   assert.deepEqual((await (await context.request.get(base+'/api/planning')).json()).items.map(i=>i.title),['독서 30분']);
   assert.equal((await (await context.request.get(base+'/api/days/2026-10-19')).json()).document.plans[0].title,'운동');
   checks.push('deleting a routine keeps activities already added');
+  // 하루 틀: start from the latest day, add a block, lay it on an empty day.
+  await page.clock.setFixedTime(new Date('2026-10-20T03:00:00Z'));await page.goto(base+'/app/plans?view=routines');await page.getByRole('button',{name:/시간표로 새 틀/}).click();await page.locator('.template').waitFor();
+  const add=page.getByLabel('틀 1에 일정 추가',{exact:true});await add.fill('독서');await add.press('Enter');await page.waitForTimeout(800);
+  const template=(await (await context.request.get(base+'/api/planning')).json()).items.find(i=>i.kind==='template');assert.deepEqual(template.blocks.map(b=>[b.title,b.start,b.end]),[['운동',540,570],['독서',570,630]]);
+  await page.goto(base+'/app?date=2026-10-21&view=day');await page.getByRole('button',{name:'‘틀 1’ 틀 깔기 (2개)'}).click();await page.getByText('서버에 저장됨').first().waitFor();await page.waitForTimeout(1500);
+  assert.deepEqual((await (await context.request.get(base+'/api/days/2026-10-21')).json()).document.plans.map(p=>[p.title,p.start,p.end,p.status]),[['운동',540,570,'pending'],['독서',570,630,'pending']]);
+  checks.push('a day template starts from the latest timetable, takes new blocks, and lays down on an empty day');
   assert.deepEqual(errors,[]);
   console.log(JSON.stringify({checks,errors},null,2));
 }finally{await browser.close();await app.close();await rm(dir,{recursive:true,force:true});}

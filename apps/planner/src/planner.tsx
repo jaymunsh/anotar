@@ -56,7 +56,7 @@ export function useDay(date:string,user:User|undefined,csrf:string,demo:boolean)
 }
 
 // 10-minute steps plus the current value, so odd times from drag or old data stay selectable.
-const times=(from:number,to:number,current:string)=>Array.from({length:(to-from)/10+1},(_,i)=>clock(from+i*10)).concat(current).filter((t,i,a)=>a.indexOf(t)===i).sort();
+export const times=(from:number,to:number,current:string)=>Array.from({length:(to-from)/10+1},(_,i)=>clock(from+i*10)).concat(current).filter((t,i,a)=>a.indexOf(t)===i).sort();
 export type Editor={newItem?:boolean;kind:'plan'|'entry';item?:Plan|Entry;plan?:Plan;draftId?:string;originalTitle?:string};
 export function ItemForm({editor,planning=[],onSave,onCancel,onDelete,onDirty,headingId}:{editor:Editor;planning?:PlanningItem[];onSave:(item:Plan|Entry)=>void;onCancel:()=>void;onDelete:()=>void;onDirty:(dirty:boolean)=>void;headingId?:string}){
   const item=editor.item,plan=editor.plan;

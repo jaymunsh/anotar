@@ -19,6 +19,21 @@ export function savePlanning(db,userId,id,data,now){
    return {...value,id,version:data.version+1};
   });
  }
+ // A 하루 틀 (day template) is a named set of timed blocks the day view can lay down on an empty day.
+ if(data.kind==='template'){
+  if(typeof data.title!=='string'||!data.title.trim()||data.title.length>100)fail(400,'틀 이름을 1–100자로 입력해 주세요.');
+  if(!Array.isArray(data.blocks)||data.blocks.length>50)fail(400,'틀에는 일정을 50개까지 넣을 수 있어요.');
+  const blocks=data.blocks.map(b=>{if(!b||typeof b.title!=='string'||!b.title.trim()||b.title.length>200||!Number.isInteger(b.start)||!Number.isInteger(b.end)||b.start<0||b.end>1440||b.end<=b.start)fail(400,'틀 일정의 제목과 시간을 확인해 주세요.');return {title:b.title.trim(),start:b.start,end:b.end};}).sort((a,b)=>a.start-b.start);
+  return transaction(db,()=>{
+   const current=db.prepare('SELECT document,version FROM planning WHERE user_id=? AND id=?').get(userId,id);
+   if((current?.version||0)!==data.version)fail(409,'계획이 다른 기기에서 변경됐어요. 새로 불러온 뒤 확인해 주세요.');
+   if(current&&JSON.parse(current.document).kind!=='template')fail(400,'계획 종류는 변경할 수 없어요.');
+   if(!current&&db.prepare("SELECT COUNT(*) n FROM planning WHERE user_id=? AND json_extract(document,'$.kind')='template'").get(userId).n>=10)fail(400,'하루 틀은 10개까지 만들 수 있어요.');
+   const value={kind:'template',title:data.title.trim(),blocks};
+   db.prepare('INSERT INTO planning VALUES(?,?,?,?,?) ON CONFLICT(user_id,id) DO UPDATE SET document=excluded.document,version=excluded.version,updated_at=excluded.updated_at').run(id,userId,JSON.stringify(value),data.version+1,now);
+   return {...value,id,version:data.version+1};
+  });
+ }
  if(!['goal','step'].includes(data.kind)||typeof data.title!=='string'||!data.title.trim()||data.title.length>200||!validMonth(data.startMonth)||!validMonth(data.endMonth)||data.startMonth>data.endMonth||typeof data.note!=='string'||data.note.length>2000)fail(400,'계획의 제목과 기간을 확인해 주세요.');
  // Goals may carry one of 16 palette colours and a 집중 (focus) mark; steps may be checked off (끝났다고 체크).
  if(data.color!==undefined&&(data.kind!=='goal'||!Number.isInteger(data.color)||data.color<0||data.color>15))fail(400,'목표 색을 확인해 주세요.');
