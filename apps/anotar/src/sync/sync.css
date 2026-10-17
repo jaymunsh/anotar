@@ -339,8 +339,7 @@
   max-height: 180px;
   overflow: auto;
 }
-.sync-recovery button,
-.app-update-notice button {
+.sync-recovery button {
   min-height: 36px;
   border: 1px solid var(--theme-line);
   border-radius: 6px;
@@ -349,9 +348,51 @@
   color: var(--theme-ink);
   margin: 4px 4px 4px 0;
 }
+/* Sidebar row above the sync footer, same rhythm as .sync-status-trigger. */
 .app-update-notice {
-  font-size: 11px;
-  padding: 0 10px;
+  padding: 0 8px 6px;
+}
+.app-update-notice button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  color: inherit;
+  font: inherit;
+  font-size: 12.5px;
+  text-align: left;
+}
+.app-update-notice button:hover {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.app-update-notice span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.app-update-notice strong {
+  flex: none;
+  font-weight: 600;
+}
+.app-update-notice .is-spinning {
+  animation: app-update-spin 1s linear infinite;
+}
+@keyframes app-update-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-update-notice .is-spinning { animation: none; }
+}
+.app-update-notice p {
+  margin: 4px 0 0;
+  font-size: 12px;
 }
 @media (max-width: 760px) {
   .sync-recovery button,

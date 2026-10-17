@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 import { activatePreparedUpdate } from './update';
 export default function AppUpdateNotice() {
   const [waiting, setWaiting] = useState(false),
@@ -25,6 +26,7 @@ export default function AppUpdateNotice() {
     <div className="app-update-notice">
       <button
         disabled={busy}
+        title="편집 중인 내용을 저장한 뒤 새 버전으로 다시 열어요."
         onClick={async () => {
           setBusy(true);
           try {
@@ -36,7 +38,9 @@ export default function AppUpdateNotice() {
           }
         }}
       >
-        새 버전 · 저장 후 새로고침
+        <RefreshCw size={14} aria-hidden className={busy ? 'is-spinning' : undefined} />
+        <span>새 버전이 있어요</span>
+        <strong>{busy ? '저장 중…' : '새로고침'}</strong>
       </button>
       {error && <p role="alert">{error}</p>}
     </div>
