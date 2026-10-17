@@ -658,7 +658,7 @@
   }
 }
 
-/* Second line of every card: due date, link marks, then the 작성/완료 time at the end. */
+/* Second line of every card: 작성/완료 time, then link marks and the due date on the right. */
 .task-dates {
   display: flex;
   align-items: center;
@@ -669,7 +669,7 @@
   display: inline;
 }
 .task-stamp {
-  margin-left: auto;
+  margin-right: auto;
   white-space: nowrap;
   color: var(--theme-subtle, var(--theme-muted));
   font-size: 11px;

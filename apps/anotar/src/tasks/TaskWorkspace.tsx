@@ -85,12 +85,6 @@ const stampFormat = new Intl.DateTimeFormat('sv-SE', {
   hourCycle: 'h23',
 });
 const stampLabel = (iso: string) => stampFormat.format(new Date(iso));
-function dateLabel(date: string, today: string) {
-  if (date === today) return '오늘까지';
-  const [year, month, day] = date.split('-').map(Number);
-  const label = `${year !== Number(today.slice(0, 4)) ? `${year}년 ` : ''}${month}월 ${day}일`;
-  return date < today ? `기한 지남 · ${label}` : label;
-}
 
 export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate }: Props) {
   const linkedTaskId =
@@ -601,12 +595,15 @@ export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate
               <Pencil size={12} aria-hidden="true" />
             </button>
             <span className="task-dates">
-              {task.dueDate && (
-                <time
-                  className={`task-due ${task.status === 'open' && task.dueDate < today ? 'task-overdue' : ''}`}
-                  dateTime={task.dueDate}
-                >
-                  {dateLabel(task.dueDate, today)}
+              {task.status === 'done' ? (
+                task.completedAt && (
+                  <time className="task-stamp" dateTime={task.completedAt}>
+                    완료 {stampLabel(task.completedAt)}
+                  </time>
+                )
+              ) : (
+                <time className="task-stamp" dateTime={task.createdAt}>
+                  작성 {stampLabel(task.createdAt)}
                 </time>
               )}
             {task.pageId && (
@@ -645,15 +642,13 @@ export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate
                 </a>
               );
             })()}
-              {task.status === 'done' ? (
-                task.completedAt && (
-                  <time className="task-stamp" dateTime={task.completedAt}>
-                    완료 {stampLabel(task.completedAt)}
-                  </time>
-                )
-              ) : (
-                <time className="task-stamp" dateTime={task.createdAt}>
-                  작성 {stampLabel(task.createdAt)}
+              {task.dueDate && (
+                <time
+                  className={`task-due ${task.status === 'open' && task.dueDate < today ? 'task-overdue' : ''}`}
+                  dateTime={task.dueDate}
+                  title={task.status === 'open' && task.dueDate < today ? '기한 지남' : '기한'}
+                >
+                  ~ {task.dueDate}
                 </time>
               )}
             </span>

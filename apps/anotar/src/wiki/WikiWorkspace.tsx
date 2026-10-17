@@ -598,6 +598,7 @@ function ProjectReader({ data, name, link }: { data: Prepared; name: string; lin
   const ss = data.projects.get(name);
   if (!ss) return <Missing what="프로젝트" back="/wiki/projects" link={link} />;
   const last = ss[0];
+  const wikiTasks = useWikiTasks();
   const tools = countBy(ss, (s) => s.tool).map(([t, n]) => `${toolName(t)} ${n}`).join(' · ');
   return (
     <article className="wiki-reader">
@@ -607,7 +608,16 @@ function ProjectReader({ data, name, link }: { data: Prepared; name: string; lin
       <p className="wiki-meta">
         기록 {ss.length}개 · {monthDay(ss[ss.length - 1].date)} ~ {monthDay(last.date)} · {tools}
       </p>
-      <Bullets title="남은 일" items={list(last.next)} />
+      <Bullets
+        title="남은 일"
+        items={list(last.next).map((n) =>
+          wikiTasks.tasks.get(nextSource(name, n))?.status === 'done' ? (
+            <><s className="wiki-muted">{n}</s> <span className="wiki-muted">완료</span></>
+          ) : (
+            n
+          ),
+        )}
+      />
       <Bullets
         title="정한 것"
         items={ss.flatMap((s) => list(s.decisions).map((d) => <>{d} <span className="wiki-muted">{monthDay(s.date)}</span></>))}
