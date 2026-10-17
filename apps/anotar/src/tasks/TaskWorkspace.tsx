@@ -73,14 +73,18 @@ function koreanToday(at = new Date()) {
   const part = (type: string) => parts.find((value) => value.type === type)!.value;
   return `${part('year')}-${part('month')}-${part('day')}`;
 }
-/** When a task was written (open) or finished (done): 오늘 · 어제 · 10월 3일. */
-function stampLabel(iso: string, today: string) {
-  const day = koreanToday(new Date(iso));
-  if (day === today) return '오늘';
-  if (day === koreanToday(new Date(Date.parse(today + 'T12:00:00+09:00') - 864e5))) return '어제';
-  const [year, month, date] = day.split('-').map(Number);
-  return `${year !== Number(today.slice(0, 4)) ? `${year}년 ` : ''}${month}월 ${date}일`;
-}
+/** When a task was written (open) or finished (done): 2026-10-17 15:34:12, Korean time. */
+const stampFormat = new Intl.DateTimeFormat('sv-SE', {
+  timeZone: 'Asia/Seoul',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+});
+const stampLabel = (iso: string) => stampFormat.format(new Date(iso));
 function dateLabel(date: string, today: string) {
   if (date === today) return '오늘까지';
   const [year, month, day] = date.split('-').map(Number);
@@ -605,33 +609,20 @@ export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate
                   {dateLabel(task.dueDate, today)}
                 </time>
               )}
-              {task.status === 'done' ? (
-                task.completedAt && (
-                  <time className="task-stamp" dateTime={task.completedAt}>
-                    완료 {stampLabel(task.completedAt, today)}
-                  </time>
-                )
-              ) : (
-                <time className="task-stamp" dateTime={task.createdAt}>
-                  작성 {stampLabel(task.createdAt, today)}
-                </time>
-              )}
-            </span>
             {task.pageId && (
               <a
                 className="task-page-link"
                 href={`/pages/${task.pageId}`}
                 draggable={false}
                 title={pages.find(page => page.id === task.pageId)?.title || '참조 페이지 열기'}
+                aria-label={`참조 페이지: ${pages.find(page => page.id === task.pageId)?.title || '연결된 페이지'}`}
                 onClick={(event) => {
                   if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
                   event.preventDefault();
                   onNavigate(`/pages/${task.pageId}`);
                 }}
               >
-                <FileText size={13} aria-hidden="true" />
-                <span>{pages.find(page => page.id === task.pageId)?.title || '연결된 페이지'}</span>
-                <ArrowUpRight size={12} aria-hidden="true" />
+                <FileText size={14} aria-hidden="true" />
               </a>
             )}
             {task.source?.startsWith('wiki:') && (() => {
@@ -642,19 +633,30 @@ export default function TaskWorkspace({ mode, panelTarget, onOpenAll, onNavigate
                   className="task-page-link"
                   href={href}
                   draggable={false}
-                  title="이 할 일이 나온 위키 프로젝트"
+                  title={`위키 · ${project}`}
+                  aria-label={`이 할 일이 나온 위키 프로젝트: ${project}`}
                   onClick={(event) => {
                     if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
                     event.preventDefault();
                     onNavigate(href);
                   }}
                 >
-                  <BookOpen size={13} aria-hidden="true" />
-                  <span>위키 · {project}</span>
-                  <ArrowUpRight size={12} aria-hidden="true" />
+                  <BookOpen size={14} aria-hidden="true" />
                 </a>
               );
             })()}
+              {task.status === 'done' ? (
+                task.completedAt && (
+                  <time className="task-stamp" dateTime={task.completedAt}>
+                    완료 {stampLabel(task.completedAt)}
+                  </time>
+                )
+              ) : (
+                <time className="task-stamp" dateTime={task.createdAt}>
+                  작성 {stampLabel(task.createdAt)}
+                </time>
+              )}
+            </span>
             {full && !board ? (
               <label className="task-stage-control">
                 <span>상태</span>

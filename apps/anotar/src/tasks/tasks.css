@@ -281,30 +281,17 @@
   color: var(--theme-muted);
   font-size: 11px;
 }
+/* Linked page / wiki project: an icon mark on the meta line; the name is the tooltip. */
 .task-page-link {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  width: fit-content;
-  max-width: 100%;
-  min-height: 28px;
-  margin-top: 3px;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
   color: var(--theme-accent);
-  font-size: 12px;
-  line-height: 1.5;
-  text-decoration: none;
   border-radius: 4px;
 }
-.task-page-link span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.task-page-link svg { flex: none; }
-.task-page-link:hover { text-decoration: underline; text-underline-offset: 3px; }
-@media (max-width: 760px) {
-  .task-page-link { min-height: 44px; }
-}
+.task-page-link:hover { background: var(--theme-soft); }
 .task-date-field input {
   font-variant-numeric: tabular-nums;
 }
@@ -527,17 +514,13 @@
 .task-board .task-title-button {
   min-height: 28px;
   padding-block: 2px;
-  font-size: 14px;
-  align-items: start;
 }
-.task-board .task-title-button span {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+/* Board cards stay one height: one-line title, one meta line. */
+.task-workspace-full .task-board .task-title-button {
+  font-size: 13px;
 }
-.task-board .task-title-button > svg {
-  margin-top: 4px;
+.task-workspace-full .task-board .task-title-button span {
+  white-space: nowrap;
 }
 .task-board .task-check {
   height: 28px;
@@ -629,8 +612,6 @@
   }
   .task-board .task-title-button {
     min-height: 44px;
-    padding-top: 6px;
-    font-size: 14px;
   }
   .task-stage-control select {
     min-height: 44px;
@@ -664,11 +645,6 @@
   background: var(--theme-soft);
   color: var(--theme-accent);
 }
-.task-board .task-title-button span {
-  white-space: normal;
-  word-break: keep-all;
-  overflow-wrap: anywhere;
-}
 .task-board .task-row {
   border-radius: 8px;
 }
@@ -682,17 +658,19 @@
   }
 }
 
-/* Due date, then 작성/완료 day, on one quiet line. */
+/* Second line of every card: due date, link marks, then the 작성/완료 time at the end. */
 .task-dates {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0 8px;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
 }
 .task-dates .task-due {
   display: inline;
 }
 .task-stamp {
-  margin-top: 1px;
+  margin-left: auto;
+  white-space: nowrap;
   color: var(--theme-subtle, var(--theme-muted));
   font-size: 11px;
   line-height: 1.6;
