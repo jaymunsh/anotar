@@ -63,6 +63,11 @@ export function ripple(others:Plan[],from:number,start:number,end:number):Plan[]
   for(const p of others.filter(p=>p.status!=='cancelled'&&p.start>=from&&p.end>start).sort((a,b)=>a.start-b.start)){if(p.start>=cursor)break;const next=p.end+cursor-p.start;if(next>1440)return null;moved.push({...p,start:cursor,end:next});cursor=next;}
   return moved;
 }
+// Dropping [start,end) on a day: if it lands inside an earlier activity it slides to that one's end (same length), then later ones it overlaps move along. null if anything would pass 24:00.
+export function place(others:Plan[],start:number,end:number):{start:number;end:number;moved:Plan[]}|null{
+  const live=others.filter(p=>p.status!=='cancelled'),inside=live.filter(p=>p.start<start&&p.end>start).reduce((m,p)=>Math.max(m,p.end),start),a=inside,b=end+inside-start;
+  if(b>1440)return null;const moved=ripple(live,a,a,b);return moved&&{start:a,end:b,moved};
+}
 export type Editor={newItem?:boolean;kind:'plan'|'entry';item?:Plan|Entry;plan?:Plan;draftId?:string;originalTitle?:string};
 export function ItemForm({editor,planning=[],others=[],onSave,onCancel,onDelete,onDirty,headingId}:{editor:Editor;planning?:PlanningItem[];others?:Plan[];onSave:(item:Plan|Entry,moved?:Plan[])=>void;onCancel:()=>void;onDelete:()=>void;onDirty:(dirty:boolean)=>void;headingId?:string}){
   const item=editor.item,plan=editor.plan;
