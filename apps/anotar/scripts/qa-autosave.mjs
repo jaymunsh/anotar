@@ -14,7 +14,6 @@ async function until(predicate) {
   }
   throw Error('operation not observed');
 }
-const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul' }).format(new Date());
 try {
   const context = await app.browser.newContext(),
     page = await context.newPage(),
@@ -22,125 +21,95 @@ try {
   page.on('request', (r) => {
     if (r.url().endsWith('/api/sync/operations')) requests.push(r.postDataJSON());
   });
-  await page.goto(app.base + '/journal');
-  await page.locator('#brain').waitFor();
-  await pause(500);
-  const field = page.locator('#brain'),
-    text = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX';
-  const start = requests.length;
-  for (let i = 1; i <= text.length; i++) {
-    await field.fill(text.slice(0, i));
-    await pause(35);
-  }
-  assert.equal(requests.length - start, 0, 'text is not sent on every input');
-  await pause(1200);
-  await waitForAsync(page, () =>
-    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
-  );
-  await pause(300);
-  const typed = requests.slice(start).filter((r) => r.kind.startsWith('journal.'));
-  assert.equal(typed.length, 1);
-  assert.equal(typed[0].payload.day.brain, text);
-  report.measurements.rapidJournalTyping = { inputEvents: 50, serverOperations: typed.length };
-  report.checks.push('real journal UI: 50 text inputs combine into one latest server operation');
-  const continuousStart = requests.length,
-    time = Date.now();
-  for (let i = 1; i <= 30; i++) {
-    await field.fill('continuous ' + i);
-    await pause(200);
-  }
-  assert.ok(requests.length > continuousStart, 'max wait dispatches before typing stops');
-  const first = requests[continuousStart];
-  assert.notEqual(first.payload.day.brain, 'continuous 30');
-  await pause(1200);
-  await waitForAsync(page, () =>
-    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
-  );
-  await pause(300);
-  assert.equal(requests.at(-1).payload.day.brain, 'continuous 30');
-  report.measurements.continuousTyping = {
-    durationMs: Date.now() - time,
-    serverOperations: requests.length - continuousStart,
-  };
-  report.checks.push(
-    'real journal UI: continuous typing dispatches at max wait and preserves final value',
-  );
-  await page.locator('.priority-text').first().click();
-  await page.locator('.priority-row textarea').first().fill('immediate checkbox');
-  const checkStart = requests.length;
-  await page.locator('.priority-row input[type=checkbox]').first().click();
-  await waitForAsync(page, () =>
-    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
-  );
-  await until(() => requests.slice(checkStart).some((r) => r.payload.day?.priorities[0]?.done));
-  const checked = requests.slice(checkStart).find((r) => r.payload.day?.priorities[0]?.done);
-  assert.ok(checked);
-  assert.equal(checked.payload.day.priorities[0].text, 'immediate checkbox');
-  report.checks.push('checkbox flush includes the latest text');
-  await page.evaluate(async () => {
-    await navigator.serviceWorker.ready;
-  });
-  await context.setOffline(true);
-  await field.fill('offline durable text');
-  await pause(250);
-  await page.reload();
-  await field.waitFor();
-  await until(async () => (await field.inputValue()) === 'offline durable text');
-  assert.equal(await field.inputValue(), 'offline durable text');
-  await context.setOffline(false);
-  await waitForAsync(page, () =>
-    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
-  );
-  assert.equal(requests.at(-1).payload.day.brain, 'offline durable text');
-  report.checks.push('offline edit survives reload and reconnect');
-  await field.fill('navigation flush');
-  await page.locator('a[href="/tasks"]').first().click();
-  await pause(350);
-  await page.locator('a[href="/journal"]').first().click();
-  await field.waitFor();
-  await until(async () => (await field.inputValue()) === 'navigation flush');
-  assert.equal(await field.inputValue(), 'navigation flush');
-  report.checks.push('navigation retains the latest journal value');
-  const { item } = await app.request('/api/pages', { title: 'autosave page fixture' });
-  await page.goto(app.base + '/pages/' + item.id);
+  const { item: fixturePage } = await app.request('/api/pages', { title: 'autosave fixture' });
+  await page.goto(app.base + '/pages/' + fixturePage.id);
   const title = page.getByLabel('페이지 제목', { exact: true });
   await title.waitFor();
   await pause(500);
   await waitForAsync(page, () =>
     document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
   );
-  const pageStart = requests.length;
+  const text = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX';
+  const start = requests.length;
   await title.fill('');
   await title.pressSequentially(text, { delay: 35 });
-  try {
-    await until(() => requests.slice(pageStart).some((r) => r.kind === 'page.update'));
-  } catch (error) {
-    console.log(
-      'page autosave state',
-      await page.evaluate(() => ({
-        status: document.querySelector('.sync-status')?.textContent,
-        text: document.querySelector('main')?.textContent?.slice(0, 1200),
-      })),
-    );
-    throw error;
-  }
+  assert.equal(
+    requests.slice(start).filter((r) => r.kind === 'page.update').length,
+    0,
+    'text is not sent on every input',
+  );
+  await pause(1200);
   await waitForAsync(page, () =>
     document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
   );
-  const pageOperations = requests.slice(pageStart).filter((r) => r.kind === 'page.update');
-  assert.equal(pageOperations.length, 1);
-  assert.equal(pageOperations[0].payload.title, text);
-  report.measurements.rapidPageTyping = {
-    inputEvents: 51,
-    serverOperations: pageOperations.length,
+  await pause(300);
+  const typed = requests.slice(start).filter((r) => r.kind === 'page.update');
+  assert.equal(typed.length, 1);
+  assert.equal(typed.at(-1).payload.title, text);
+  report.measurements.rapidPageTyping = { inputEvents: text.length, serverOperations: typed.length };
+  report.checks.push('real page UI: rapid title typing combines into one latest server operation');
+
+  const continuousStart = requests.length,
+    time = Date.now();
+  for (let i = 1; i <= 30; i++) {
+    await title.fill('continuous ' + i);
+    await pause(200);
+  }
+  assert.ok(requests.length > continuousStart, 'max wait dispatches before typing stops');
+  const firstOp = requests.slice(continuousStart).find((r) => r.kind === 'page.update');
+  assert.ok(firstOp && firstOp.payload.title !== 'continuous 30');
+  await pause(1200);
+  await waitForAsync(page, () =>
+    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
+  );
+  await pause(300);
+  assert.equal(
+    requests.filter((r) => r.kind === 'page.update').at(-1).payload.title,
+    'continuous 30',
+  );
+  report.measurements.continuousTyping = {
+    durationMs: Date.now() - time,
+    serverOperations: requests.slice(continuousStart).filter((r) => r.kind === 'page.update').length,
   };
-  report.checks.push('real page UI: rapid title typing combines into one server operation');
+  report.checks.push(
+    'real page UI: continuous typing dispatches at max wait and preserves final value',
+  );
+
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+  });
+  await context.setOffline(true);
+  await title.fill('offline durable title');
+  await pause(250);
+  await page.reload();
+  await title.waitFor();
+  await until(async () => (await title.inputValue()) === 'offline durable title');
+  assert.equal(await title.inputValue(), 'offline durable title');
+  await context.setOffline(false);
+  await waitForAsync(page, () =>
+    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
+  );
+  assert.equal(
+    requests.filter((r) => r.kind === 'page.update').at(-1).payload.title,
+    'offline durable title',
+  );
+  report.checks.push('offline edit survives reload and reconnect');
+
+  await title.fill('navigation flush');
+  await page.locator('a[href="/tasks"]').first().click();
+  await pause(350);
+  await page.goto(app.base + '/pages/' + fixturePage.id);
+  await title.waitFor();
+  await until(async () => (await title.inputValue()) === 'navigation flush');
+  assert.equal(await title.inputValue(), 'navigation flush');
+  report.checks.push('navigation retains the latest page value');
   await context.close();
+
   // Exercise queue races directly in an isolated browser, never user data.
   const bundle = await build({
     stdin: {
       contents:
-        "import * as runtime from './src/sync/runtime.ts';import * as repo from './src/sync/repository.ts';import {journalId,normalizeJournalDay} from './shared/journal.mjs';window.fixture={...runtime,...repo,journalId,normalizeJournalDay};",
+        "import * as runtime from './src/sync/runtime.ts';import * as repo from './src/sync/repository.ts';window.fixture={...runtime,...repo};",
       resolveDir: process.cwd(),
     },
     bundle: true,
@@ -166,17 +135,29 @@ try {
       if (!lease) await new Promise((resolve) => setTimeout(resolve, 50));
     }
     if (!lease) throw Error('test lease was not released');
-    const date = '2026-10-12',
-      id = f.journalId(r.workspaceId, date),
-      day = f.normalizeJournalDay(
-        { priorities: [], brain: 'initial', idea: '', feedback: '', plan: [], actual: [] },
-        date,
-      );
-    const save = async (brain) =>
-      f.queueValue(
-        'journal',
+    const id = crypto.randomUUID(),
+      now = new Date().toISOString(),
+      base = {
         id,
-        { id, date, day: { ...day, brain }, version: 1 },
+        title: 'queue race',
+        icon: '',
+        parentId: null,
+        position: Date.now(),
+        version: 1,
+        createdAt: now,
+        updatedAt: now,
+        document: {
+          schemaVersion: 1,
+          blocks: [
+            { id: crypto.randomUUID(), type: 'paragraph', props: {}, content: [], children: [] },
+          ],
+        },
+      };
+    const save = async (title) =>
+      f.queueValue(
+        'page',
+        id,
+        { ...base, title },
         crypto.randomUUID(),
         [],
         [],
@@ -200,7 +181,7 @@ try {
     await save('new while retrying');
     const retry = await head();
     await r.repository.markSending(retry, lease);
-    const item = { id, date, day: latest.operation.payload.day, version: 1 };
+    const item = { ...base, title: latest.operation.payload.title };
     await r.repository.acknowledge(
       retry,
       {
@@ -213,12 +194,12 @@ try {
       lease,
     );
     const follow = await head(),
-      entity = await f.readLocalEntity({ workspaceId: r.workspaceId, kind: 'journal', id });
+      entity = await f.readLocalEntity({ workspaceId: r.workspaceId, kind: 'page', id });
     await r.repository.releaseLease(lease);
     return { old, latest, staleClaim, freshClaim, sending, retry, follow, entity };
   });
   assert.equal(safety.old.operation.operationId, safety.latest.operation.operationId);
-  assert.equal(safety.latest.operation.payload.day.brain, 'latest unsent');
+  assert.equal(safety.latest.operation.payload.title, 'latest unsent');
   assert.equal(safety.staleClaim, false);
   assert.equal(safety.freshClaim, true);
   assert.deepEqual(safety.sending.operation, safety.latest.operation);
@@ -226,8 +207,8 @@ try {
   assert.equal(safety.retry.attempt, 1);
   assert.notEqual(safety.follow.operation.operationId, safety.retry.operation.operationId);
   assert.equal(safety.follow.operation.baseVersion, 1);
-  assert.equal(safety.follow.operation.payload.day.brain, 'new while retrying');
-  assert.equal(safety.entity.current.day.brain, 'new while retrying');
+  assert.equal(safety.follow.operation.payload.title, 'new while retrying');
+  assert.equal(safety.entity.current.title, 'new while retrying');
   assert.equal(safety.entity.dirty, true);
   report.checks.push(
     'only unsent snapshots coalesce; stale atomic claim rejected; sending/retry UUID and payload immutable; late ACK emits latest correctly versioned follow-up',

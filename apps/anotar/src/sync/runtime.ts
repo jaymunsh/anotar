@@ -95,8 +95,6 @@ export function getWorkspaceRuntime(): Promise<Runtime> {
       });
     }
     const { workspaceId, deviceId } = binding;
-    const {claimJournalLegacyOwner}=await import('../journal/migration');
-    await claimJournalLegacyOwner(workspaceId);
     const repository = workspaceRepository(workspaceId, deviceId);
     repository.prepareUploads = async (pending, network) => {
       if (
@@ -209,8 +207,6 @@ export function getWorkspaceRuntime(): Promise<Runtime> {
 }
 export async function resetRuntimeBinding(session: import('../../shared/sync').SyncSession) {
   const old = await getWorkspaceRuntime();
-  const {claimJournalLegacyOwner}=await import('../journal/migration');
-  await claimJournalLegacyOwner(old.workspaceId);
   old.engine.stop();
   runtimeGeneration++;
   runtimeDisposers.splice(0).forEach((dispose) => dispose());
@@ -228,7 +224,7 @@ export async function resetRuntimeBinding(session: import('../../shared/sync').S
 export async function enqueueCurrentPage(id: string) {
   return enqueueCurrentEntity('page', id);
 }
-export async function enqueueCurrentEntity(kind: 'page' | 'journal', id: string) {
+export async function enqueueCurrentEntity(kind: 'page', id: string) {
   const { workspaceId, deviceId, engine } = await getWorkspaceRuntime();
   const changed = await transaction(['entities', 'outbox', 'meta'], 'readwrite', async (tx) => {
     const entity: Entity | undefined = await idbRequest(
@@ -352,7 +348,7 @@ export async function queueValue(
       const heads: Pending[] = await idbRequest(outbox.index('workspace').getAll(workspaceId));
       // Replace only an update that has never been sent. Sending/retried UUIDs
       // must retain their exact payload for receipt replay after response loss.
-      if (kind === 'page' || kind === 'journal') {
+      if (kind === 'page') {
         const unsent = heads.find(head => head.operation.entityId === id &&
           /\.(create|update)$/.test(head.operation.kind) && head.state === 'queued' && head.attempt === 0);
         if (unsent) {

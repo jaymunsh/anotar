@@ -84,6 +84,9 @@ const handleHostingRoute = createHostingRoutes({
 });
 const maxFileSize = 25 * 1024 * 1024;
 const maxTotalSize = 100 * 1024 * 1024;
+// The 일지(journal) feature moved to the separate harukan service. Old /journal
+// bookmarks get a 302 to this address so they keep working.
+const harukanUrl = (process.env.HARUKAN_URL || 'https://leneu.store/app').replace(/\/$/, '');
 
 function json(response, status, payload) {
   response.writeHead(status, {
@@ -288,6 +291,14 @@ const server = createServer(async (request, response) => {
     if (request.method === 'POST' && url.pathname === '/capture/share') {
       request.resume();
       response.writeHead(303, { Location: '/capture?shareError=unsupported', 'Cache-Control': 'no-store' });
+      return response.end();
+    }
+    if (
+      (request.method === 'GET' || request.method === 'HEAD') &&
+      /^\/journal(?:\/.*)?$/.test(url.pathname)
+    ) {
+      request.resume();
+      response.writeHead(302, { Location: harukanUrl, 'Cache-Control': 'no-store' });
       return response.end();
     }
     if (request.method === 'GET' && url.pathname === '/api/health')

@@ -79,7 +79,7 @@ export async function handleSyncRequest(request, response, { store, blobDir, onA
       );
     else if (
       request.method === 'GET' &&
-      /^entities\/(capture|page|task|journal)\/[a-f0-9-]{36}$/i.test(path)
+      /^entities\/(capture|page|task)\/[a-f0-9-]{36}$/i.test(path)
     ) {
       const [, kind, id] = path.split('/');
       send(

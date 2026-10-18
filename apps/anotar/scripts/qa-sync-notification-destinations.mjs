@@ -4,7 +4,6 @@ import { DatabaseSync } from 'node:sqlite';
 import { join } from 'node:path';
 import { build } from 'esbuild';
 import { offlineApp } from './fixtures/offline-app.mjs';
-import { journalId, normalizeJournalDay } from '../shared/journal.mjs';
 const app = await offlineApp(),
   checks = [];
 const bundle = await build({
@@ -22,29 +21,12 @@ try {
   for (const [kind, label, route] of [
     ['task', '할 일에서 확인', 'tasks'],
     ['capture', '해당 메모에서 확인', 'captures'],
-    ['journal', '일지에서 확인', 'journal'],
   ]) {
-    const date = '2026-10-05',
-      id = kind === 'journal' ? journalId(session.workspaceId, date) : randomUUID();
+    const id = randomUUID();
     const payload =
       kind === 'task'
         ? { title: '할 일 서버본', status: 'open', dueDate: null, pageId: null }
-        : kind === 'capture'
-          ? { kind: 'note', text: '메모 서버본', url: null, uploadIds: [], aiRequest: null }
-          : {
-              date,
-              day: normalizeJournalDay(
-                {
-                  priorities: [],
-                  brain: '일지 서버본',
-                  idea: '',
-                  feedback: '',
-                  plan: [],
-                  actual: [],
-                },
-                date,
-              ),
-            };
+        : { kind: 'note', text: '메모 서버본', url: null, uploadIds: [], aiRequest: null };
     const operation = {
       protocolVersion: 1,
       workspaceId: session.workspaceId,
@@ -68,18 +50,14 @@ try {
     await page.addScriptTag({ content: bundle.outputFiles[0].text });
     const local = {
       ...server,
-      ...(kind === 'task'
-        ? { title: '할 일 기기본' }
-        : kind === 'capture'
-          ? { text: '메모 기기본' }
-          : { day: { ...server.day, brain: '일지 기기본' } }),
+      ...(kind === 'task' ? { title: '할 일 기기본' } : { text: '메모 기기본' }),
     };
     const pendingOperation = {
       ...operation,
       operationId: randomUUID(),
       kind: kind + '.update',
       baseVersion: server.version,
-      payload: kind === 'journal' ? { date, day: local.day } : local,
+      payload: local,
     };
     await page.evaluate(
       async ({ kind, id, local, server, operation }) => {
@@ -142,8 +120,6 @@ try {
     assert.ok(archived);
     assert.deepEqual(archived.local, local);
     assert.deepEqual(errors, []);
-    if (kind === 'journal')
-      await page.screenshot({ path: '.omo/evidence/sync-notifications/journal-resolved.png' });
     checks.push(
       kind +
         ': alert navigates to own workspace; expanded comparison resolves and archives device copy',

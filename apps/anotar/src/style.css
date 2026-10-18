@@ -255,6 +255,11 @@ a {
   width: 15px;
   height: 15px;
 }
+.nav-external-icon {
+  flex: none;
+  margin-left: auto;
+  opacity: 0.6;
+}
 .nav-indicator {
   width: 5px;
   height: 5px;

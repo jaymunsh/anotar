@@ -1,6 +1,5 @@
 import { initializeSyncFeed } from './sync/feed.mjs';
 import { reconcileChildPageLinks } from '../shared/childPageLinks.ts';
-import { createJournalStore } from './journal.mjs';
 import { createAuthStore } from './auth/store.mjs';
 import { initializeSync, getSyncSession, bindSyncStore } from './sync/store.mjs';
 import { createWorkspacePageStore } from './workspacePages.mjs';
@@ -529,7 +528,6 @@ export function openStore(dataDir) {
     createPageAiStore(db, () => store),
   );
   initializeSync(db);
-  Object.assign(store, createJournalStore(db));
   initializeSyncFeed(db);
   bindSyncStore(store, db);
   store.syncSession = () => getSyncSession(db);

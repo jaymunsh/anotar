@@ -336,25 +336,6 @@
       "history": "preview data only; preserves visible position when prepended",
       "initialPosition": "latest record",
       "sourceView": false
-    },
-    "timeboxingPreview": {
-      "source": "docs/design/timeboxing-preview.html",
-      "status": "interactive design prototype only",
-      "sourceReference": "user-supplied 타임박싱2.pdf; three priorities, brain dump, idea, feedback, 24-hour grid",
-      "purpose": "plan the day and revisit explicitly missed plans",
-      "model": "plan-only 24-hour worksheet with six ten-minute slots, list secondary; missed flag and all-date review",
-      "storage": "anotar:timeboxing-design:v1 only",
-      "productPersistence": false,
-      "range": "00:00–24:00; review groups all saved missed plans by date",
-      "axis": "00–60 minute ruler; clipped hourly intervals; full range in tooltip, accessible name and edit dialog",
-      "responsive": "1280px max; upper calendar; desktop notes/planner about28:72; mobile calendar, planner, notes without horizontal scroll",
-      "preserves": "journal-preview.html and journal-design.md unchanged",
-      "brief": "docs/design/timeboxing-design.md",
-      "defaultEnd": "new start +30min until end manually edited; existing edit preserves duration; capped at midnight",
-      "color": "no category fills; one accent for selection/actions",
-      "evidence": ".omo/evidence/timeboxing-plan-only/REPORT.md",
-      "entryForm": "title/start/end and optional missed checkbox; legacy actual/kind/note preserved",
-      "density": "Centered hour labels; titles ellipsize in short slots, detail modal; mobile44px schedule height"
     }
   },
   "components": [

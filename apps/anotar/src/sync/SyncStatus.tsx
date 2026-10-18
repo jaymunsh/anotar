@@ -127,12 +127,9 @@ export function SyncStatus({ onNavigate, onOpenStorage }: {
                     {String(
                       ('title' in item.operation.payload
                         ? item.operation.payload.title
-                        : 'date' in item.operation.payload
-                          ? `${item.operation.payload.date} 일지`
                         : 'text' in item.operation.payload
                           ? item.operation.payload.text
                           : item.operation.kind.startsWith('task.') ? '할 일'
-                          : item.operation.kind.startsWith('journal.') ? '일지'
                           : item.operation.kind.startsWith('page.') ? '페이지'
                           : '메모') || '새 자료',
                     ).slice(0, 60)}

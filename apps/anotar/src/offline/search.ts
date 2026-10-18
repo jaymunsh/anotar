@@ -26,7 +26,6 @@ export async function searchLocalWorkspace({
   const matches = (body: string) =>
     terms.every((term) => body.normalize('NFC').toLocaleLowerCase().includes(term));
   const collect = (row: Entity) => {
-    if (row.kind === 'journal') return;
     const value = row.current;
     if (!value) return;
     const type = row.kind === 'capture' ? (value.aiRequest ? 'ai' : 'memo') : row.kind;

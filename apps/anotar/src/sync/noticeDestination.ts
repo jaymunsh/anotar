@@ -9,8 +9,6 @@ export function noticeDestination(operation: SyncOperation) {
     (operation.kind === 'ai.submit' && operation.payload.sourceKind === 'page')
   )
     return { path: '/pages/' + id + query, label: '해당 페이지에서 확인' };
-  if (operation.kind.startsWith('journal.'))
-    return { path: '/journal' + query, label: '일지에서 확인' };
   if (operation.kind.startsWith('task.'))
     return { path: '/tasks' + query, label: '할 일에서 확인' };
   return { path: '/captures/' + id + query, label: '해당 메모에서 확인' };

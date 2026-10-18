@@ -14,7 +14,6 @@ import {
 } from '../sync/repository';
 import { pendingSignature } from './exportPending';
 import { flushLocalEdits } from './update';
-import { journalId, validateJournalDay } from '../../shared/journal.mjs';
 export async function recoveryOverview() {
   const { workspaceId } = await getWorkspaceRuntime();
   const [server, identity, entities, outbox] = await Promise.all([
@@ -150,9 +149,7 @@ export async function reconnectAfterReview({
   const ids = new Map<string, string>();
   for (const entity of selected) {
     const remote = await transport.fetchEntity(entity.kind, entity.id);
-    const id = entity.kind === 'journal'
-      ? journalId(server.workspaceId,String(entity.current?.date))
-      : remote.tombstone ? crypto.randomUUID() : entity.id;
+    const id = remote.tombstone ? crypto.randomUUID() : entity.id;
     ids.set(entity.id, id);
     prepared.push({
       entity,
@@ -176,7 +173,6 @@ export async function reconnectAfterReview({
   for (const item of prepared)
     try {
       const { entity, remote, blobs } = item;
-      if (entity.kind === 'journal') item.value.day=validateJournalDay(item.value.day);
       if (!remote.item && entity.kind === 'capture') {
         const files = (entity.current?.files as Value[] | undefined) ?? [];
         for (const original of files) {

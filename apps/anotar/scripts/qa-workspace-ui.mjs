@@ -294,7 +294,6 @@ export async function runWorkspaceUiQa(browser, base) {
     const toolbarRoutes = [
       ['/', '홈', null],
       ['/memo', '메모', '기록하기'],
-      ['/journal', '일지', null],
       ['/tasks', '할 일', '새 할 일 작성'],
       ['/ai', 'AI 작업', '새 AI 요청'],
       ['/prompts', '프롬프트', '새 템플릿'],

@@ -42,7 +42,7 @@ export async function exportPendingWorkspace(workspaceId: string) {
     },
   );
   const archivalMeta = snapshot.meta.filter((record) =>
-    /"(legacy|legacyJournalCollision|recoveryArchive|sync|rejectedWorkflow|localEditConflict|rejectedWrite)"/.test(
+    /"(legacy|recoveryArchive|sync|rejectedWorkflow|localEditConflict|rejectedWrite)"/.test(
       String(record.key),
     ),
   );
@@ -96,7 +96,6 @@ export async function exportPendingWorkspace(workspaceId: string) {
   for (const record of snapshot.meta) {
     if (
       !String(record.key).includes('"legacy"') &&
-      !String(record.key).includes('"legacyJournalCollision"') &&
       !String(record.key).includes('"recoveryArchive"') &&
       !String(record.key).includes('"sync"') &&
       !String(record.key).includes('"rejectedWorkflow"') &&

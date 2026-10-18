@@ -148,15 +148,10 @@ export function createSyncEngine({
       if (!(await repository.bootstrapDone())) {
         const startSeq = session.headSeq;
         const kinds: SyncEntityKind[] = ['capture','task','page'];
-        if (session.capabilities.includes('journal.create')) kinds.push('journal');
         for (const kind of kinds) await bootstrapKind(kind,startSeq);
         await repository.markBootstrapDone(startSeq, lease);
         cursor = startSeq;
       }
-      // Connected devices predate newly supported entities. Bootstrap journal
-      // once while retaining the global cursor and the ordinary change feed.
-      if (session.capabilities.includes('journal.create') && repository.bootstrapKindDone && !(await repository.bootstrapKindDone('journal')))
-        await bootstrapKind('journal',session.headSeq);
       for (let batchNumber = 0; batchNumber < 100; batchNumber++) {
         const batch = await transport.pullChanges(cursor);
         if (batch.epoch !== identity.epoch || cursor > batch.headSeq) {

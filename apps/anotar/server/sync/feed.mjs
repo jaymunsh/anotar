@@ -1,6 +1,6 @@
 import { getSyncSession, syncDatabase } from './store.mjs';
 import { pageTransaction } from '../pageConnections.mjs';
-const tables = { capture: 'captures', page: 'pages', task: 'tasks', journal: 'journal_days' };
+const tables = { capture: 'captures', page: 'pages', task: 'tasks' };
 export function initializeSyncFeed(db) {
   for (const [kind, table] of Object.entries(tables)) {
     const columns = new Set(
@@ -84,7 +84,7 @@ export function readSyncEntity(store, kind, id, { metadata = false } = {}) {
             createdAt: row.created_at,
             updatedAt: row.updated_at,
           }
-        : store[{ capture: 'getCapture', page: 'getPage', task: 'getTask', journal: 'getJournal' }[kind]](id);
+        : store[{ capture: 'getCapture', page: 'getPage', task: 'getTask' }[kind]](id);
     if (item) item.clientCreatedAt = row.client_created_at ?? null;
     return {
       workspaceId: session.workspaceId,

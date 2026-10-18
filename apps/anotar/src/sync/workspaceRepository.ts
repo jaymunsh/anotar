@@ -67,8 +67,6 @@ export function operationForEntity(
           clientCreatedAt: value.clientCreatedAt,
         }
       : { title: value.title, dueDate: value.dueDate ?? null, stage: value.stage ?? 'todo', pageId: value.pageId ?? null };
-  else if (entity.kind === 'journal')
-    payload = { date: value.date, day: value.day, ...(create ? { clientCreatedAt:value.clientCreatedAt } : {}) };
   else
     payload = create
       ? {

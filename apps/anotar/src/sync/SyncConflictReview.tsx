@@ -9,7 +9,7 @@ export default function SyncConflictReview({
   kind,
   entityId,
 }: {
-  kind: 'capture' | 'task' | 'journal';
+  kind: 'capture' | 'task';
   entityId?: string | null;
 }) {
   const [items, setItems] = useState<{ conflict: ConflictRecord; local: Value | null }[]>([]);
@@ -60,7 +60,7 @@ export default function SyncConflictReview({
       {error && <p role="alert">{error}</p>}
       {items.map(({ conflict, local }) => (
         <div key={conflict.operationId}>
-          <h2>{String(local?.title ?? local?.text ?? local?.date ?? '변경 확인').slice(0, 80)}</h2>
+          <h2>{String(local?.title ?? local?.text ?? '변경 확인').slice(0, 80)}</h2>
           <ConflictPanel
             conflict={conflict}
             local={local}

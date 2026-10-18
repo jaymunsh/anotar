@@ -1,6 +1,5 @@
 import type { PageDocument } from '../src/pages/types';
-import type { JournalDay } from './journal.mjs';
-export type SyncEntityKind = 'capture' | 'task' | 'page' | 'journal';
+export type SyncEntityKind = 'capture' | 'task' | 'page';
 export type SyncChange = {
   seq: number;
   entityKind: SyncEntityKind;
@@ -17,8 +16,6 @@ export type SyncSession = {
 };
 type Created = { clientCreatedAt?: string };
 type Payloads = {
-  'journal.create': Created & { date: string; day: JournalDay };
-  'journal.update': { date: string; day: JournalDay };
   'capture.create': Created & {
     kind: 'note' | 'link' | 'image' | 'file';
     text: string;

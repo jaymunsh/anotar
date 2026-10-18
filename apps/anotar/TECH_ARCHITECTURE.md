@@ -244,8 +244,8 @@ N100은 `linux/amd64` 대상이므로 로컬 개발 컴퓨터가 다른 CPU 아�
 
 SQLite에 공유 댓글 받은함의 파생 활동/guest sequence/읽음 marker와 일정 private 관계를 추가한다. 같은 온라인 DB 스냅샷에 포함하고 재시작 후 migration을 안전하게 재실행한다. 받은함 최근 목록은 인덱스/cursor와 제한된 메타데이터를 사용한다. 일정 public projection은 허용된 현재 블록/항목과 opt-in Task 제목/상태만 반환한다. 공개 프로세스의 readonly DB와 제한된 comment socket 경계는 유지한다. 모바일 공유 대기함은 private origin IndexedDB이며 서버 백업 대상이 아니고 명시 저장 이후 서버 데이터가 된다. manifest/service worker는 personal app에만 배포하며 전체 오프라인 동기화는 없다. Docker 경로 설정·백업 CLI·확인 명령·실제 이전 절차는 [DEPLOYMENT](docs/DEPLOYMENT.md)를 따른다.
 
-### 구현 추가: 일지·독립 정적 사이트 (2026-10-05)
+### 구현 변경: 일지 이전·독립 정적 사이트 (2026-10-05)
 
-일지의 서버 진입은 기존 `/api/sync`이며 `server/journal.mjs`와 `shared/journal.mjs`가 날짜별 엔티티/검증을 맡는다. 브라우저 `src/journal/storage.ts`가 controller에 기존 IndexedDB 저장·큐·변경 구독을 연결한다. 전체 날짜 충돌을 보존하며 localStorage 자료는 원문 사본을 남기는 이관 입력이다. `src/journal/migration.ts`는 기기 공통 원문 소유권과 원문 보관·원자 이관을 맡고, `LegacyJournalReview.tsx`는 두 기기 사본이 겹칠 때의 선택을 제공한다. 현재 입력 화면과 서버 캐시가 달라지면 입력 화면이 보던 base를 사용해 조용한 덮어쓰기를 막는다.
+일지는 별도 서비스 **harukan**으로 옮겼다. anotar의 일지 클라이언트(`src/journal/*`), 서버 모듈(`server/journal.mjs`, `shared/journal.mjs`)과 `journal.create`/`journal.update` 동기화 작업을 제거했다. 사이드바 **일지**는 `VITE_HARUKAN_URL`(기본 `https://leneu.store/app`)을 새 탭으로 여는 외부 링크이고, 서버는 옛 `GET /journal`·`/journal/*`을 `HARUKAN_URL`로 302 연결한다. 기존 로컬 DB의 `journal_days` 테이블·행은 그대로 두되 새로 만들거나 사용하지 않는다(`sync_changes` CHECK의 `journal` 값은 호환을 위해 유지).
 
 정적 호스팅은 별도 `server/sites.mjs`8792와 HOSTED_SITES_DIR registry/bundles 파일 저장으로 구현했다. 개인 서버의 `server/hosting/routes.mjs`만 등록/공개 상태를 쓰고 정적 프로세스는 읽기만 한다. `src/hosting/HostingWorkspace.tsx`가 `/hosting` 관리 목록이고 설정에서 진입한다. Compose sites는 사이트 볼륨만 읽기 전용 마운트하며 Caddy가 host.leneu.store를8792로 프록시한다. 실제 원격 배포는 후속이다. 상세 파일/제한/운영 방법은 [STATIC_HOSTING.md](docs/STATIC_HOSTING.md).

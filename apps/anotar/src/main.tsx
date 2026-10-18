@@ -9,6 +9,7 @@ import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {
   CalendarDays,
+  ExternalLink,
   ArrowRight,
   ArrowUpRight,
   Check,
@@ -31,7 +32,6 @@ import RecordTimestamps from './RecordTimestamps';
 import CaptureCollection, { kinds, fileSize, iconFor } from './memos/CaptureCollection';
 import type { Capture, Filter, MemoScope, Organization } from './memos/types';
 import TaskWorkspace from './tasks/TaskWorkspace';
-const JournalWorkspace = React.lazy(() => import('./journal/JournalWorkspace'));
 import WorkspaceSettings from './settings/WorkspaceSettings';
 import { WorkspaceToolbar, WorkspaceToolbarContext } from './workspace/WorkspaceToolbar';
 import { DIRECT_REQUEST, inferInputUrl, preferredTemplateId } from './prompts/templates';
@@ -92,11 +92,13 @@ const CommentsAttention = React.lazy(() =>
   import('./comments').then((module) => ({ default: module.CommentsAttention })),
 );
 
+// The 일지(journal) feature moved to the separate harukan service; the sidebar
+// item opens it in a new tab. Build-time Vite env, default is the live address.
+const HARUKAN_URL = import.meta.env.VITE_HARUKAN_URL || 'https://leneu.store/app';
+
 function currentRoute() {
   if (/^\/hosting\/?$/.test(window.location.pathname))
     return { section: 'hosting' as const, pageId: null, promptId: null };
-  if (/^\/journal\/?$/.test(window.location.pathname))
-    return { section: 'journal' as const, pageId: null, promptId: null };
   if (/^\/wiki(?:\/[^?#]*)?$/.test(window.location.pathname))
     return { section: 'wiki' as const, pageId: null, promptId: null };
   if (/^\/comments\/?$/.test(window.location.pathname))
@@ -311,7 +313,6 @@ function App() {
   const latestRequest = useRef(0);
   const isPageView = route.section === 'pages';
   const isTaskView = route.section === 'tasks';
-  const isJournalView = route.section === 'journal';
   const isHostingView = route.section === 'hosting';
   const isPromptView = route.section === 'prompts';
   const isInboxView = route.section === 'inbox';
@@ -1138,18 +1139,16 @@ function App() {
                   <span className="nav-label">메모</span>
                 </a>
                 <a
-                  className={`nav-item ${isJournalView ? 'active' : ''}`}
-                  aria-current={isJournalView ? 'page' : undefined}
-                  href="/journal"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    navigate('/journal');
-                  }}
+                  className="nav-item"
+                  href={HARUKAN_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   <span className="nav-icon">
                     <CalendarDays size={18} />
                   </span>
                   <span className="nav-label">일지</span>
+                  <ExternalLink size={14} aria-hidden="true" className="nav-external-icon" />
                 </a>
                 <a
                   className={`nav-item ${isTaskView ? 'active' : ''}`}
@@ -1283,11 +1282,9 @@ function App() {
                 ? '페이지'
                 : isHostingView
                   ? '웹 호스팅'
-                  : isJournalView
-                    ? '일지'
-                    : isTaskView
-                      ? '할 일'
-                      : isPromptView
+                  : isTaskView
+                    ? '할 일'
+                    : isPromptView
                         ? '프롬프트'
                         : isAiView
                           ? 'AI 작업'
@@ -1678,18 +1675,13 @@ function App() {
               </aside>
             </div>
           </main>
-          {syncConflicts > 0 && (isJournalView || isTaskView || isMemoView) && (
+          {syncConflicts > 0 && (isTaskView || isMemoView) && (
             <React.Suspense fallback={null}>
               <SyncConflictReview
                 key={route.section + (isMemoView ? route.captureId || '' : '')}
-                kind={isJournalView ? 'journal' : isTaskView ? 'task' : 'capture'}
+                kind={isTaskView ? 'task' : 'capture'}
                 entityId={isMemoView ? route.captureId : null}
               />
-            </React.Suspense>
-          )}
-          {isJournalView && (
-            <React.Suspense fallback={<div className="page-route-loading" role="status">일지를 여는 중…</div>}>
-              <JournalWorkspace />
             </React.Suspense>
           )}
           {isMemoView && (

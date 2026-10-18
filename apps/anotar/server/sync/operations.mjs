@@ -2,10 +2,7 @@ import { createHash } from 'node:crypto';
 import { syncDatabase, getSyncSession } from './store.mjs';
 import { readSyncEntity } from './feed.mjs';
 import { pageTransaction } from '../pageConnections.mjs';
-import { journalId, validateJournalDay } from '../../shared/journal.mjs';
 export const SYNC_CAPABILITIES = [
-  'journal.create',
-  'journal.update',
   'capture.create',
   'capture.update',
   'task.create',
@@ -281,15 +278,6 @@ export function applySyncOperation(store, op) {
     let item;
     try {
       switch (op.kind) {
-        case 'journal.create':
-        case 'journal.update':
-          if (journalId(op.workspaceId,p.date) !== op.entityId)
-            throw new SyncError(422,'invalid_journal_id','일지 날짜와 식별자를 확인해 주세요.');
-          validateJournalDay(p.day);
-          item = create
-            ? store.createJournal({ id:op.entityId,workspaceId:op.workspaceId,date:p.date,day:p.day })
-            : store.updateJournal({ id:op.entityId,workspaceId:op.workspaceId,date:p.date,day:p.day,expectedVersion });
-          break;
         case 'page.create':
           item = store.createPage({
             title: p.title,
@@ -367,7 +355,7 @@ export function applySyncOperation(store, op) {
     }
     if (create && p.clientCreatedAt)
       db.prepare(
-        `UPDATE ${kind === 'capture' ? 'captures' : kind === 'page' ? 'pages' : kind === 'journal' ? 'journal_days' : 'tasks'} SET client_created_at=? WHERE id=?`,
+        `UPDATE ${kind === 'capture' ? 'captures' : kind === 'page' ? 'pages' : 'tasks'} SET client_created_at=? WHERE id=?`,
       ).run(p.clientCreatedAt, op.entityId);
     item = readSyncEntity(store, kind, op.entityId).item;
     const result = {

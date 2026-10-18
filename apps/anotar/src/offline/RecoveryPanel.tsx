@@ -91,7 +91,7 @@ export default function RecoveryPanel() {
                     }
                   />
                   <span>
-                    {String(entity.current?.title ?? entity.current?.text ?? (entity.kind==='journal' ? `${entity.current?.date} 일지` : '기기 변경')).slice(
+                    {String(entity.current?.title ?? entity.current?.text ?? '기기 변경').slice(
                       0,
                       70,
                     )}

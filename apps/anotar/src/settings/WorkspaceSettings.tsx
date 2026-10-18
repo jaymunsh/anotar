@@ -171,7 +171,7 @@ export default function WorkspaceSettings({
                 </button>
               </div>
               <div className="settings-row">
-                <div><strong>앱 글꼴</strong><p>메뉴, 메모, 일지와 문서에 함께 적용해요.</p></div>
+                <div><strong>앱 글꼴</strong><p>메뉴, 메모와 문서에 함께 적용해요.</p></div>
                 <select aria-label="앱 글꼴" value={appFont} onChange={event=>{const font=event.target.value as AppFont;setAppFont(font);applyAppFont(font);}}>
                   <option value="default">기본</option><option value="pretendard">Pretendard</option><option value="ridibatang">리디바탕</option>
                 </select>
