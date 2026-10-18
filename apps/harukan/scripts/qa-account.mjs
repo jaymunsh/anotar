@@ -23,12 +23,12 @@ try{
   await page.locator('.account-link',{hasText:'하루 사람'}).waitFor();checks.push('sign-up with email + nickname lands on the app with the nickname in the header');
   assert.ok(link('qa.person@example.test','verify'));checks.push('sign-up sends an email check link');
 
-  await page.goto(base+'/app/settings');await page.locator('.settings-email .unverified').waitFor();
+  await page.goto(base+'/app/settings');await page.locator('.account-value .unverified').waitFor();
   await page.getByLabel('닉네임',{exact:true}).fill('새 닉네임');await page.getByRole('button',{name:'저장',exact:true}).click();
   await page.locator('.account-link',{hasText:'새 닉네임'}).waitFor();checks.push('settings changes the nickname and the header follows');
 
   await page.goto(link('qa.person@example.test','verify'));await page.getByText('주소를 확인했어요').waitFor();
-  await page.goto(base+'/app/settings');await page.locator('.settings-email .verified').waitFor();checks.push('the check link confirms the address');
+  await page.goto(base+'/app/settings');await page.locator('.account-value .verified').waitFor();checks.push('the check link confirms the address');
 
   await page.getByRole('button',{name:'로그아웃'}).click();await page.waitForURL(u=>!u.pathname.startsWith('/app'));
   await page.goto(base+'/forgot');await page.getByLabel('이메일',{exact:true}).fill('qa.person@example.test');
