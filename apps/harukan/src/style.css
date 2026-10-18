@@ -101,3 +101,8 @@ body:has(.journal-page:not(.journal-preview)) .public-header{padding-inline:max(
 .guide-close{display:flex;gap:10px;flex-wrap:wrap;margin-top:40px}
 @media(max-width:760px){.guide-steps-nav ol{grid-template-columns:minmax(0,1fr)}.guide-steps-nav a{padding:8px 12px}.guide-step{margin-top:44px}.guide-step .guide-strip{overflow-x:auto}.guide-step .guide-strip img{width:auto;max-width:none;height:42px}}
 .settings-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px}.settings-links a{display:inline-flex;align-items:center;gap:6px}
+/* Phones: a line between the brand row and the menu; the save dot gets its words back only when something is wrong (failed save, conflict, no connection) — routine saving stays a quiet dot. */
+@media(max-width:640px){
+ .app-header .app-nav{flex-basis:calc(100% + 2 * var(--workspace-gutter));margin-inline:calc(-1 * var(--workspace-gutter));padding-inline:var(--workspace-gutter);border-top:1px solid var(--line)}
+ .header-save [data-state=error],.header-save [data-state=conflict],.header-save [data-state=load-error]{font-size:11px;gap:6px}
+}
