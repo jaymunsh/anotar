@@ -8,7 +8,7 @@
 |---|---|---|
 | `apps/anotar/` | 개인 메모·페이지 앱 + 공개 공유 서버 + 정적 호스팅 서버 (Node) | `apps/anotar/AGENTS.md`를 먼저 읽는다 |
 | `apps/memory/` | 기억 화면: 위키·AI 기록 뷰어, 빌드, 세션 가져오기, 실행 스크립트 (Python 표준 라이브러리) | 데이터는 이 repo에 없다 |
-| `apps/planner/` | anotar 플래너: 제3자도 가입해 쓰는 하루 시간표 서비스, `leneu.store` (Node) | 개인 anotar와 DB·쿠키·배포를 공유하지 않는다. `apps/planner/README.md` |
+| `apps/planner/` | 하루칸(Harukan, 예전 이름 anotar 플래너): 제3자도 가입해 쓰는 하루 시간표 서비스, `leneu.store` (Node) | 개인 anotar와 DB·쿠키·배포를 공유하지 않는다. `apps/planner/README.md` |
 
 ## 주소와 서비스 (운영, 2026-10-16 기준)
 

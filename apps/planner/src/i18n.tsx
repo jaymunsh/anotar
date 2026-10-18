@@ -17,7 +17,7 @@ export function t(korean:string){return language==='en'?(english[korean]??korean
 export function pair(korean:string,englishText:string){return language==='en'?englishText:korean;}
 function applyLanguage(){
   document.documentElement.lang=language;
-  document.title=pair('anotar · 나의 하루 플래너','anotar · Your daily planner');
+  document.title=pair('하루칸 · 하루를 칸으로','Harukan · Your day in boxes');
   document.querySelector('meta[name=description]')?.setAttribute('content',pair('하루를 시간으로 계획하고 실제로 한 일을 기록하세요. 시간표, 할 일, 하루 메모를 함께 관리하는 개인 플래너.','Plan your day and see how you spent your time. A personal planner for your schedule, tasks, and daily notes.'));
 }
 export function setLanguage(next:Language){

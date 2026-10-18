@@ -8,7 +8,7 @@ export function Legal({kind,site}:{kind:string;site:Site}) {
     {!site.legalReady&&<p className="notice">{t("공개 전 검토 중인 문서입니다. 운영 환경과 시행일을 확인한 뒤 최종 게시합니다.")}</p>}
     <p className="legal-date">{l.publishedAt?`${pair("시행일","Effective date")} ${l.publishedAt}`:t("시행일: 공개 전 확정 예정")}</p>
     {kind==='privacy'?<>
-      <p>{pair(`${operator}은(는) anotar 플래너를 운영하며 다음과 같이 개인정보를 처리합니다.`, `${operator} operates the anotar planner and processes personal information as described below.`)}</p>
+      <p>{pair(`${operator}은(는) 하루칸 플래너를 운영하며 다음과 같이 개인정보를 처리합니다.`, `${operator} operates the Harukan planner and processes personal information as described below.`)}</p>
       <h2>{t("처리하는 정보와 목적")}</h2><table className="policy-table"><thead><tr><th scope="col" id="policy-0-0">{t("정보")}</th><th scope="col" id="policy-0-1">{t("목적")}</th><th scope="col" id="policy-0-2">{t("보유 기간")}</th></tr></thead><tbody>
       <tr><td headers="policy-0-0" data-label={t("정보")}>{t("아이디, 비밀번호 해시, 복구코드 해시, 가입 시각, 약관 확인 버전")}</td><td headers="policy-0-1" data-label={t("목적")}>{t("회원 식별·로그인·계정 복구")}</td><td headers="policy-0-2" data-label={t("보유 기간")}>{t("회원 탈퇴까지")}</td></tr>
       <tr><td headers="policy-0-0" data-label={t("정보")}>{t("일정·실제 활동·할 일·메모·날짜·시간대·변경 버전")}</td><td headers="policy-0-1" data-label={t("목적")}>{t("개인 플래너 저장과 조회")}</td><td headers="policy-0-2" data-label={t("보유 기간")}>{t("삭제 또는 회원 탈퇴까지")}</td></tr>
@@ -34,7 +34,7 @@ export function Legal({kind,site}:{kind:string;site:Site}) {
       <h2>{t("보호 조치와 아동 이용")}</h2><p>{t("비밀번호 해시, HTTPS 운영 연결, 계정별 조회·쓰기 범위, 세션 쿠키, 요청 검증과 로그인 시도 제한을 적용합니다. 만 14세 미만 가입은 현재 제공하지 않습니다.")}</p>
       <h2>{t("변경 안내")}</h2><p>{t("내용이 바뀌면 시행일과 변경 사항을 이 페이지에 게시합니다. 권리에 중요한 영향을 주는 변경은 서비스 안내를 통해 별도로 알립니다.")}</p>
     </>:kind==='terms'?<>
-      <p>{pair(`이 약관은 ${operator}이(가) 제공하는 anotar 플래너의 이용에 적용됩니다.`, `These terms apply to use of the anotar planner provided by ${operator}.`)}</p>
+      <p>{pair(`이 약관은 ${operator}이(가) 제공하는 하루칸 플래너의 이용에 적용됩니다.`, `These terms apply to use of the Harukan planner provided by ${operator}.`)}</p>
       <h2>{t("서비스와 회원가입")}</h2><p>{t("서비스는 하루 계획·실제 활동 기록·할 일·메모의 저장과 조회를 제공합니다. 만 14세 이상 이용자가 아이디와 비밀번호를 정하고 약관을 확인해 가입합니다. 타인의 아이디·자료를 무단 사용하거나 서비스 운영을 방해하는 행위는 허용하지 않습니다.")}</p>
       <h2>{t("계정과 복구")}</h2><p>{t("비밀번호와 가입 때 받은 복구코드를 보관해 주세요. 이메일을 수집하지 않는 초기 계정은 복구코드로 비밀번호를 재설정합니다. 운영자는 비밀번호 원문을 알 수 없으며, 복구코드도 잃은 경우 계정 소유를 확인할 별도 근거가 없으면 복구가 어려울 수 있습니다.")}</p>
       <h2>{t("이용자가 작성한 내용")}</h2><p>{t("작성한 일정·메모의 권리는 이용자에게 있습니다. 운영자는 서비스 제공·보관·백업·문제 해결에 필요한 범위에서 처리합니다. 기록을 광고나 모델 학습용 자료로 제공하는 기능은 없습니다. 이용자는 설정에서 자료를 내보낼 수 있습니다.")}</p>
@@ -42,7 +42,7 @@ export function Legal({kind,site}:{kind:string;site:Site}) {
       <h2>{t("탈퇴와 이용 제한")}</h2><p>{t("설정에서 본인 비밀번호로 탈퇴할 수 있습니다. 악의적 접근·자동화된 남용 등으로 이용을 제한할 경우 가능한 범위에서 사유와 문의 방법을 안내합니다. 법령이 정한 권리와 운영자의 책임을 일괄 배제하지 않습니다.")}</p>
       <h2>{t("문의와 분쟁")}</h2><p>{pair("문의는","Send inquiries to")}{' '}<a href={`mailto:${l.contact}`}>{l.contact}</a>{pair("로 받습니다. 분쟁은 관련 대한민국 법령에 따라 해결하며 이용자의 법정 권리를 제한하지 않습니다.",". Disputes are resolved under applicable laws of the Republic of Korea without limiting your statutory rights.")}</p>
     </>:kind==='contact'?<><p>{t("계정·기록·서비스 이용에 관한 문의를 이메일로 보내 주세요.")}</p><a className="contact-address" href={`mailto:${l.contact}`}>{l.contact}</a><p>{t("아이디와 문제가 발생한 화면을 알려주시면 확인에 도움이 됩니다. 비밀번호·복구코드는 보내지 마세요.")}</p><p>{t("운영자:")}{' '}{operator} · {t(l.representative||"개인 운영")}</p></>:<>
-      <p>{t("anotar는 하루를 시간으로 계획하고 실제로 한 일을 남기는 개인 플래너입니다. 할 일을 여러 날에 나눠 배치하고, 날짜별 기록을 돌아볼 수 있습니다.")}</p>
+      <p>{t("하루칸은 하루를 시간으로 계획하고 실제로 한 일을 남기는 개인 플래너입니다. 할 일을 여러 날에 나눠 배치하고, 날짜별 기록을 돌아볼 수 있습니다.")}</p>
       <h2>{t("운영 정보")}</h2><dl><dt>{t("운영 형태")}</dt><dd>{t("개인 운영")}</dd><dt>{t("운영자")}</dt><dd>{operator}</dd><dt>{t("문의")}</dt><dd><a href={`mailto:${l.contact}`}>{l.contact}</a></dd>{l.businessNumber&&<><dt>{t("사업자등록번호")}</dt><dd>{l.businessNumber}</dd></>}{l.address&&<><dt>{t("사업장 주소")}</dt><dd>{l.address}</dd></>}</dl>
       <h2>{t("기존 개인 작업 공간")}</h2><p>{t("기존 개인 Anotar는")}{' '}<a href="https://personal.leneu.store">personal.leneu.store</a>{t("에서 이용할 수 있습니다. 새 플래너의 계정과 자료는 기존 개인 서비스와 별도로 관리합니다.")}</p>
     </>}

@@ -1,4 +1,4 @@
-/* Public site: open white canvas, Anotar green, and a product-led introduction. */
+/* Public site: open white canvas, Harukan (anotar) green, and a product-led introduction. */
 body:has(.public-header){background:var(--surface)}
 .public-header{height:76px;border:0;background:var(--surface);padding-inline:max(24px,calc((100vw - 1280px)/2));gap:24px}
 .public-header .public-nav{margin-left:auto;gap:28px}
