@@ -1,6 +1,6 @@
 # AI 실행기·모델 설정과 요청 운영
 
-2026-10-05 로컬 구현: Hive, Devin CLI, OpenCode CLI와 사이트 내 모델 목록 관리. Oracle 배포 현황은 [운영 기록](ORACLE_LIVE_DEPLOYMENT.md)을 따른다.
+실행기는 Hive와 OpenCode CLI 두 가지다(Devin CLI는 2026-10-18에 뺐다). 사이트 안에서 OpenCode 모델 목록을 관리한다. Oracle 배포 현황은 [운영 기록](ORACLE_LIVE_DEPLOYMENT.md)을 따른다.
 
 ## 서버 환경
 
@@ -8,10 +8,9 @@
 AI_RUNNER_KIND=hive
 HIVE_API_KEY=
 HIVE_BASE_URL=https://api-cdn.thehive.ai/api/v3
-HIVE_MODEL=
-AI_DEVIN_BIN=devin
-AI_DEVIN_MODEL=swe-2-high
-AI_DEVIN_CREDENTIALS_FILE=
+HIVE_MODEL=            # 비우면 zai-org/glm-5.3-flash
+AI_OPENCODE_ENABLED=true
+AI_OPENCODE_MODEL=opencode/big-pickle
 ```
 
 키와 Hive 계정에서 활성화한 모델 ID를 실제 `.env`에 넣는다. 파일 권한은 0600, Git·이미지·클라이언트 번들에는 포함하지 않는다. `.env.example`과 Compose의 `AI_RUNNER_KIND`는 기본 `disabled`; AI 실행을 허용하려면 `hive`로 바꾸고 사용할 프로필의 인증·CLI를 준비한다. OpenCode는 추가로 `AI_OPENCODE_ENABLED=true`가 필요하다. 환경 변경 후 서버 프로세스를 재시작한다. UI 저장 전 환경 모델값은 기본값이며, 저장 후에는 SQLite `ai_settings`가 우선한다. UI에서 모델만 바꾸면 재시작은 필요 없다.
@@ -29,18 +28,18 @@ npm install --prefix .local-workspace/opencode-runtime --no-save --package-lock=
 npm run dev:oracle
 ```
 
-AI worker만 켜고 OCR·예약 백업·Telegram은 꺼 둡니다. 기존 전역 CLI 버전·인증을 바꾸거나 유료 제공자 인증을 읽지 않습니다. 초기 기본 모델은 `opencode/big-pickle`이며 이후 설정 → AI에서 선택한 모델이 우선합니다. Hive/Devin과 자동 fallback은 연결하지 않습니다. 처음 켜기 전 복사된 대기/실행 중 요청을 확인합니다. 재시작은 현재 로컬 AI 큐를 처리합니다. 새 사본은 `aiEnabled` 미설정/false를 기본으로 사용합니다. `AI_WORKER_ENABLED=true`는 `BACKGROUND_WORKERS_ENABLED=false`에서도 AI만 시작하는 명시적인 서버 설정입니다.
+AI worker만 켜고 OCR·예약 백업·Telegram은 꺼 둡니다. 기존 전역 CLI 버전·인증을 바꾸거나 유료 제공자 인증을 읽지 않습니다. 초기 기본 모델은 `opencode/big-pickle`이며 이후 설정 → AI에서 선택한 모델이 우선합니다. Hive와 자동 fallback은 연결하지 않습니다. 처음 켜기 전 복사된 대기/실행 중 요청을 확인합니다. 재시작은 현재 로컬 AI 큐를 처리합니다. 새 사본은 `aiEnabled` 미설정/false를 기본으로 사용합니다. `AI_WORKER_ENABLED=true`는 `BACKGROUND_WORKERS_ENABLED=false`에서도 AI만 시작하는 명시적인 서버 설정입니다.
 
 ### 사용 흐름
 
 1. 메모 또는 페이지에서 템플릿을 고른다. 추가 지시는 선택 항목이다.
-2. 요청 옆 `실행기 · 모델`에서 Hive/Devin/OpenCode를 선택한다. OpenCode는 사용 중으로 등록한 여러 모델 중에서 고른다.
+2. 요청 옆 `실행기 · 모델`에서 Hive/OpenCode를 선택한다. OpenCode는 사용 중으로 등록한 여러 모델 중에서 고른다.
 3. 제출 시 실행기·모델·입력·템플릿/버전·프롬프트를 사본으로 저장한다. UUID는 응답 유실·새로고침에도 유지한다.
 4. worker는 한 번에 하나씩 실행한다. 설정 변경은 대기 중인 작업을 변경하지 않는다.
 5. `/ai`에서 상태와 사용한 모델·템플릿을 확인한다. 메모 결과 링크는 결과를 먼저 보여주고 현재 원문·당시 입력·재요청 설정은 접는다.
 6. 실패한 요청 그대로 재시도는 당시 모델도 유지한다. 새 모델로 요청하려면 실행기를 다시 고르고 현재 메모로 새 요청한다.
 
-Hive와 OpenCode는 직접 요청과 URL 본문 조사를 지원한다. URL 없는 키워드 검색은 OpenCode·Devin 실행기를 선택한다. 요청에는 텍스트와 수집한 자료만 전달하며 첨부 바이트는 전송하지 않는다. 결과를 원문에 자동 적용하지 않는다.
+Hive와 OpenCode는 직접 요청과 URL 본문 조사를 지원한다. URL 없는 키워드 검색은 OpenCode 실행기를 선택한다. 요청에는 텍스트와 수집한 자료만 전달하며 첨부 바이트는 전송하지 않는다. 결과를 원문에 자동 적용하지 않는다.
 
 ## 한도·오류
 
@@ -50,11 +49,9 @@ Hive와 OpenCode는 직접 요청과 URL 본문 조사를 지원한다. URL 없�
 - 자동 다른 제공자 전환·자동 유료 재시도는 없다. 제공자 보고 토큰만 저장하며 미보고 사용량은 null; 비용을 추정하지 않는다.
 - 로컬 취소는 제공자 과금 취소를 보장하지 않는다.
 
-## Devin 임시 기록과 Oracle
+## Oracle
 
-[Devin 안내](DEVIN_RUNNER.md)를 따른다. 작업별 XDG config/data/cache/state를 임시 경로에 두고 인증 파일만 참조한다. 정상 종료·오류·취소 후 owned 임시 경로를 삭제한다. 앱 DB의 요청·결과는 남는다. SIGKILL/정전/파일 시스템 오류와 제공자 측 기록 삭제는 보장하지 않는다.
-
-기본 Docker 이미지에는 Devin/OpenCode CLI가 없다. Hive 환경변수는 개인 storage에만 전달된다. Oracle에서 Devin을 쓰려면 앱이 실행되는 실제 환경에 ARM64 CLI와 인증을 준비해야 한다. 호스트 실행 파일 경로를 컨테이너 환경변수에 적는 것만으로 설치되지 않는다. 공유 서버에는 AI 키를 주지 않는다.
+Oracle 이미지(`Dockerfile.oracle`)에는 OpenCode CLI가 들어 있다. Hive 환경변수는 개인 storage에만 전달된다. 공유 서버에는 AI 키를 주지 않는다.
 
 ## 파일 진입점
 
@@ -120,7 +117,7 @@ OpenCode CLI 소프트웨어는 MIT지만 Zen/무료 모델 서비스 약관은 
 | 파일 | 역할 |
 | --- | --- |
 | `server/ai/opencode.mjs` | stdin·격리 설정·JSON 이벤트·취소와 기록 정리 |
-| `server/ai/cliProcess.mjs` | Devin/OpenCode의 프로세스 그룹 종료·용량 제한 |
+| `server/ai/cliProcess.mjs` | OpenCode의 프로세스 그룹 종료·용량 제한 |
 | `server/ai/modelCatalog.mjs` / `opencodeModels.json` | 목록 검증·공식 목록 조회·초기 86개 사본 |
 | `shared/aiModels.ts` | 목록 갱신 시 사용자 수정 보존 |
 | `src/settings/OpenCodeModels.tsx` | 목록 관리·기본 모델 선택 |
@@ -134,7 +131,7 @@ OpenCode CLI 소프트웨어는 MIT지만 Zen/무료 모델 서비스 약관은 
 
 ## 키워드 검색과 모델 응답의 구분
 
-OpenCode·Devin은 URL 없는 키워드 검색을 지원한다. OpenCode discovery는 검증된 1.18.34의 내장 websearch만 허용하고 Exa 응답 형식으로 고정한다. 주제와 추가 검색 조건을 전달하며, 실제 완료 검색 관측의 Title/URL만 후보로 사용한다. 모델이 응답문에 만든 URL은 후보로 쓰지 않는다. 기존 서버가 공개 주소/DNS를 검사하고 본문을 수집한 뒤 같은 모델로 도구 없이 요약한다. Hive/HTTP는 URL 리서치·직접 요청만 지원하며 미지원 온라인 제출은 차단하고 **메모만 저장**을 제공한다.
+OpenCode는 URL 없는 키워드 검색을 지원한다. OpenCode discovery는 검증된 1.18.34의 내장 websearch만 허용하고 Exa 응답 형식으로 고정한다. 주제와 추가 검색 조건을 전달하며, 실제 완료 검색 관측의 Title/URL만 후보로 사용한다. 모델이 응답문에 만든 URL은 후보로 쓰지 않는다. 기존 서버가 공개 주소/DNS를 검사하고 본문을 수집한 뒤 같은 모델로 도구 없이 요약한다. Hive/HTTP는 URL 리서치·직접 요청만 지원하며 미지원 온라인 제출은 차단하고 **메모만 저장**을 제공한다.
 
 검색은 질의 240자·fast·후보 최대 5개·context 10,000자·1회를 지시하고 반환된 이벤트에서 검증한다. 본문은 고유 최종 URL 최대 3개·각 16,666자이며 검색/수집/요약이 120초 한도를 공유한다. 검색 횟수 검증은 호출 후 검사이며 제공자 내부 호출·과금 상한이 아니다. 검색 서비스 장애는 실패로 안내하고 자동 Hive/유료 fallback을 하지 않는다. 임시 XDG 기록은 두 CLI 실행이 닫힌 후 각각 삭제하고 앱 요청·결과 이력은 보존한다.
 

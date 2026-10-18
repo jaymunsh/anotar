@@ -16,7 +16,6 @@ ENV NODE_ENV=production HOST=0.0.0.0 PORT=8787 DATA_DIR=/data PATH=/root/.local/
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl unzip && rm -rf /var/lib/apt/lists/*
 RUN npm install -g opencode-ai@1.18.34
-RUN curl -fsSL https://cli.devin.ai/install.sh -o /tmp/devin-install.sh && sed -i '/^"$VERSION_DIR\/bin\/$COMPILED_BIN_NAME" setup$/d' /tmp/devin-install.sh && bash /tmp/devin-install.sh && devin version && rm /tmp/devin-install.sh
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && mkdir -p /data
 COPY server ./server

@@ -42,7 +42,6 @@ const server = spawn(process.execPath, ['server/index.mjs'], {
     AI_OPENCODE_BIN: bin,
     AI_OPENCODE_MODEL: 'opencode/big-pickle',
     AI_OPENCODE_AUTH_FILE: join(root, 'missing-auth'),
-    AI_DEVIN_BIN: '/missing',
     HIVE_API_KEY: '',
     AI_RUNNER_URL: '',
     OCR_RUNNER_KIND: 'disabled',

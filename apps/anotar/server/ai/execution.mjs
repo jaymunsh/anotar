@@ -1,16 +1,12 @@
-import { accessSync, constants } from 'node:fs';
-import { join } from 'node:path';
-import { homedir } from 'node:os';
 import { createOpenCodeRunner } from './opencode.mjs';
 import { defaultOpenCodeModels, validateModelCatalog, catalogCheckedAt } from './modelCatalog.mjs';
 import { createHiveRunner } from './hive.mjs';
-import { createDevinRunner } from './devin.mjs';
 import { createHttpRunner } from './runner.mjs';
 import { AiValidationError } from './contracts.mjs';
 export function createAiExecutionService({ store, env = process.env }) {
   const legacyHttp =
     env.AI_RUNNER_KIND === 'http' || (!env.AI_RUNNER_KIND && Boolean(env.AI_RUNNER_URL));
-  const ids = ['hive', 'devin', 'opencode', ...(legacyHttp ? ['http'] : [])];
+  const ids = ['hive', 'opencode', ...(legacyHttp ? ['http'] : [])];
   const defaults = {
     defaultProfile: ids.includes(env.AI_RUNNER_KIND)
       ? env.AI_RUNNER_KIND
@@ -18,8 +14,8 @@ export function createAiExecutionService({ store, env = process.env }) {
         ? 'http'
         : 'hive',
     models: {
-      hive: env.HIVE_MODEL || '',
-      devin: env.AI_DEVIN_MODEL || 'swe-2-high',
+      // Hive runs one fixed model unless the server sets another.
+      hive: env.HIVE_MODEL || 'zai-org/glm-5.3-flash',
       http: '',
       opencode: env.AI_OPENCODE_MODEL || '',
     },
@@ -30,8 +26,10 @@ export function createAiExecutionService({ store, env = process.env }) {
     return {
       ...defaults,
       ...saved,
+      // Devin was removed; an old saved default of it falls back to the server default.
+      ...(saved?.defaultProfile && !ids.includes(saved.defaultProfile) ? { defaultProfile: defaults.defaultProfile } : {}),
       version: saved?.version ?? 0,
-      models: { ...defaults.models, ...saved?.models },
+      models: { ...defaults.models, ...saved?.models, hive: saved?.models?.hive || defaults.models.hive },
       opencodeModels: saved?.opencodeModels ?? defaultOpenCodeModels(),
     };
   };
@@ -39,22 +37,20 @@ export function createAiExecutionService({ store, env = process.env }) {
     let r =
       id === 'hive'
         ? createHiveRunner({ ...env, HIVE_MODEL: model })
-        : id === 'devin'
-          ? createDevinRunner({ ...env, AI_DEVIN_MODEL: model })
-          : id === 'opencode'
-            ? createOpenCodeRunner({ ...env, AI_OPENCODE_MODEL: model })
-            : createHttpRunner(env);
+        : id === 'opencode'
+          ? createOpenCodeRunner({ ...env, AI_OPENCODE_MODEL: model })
+          : createHttpRunner(env);
     r.info = {
       ...(r.info || {}),
       label:
         id === 'http'
           ? r.info?.label || 'HTTP 게이트웨이'
-          : `${id === 'hive' ? 'Hive' : id === 'opencode' ? 'OpenCode CLI' : 'Devin CLI'} · ${model || '모델 설정 필요'}`,
+          : `${id === 'hive' ? 'Hive' : 'OpenCode CLI'} · ${model || '모델 설정 필요'}`,
       mode: r.info?.mode || 'live',
       profileId: id,
       model,
     };
-    if (env.AI_RUNNER_KIND === 'disabled' || (['devin', 'opencode'].includes(id) && !model))
+    if (env.AI_RUNNER_KIND === 'disabled' || (id === 'opencode' && !model))
       r = { enabled: false, info: r.info };
     return r;
   };
@@ -72,30 +68,14 @@ export function createAiExecutionService({ store, env = process.env }) {
           (id === 'opencode' && env.AI_OPENCODE_ENABLED !== 'true')
         )
           status = 'disabled';
-        else if (id === 'devin' && r.enabled) {
-          try {
-            accessSync(
-              env.AI_DEVIN_CREDENTIALS_FILE ||
-                join(
-                  env.XDG_DATA_HOME || process.env.XDG_DATA_HOME || join(homedir(), '.local/share'),
-                  'devin/credentials.toml',
-                ),
-              constants.R_OK,
-            );
-          } catch {
-            status = 'login_required';
-          }
-        }
         return {
           id,
           label:
             id === 'hive'
               ? 'Hive'
-              : id === 'devin'
-                ? 'Devin CLI'
-                : id === 'opencode'
-                  ? 'OpenCode CLI'
-                  : 'HTTP 게이트웨이',
+              : id === 'opencode'
+                ? 'OpenCode CLI'
+                : 'HTTP 게이트웨이',
           model,
           ...(id === 'opencode' ? { catalog: s.opencodeModels, catalogCheckedAt } : {}),
           enabled: r.enabled && status !== 'login_required',
@@ -109,11 +89,9 @@ export function createAiExecutionService({ store, env = process.env }) {
           credentialsConfigured:
             id === 'hive'
               ? Boolean(env.HIVE_API_KEY)
-              : id === 'devin'
-                ? status === 'configured'
-                : id === 'opencode'
-                  ? r.enabled
-                  : Boolean(env.AI_RUNNER_URL),
+              : id === 'opencode'
+                ? r.enabled
+                : Boolean(env.AI_RUNNER_URL),
         };
       }),
     };
@@ -143,12 +121,11 @@ export function createAiExecutionService({ store, env = process.env }) {
     if (!ids.includes(body.defaultProfile) || !body.models || typeof body.models !== 'object')
       throw new AiValidationError('AI 실행기 설정이 올바르지 않아요.');
     const models = { ...state().models };
-    for (const id of ['hive', 'devin', 'opencode']) {
+    for (const id of ['hive', 'opencode']) {
       const m = body.models[id] ?? (id === 'opencode' ? models[id] : undefined);
       if (
         typeof m !== 'string' ||
         (m && !/^[a-z0-9][a-z0-9/._:-]{0,119}$/i.test(m)) ||
-        (id === 'devin' && m.includes('/')) ||
         (id === 'opencode' && m && !/^[a-z0-9][a-z0-9._:-]*\/[a-z0-9][a-z0-9/._:-]*$/i.test(m))
       )
         throw new AiValidationError('모델 이름은 120자 이내의 모델 ID로 입력해 주세요.');

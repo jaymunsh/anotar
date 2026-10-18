@@ -19,7 +19,7 @@ async function fixture(t) {
       AI_RUNNER_KIND: 'hive',
       HIVE_API_KEY: 'secret-never-exposed',
       HIVE_MODEL: 'fixture/first',
-      AI_DEVIN_BIN: '/not/installed',
+      AI_OPENCODE_BIN: '/not/installed',
     },
   });
   return { store, service };
@@ -33,15 +33,15 @@ test('settings persist, reject stale writes, and never expose keys/paths', async
   service.update({
     expectedVersion: first.version,
     defaultProfile: 'hive',
-    models: { hive: 'fixture/second', devin: 'swe-2-high' },
+    models: { hive: 'fixture/second' },
   });
   assert.equal(service.settings().profiles[0].model, 'fixture/second');
   assert.throws(
     () =>
       service.update({
         expectedVersion: first.version,
-        defaultProfile: 'devin',
-        models: { hive: 'fixture/x', devin: 'swe-2-high' },
+        defaultProfile: 'hive',
+        models: { hive: 'fixture/x' },
       }),
     /変更|변경|최신/,
   );
@@ -63,7 +63,7 @@ test('new jobs pin execution at enqueue and same receipt/retry survives model ch
   service.update({
     expectedVersion: settings.version,
     defaultProfile: 'hive',
-    models: { hive: 'fixture/second', devin: 'swe-2-high' },
+    models: { hive: 'fixture/second' },
   });
   assert.equal(
     store.enqueueAiJob({ captureId: capture.id, requestId, expectedVersion: 1 }).id,
@@ -145,17 +145,15 @@ test('legacy HTTP configuration without KIND stays selectable', async (t) => {
   assert.equal(service.info.label, 'Fixture gateway');
 });
 
-test('a saved blank Devin model never silently executes the fallback model', async (t) => {
+test('Hive keeps its fixed model when nothing is configured; a removed Devin default falls back', async (t) => {
   const { store } = await fixture(t);
-  const service = createAiExecutionService({
-    store,
-    env: { AI_RUNNER_KIND: 'hive', AI_DEVIN_BIN: '/usr/bin/true', AI_DEVIN_MODEL: 'swe-2-high' },
-  });
-  service.update({ expectedVersion: 0, defaultProfile: 'devin', models: { hive: '', devin: '' } });
-  assert.equal(service.settings().profiles.find((p) => p.id === 'devin').enabled, false);
-  const pinned = service.resolveExecution({ profileId: 'devin', model: '' });
-  assert.equal(service.forJob({ request: { execution: pinned } }).enabled, false);
-  assert.equal(pinned.model, '');
+  const service = createAiExecutionService({ store, env: { AI_RUNNER_KIND: 'hive' } });
+  assert.equal(service.settings().profiles.find((p) => p.id === 'hive').model, 'zai-org/glm-5.3-flash');
+  assert.ok(!service.settings().profiles.some((p) => p.id === 'devin'));
+  store.saveAiSettings({ defaultProfile: 'devin', models: { hive: '', devin: 'swe-2-high' } }, 0);
+  assert.equal(service.settings().defaultProfile, 'hive');
+  assert.equal(service.settings().profiles.find((p) => p.id === 'hive').model, 'zai-org/glm-5.3-flash');
+  assert.throws(() => service.resolveExecution({ profileId: 'devin', model: '' }), /AI 실행기/);
 });
 
 test('OpenCode keyword capability follows the actual runner and respects global disable', async (t) => {

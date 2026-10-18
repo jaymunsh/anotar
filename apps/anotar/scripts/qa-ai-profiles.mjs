@@ -45,7 +45,7 @@ const port = probe.address().port;
 await new Promise((r) => probe.close(r));
 const dir = await mkdtemp(join(tmpdir(), 'anotar-ai-ui-')),
   base = `http://127.0.0.1:${port}`,
-  evidence = '.omo/evidence/hive-devin';
+  evidence = '.omo/evidence/ai-profiles';
 await mkdir(evidence, { recursive: true });
 const server = spawn(process.execPath, ['server/index.mjs'], {
   env: {
@@ -58,8 +58,6 @@ const server = spawn(process.execPath, ['server/index.mjs'], {
     HIVE_API_KEY: 'fixture-only',
     HIVE_MODEL: 'fixture/first',
     HIVE_BASE_URL: `http://127.0.0.1:${provider.address().port}/api/v3`,
-    AI_DEVIN_BIN: '/missing-fixture-devin',
-    AI_DEVIN_CREDENTIALS_FILE: '/missing-credentials',
     GEOAPIFY_API_KEY: '',
     GOOGLE_MAPS_DEMO_KEY: '',
     OCR_RUNNER_KIND: 'disabled',
@@ -163,8 +161,8 @@ try {
   for(let i=0;i<100;i++){const items=(await (await fetch(base+`/api/captures/${failedCapture.id}/ai-jobs`)).json()).items;if(items[0]?.status==='failed'){failedJob=items[0];break;}await page.waitForTimeout(100);}
   assert.ok(failedJob);
   const currentSettings=await (await fetch(base+'/api/ai/settings')).json();
-  const setSettings=async(settings,defaultProfile,model)=>{const response=await fetch(base+'/api/ai/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({expectedVersion:settings.version,defaultProfile,models:{hive:model,devin:'swe-2-high'}})});assert.equal(response.status,200);return response.json();};
-  const changedSettings=await setSettings(currentSettings,'devin','');
+  const setSettings=async(settings,defaultProfile,model)=>{const response=await fetch(base+'/api/ai/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({expectedVersion:settings.version,defaultProfile,models:{hive:model}})});assert.equal(response.status,200);return response.json();};
+  const changedSettings=await setSettings(currentSettings,'hive','fixture/changed');
   await page.goto(base+`/captures/${failedCapture.id}?aiJob=${failedJob.id}`);
   await page.getByRole('combobox',{name:'AI 실행기와 모델'}).waitFor();
   const retry=page.getByRole('button',{name:'실패한 요청 그대로 재시도',exact:true});

@@ -1,10 +1,8 @@
 import { AI_OUTPUT_LIMIT, AiExecutionError } from './contracts.mjs';
 import { createHiveRunner } from './hive.mjs';
-import { createDevinRunner } from './devin.mjs';
 
 export function createAiRunner(env = process.env) {
   if (env.AI_RUNNER_KIND === 'hive') return createHiveRunner(env);
-  if (env.AI_RUNNER_KIND === 'devin') return createDevinRunner(env);
   if (env.AI_RUNNER_KIND && env.AI_RUNNER_KIND !== 'http') return { enabled: false, info: null };
   return createHttpRunner(env);
 }

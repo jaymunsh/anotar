@@ -41,7 +41,7 @@ function isCaptureDraft(value: unknown): value is StoredCaptureDraft {
       (key) => typeof input[key as 'text'] === 'string',
     ) &&
     typeof input.aiEnabled === 'boolean' &&
-    (input.aiExecution == null || (['hive', 'devin', 'http'].includes(input.aiExecution.profileId) && typeof input.aiExecution.model === 'string' && input.aiExecution.model.length <= 120)) &&
+    (input.aiExecution == null || (['hive', 'http'].includes(input.aiExecution.profileId) && typeof input.aiExecution.model === 'string' && input.aiExecution.model.length <= 120)) &&
     (input.shareImportIds === undefined ||
       (Array.isArray(input.shareImportIds) && input.shareImportIds.length <= 128 &&
         input.shareImportIds.every((id) => typeof id === 'string' && id.length <= 128))) &&

@@ -182,7 +182,6 @@ export default function AiJobPanel({
                     {
                       {
                         hive: 'Hive',
-                        devin: 'Devin CLI',
                         opencode: 'OpenCode',
                         http: 'HTTP 실행기',
                       }[selected.request.execution.profileId]

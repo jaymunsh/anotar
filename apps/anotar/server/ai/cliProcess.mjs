@@ -70,7 +70,7 @@ export function runProcess(executable, args, options, signal) {
     });
   });
 }
-export function executablePath(env, key = 'AI_DEVIN_BIN', fallback = 'devin') {
+export function executablePath(env, key, fallback) {
   const name = env[key] || fallback;
   const candidates = isAbsolute(name)
     ? [name]

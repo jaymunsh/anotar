@@ -1702,7 +1702,7 @@
            "content": [
             {
              "type": "text",
-             "text": "OpenCode CLI · Hive API · Devin CLI",
+             "text": "OpenCode CLI · Hive API",
              "styles": {}
             }
            ],
@@ -3840,7 +3840,7 @@
            "content": [
             {
              "type": "text",
-             "text": "Devin CLI",
+             "text": "OpenCode CLI",
              "styles": {}
             }
            ],
@@ -4351,7 +4351,7 @@
            "content": [
             {
              "type": "text",
-             "text": "server/ai/hive.mjs · devin.mjs",
+             "text": "server/ai/hive.mjs · opencode.mjs",
              "styles": {}
             }
            ],

@@ -134,7 +134,7 @@ PUBLIC_SHARE_ORIGIN=http://127.0.0.1:8790
 AI_RUNNER_KIND=disabled
 ```
 
-지도·AI·OCR은 필요할 때만 각 항목에 서버용 키/URL을 입력한다. `VITE_` 접두사를 사용하지 않는다. 현재 이미지에는 Devin CLI가 포함되지 않는다. AI 실행은 지원하는 HTTP 게이트웨이 또는 별도 실행기 설치를 검증한 뒤 연결한다.
+지도·AI·OCR은 필요할 때만 각 항목에 서버용 키/URL을 입력한다. `VITE_` 접두사를 사용하지 않는다. Oracle 이미지에는 OpenCode CLI가 들어 있다. AI 실행은 지원하는 HTTP 게이트웨이 또는 별도 실행기 설치를 검증한 뒤 연결한다.
 
 ```bash
 sudo docker compose -f compose.yaml build

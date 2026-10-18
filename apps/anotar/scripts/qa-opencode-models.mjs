@@ -30,7 +30,6 @@ const server = spawn(process.execPath, ['server/index.mjs'], {
     AUTH_MODE: 'disabled',
     AI_RUNNER_KIND: 'hive',
     HIVE_API_KEY: '',
-    AI_DEVIN_BIN: '/missing',
     AI_OPENCODE_ENABLED: 'true',
     AI_OPENCODE_BIN: bin,
     AI_OPENCODE_AUTH_FILE: join(dir, 'missing-auth'),

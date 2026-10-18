@@ -44,7 +44,7 @@ test('OpenCode catalog is seeded without overwriting existing Hive settings and 
   service.update({
     expectedVersion: 0,
     defaultProfile: 'opencode',
-    models: { hive: 'fixture/first', devin: 'swe-2-high', opencode: 'opencode/custom-free' },
+    models: { hive: 'fixture/first', opencode: 'opencode/custom-free' },
     opencodeModels: [model('opencode/custom-free'), model('opencode/other', false)],
   });
   const next = createAiExecutionService({ store, env: { AI_RUNNER_KIND: 'hive' } }).settings();
@@ -58,7 +58,7 @@ test('only enabled declared models can be selected; saved historical jobs retain
   service.update({
     expectedVersion: 0,
     defaultProfile: 'hive',
-    models: { hive: 'fixture/first', devin: 'swe-2-high', opencode: 'opencode/one' },
+    models: { hive: 'fixture/first', opencode: 'opencode/one' },
     opencodeModels: [
       model('opencode/one'),
       model('opencode/two'),
@@ -80,7 +80,7 @@ test('only enabled declared models can be selected; saved historical jobs retain
   service.update({
     expectedVersion: 1,
     defaultProfile: 'hive',
-    models: { hive: 'fixture/first', devin: 'swe-2-high', opencode: 'opencode/two' },
+    models: { hive: 'fixture/first', opencode: 'opencode/two' },
     opencodeModels: [model('opencode/two')],
   });
   assert.equal(
@@ -100,7 +100,7 @@ test('invalid catalog, duplicate model IDs and missing defaults never partially 
       service.update({
         expectedVersion: 0,
         defaultProfile: 'opencode',
-        models: { hive: 'fixture/first', devin: 'swe-2-high', opencode: 'opencode/x' },
+        models: { hive: 'fixture/first', opencode: 'opencode/x' },
         opencodeModels: entries,
       }),
     );
@@ -110,7 +110,7 @@ test('invalid catalog, duplicate model IDs and missing defaults never partially 
     service.update({
       expectedVersion: 0,
       defaultProfile: 'opencode',
-      models: { hive: 'fixture/first', devin: 'swe-2-high', opencode: 'opencode/absent' },
+      models: { hive: 'fixture/first', opencode: 'opencode/absent' },
       opencodeModels: [model('opencode/x')],
     }),
   );

@@ -43,7 +43,7 @@ npm run backup -- restore /absolute/path/backup-snapshot /absolute/path/new-data
 
 ## 선택적 AI 실행기
 
-앱 컨테이너에 macOS용 Devin 바이너리나 인증 파일을 복사하지 않는다. Linux에서 설치한 CLI를 쓰거나 기존 HTTP 게이트웨이 계약에 맞는 실행기를 연결한다.
+앱 컨테이너에 macOS용 CLI 바이너리나 인증 파일을 복사하지 않는다. Linux에서 설치한 CLI를 쓰거나 기존 HTTP 게이트웨이 계약에 맞는 실행기를 연결한다.
 
 Compose는 다음 환경 변수를 개인 프로세스에만 전달한다:
 

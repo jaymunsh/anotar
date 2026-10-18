@@ -1,7 +1,7 @@
 import { renderPrompt, validateDraft } from './prompts.ts';
 import type { PromptTemplate } from './prompts.ts';
 
-export type AiExecution = { profileId: 'hive' | 'devin' | 'opencode' | 'http'; model: string };
+export type AiExecution = { profileId: 'hive' | 'opencode' | 'http'; model: string };
 export type AiRequestSelection = {
   template: PromptTemplate | null;
   additional: string;
@@ -56,7 +56,7 @@ export function storeRequestSnapshot(
   if (
     execution !== undefined &&
     (!execution ||
-      !['hive', 'devin', 'opencode', 'http'].includes(execution.profileId) ||
+      !['hive', 'opencode', 'http'].includes(execution.profileId) ||
       typeof execution.model !== 'string' ||
       execution.model.length > 120 ||
       (execution.model && !/^[a-z0-9][a-z0-9/._:-]*$/i.test(execution.model)))

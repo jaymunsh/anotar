@@ -142,7 +142,7 @@ try {
   await page.goto(base + '/captures/' + saved.id, { waitUntil: 'networkidle' });
   await page
     .getByText(
-      '현재 실행기는 키워드 검색을 지원하지 않아요. URL을 입력하거나 검색 가능한 Devin 실행기를 연결해 주세요.',
+      '현재 실행기는 키워드 검색을 지원하지 않아요. URL을 입력하거나 검색 가능한 OpenCode 실행기를 선택해 주세요.',
       { exact: true },
     )
     .waitFor();

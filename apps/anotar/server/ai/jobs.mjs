@@ -161,7 +161,7 @@ export function createAiJobStore(db, getStore) {
           substr(COALESCE(j.source_title,p.title,''),1,180) AS sourceTitle,
           substr(COALESCE(NULLIF(json_extract(j.request_json,'$.input.content'),''),json_extract(j.request_json,'$.input.url'),''),1,180) AS preview,
           substr(COALESCE(json_extract(j.request_json,'$.template.name'),'직접 요청'),1,100) AS templateName,
-          substr(COALESCE(json_extract(j.runner_json,'$.label'),CASE json_extract(j.request_json,'$.execution.profileId') WHEN 'hive' THEN 'Hive' WHEN 'devin' THEN 'Devin CLI' ELSE '' END),1,140) AS executionLabel,
+          substr(COALESCE(json_extract(j.runner_json,'$.label'),CASE json_extract(j.request_json,'$.execution.profileId') WHEN 'hive' THEN 'Hive' ELSE '' END),1,140) AS executionLabel,
           substr(COALESCE(json_extract(j.request_json,'$.execution.model'),''),1,120) AS model,
           json_extract(j.request_json,'$.template.version') AS templateVersion,
           c.organized_at IS NOT NULL AS organized, j.reviewed_at IS NOT NULL AS reviewed

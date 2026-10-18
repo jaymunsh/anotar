@@ -5,7 +5,7 @@
 name: personal
 services:
   anotar:
-    # Same image as production: includes the opencode and devin CLIs for AI requests.
+    # Same image as production: includes the opencode CLI for AI requests.
     build:
       context: ../../apps/anotar
       dockerfile: Dockerfile.oracle

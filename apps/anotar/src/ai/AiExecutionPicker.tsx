@@ -119,9 +119,7 @@ export default function AiExecutionPicker({
             ? profile.id === 'opencode'
               ? '서버에서 OpenCode 실행을 켜고 설치·인증을 확인해 주세요.'
               : '서버에서 AI 실행이 꺼져 있어요.'
-            : profile.status === 'login_required'
-              ? '서버에서 Devin 로그인이 필요해요.'
-              : '서버의 키·모델 또는 CLI 설정을 확인해 주세요.'}
+            : '서버의 키·모델 또는 CLI 설정을 확인해 주세요.'}
         </p>
       ) : reason === 'model' ? <p role="status">사용할 모델을 선택해 주세요. 설정에서 모델을 등록할 수 있어요.</p> : null}
     </div>

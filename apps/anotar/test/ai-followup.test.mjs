@@ -94,7 +94,7 @@ test('followup draft restores source choice and instructions after a composer re
   const saved = {
     sourceType: 'original',
     additional: 'Keep this edited instruction',
-    execution: { profileId: 'devin', model: 'swe-2-high' },
+    execution: { profileId: 'hive', model: 'zai-org/glm-5.3-flash' },
     selectedId: 'direct',
   };
   const restored = flow.readAiFollowupDraft(

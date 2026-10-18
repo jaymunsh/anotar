@@ -29,9 +29,8 @@ const env = {
   AI_RUNNER_KIND: aiEnabled ? 'opencode' : 'disabled',
   AI_WORKER_ENABLED: String(aiEnabled), AI_OPENCODE_ENABLED: String(aiEnabled),
   AI_OPENCODE_BIN: opencodeBin, AI_OPENCODE_MODEL: 'opencode/big-pickle',
-  // No personal paid provider credentials or installed Devin are inherited.
+  // No personal paid provider credentials are inherited.
   AI_OPENCODE_AUTH_FILE: resolve(base, 'opencode-no-auth.json'),
-  AI_DEVIN_BIN: resolve(base, 'disabled-devin'),
   DEV_PORT: '5174', DEV_API_PORT: '8788', PUBLIC_HOST: '127.0.0.1', PUBLIC_PORT: '8791',
   PUBLIC_SHARE_ORIGIN: 'http://127.0.0.1:8791',
   HOSTED_SITES_DIR: resolve(base, 'hosted-sites'),

@@ -111,7 +111,7 @@ export function readAiFollowupDraft(
       saved.selectedId.length > 80 ||
       (saved.execution !== null &&
         (!saved.execution ||
-          !['hive', 'devin', 'opencode', 'http'].includes(saved.execution.profileId) ||
+          !['hive', 'opencode', 'http'].includes(saved.execution.profileId) ||
           typeof saved.execution.model !== 'string' ||
           saved.execution.model.length > 120))
     )
