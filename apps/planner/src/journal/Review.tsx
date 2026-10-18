@@ -1,5 +1,5 @@
 import React,{useState} from 'react';
-import {ArrowRight,ChevronLeft,ChevronRight,TrendingDown,TrendingUp} from 'lucide-react';
+import {ArrowRight,ChevronLeft,ChevronRight,Clock,Target,CircleCheck,CircleAlert,TrendingDown,TrendingUp} from 'lucide-react';
 import {Day,Plan,PlanningItem,clock,duration} from '../api';
 import {getLanguage,pair} from '../i18n';
 import {periodRange} from './period';
@@ -79,10 +79,10 @@ export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string
   <p className="review-headline">{headline}</p>
 
   <dl className="review-kpis">
-   <div><dt>{pair('계획한 시간','Planned')}</dt><dd>{duration(planned)}</dd>{delta(planned,minutes(before),duration)}</div>
-   <div><dt>{pair('목표에 쓴 시간','On goals')}</dt><dd>{percent(linked,planned)}<small>%</small></dd>{delta(percent(linked,planned),percent(minutes(before.filter(p=>goalOf(p.plan.planningId))),minutes(before)),n=>n+'%p')}</div>
-   <div><dt>{pair('꼭 할 일 완료','Priorities done')}</dt><dd>{done}<small> / {priorities.length}</small></dd>{delta(percent(done,priorities.length),percent(beforePriorities.filter(p=>p.done).length,beforePriorities.length),n=>n+'%p')}</div>
-   <div><dt>{pair('미이행','Unfinished')}</dt><dd>{missed.length}</dd>{delta(missed.length,before.filter(p=>p.plan.status==='missed').length,n=>pair(`${n}개`,String(n)))}</div>
+   <div className="kpi-planned"><dt><i><Clock size={14}/></i>{pair('계획한 시간','Planned')}</dt><dd>{duration(planned)}</dd>{delta(planned,minutes(before),duration)}</div>
+   <div className="kpi-goals"><dt><i><Target size={14}/></i>{pair('목표에 쓴 시간','On goals')}</dt><dd>{percent(linked,planned)}<small>%</small></dd>{delta(percent(linked,planned),percent(minutes(before.filter(p=>goalOf(p.plan.planningId))),minutes(before)),n=>n+'%p')}</div>
+   <div className="kpi-done"><dt><i><CircleCheck size={14}/></i>{pair('꼭 할 일 완료','Priorities done')}</dt><dd>{done}<small> / {priorities.length}</small></dd>{delta(percent(done,priorities.length),percent(beforePriorities.filter(p=>p.done).length,beforePriorities.length),n=>n+'%p')}</div>
+   <div className="kpi-missed"><dt><i><CircleAlert size={14}/></i>{pair('미이행','Unfinished')}</dt><dd>{missed.length}</dd>{delta(missed.length,before.filter(p=>p.plan.status==='missed').length,n=>pair(`${n}개`,String(n)))}</div>
   </dl>
 
   <div className="review-grid">
@@ -107,7 +107,7 @@ export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string
 
    <article className="review-card">
     <h3>{pair('다시 계획할 것','Plan again')}<small>{missed.length||''}</small></h3>
-    {missedRows.length?<div className="review-missed">{more(missedRows,5,({date:d,plan})=><div className="journal-review-row" key={d+plan.id}><button onClick={()=>onDate(d,'day')}><time>{label(d,{month:'numeric',day:'numeric',weekday:'short'})} · {clock(plan.start)}–{clock(plan.end)}</time><strong>{plan.title}</strong></button><button className="text-link" onClick={()=>onReplan(plan)}>{pair('오늘 다시 계획','Plan again today')}<ArrowRight size={14}/></button></div>)}</div>:<p className="journal-hint">{pair('미이행으로 표시한 계획이 없어요. 시간이 지났다고 자동으로 미이행 처리하지 않아요.','No plans marked unfinished. Nothing is marked unfinished automatically.')}</p>}
+    {missedRows.length?<div className="review-missed">{more(missedRows,5,({date:d,plan})=><div className="journal-review-row" key={d+plan.id} style={goalOf(plan.planningId)?{'--goal':tagColor(goalOf(plan.planningId)!)} as React.CSSProperties:undefined}><button onClick={()=>onDate(d,'day')}><time>{label(d,{month:'numeric',day:'numeric',weekday:'short'})} · {clock(plan.start)}–{clock(plan.end)}</time><strong>{plan.title}</strong></button><button className="text-link" onClick={()=>onReplan(plan)}>{pair('오늘 다시 계획','Plan again today')}<ArrowRight size={14}/></button></div>)}</div>:<p className="journal-hint">{pair('미이행으로 표시한 계획이 없어요. 시간이 지났다고 자동으로 미이행 처리하지 않아요.','No plans marked unfinished. Nothing is marked unfinished automatically.')}</p>}
    </article>
 
    <article className="review-card">
