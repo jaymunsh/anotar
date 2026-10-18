@@ -26,7 +26,7 @@ function lanes(items:Plan[]){const ends:number[]=[];return [...items].sort((a,b)
 export function Journal({user,csrf='',demo=false,preview=false,onViewChange}:{user?:User;csrf?:string;demo?:boolean;preview?:boolean;onViewChange?:(view:string,date:string)=>void}){
  const [date,setDate]=useState(()=>{const q=new URLSearchParams(location.search).get('date');return q&&/^20\d\d-\d{2}-\d{2}$/.test(q)&&!isNaN(Date.parse(q))?q:today(user?.timezone);}),[view,setView]=useState(()=>journalView(location.pathname,new URLSearchParams(location.search))),[schedule,setSchedule]=useState(()=>{try{const saved=localStorage.getItem(scheduleKey);if(saved==='grid'||saved==='list')return saved;}catch{}return window.matchMedia('(max-width: 760px)').matches?'list':'grid';}),[allOpen,setAllOpen]=useState(false),[openSteps,setOpenSteps]=useState<string[]>([]),[editor,setEditor]=useState<Editor|null>(null),[days,setDays]=useState<Record<string,Day>>({}),[periodError,setPeriodError]=useState('');
  const [periodBusy,setPeriodBusy]=useState(false),[periodLoaded,setPeriodLoaded]=useState(''),[periodRetry,setPeriodRetry]=useState(0);
- useEffect(()=>{if(preview)return;const query=new URLSearchParams(location.search);query.set('date',date);query.set('view',view);query.delete('task');history.replaceState(null,'',(demo?location.pathname:journalPath(view))+'?'+query);onViewChange?.(view,date);},[date,view,preview,demo,onViewChange]);
+ useEffect(()=>{if(preview)return;const query=new URLSearchParams(location.search);query.set('date',date);query.set('view',view);query.delete('task');query.delete('now');history.replaceState(null,'',(demo?location.pathname:journalPath(view))+'?'+query);onViewChange?.(view,date);},[date,view,preview,demo,onViewChange]);
  const workspaceRef=useRef<HTMLDivElement>(null);
  const [now,setNow]=useState(()=>Date.now());
  useEffect(()=>{const id=setInterval(()=>setNow(Date.now()),60000);return()=>clearInterval(id);},[]);
@@ -127,6 +127,26 @@ export function Journal({user,csrf='',demo=false,preview=false,onViewChange}:{us
  const isDisabled=state.loading||state.state==='load-error'||Boolean(state.pendingDraft);
  // Save state lives in the app header's slot (main.tsx); demo and preview have no slot and keep it under the title.
  const statusSlot=preview?null:document.getElementById('save-status');
+ // 오늘 시간표로 (header button, or /app?now=1): today's day view, scrolled so the timetable fills the screen under the sticky header with the current hour in sight.
+ const [toNow,setToNow]=useState(()=>!preview&&!demo&&new URLSearchParams(location.search).has('now'));
+ const jumpNow=useRef<()=>void>(()=>{});
+ jumpNow.current=()=>{if(view!=='day'){if(!canDiscard()||!state.canLeave())return;setView('day');}if(!move(today(user?.timezone)))return;setToNow(true);};
+ useEffect(()=>{if(preview||demo)return;const go=(e:Event)=>{e.preventDefault();jumpNow.current();};window.addEventListener('harukan-now',go);return()=>window.removeEventListener('harukan-now',go);},[preview,demo]);
+ useEffect(()=>{
+  if(!toNow||view!=='day'||date!==today(user?.timezone)||state.loading)return;setToNow(false);
+  // A short wait lets the day's data and the rows above settle before measuring.
+  setTimeout(()=>{
+   const header=document.querySelector('.app-header'),top=(header?.getBoundingClientRect().height??0)+8;
+   const box=document.querySelector<HTMLElement>('.journal-grid,.journal-activity-list');if(!box)return;
+   const nowRow=box.querySelector<HTMLElement>('.journal-hour.now');
+   // Desktop keeps the timetable in its own scroll box; phones scroll the page.
+   if(nowRow&&box.scrollHeight>box.clientHeight+4)box.scrollTo({top:Math.max(0,nowRow.offsetTop-box.clientHeight/3),behavior:'smooth'});
+   const head=box.querySelector<HTMLElement>('.journal-grid-header')??box.previousElementSibling as HTMLElement|null;
+   let y=Math.min(box.getBoundingClientRect().top,head?.classList.contains('journal-grid-header')?head.getBoundingClientRect().top:Infinity)+scrollY-top;
+   if(nowRow&&box.scrollHeight<=box.clientHeight+4){const r=nowRow.getBoundingClientRect(),rowY=r.top+scrollY;if(rowY+r.height>y+innerHeight-top)y=rowY-top-(innerHeight-top)/3;}
+   scrollTo({top:Math.max(0,y),behavior:'smooth'});
+  },250);
+ },[toNow,view,date,state.loading]);
  const saveLabel=state.loading?t('불러오는 중…'):({saved:t('서버에 저장됨'),pending:t('저장 대기'),saving:t('저장 중…'),demo:t('체험 · 이 화면에서만 유지'),error:t('저장 실패 · 기기 초안 보관'),conflict:t('다른 기기 변경 확인 필요'),'load-error':t('연결 확인 필요')}[state.state]);
  function periodMove(direction:number){if(view==='week')move(shift(date,direction*7));else if(['month','year'].includes(view)){const d=new Date(date.slice(0,7)+'-01T12:00:00Z');d.setUTCMonth(d.getUTCMonth()+direction*(view==='year'?12:1));move(d.toISOString().slice(0,10));}else move(shift(date,direction));}
  useLayoutEffect(()=>{const workspace=workspaceRef.current;if(preview||view!=='day'||schedule!=='grid'||!workspace)return;const fit=()=>{workspace.style.setProperty('--journal-available',`${Math.max(420,window.innerHeight-(workspace.getBoundingClientRect().top+window.scrollY)-20)}px`);};fit();window.addEventListener('resize',fit);const observer=new ResizeObserver(fit);workspace.closest('.journal-page')?.querySelectorAll('.journal-heading,.planning-context').forEach(el=>observer.observe(el));const header=document.querySelector('.site-header');if(header)observer.observe(header);return()=>{window.removeEventListener('resize',fit);observer.disconnect();};},[preview,view,schedule,editor,date,planning.items]);
