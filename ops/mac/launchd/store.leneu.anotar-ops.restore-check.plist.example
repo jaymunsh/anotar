@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  store.leneu.anotar-ops.restore-check — 매월 1일 06:00 복원 점검.
+  install.sh 가 {{OPS_DIR}} / {{HOME}} 를 실제 경로로 바꿔 복사한다.
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>store.leneu.anotar-ops.restore-check</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/bash</string>
+		<string>{{OPS_DIR}}/restore-check.sh</string>
+	</array>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Day</key>
+		<integer>1</integer>
+		<key>Hour</key>
+		<integer>6</integer>
+		<key>Minute</key>
+		<integer>0</integer>
+	</dict>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>StandardOutPath</key>
+	<string>{{HOME}}/Library/Logs/anotar-ops/restore-check.log</string>
+	<key>StandardErrorPath</key>
+	<string>{{HOME}}/Library/Logs/anotar-ops/restore-check.log</string>
+</dict>
+</plist>

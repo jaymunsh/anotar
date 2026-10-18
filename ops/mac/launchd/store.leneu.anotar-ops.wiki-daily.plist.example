@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  store.leneu.anotar-ops.wiki-daily — 매일 03:30 위키 갱신+업로드.
+  install.sh 가 {{OPS_DIR}} / {{HOME}} 를 실제 경로로 바꿔 ~/Library/LaunchAgents 에 복사한다.
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>store.leneu.anotar-ops.wiki-daily</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/bash</string>
+		<string>{{OPS_DIR}}/wiki-daily.sh</string>
+	</array>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>3</integer>
+		<key>Minute</key>
+		<integer>30</integer>
+	</dict>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>StandardOutPath</key>
+	<string>{{HOME}}/Library/Logs/anotar-ops/wiki-daily.log</string>
+	<key>StandardErrorPath</key>
+	<string>{{HOME}}/Library/Logs/anotar-ops/wiki-daily.log</string>
+</dict>
+</plist>

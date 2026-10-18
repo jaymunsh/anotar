@@ -8,6 +8,11 @@ services:
     pids_limit: 192
     tmpfs:
       - /tmp:size=768m,mode=1777
+    # Wiki build uploaded by the Mac over SSH; served read-only to the signed-in owner (B안).
+    environment:
+      MEMORY_DATA_FILE: /memory/data.json
+    volumes:
+      - ${LENEU_MEMORY_DIR:-/srv/leneu/memory}:/memory:ro
   share:
     build:
       context: .

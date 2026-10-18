@@ -31,6 +31,7 @@ import { createServiceNotifier } from './serviceNotifications.mjs';
 import { PageToolsNotFoundError } from './pageTools.mjs';
 import { createAutomaticBackups } from './automaticBackups.mjs';
 import { handleBackupRoute } from './backupRoutes.mjs';
+import { handleMemoryDataRoute } from './memoryData.mjs';
 import { handleDocumentBlueprintRoute } from './documentBlueprints.mjs';
 import { cleanGoogleMapsKey } from '../shared/googleItinerary.mjs';
 import { createGeoapifyMapService, MapImageError } from './geoapifyMaps.mjs';
@@ -42,6 +43,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dataDir = resolve(process.env.DATA_DIR || join(root, 'data'));
 const blobDir = join(dataDir, 'blobs');
 const distDir = join(root, 'dist');
+// Wiki build served to the signed-in owner (B안); the Mac uploads it over SSH. See server/memoryData.mjs.
+const memoryDataFile = process.env.MEMORY_DATA_FILE ? resolve(process.env.MEMORY_DATA_FILE) : null;
 mkdirSync(blobDir, { recursive: true });
 const store = openStore(dataDir);
 const authHttp = createAuthHttp({store});
@@ -270,6 +273,7 @@ const server = createServer(async (request, response) => {
   const url = new URL(request.url || '/', `http://${request.headers.host || 'localhost'}`);
   try {
     if (await authHttp.handle(request, response, url)) return;
+    if (await handleMemoryDataRoute(request, response, url, { authorize: authHttp.authorize, dataFile: memoryDataFile })) return;
     if (await handleHostingRoute(request, response, url)) return;
     if (await handleSyncRequest(request, response, { store, blobDir, onAiQueued:()=>aiWorker.wake() })) return;
     if (await handleBackupRoute(request, response, url, backups)) return;

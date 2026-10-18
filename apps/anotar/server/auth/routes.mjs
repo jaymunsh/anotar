@@ -68,6 +68,13 @@ export function createAuthHttp({ store, env = process.env, clock = Date.now }) {
   }
   return {
     enabled: mode === 'required',
+    // Reusable session check for routes that live outside the /api/ guard (e.g. /memory/data.json).
+    // Fails closed: when auth is disabled or unconfigured, treat every caller as signed out.
+    authorize(req) {
+      if (mode === 'disabled' || !auth?.configured()) return false;
+      const cookies = readCookies(req.headers.cookie);
+      return auth.check({ sessionToken: cookies[names.session], deviceToken: cookies[names.device] });
+    },
     async handle(req, res, url) {
       if (mode === 'disabled') {
         if (url.pathname === '/api/auth/status') {

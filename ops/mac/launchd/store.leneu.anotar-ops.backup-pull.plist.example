@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  store.leneu.anotar-ops.backup-pull — 매일 05:30 서버 백업 내려받기+검증.
+  install.sh 가 {{OPS_DIR}} / {{HOME}} 를 실제 경로로 바꿔 복사한다.
+-->
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>store.leneu.anotar-ops.backup-pull</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/bash</string>
+		<string>{{OPS_DIR}}/backup-pull.sh</string>
+	</array>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>5</integer>
+		<key>Minute</key>
+		<integer>30</integer>
+	</dict>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>StandardOutPath</key>
+	<string>{{HOME}}/Library/Logs/anotar-ops/backup-pull.log</string>
+	<key>StandardErrorPath</key>
+	<string>{{HOME}}/Library/Logs/anotar-ops/backup-pull.log</string>
+</dict>
+</plist>
