@@ -90,11 +90,11 @@ export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string
   <div className="review-grid">
    <article className="review-card full">
     <h3>{pair('목표','Goals')}<small>{pair(`계획한 날 ${activeDays}/${allDays}일 · 목표 없음 ${duration(unlinked)}`,`${activeDays}/${allDays} days planned · ${duration(unlinked)} without a goal`)}</small></h3>
-    {progress.length?<ul className="review-goals"><li className="review-goals-head" aria-hidden="true"><span/><span>{pair('이 기간 시간 · 비율','Time here · share')}</span><span>{pair('세부 계획 완료','Steps done')}</span><span>{hadBefore?pair(`${unit} 대비`,`vs ${unit}`):''}</span></li>{progress.map(({goal,done,total,value,before:then})=><li key={goal.id} style={{'--goal':tagColor(goal.id)} as React.CSSProperties}>
+    {progress.length?<ul className="review-goals">{progress.map(({goal,done,total,value,before:then})=><li key={goal.id} style={{'--goal':tagColor(goal.id)} as React.CSSProperties}>
      <span className="review-goal-name"><i/>{goal.title}</span>
-     <span className="review-goal-time"><span className="review-track"><i style={{width:`${value/goalPeak*100}%`}}/></span><b>{duration(value)}</b><small>{percent(value,planned)}%</small></span>
-     <span className="review-goal-steps"><span className="review-track"><i style={{width:`${percent(done,total)}%`}}/></span><b>{done}/{total}</b><small>{pair('세부','steps')}</small></span>
-     <small className="review-goal-delta">{hadBefore?value===then?'–':`${value>then?'+':'−'}${duration(Math.abs(value-then))}`:''}</small>
+     <span className="review-goal-time"><b>{duration(value)}</b><small>{percent(value,planned)}%</small></span>
+     <small className="review-goal-delta">{!hadBefore?'':value===then?pair(`${unit}와 같아요`,`same as ${unit}`):<>{value>then?<TrendingUp size={13}/>:<TrendingDown size={13}/>}{pair(`${unit}보다 ${duration(Math.abs(value-then))} ${value>then?'더':'덜'}`,`${duration(Math.abs(value-then))} ${value>then?'more':'less'} than ${unit}`)}</>}</small>
+     <span className="review-goal-steps"><small>{pair('세부 계획','Steps')}</small><span className="review-track"><i style={{width:`${percent(done,total)}%`}}/></span><b>{done}/{total}</b></span>
     </li>)}</ul>:<p className="journal-hint">{pair('이 기간에 걸친 목표가 없어요.','No goals cover this period.')}</p>}
    </article>
 
