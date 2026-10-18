@@ -255,7 +255,6 @@
     min-height: 44px;
   }
 }
-.search-local-scope {margin:0; padding:8px 16px; color:var(--theme-muted); font-size:12px; border-bottom:1px solid var(--theme-line);}
 /* "#" alone: every tag as a chip, most used first. */
 .search-tags {
   display: flex;

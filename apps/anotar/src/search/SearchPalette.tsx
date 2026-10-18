@@ -335,7 +335,6 @@ export default function SearchPalette({
             ))}
           </div>
         )}
-        {batch.scope === 'local' && <p className="search-local-scope" role="status">이 기기에 보관한 항목</p>}
         <div className="search-results-scroll" aria-busy={loading || more}>
           <div className="page-search-results" id={listId} role="listbox" aria-label="검색 결과">
             {mode === 'commands' &&

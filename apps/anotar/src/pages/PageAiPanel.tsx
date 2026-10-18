@@ -24,10 +24,8 @@ import { formatKoreanTime } from '../time';
 import { publishRecordChange } from '../trash/events';
 import { PageNavContext } from './pageNav';
 import '../ai/ai.css';
-import { useQueuedWorkflows } from '../sync/workflows';
 import { cachedRequest } from '../sync/cachedRequest';
 import { useOnlineAction } from '../sync/onlineActions';
-import WorkflowQueue from '../sync/WorkflowQueue';
 
 type Applied = { operationId: string; version: number };
 const applyKey = (id: string) => 'leneu:page-ai-last-apply:v1:' + id;
@@ -62,8 +60,6 @@ export default function PageAiPanel({
   const [execution, setExecution] = useState<AiExecution | null>(null);
   const [scope, setScope] = useState<'page' | 'selection'>('page');
   const [jobs, setJobs] = useState<AiJob[]>([]);
-  const queued=useQueuedWorkflows(page.id).filter(p=>p.operation.kind==='ai.submit');
-  const queuedSignature=queued.map(p=>p.operation.operationId).join(',');
   const wantedRequest=useRef('');
   const onlineReason=useOnlineAction('page',page.id);
   const [notice,setNotice]=useState('');
@@ -152,7 +148,7 @@ export default function PageAiPanel({
       config.abort();
       document.removeEventListener('visibilitychange', visibility);
     };
-  }, [page.id, page.version, reload,queuedSignature]);
+  }, [page.id, page.version, reload]);
   const selected = jobs.find((job) => job.id === selectedId) || jobs[0];
   const active = jobs.some(activeAiJob);
   const unresolved =
@@ -160,7 +156,7 @@ export default function PageAiPanel({
     (!library.libraryReady ||
       !library.templates.some((item) => item.id === selectedTemplate && !item.archived));
   const markdown = savedMarkdown(scope === 'selection' ? selectionIds : []);
-  const disabled = blocked || busy || !jobsKnown || !!queued.length || Boolean(pending) || Boolean(restored.error);
+  const disabled = blocked || busy || !jobsKnown || Boolean(pending) || Boolean(restored.error);
 
   async function execute(value: PageAiPending) {
     if (busy || restored.error || blocked) return;
@@ -180,9 +176,9 @@ export default function PageAiPanel({
     try {
       if (value.kind === 'request') {
         wantedRequest.current=String(value.body.requestId);
-        const data = await sendPageAiPending<{ item?: AiJob; queued?:boolean }>(value, controller.signal);
+        const data = await sendPageAiPending<{ item?: AiJob }>(value, controller.signal);
         if (!mounted.current) return;
-        if(data.item){const job=data.item;setSelectedId(job.id);setJobsKnown(true);setJobs(items=>[job,...items.filter(old=>old.id!==job.id)]);}else setNotice('기기에서 전송 대기 · 원본 저장이 반영된 뒤 AI 요청을 제출해요.');
+        if(data.item){const job=data.item;setSelectedId(job.id);setJobsKnown(true);setJobs(items=>[job,...items.filter(old=>old.id!==job.id)]);}else setNotice('요청 결과를 확인하지 못했어요. 같은 요청을 다시 확인해 주세요.');
         publishRecordChange('page-ai-request');
       } else {
         const data = await sendPageAiPending<{
@@ -326,7 +322,6 @@ export default function PageAiPanel({
   }
   return (
     <section className="ai-job-panel page-ai-panel" aria-label="페이지 AI">
-      <WorkflowQueue sourceId={page.id} onlyAi />
       {notice&&<p role="status">{notice}</p>}
       <div className="ai-job-heading">
         <h2>

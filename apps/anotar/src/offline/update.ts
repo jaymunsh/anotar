@@ -43,7 +43,7 @@ export async function activatePreparedUpdate() {
   const worker = registration.waiting;
   await new Promise<void>((resolve, reject) => {
     const timer = setTimeout(
-      () => reject(Error('업데이트를 준비하지 못했어요. 자료는 기기에 남아 있어요.')),
+      () => reject(Error('업데이트를 준비하지 못했어요. 저장한 자료는 그대로예요.')),
       15000,
     );
     const changed = () => {

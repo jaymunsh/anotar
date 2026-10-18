@@ -77,6 +77,3 @@ export async function persistLocalPage(
   }
   return (await response.json()).item as PageRecord;
 }
-
-// 온라인 전용에서는 별도 대기열 전송이 없다. 호출부 호환용 no-op.
-export async function enqueueLocalPage(_pageId: string) {}

@@ -12,7 +12,6 @@ export type SearchItem = {
   context: string;
 };
 export type SearchBatch = {
-  scope?: 'local' | 'server';
   items: SearchItem[];
   nextCursor: string | null;
   reset: boolean;

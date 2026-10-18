@@ -459,7 +459,7 @@ export default function PageEditor({
       return;
     }
     editor.updateBlock(target, {type:'bookmark',props:{url:pending.url,title:new URL(pending.url).hostname,description:'',imageData:''},content:undefined});
-    setBookmarkNotice(navigator.onLine ? '사이트 정보를 확인하고 있어요…' : '북마크를 기기에 저장했어요. 온라인에서 정보 새로고침을 누르세요.');
+    setBookmarkNotice(navigator.onLine ? '사이트 정보를 확인하고 있어요…' : '북마크를 넣었어요. 연결되면 저장되고, 정보 새로고침으로 사이트 정보를 불러올 수 있어요.');
     if (navigator.onLine) void refreshBookmark(editor, target.id, pending.url)
       .then(applied=>setBookmarkNotice(applied ? '북마크 정보를 확인했어요.' : '편집 위치가 변경되어 북마크 정보 반영을 취소했어요.'))
       .catch(()=>setBookmarkNotice('사이트 정보를 불러오지 못했어요. 북마크 URL은 보존되어 있어요.'));

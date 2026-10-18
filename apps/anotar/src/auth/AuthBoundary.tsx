@@ -20,7 +20,7 @@ function LoginDialog({ close }: { close: () => void }) {
         <X size={18} />
       </button>
       <LoginForm onDone={close} />
-      <p className="auth-local-note">작성 중인 글과 전송 대기 자료는 그대로 유지돼요.</p>
+      <p className="auth-local-note">작성 중인 글은 화면과 초안에 그대로 남아요.</p>
     </dialog>
   );
 }
@@ -106,13 +106,13 @@ export default function AuthBoundary({ children }: { children: ReactNode }) {
             </section>
           )}
           <p className="auth-local-note">
-            개인 작업 공간 · 이 기기의 미전송 기록은 삭제하지 않아요.
+            개인 작업 공간 · 작성 중인 초안은 삭제하지 않아요.
           </p>
         </main>
       )}
       {ready && !hidden && auth.state === 'required' && (
         <div className="auth-expiry" role="status">
-          <span>로그인이 필요해요. 글은 기기에 저장되고 전송은 대기해요.</span>
+          <span>로그인이 필요해요. 로그인한 뒤 저장할 수 있고, 작성 중인 글은 그대로 남아요.</span>
           <button type="button" onClick={() => setLogin(true)}>
             로그인
           </button>

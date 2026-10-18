@@ -121,8 +121,7 @@
   font-weight: 600;
   letter-spacing: var(--tracking-heading);
 }
-.workspace-settings p,
-.settings-pin-copy strong {
+.workspace-settings p {
   word-break: keep-all;
   overflow-wrap: anywhere;
 }
@@ -151,9 +150,7 @@
   line-height: 1.6;
   color: var(--theme-muted);
 }
-.settings-theme,
-.settings-storage-action,
-.settings-pin-release {
+.settings-theme {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -175,8 +172,6 @@
   border-color: transparent;
 }
 .settings-theme:hover,
-.settings-storage-action:hover:not(:disabled),
-.settings-pin-release:hover:not(:disabled),
 .settings-close:hover {
   background: var(--theme-soft);
 }
@@ -266,101 +261,6 @@
   line-height: 1.6;
   color: var(--theme-muted);
 }
-.settings-storage-usage {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px;
-  padding-block: 14px;
-  border-block: 1px solid var(--theme-line);
-  font-variant-numeric: tabular-nums;
-}
-.settings-storage-usage strong {
-  font-size: 16px;
-  font-weight: 600;
-}
-.settings-storage-usage span {
-  font-size: 12px;
-  color: var(--theme-muted);
-}
-.settings-storage-state {
-  margin: 8px 0 18px;
-  color: var(--theme-muted);
-  font-size: 12px;
-}
-.settings-storage-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 26px;
-}
-.settings-pin-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.settings-pin-heading h4 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-}
-.settings-pin-heading span {
-  color: var(--theme-muted);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
-.settings-pins {
-  list-style: none;
-  padding: 0;
-  margin: 12px 0 0;
-}
-.settings-pins li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-block: 12px;
-  border-bottom: 1px solid var(--theme-line);
-}
-.settings-pin-copy {
-  min-width: 0;
-}
-.settings-pin-copy strong {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  overflow-wrap: anywhere;
-}
-.settings-pin-copy small {
-  display: block;
-  margin-top: 3px;
-  font-size: 12px;
-  color: var(--theme-muted);
-}
-.settings-pin-release {
-  flex: none;
-  font-size: 12px;
-  color: var(--theme-muted);
-}
-.settings-storage-empty {
-  margin: 12px 0 0;
-  padding-block: 14px;
-  border-block: 1px solid var(--theme-line);
-  color: var(--theme-muted);
-  font-size: 13px;
-  line-height: 1.65;
-}
-.settings-storage-message {
-  margin: 20px 0 0;
-  padding: 12px;
-  background: var(--theme-soft);
-  color: var(--theme-ink);
-  border-radius: 6px;
-  font-size: 13px;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
 @media (max-width: 760px) {
   .workspace-settings {
     width: calc(100vw - 24px);
@@ -411,9 +311,7 @@
     width: 44px;
     height: 44px;
   }
-  .settings-theme,
-  .settings-storage-action,
-  .settings-pin-release {
+  .settings-theme {
     min-height: 44px;
   }
   .settings-type-preview {

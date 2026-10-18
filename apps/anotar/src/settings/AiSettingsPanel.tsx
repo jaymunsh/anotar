@@ -2,8 +2,8 @@ import OpenCodeModels from './OpenCodeModels';
 import { useEffect, useState } from 'react';
 import { onlineActionFetch } from '../sync/onlineActions';
 import { useAiProfiles, type AiSettings } from '../ai/useAiProfiles';
-export default function AiSettingsPanel({ onOpenStorage }: { onOpenStorage?: () => void }) {
-  const { settings, error: loadError, errorKind, reload } = useAiProfiles();
+export default function AiSettingsPanel() {
+  const { settings, error: loadError, reload } = useAiProfiles();
   const [draft, setDraft] = useState<AiSettings | null>(null);
   const [busy, setBusy] = useState(false);
   const [catalogBusy, setCatalogBusy] = useState(false);
@@ -48,11 +48,6 @@ export default function AiSettingsPanel({ onOpenStorage }: { onOpenStorage?: () 
           <div className="settings-load-problem" role="alert">
             <p>{loadError}</p>
             <div className="settings-load-actions">
-              {errorKind === 'changed' && onOpenStorage && (
-                <button type="button" className="primary" onClick={onOpenStorage}>
-                  기기 저장소 열기
-                </button>
-              )}
               <button type="button" onClick={reload}>
                 다시 불러오기
               </button>

@@ -14,8 +14,6 @@ import { publishRecordChange } from '../trash/events';
 import './ai.css';
 import './ai-flow.css';
 import type { AiFollowupSource } from './followup';
-import WorkflowQueue from '../sync/WorkflowQueue';
-import { useQueuedWorkflows } from '../sync/workflows';
 
 export default function AiJobPanel({
   capture,
@@ -31,13 +29,6 @@ export default function AiJobPanel({
   compactResult?: boolean;
 }) {
   const [jobs, setJobs] = useState<AiJob[]>([]);
-  const workflows = useQueuedWorkflows(capture.id);
-  const pendingSubmission = workflows.some(
-    (workflow) =>
-      workflow.operation.kind === 'ai.submit' &&
-      workflow.operation.payload.sourceKind === 'capture' &&
-      ['queued', 'sending'].includes(workflow.state),
-  );
   const [jobId, setJobId] = useState(linkedAiJobId);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -103,7 +94,7 @@ export default function AiJobPanel({
       configController.abort();
       document.removeEventListener('visibilitychange', visibility);
     };
-  }, [capture.id, capture.version, reload, pendingSubmission]);
+  }, [capture.id, capture.version, reload]);
 
   const selected = jobs.find((job) => job.id === jobId) ?? jobs[0];
   // Seeing a ready result counts as reviewing it (like a read mail); 확인할 결과 drops it.
@@ -113,7 +104,7 @@ export default function AiJobPanel({
       .then((response) => response.ok && publishRecordChange('ai-reviewed'))
       .catch(() => {});
   }, [selected?.id, selected?.status, selected?.reviewedAt]);
-  const active = jobs.some(activeAiJob) || pendingSubmission;
+  const active = jobs.some(activeAiJob);
   async function request(retryOf?: string) {
     if (busy || active || (!retryOf && (!execution || (!enabled && navigator.onLine)))) return;
     setBusy(true);
@@ -156,7 +147,6 @@ export default function AiJobPanel({
   }
   return (
     <section className="ai-job-panel" aria-label="AI 처리 결과">
-      <WorkflowQueue sourceId={capture.id} onlyAi />
       <div className="ai-job-heading">
         <h2>
           <Sparkles size={17} /> AI 결과

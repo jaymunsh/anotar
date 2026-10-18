@@ -98,10 +98,6 @@ export async function loggedIn() {
   saveLock(false);
   publish({ state: 'authenticated', locked: false });
   channel?.postMessage('login');
-  // Resume in the background; opening the workspace must not wait for a large outbox.
-  void import('../sync/runtime')
-    .then(({ requestWorkspaceSync }) => requestWorkspaceSync())
-    .catch(() => {});
 }
 export function loggedOut() {
   lockWorkspace();

@@ -772,7 +772,7 @@ function App() {
       submitted.files.forEach((file) => body.append('files', file));
       if (receipt.selection) body.set('aiRequest', JSON.stringify(receipt.selection));
       const response = await workspaceFetch('/api/captures', { method: 'POST', body });
-      const data = (await response.json()) as { item?: Capture; error?: string; local?: boolean };
+      const data = (await response.json()) as { item?: Capture; error?: string };
       if (!response.ok) throw new Error(data.error || '저장하지 못했습니다.');
       if (!data.item?.id)
         throw new Error('저장 여부를 확인하지 못했어요. 입력은 남아 있으니 다시 저장해 주세요.');
@@ -783,11 +783,7 @@ function App() {
       setNoticeTask(false);
       if (cleared && fileInput.current) fileInput.current.value = '';
       setNotice(
-        data.local
-          ? '기기에 저장했어요. 연결되면 동기화해요.'
-          : withAi
-            ? '메모를 보관하고 AI 요청을 등록했어요.'
-            : '보관함에 저장했어요',
+        withAi ? '메모를 보관하고 AI 요청을 등록했어요.' : '보관함에 저장했어요',
       );
       if (withAi) publishRecordChange('ai-request');
       void loadItems();

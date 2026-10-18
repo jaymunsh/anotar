@@ -17,7 +17,6 @@ import { getAiActivity } from './api';
 import { formatKoreanTime } from '../time';
 import { subscribeRecordChanges } from '../trash/events';
 import './activity.css';
-import WorkflowQueue from '../sync/WorkflowQueue';
 
 function initialFilter(): AiActivityFilter {
   const value = new URLSearchParams(window.location.search).get('status');
@@ -124,7 +123,6 @@ export default function AiActivity({
       className={`ai-activity ${compact ? 'activity-compact' : ''}`}
       aria-label={compact ? 'AI 요청 현황' : 'AI 요청 모니터'}
     >
-      <WorkflowQueue onlyAi />
       {compact ? (
         <div className="activity-heading">
           <h2>

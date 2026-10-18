@@ -154,8 +154,7 @@ export default function SecuritySettings() {
             모든 브라우저 로그아웃
           </button>
           <p className="auth-local-note">
-            로그아웃은 서버 접근을 끊어요. 이미 기기에 저장한 글은 삭제하지 않으며, 작성 중인 초안도
-            남겨요.
+            로그아웃은 서버 접근을 끊어요. 서버에 저장한 글과 작성 중인 초안은 삭제하지 않아요.
           </p>
         </>
       )}
