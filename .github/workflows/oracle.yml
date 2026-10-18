@@ -4,7 +4,7 @@ on:
     branches: [main]
     # Planner-only commits must not rebuild/restart the personal stack.
     # oracle-poll then sees no new successful run and keeps the deployed release.
-    paths-ignore: ['apps/planner/**', '.github/workflows/planner.yml']
+    paths-ignore: ['apps/harukan/**', '.github/workflows/harukan.yml']
   workflow_dispatch:
 permissions:
   contents: read

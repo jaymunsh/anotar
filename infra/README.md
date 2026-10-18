@@ -8,7 +8,7 @@
 | `personal/compose.yaml` | 개인 스택: anotar + memory + caddy. caddy만 `127.0.0.1:8780`에 열린다 |
 | `public/compose.yaml` | 공유 스택: share(공유 문서·댓글, 8790) + sites(정적 호스팅, 8792). 개인이 내보낸 폴더만 읽는다 |
 
-planner는 아직 기존 구성(`apps/planner/compose.oracle.yaml`)이고 Cloudflare tunnel이 각 포트로 직접 보낸다.
+Harukan(옛 planner)은 아직 기존 구성(`apps/harukan/compose.oracle.yaml`)이고 Cloudflare tunnel이 각 포트로 직접 보낸다.
 
 ## 개인 ↔ 공유 경계
 

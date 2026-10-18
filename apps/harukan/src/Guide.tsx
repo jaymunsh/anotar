@@ -6,7 +6,7 @@ export function Guide(){
  return <article className="legal-page guide-page">
   <a href="/">{pair('서비스 소개로','Back to home')}</a>
   <h1>{pair('사용 안내','How Harukan works')}</h1>
-  <p>{pair('하루칸은 하루를 시간으로 계획하는 플래너예요. 생각을 비우고, 꼭 할 일을 고르고, 그 일을 시간표에 놓는 순서로 써요.','Harukan is a planner for laying out your day in time. Empty your head, pick what must get done, and give it a place on the timetable.')}</p>
+  <p>{pair('Harukan은 하루를 시간으로 계획하는 플래너예요. 생각을 비우고, 꼭 할 일을 고르고, 그 일을 시간표에 놓는 순서로 써요.','Harukan is a planner for laying out your day in time. Empty your head, pick what must get done, and give it a place on the timetable.')}</p>
   <figure><img src="/guide/day.png" alt={pair('일간 화면: 왼쪽에 오늘 꼭 할 일과 메모, 오른쪽에 하루 시간표','Day view: priorities and notes on the left, timetable on the right')} width="1280" height="820" loading="lazy"/><figcaption>{pair('일간 화면 (체험용 예시)','Day view (demo data)')}</figcaption></figure>
 
   <h2>{pair('하루 쓰는 순서','A day, step by step')}</h2>

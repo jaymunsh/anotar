@@ -1,12 +1,12 @@
 # Planner (leneu.store) checks only. Not wired to any server deploy:
-# planner releases are still applied manually (apps/planner/docs/LAUNCH_RUNBOOK.md).
-name: Verify planner
+# harukan releases are still applied manually (apps/harukan/docs/LAUNCH_RUNBOOK.md).
+name: Verify harukan
 on:
   push:
     branches: [main, restructure]
-    paths: ['apps/planner/**', '.github/workflows/planner.yml']
+    paths: ['apps/harukan/**', '.github/workflows/harukan.yml']
   pull_request:
-    paths: ['apps/planner/**', '.github/workflows/planner.yml']
+    paths: ['apps/harukan/**', '.github/workflows/harukan.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 10
     defaults:
       run:
-        working-directory: apps/planner
+        working-directory: apps/harukan
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: apps/planner/package-lock.json
+          cache-dependency-path: apps/harukan/package-lock.json
       - run: npm ci
       - run: npm run build
       - run: npm test

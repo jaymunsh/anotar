@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="하루칸">
-  <!-- 하루칸: a day of 칸 (cells) — a 3×3 grid with one block boxed across two cells, one more cell filled. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Harukan">
+  <!-- Harukan (하루칸): a day of 칸 (cells) — a 3×3 grid with one block boxed across two cells, one more cell filled. -->
   <rect width="512" height="512" rx="112" fill="#20322d"/>
   <g fill="#f6f5f0" fill-opacity=".14">
     <rect x="92" y="92" width="96" height="96" rx="22"/>
