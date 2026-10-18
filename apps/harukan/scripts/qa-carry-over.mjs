@@ -29,7 +29,7 @@ try{
     assert.equal(await page.locator('.segmented .selected').first().innerText(),name==='phone'?'목록':'하루');
     checks.push(`${name}: schedule opens in ${name==='phone'?'list':'day grid'} view`);
     while(await offers.count()){await offers.first().click();await page.waitForTimeout(300);}
-    await page.getByText('서버에 저장됨').first().waitFor();
+    await page.locator('#save-status [data-state=saved]').waitFor();
     const saved=(await (await context.request.get(base+'/api/days/2026-10-19')).json()).document;
     assert.deepEqual(saved.plans.map(p=>[p.title,p.start,p.end,p.status]),[['기상·스트레칭',420,450,'pending'],['집중 작업',540,660,'pending']]);
     assert.deepEqual(saved.priorities.map(p=>[p.text,p.done]),[['보고서 마감',false],['은행 가기',false],['',false]]);
@@ -48,14 +48,14 @@ try{
       await toggle.click();
       assert.equal(await page.locator('.journal-steps').count(),0);
       assert.equal(await toggle.innerText(),'1/2');
-      await page.getByText('서버에 저장됨').first().waitFor();await page.waitForTimeout(600);
+      await page.locator('#save-status [data-state=saved]').waitFor();await page.waitForTimeout(600);
       const after=(await (await context.request.get(base+'/api/days/2026-10-19')).json()).document;
       assert.deepEqual(after.priorities[0].steps.map(s=>[s.text,s.done]),[['결론 쓰기',true],['검토 요청',false]]);
       checks.push('pc: steps fold under a task, Enter adds the next, folding drops the empty one and shows 1/2');
       await toggle.click();await page.locator('.journal-step').nth(1).hover();await page.getByRole('button',{name:'세부 할 일 2 지우기'}).click();
       assert.equal(await toggle.innerText(),'1/1');
       page.once('dialog',d=>d.accept());await page.locator('.journal-priority').first().hover();await page.getByRole('button',{name:'오늘 할 일 1 지우기'}).click();
-      await page.getByText('서버에 저장됨').first().waitFor();await page.waitForTimeout(1200);
+      await page.locator('#save-status [data-state=saved]').waitFor();await page.waitForTimeout(1200);
       const removed=(await (await context.request.get(base+'/api/days/2026-10-19')).json()).document;
       assert.deepEqual(removed.priorities.map(p=>p.text),['은행 가기','','']);
       checks.push('pc: × removes a step, and a task (asking first when it has steps); 1–3 keep three slots');

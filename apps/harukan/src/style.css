@@ -10,9 +10,9 @@ input:not([type=checkbox]):not([type=radio]):focus-visible,select:focus-visible,
 .app-nav{display:flex;gap:30px;align-items:stretch;height:100%;margin-right:auto;margin-left:40px}.app-nav a{display:flex;align-items:center;text-decoration:none;color:var(--muted);font-weight:600;border-bottom:2px solid transparent;padding:0 4px}.app-nav a.active{color:var(--action);border-color:var(--action)}.account-actions{display:flex;gap:8px;align-items:center;font-size:12px}.account-actions a{color:var(--muted)}.account-actions button{width:44px;height:44px;color:var(--muted)}.settings-page{max-width:1100px;margin:auto;padding:40px 24px 90px}.settings-page{max-width:880px}.save-status{margin-left:auto;font-size:11px}.demo-label{max-width:1100px;margin:24px auto 0;padding:12px 24px;background:var(--hover);display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:12px;color:var(--muted)}.demo-label a{display:flex;align-items:center;gap:4px;white-space:nowrap}.item-form{background:var(--surface);padding:24px;margin-bottom:28px;border-radius:12px;max-width:680px}.item-form h2{font-size:18px;margin-bottom:20px}.item-form>label{margin-bottom:8px}.item-form .form-pair{margin-top:16px}.item-form .form-actions{margin-top:24px}.segmented{display:inline-flex;background:var(--hover);padding:4px;border-radius:8px;gap:4px}.segmented button{min-height:40px;padding:8px 14px;color:var(--muted)}.segmented .selected{background:var(--surface);color:var(--action);font-weight:600}.empty-state{color:var(--muted);padding:28px 0;line-height:1.8}.page-intro{margin-top:14px;color:var(--muted);max-width:65ch}.settings-page section{margin-top:38px;padding-top:28px;border-top:1px solid var(--line)}.settings-page section h2{font-size:19px;margin-bottom:16px}.settings-page section p{color:var(--muted);margin:12px 0}.settings-form{max-width:440px}.settings-form label{margin:16px 0}.settings-form .secondary{margin-top:8px}
 @media(max-width:900px){.site-header{padding:0 24px}.app-nav{margin-left:12px}}
 @media(max-width:640px){:root{--font-body:14px}h1{font-size:27px}.site-header{height:66px;padding:0 18px;gap:12px}.brand{font-size:23px;gap:8px}.brand img{width:30px;height:30px}.mobile-menu{display:block;width:44px;height:44px;color:var(--muted)}.public-nav{display:none}.public-nav.open{display:flex;position:absolute;top:66px;left:0;right:0;background:var(--surface);z-index:10;padding:20px;flex-wrap:wrap;gap:20px}.site-footer{padding:32px 22px;display:block}.site-footer nav{display:flex;flex-wrap:wrap;gap:18px;margin:24px 0}.site-footer p{margin-top:20px}.auth-page{padding-top:38px}.auth-page input,.settings-page input,.item-form input,.item-form select{font-size:16px}.legal-page{font-size:15px;padding:32px 20px 60px}.legal-page h1{font-size:28px}.legal-page .policy-table{display:block;font-size:14px;line-height:1.75;overflow-wrap:break-word;word-break:normal}.policy-table thead{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.policy-table tbody{display:block}.policy-table tbody tr{display:block;padding:18px 0;border-top:1px solid var(--line)}.legal-page .policy-table td{display:block;width:auto;padding:0;border:0}.legal-page .policy-table td+td{margin-top:14px}.policy-table td::before{content:attr(data-label);display:block;font-weight:650;color:var(--ink);margin-bottom:4px}.legal-page dl{grid-template-columns:90px 1fr}.app-nav{gap:14px;margin:0 auto}.app-nav a{padding:0 2px;font-size:13px}.account-actions{gap:0}.account-actions a{max-width:64px;overflow:hidden;text-overflow:ellipsis}.account-actions button{width:34px;min-width:34px}.site-header:has(.app-nav) .brand span{display:none}.site-header:has(.app-nav) .brand{gap:0}.settings-page{padding:28px 18px 64px}.save-status{width:100%;margin-left:0}.item-form{padding:20px 16px;margin-bottom:24px}.item-form h2{font-size:18px}.form-pair{gap:12px}.segmented{width:100%}.segmented button{flex:1;min-height:44px}.demo-label{margin-top:0;padding:14px 18px;flex-wrap:wrap;line-height:1.6}}
-@media(max-width:360px){.account-actions a{display:none}.app-nav{gap:20px}}
+@media(max-width:350px){.account-actions a{display:none}.app-nav{gap:20px}}
 
-.account-actions a{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px}.account-actions button{min-width:44px;width:44px}@media(max-width:640px){.account-actions a{max-width:100px}.account-actions a span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-actions button{width:44px;min-width:44px}}@media(max-width:360px){.account-actions a{display:inline-flex;min-width:44px}.account-actions a span{display:none}.app-nav{gap:12px}}
+.account-actions a{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:8px}.account-actions button{min-width:44px;width:44px}@media(max-width:640px){.account-actions a{max-width:100px}.account-actions a span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-actions button{width:44px;min-width:44px}}@media(max-width:350px){.account-actions a{display:inline-flex;min-width:44px}.account-actions a span{display:none}.app-nav{gap:12px}}
 
 @media(max-width:640px){.app-header{height:auto;min-height:66px;flex-wrap:wrap;padding-top:8px;gap:4px 12px}.app-header .app-nav{order:3;flex-basis:100%;justify-content:center;margin:0;height:44px;gap:20px;font-size:12px}.app-header .account-actions{margin-left:auto}}
 
@@ -104,10 +104,25 @@ body:has(.journal-page:not(.journal-preview)) .public-header{padding-inline:max(
 /* Phones: a line between the brand row and the menu; the save dot gets its words back only when something is wrong (failed save, conflict, no connection) — routine saving stays a quiet dot. */
 @media(max-width:640px){
  .app-header .app-nav{flex-basis:calc(100% + 2 * var(--workspace-gutter));margin-inline:calc(-1 * var(--workspace-gutter));padding-inline:var(--workspace-gutter);border-top:1px solid var(--line)}
- .header-save [data-state=error],.header-save [data-state=conflict],.header-save [data-state=load-error]{font-size:11px;gap:6px}
 }
 /* The app header stays on screen while the page scrolls. Next to the logo, 오늘 시간표로 jumps to today's timetable. */
 .app-header{position:sticky;top:0;z-index:30;background:var(--canvas)}
-.now-jump{display:inline-grid;place-items:center;flex:none;width:40px;height:40px;margin-left:6px;border-radius:10px;color:var(--action)}
-@media(hover:hover){.now-jump:hover{background:var(--hover)}}
+/* 오늘 시간표로: a plain calendar-clock icon the same weight as the settings gear. */
+.now-jump{display:inline-grid;place-items:center;flex:none;width:36px;height:40px;border-radius:8px;color:var(--muted);-webkit-tap-highlight-color:transparent;outline:none}
+.now-jump:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+@media(hover:hover){.now-jump:hover{background:var(--hover);color:var(--ink)}}
 @media(min-width:641px){.now-jump{display:none}}
+/* Phones: full wordmark on the left; save word · 지금 · settings grouped on the right. Save state is a dot plus one short word. */
+.save-short{display:none}
+@media(max-width:640px){
+ .site-header:has(.app-nav) .brand{gap:8px}.site-header:has(.app-nav) .brand span{display:inline}
+ .app-header .brand{margin-right:auto}
+ .app-header .header-save{order:1;margin-left:0;padding:0 4px 0 0}
+ .app-header .now-jump{order:2}
+ .app-header .account-actions{order:2;margin-left:0}
+ .header-save [role=status]{font-size:12px;gap:5px}
+ .header-save .save-long{display:none}.header-save .save-short{display:inline}
+ .app-header .account-actions a.account-link span{display:none}
+ .app-header .account-actions a.account-link{padding:6px;justify-content:center}
+}
+@media(max-width:640px){.app-header{column-gap:6px}}
