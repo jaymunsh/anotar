@@ -46,7 +46,7 @@ export function Guide(){
   <h2>{pair('주간 · 월간 · 회고','Week, month and review')}</h2>
   <ul>
    <li>{pair('주간·월간은 그 기간의 기록을 한눈에 보여 줘요. 날짜를 누르면 그날로 가요. 월간 칸에는 계획한 시간, 꼭 할 일 완료(✓ 2/3), 일정 3개까지가 보여요. 계획에 연결된 일정에는 그 계획 색 띠가 붙어요.','Week and Month show the period at a glance; click a date to open that day. A month cell shows time planned, priorities done (✓ 2/3) and up to three plans; plans linked to a goal carry its color.')}</li>
-   <li>{pair('회고는 주·달·연 단위로 모아 보여 줘요: 맨 위 한 문장 요약과 계획한 시간·목표에 쓴 비율·꼭 할 일 완료·미이행(지난 기간과 비교), 아래에 목표마다 시간·세부 계획 완료(목표 색), 날마다(연은 달마다) 계획한 시간과 요일·시간대 보기, 다시 계획할 것, 하루 돌아보기. 연에는 올해 흐름도 있어요. 따로 적을 건 없어요.','Review gathers a week, month or year: a one-line summary, planned time, share on goals, priorities done and unfinished (compared with the period before), then each goal’s time and steps done in its colour, time per day (per month for a year) with a weekday × hour view, what to plan again and daily reviews. The year adds the year flow. Nothing extra to fill in.')}</li>
+   <li>{pair('회고는 주·달·연 단위로 모아 보여 줘요: 맨 위 한 문장 요약과 계획한 시간·목표에 쓴 비율·꼭 할 일 완료·미이행(지난 기간과 비교), 아래에 목표마다 시간·세부 계획 완료(목표 색), 하루하루 언제 무엇을 했는지 한 줄 타임라인(연은 달마다 막대), 다시 계획할 것, 하루 돌아보기. 연에는 올해 흐름도 있어요. 따로 적을 건 없어요.','Review gathers a week, month or year: a one-line summary, planned time, share on goals, priorities done and unfinished (compared with the period before), then each goal’s time and steps done in its colour, each day as a 0–24 strip showing what sat when (month bars for a year), what to plan again and daily reviews. The year adds the year flow. Nothing extra to fill in.')}</li>
   </ul>
 
   <h2>{pair('단축키','Keyboard shortcuts')}</h2>

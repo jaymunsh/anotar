@@ -48,14 +48,9 @@ export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string
  const perGoal=new Map<string,number>();for(const p of plans){const g=goalOf(p.plan.planningId);if(g)perGoal.set(g,(perGoal.get(g)||0)+p.plan.end-p.plan.start);}
  const goalRows=[...perGoal].map(([id,value])=>({id,title:goals.find(g=>g.id===id)?.title||'',value})).sort((a,b)=>b.value-a.value),unlinked=planned-linked;
 
- // Rhythm: one bar per day (week, month) or per month (year), stacked by goal.
- const buckets=span==='year'?Array.from({length:12},(_,i)=>{const m=`${start.slice(0,4)}-${String(i+1).padStart(2,'0')}`;return {key:m+'-01',from:m+'-01',to:m+'-31',name:pair(`${i+1}월`,label(m+'-01',{month:'short'})),full:label(m+'-01',{year:'numeric',month:'long'})};}):datesBetween(start,end).map(d=>({key:d,from:d,to:d,name:span==='week'?weekdays()[weekday(d)]:String(Number(d.slice(8))),full:label(d,{month:'long',day:'numeric',weekday:'short'})}));
+ // A year: one bar per month, stacked by goal.
+ const buckets=Array.from({length:12},(_,i)=>{const m=`${start.slice(0,4)}-${String(i+1).padStart(2,'0')}`;return {key:m+'-01',from:m+'-01',to:m+'-31',name:pair(`${i+1}월`,label(m+'-01',{month:'short'})),full:label(m+'-01',{year:'numeric',month:'long'})};});
  const rhythm=buckets.map(b=>{const inside=plans.filter(p=>p.date>=b.from&&p.date<=b.to),parts=[...goalRows.map(g=>({id:g.id,value:minutes(inside.filter(p=>goalOf(p.plan.planningId)===g.id))})),{id:'',value:minutes(inside.filter(p=>!goalOf(p.plan.planningId)))}].filter(x=>x.value>0);return {...b,parts,total:parts.reduce((s,x)=>s+x.value,0)};}),rhythmPeak=Math.max(1,...rhythm.map(b=>b.total));
-
- // When in the day: weekday × hour, how much was planned there over the period.
- const grid=Array.from({length:7},()=>Array(24).fill(0) as number[]);
- for(const {date:d,plan} of plans)for(let h=Math.floor(plan.start/60);h*60<plan.end&&h<24;h++)grid[weekday(d)][h]+=Math.min(plan.end,(h+1)*60)-Math.max(plan.start,h*60);
- const gridPeak=Math.max(0,...grid.flat());
 
  // Goals the period touches, 집중 first: time here (and against the period before) and steps done, in the goal's own colour.
  const beforeGoal=new Map<string,number>();for(const p of before){const g=goalOf(p.plan.planningId);if(g)beforeGoal.set(g,(beforeGoal.get(g)||0)+p.plan.end-p.plan.start);}
@@ -99,12 +94,16 @@ export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string
    </article>
 
    <article className="review-card full">
-    <h3>{span==='year'?pair('달마다 계획한 시간','Planned per month'):pair('날마다 계획한 시간','Planned per day')}</h3>
-    <div className={`review-bars ${span}`} role="list">{rhythm.map(b=>{const text=`${b.full} · ${b.total?duration(b.total):pair('일정 없음','nothing planned')}`;return <button key={b.key} role="listitem" className={b.from<=today&&today<=b.to?'today':undefined} title={text} aria-label={text} onClick={()=>span==='year'?(setSpan('month'),onDate(b.from,'review')):onDate(b.from,'day')}><span className="review-bar" style={{height:`${b.total/rhythmPeak*100}%`}}>{b.parts.map(x=><i key={x.id||'none'} className={x.id?undefined:'unlinked'} style={{flexGrow:x.value,...(x.id?{background:tagColor(x.id)}:{})}}/>)}</span><small>{b.name}</small></button>;})}</div>
-    {gridPeak>0&&<details className="review-heat-wrap"><summary>{pair('요일·시간대별로 보기','By weekday and hour')}</summary><div className="review-heat" role="table" aria-label={pair('요일과 시간대별 계획한 시간','Planned time by weekday and hour')}>
-     <div role="row" className="review-heat-hours"><span/>{Array.from({length:24},(_,h)=><span role="columnheader" key={h}>{h%6===0?h:''}</span>)}</div>
-     {grid.map((hours,w)=><div role="row" key={w}><span role="rowheader">{weekdays()[w]}</span>{hours.map((value,h)=>{const text=`${weekdays()[w]} ${clock(h*60)} · ${value?duration(value):pair('없음','none')}`;return <span role="cell" key={h} title={text} aria-label={text}>{value>0&&<i style={{opacity:.12+.6*value/gridPeak}}/>}</span>;})}</div>)}
-    </div></details>}
+    <h3>{span==='year'?pair('달마다 계획한 시간','Planned per month'):pair('하루하루 언제 무엇을','Each day, what and when')}<small>{span==='year'?'':pair('누르면 그날로 가요','tap a day to open it')}</small></h3>
+    {span==='year'?<div className="review-bars" role="list">{rhythm.map(b=>{const text=`${b.full} · ${b.total?duration(b.total):pair('일정 없음','nothing planned')}`;return <button key={b.key} role="listitem" className={b.from<=today&&today<=b.to?'today':undefined} title={text} aria-label={text} onClick={()=>{setSpan('month');onDate(b.from,'review');}}><em>{b.total?pair(`${Math.round(b.total/60)}시간`,`${Math.round(b.total/60)}h`):''}</em><span className="review-bar" style={{height:`${b.total/rhythmPeak*100}%`}}>{b.parts.map(x=><i key={x.id||'none'} className={x.id?undefined:'unlinked'} style={{flexGrow:x.value,...(x.id?{background:tagColor(x.id)}:{})}}/>)}</span><small>{b.name}</small></button>;})}</div>
+    :<div className={`review-days ${span}`} role="list">
+     <div className="review-days-hours" aria-hidden="true"><span/><span className="review-day-track">{[0,6,12,18,24].map(h=><small key={h} style={{left:`${h/24*100}%`}}>{h}</small>)}</span><span/></div>
+     {datesBetween(start,end).map(d=>{const dayPlans=plans.filter(p=>p.date===d),total=minutes(dayPlans),w=weekday(d),text=`${label(d,{month:'long',day:'numeric',weekday:'short'})} · ${total?duration(total):pair('일정 없음','nothing planned')}`;return <button key={d} role="listitem" className={`review-day${d===today?' today':''}${w===5?' sat':w===6?' sun':''}`} aria-label={text} title={text} onClick={()=>onDate(d,'day')}>
+      <span className="review-day-label">{span==='week'?weekdays()[w]:<>{Number(d.slice(8))}<small>{weekdays()[w]}</small></>}</span>
+      <span className="review-day-track">{dayPlans.map(({plan})=>{const g=goalOf(plan.planningId);return <i key={plan.id} title={`${clock(plan.start)}–${clock(plan.end)} ${plan.title}`} className={g?undefined:'unlinked'} style={{left:`${plan.start/1440*100}%`,width:`${(plan.end-plan.start)/1440*100}%`,...(g?{background:tagColor(g)}:{})}}/>;})}</span>
+      <span className="review-day-total">{total?duration(total):''}</span>
+     </button>;})}
+    </div>}
    </article>
 
    <article className="review-card">
