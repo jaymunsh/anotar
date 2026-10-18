@@ -6,7 +6,7 @@ import {getLanguage,pair,t} from '../i18n';
 import './planning.css';
 
 // Sixteen goal colours: the first eight calm, the rest brighter so many goals stay apart. A step, and any timetable block linked to it, wears its goal's colour; no goal means grey.
-export const goalColors=['#5b8a6b','#4f7aa3','#b0704a','#8a5fa0','#b5545c','#4f9a9a','#a68a3c','#6b6f8a','#d9822b','#c2577f','#7f9b2f','#2f6fd6','#e0b02a','#5e4bb5','#8c6650','#3f4448'];
+export const goalColors=['#5b8a6b','#4f7aa3','#b0704a','#8a5fa0','#b5545c','#4f9a9a','#a68a3c','#2a9fd0','#d9822b','#c2577f','#7f9b2f','#2f6fd6','#e0b02a','#5e4bb5','#8c6650','#e5604a'];
 const noGoal='#a7b0aa';
 // ponytail: module-level map refreshed by usePlanning so tagColor(id) keeps its one-argument callers; fine while one planning state is mounted.
 let colorOf=new Map<string,string>();
