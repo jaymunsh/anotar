@@ -16,7 +16,7 @@ const overflow=page=>page.evaluate(()=>document.documentElement.scrollWidth>inne
 try{
   // Public pages: no sideways scroll, right lang attribute, no Korean left on English pages.
   const context=await browser.newContext(),page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
-  for(const route of ['/','/demo','/guide','/login','/signup','/forgot','/recover','/about','/privacy','/terms','/contact'])for(const [width,lang] of [[1440,'ko'],[390,'en'],[320,'ko']]){
+  for(const route of ['/','/demo','/guide','/login','/signup','/forgot','/about','/privacy','/terms','/contact'])for(const [width,lang] of [[1440,'ko'],[390,'en'],[320,'ko']]){
     await page.setViewportSize({width,height:900});await page.goto(base+route+'?lang='+lang);await page.locator('main h1, article h1').first().waitFor();await page.evaluate(()=>document.fonts.ready);
     assert.equal(await overflow(page),false,`${route} ${width} overflow`);assert.equal(await page.locator('html').getAttribute('lang'),lang);
     if(lang==='en'&&route!=='/demo'){const text=(await page.locator('body').innerText()).replaceAll('한국어','').replaceAll('하루칸','').replaceAll('문성혁','');const left=text.match(/[^\n]*[가-힣][^\n]*/g);assert.ok(!left,`${route} untranslated: ${left}`);}

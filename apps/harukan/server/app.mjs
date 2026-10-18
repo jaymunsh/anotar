@@ -11,12 +11,13 @@ import {makeMailer,accountMail} from './mail.mjs';
 const derive=promisify(scrypt), digest=value=>createHash('sha256').update(value).digest('hex');
 const token=()=>randomBytes(32).toString('base64url');
 const passwordOK=value=>typeof value==='string'&&value.length>=12&&value.length<=128;
-const normalizeUsername=value=>typeof value==='string'?value.trim().toLowerCase():'';
 const normalizeEmail=value=>typeof value==='string'?value.trim().toLowerCase():'';
 const emailOK=value=>value.length<=254&&/^[^\s@]{1,64}@[^\s@.]+(\.[^\s@.]+)+$/.test(value);
 // A nickname is only shown on screen: 2–20 characters, any script, no control characters.
 const normalizeNickname=value=>typeof value==='string'?value.trim().replace(/\s+/g,' '):'';
 // No control characters, and no invisible direction/zero-width marks that could disguise the name (U+200B–200F, U+202A–202E, U+2060–2069, U+FEFF).
+// An IANA zone the runtime knows (e.g. Asia/Seoul). It only decides which date is 'today' and where the now-line sits; records keep their own date and clock times.
+const timezoneOK=value=>{if(typeof value!=='string'||!value||value.length>64)return false;try{new Intl.DateTimeFormat('en',{timeZone:value});return true;}catch{return false;}};
 const nicknameOK=value=>[...value].length>=2&&[...value].length<=20&&!/[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2060-\u2069\ufeff]/.test(value);
 let activeHashes=0;
 async function hash(password,existing) {
@@ -91,8 +92,8 @@ export function makeApp(options={}) {
     if(values.length!==1||!values[0][1]||values[0][1].length>80) return null;
     return db.prepare('SELECT sessions.*,users.username,users.timezone,users.email,users.email_verified_at,users.nickname FROM sessions JOIN users ON users.id=sessions.user_id WHERE token_hash=? AND expires_at>?').get(digest(values[0][1]),clock());
   }
-  // What the app sees of an account; older accounts without a nickname show their username.
-  const publicUser=u=>({id:u.id??u.user_id,username:u.username,nickname:u.nickname||u.username,email:u.email||null,emailVerified:Boolean(u.email&&u.email_verified_at),timezone:u.timezone||'Asia/Seoul'});
+  // What the app sees of an account.
+  const publicUser=u=>({id:u.id??u.user_id,nickname:u.nickname||u.username,email:u.email||null,emailVerified:Boolean(u.email&&u.email_verified_at),timezone:u.timezone||'Asia/Seoul'});
   // One link per kind and person at a time: a new one replaces the old. Sending failures are logged, never shown, so they reveal nothing.
   async function mailLink(user,kind,email) {
     const value=token();
@@ -131,9 +132,11 @@ export function makeApp(options={}) {
       if(!path.startsWith('/api/')) {
         if(!['GET','HEAD'].includes(req.method)) throw apiError(405,'지원하지 않는 요청이에요.');
         // Keep former personal-app bookmarks useful after the domain cutover.
-        if(/^\/(pages(?:\/|$)|journal(?:\/|$)|memo(?:\/|$)|tasks(?:\/|$)|ai(?:\/|$)|ai-jobs(?:\/|$)|comments(?:\/|$))/.test(path)) {
+        if(/^\/(pages(?:\/|$)|memo(?:\/|$)|tasks(?:\/|$)|ai(?:\/|$)|ai-jobs(?:\/|$)|comments(?:\/|$))/.test(path)) {
           res.writeHead(302,{Location:'https://personal.leneu.store'+path+url.search,'Cache-Control':'no-store'});return res.end();
         }
+        // The personal app's 일지 moved here: /journal opens the schedule.
+        if(/^\/journal(?:\/|$)/.test(path)){res.writeHead(302,{Location:'/app'+url.search,'Cache-Control':'no-store'});return res.end();}
         // Signed in: home and the sign-in pages go straight to the schedule.
         if(['/','/login','/signup'].includes(path)&&session(req)){res.writeHead(302,{Location:'/app','Cache-Control':'no-store'});return res.end();}
         const target=resolve(dist,'.'+decodeURIComponent(path));
@@ -164,39 +167,21 @@ export function makeApp(options={}) {
         if(!registration) throw apiError(403,'가입 준비 중이에요. 체험 화면을 먼저 이용해 주세요.');
         if(data.termsVersion!==termsVersion||data.ageConfirmed!==true) throw apiError(400,'이용약관과 만 14세 이상 여부를 확인해 주세요.');
         limit('signup:'+ip,5,86400000);
-        // The username column stays as an internal handle; people sign in with their email.
-        const password=await hash(data.password),user={id:randomUUID(),username:'u-'+randomBytes(6).toString('hex'),nickname,email};
-        try {db.prepare('INSERT INTO users(id,username,password,recovery_hash,created_at,terms_version,email,nickname) VALUES(?,?,?,?,?,?,?,?)').run(user.id,user.username,password,digest(token()),clock(),termsVersion,email,nickname);}
+        // People sign in with their email. username and recovery_hash are internal columns kept from the first schema (a random handle and an unused hash).
+        const password=await hash(data.password),timezone=timezoneOK(data.timezone)?data.timezone:'Asia/Seoul',user={id:randomUUID(),username:'u-'+randomBytes(6).toString('hex'),nickname,email,timezone};
+        try {db.prepare('INSERT INTO users(id,username,password,recovery_hash,created_at,terms_version,email,nickname,timezone) VALUES(?,?,?,?,?,?,?,?,?)').run(user.id,user.username,password,digest(token()),clock(),termsVersion,email,nickname,timezone);}
         catch(error) {if(String(error.message).includes('UNIQUE')) throw apiError(409,'이미 가입한 이메일이에요. 로그인하거나 비밀번호를 재설정해 주세요.');throw error;}
         await mailLink(user,'verify',email);
         return json(res,201,newSession(user,res));
       }
       if(path==='/api/auth/login'&&req.method==='POST') {
-        // Email, or the username of an account made before email sign-in.
-        const data=await body(req),login=normalizeEmail(data.login??data.username);
+        const data=await body(req),login=normalizeEmail(data.login);
         limit('ip:'+ip,30,15*60000);limit('account:'+login,12,15*60000);
         if(!login||login.length>254||!passwordOK(data.password)) throw apiError(401,'이메일 또는 비밀번호를 확인해 주세요.');
-        const user=db.prepare('SELECT * FROM users WHERE email=? OR username=?').get(login,login);
+        const user=db.prepare('SELECT * FROM users WHERE email=?').get(login);
         if(!await matches(data.password,user?.password)||!user) throw apiError(401,'이메일 또는 비밀번호를 확인해 주세요.');
         if(db.prepare('SELECT password FROM users WHERE id=?').get(user.id)?.password!==user.password) throw apiError(401,'계정 정보가 바뀌었어요. 다시 로그인해 주세요.');
         return json(res,200,newSession(user,res));
-      }
-      if(path==='/api/auth/recover'&&req.method==='POST') {
-        // Accounts made before email sign-in: username + the recovery code shown at sign-up.
-        const data=await body(req),username=normalizeUsername(data.username);
-        limit('ip:'+ip,30,15*60000);limit('account:'+username,12,15*60000);
-        if(!/^[a-z0-9][a-z0-9_-]{2,31}$/.test(username)||!passwordOK(data.password)) throw apiError(400,'아이디는 영문·숫자 3–32자, 비밀번호는 12–128자로 입력해 주세요.');
-        const user=db.prepare('SELECT * FROM users WHERE username=?').get(username);
-        const recovery=typeof data.recoveryCode==='string'?data.recoveryCode:'';
-        const candidate=Buffer.from(digest(recovery)),expected=Buffer.from(user?.recovery_hash||digest('invalid'));
-        if(!user||!recovery||!timingSafeEqual(candidate,expected)) throw apiError(401,'아이디와 복구코드를 확인해 주세요.');
-        const password=await hash(data.password),next=token();
-        transaction(db,()=>{
-          const result=db.prepare('UPDATE users SET password=?,recovery_hash=? WHERE id=? AND recovery_hash=?').run(password,digest(next),user.id,user.recovery_hash);
-          if(result.changes!==1) throw apiError(401,'이미 사용했거나 변경된 복구코드예요.');
-          db.prepare('DELETE FROM sessions WHERE user_id=?').run(user.id);
-        });
-        return json(res,200,{...newSession(user,res),recoveryCode:next});
       }
       if(path==='/api/auth/forgot'&&req.method==='POST') {
         // Same answer whether or not the address has an account.
@@ -241,7 +226,7 @@ export function makeApp(options={}) {
       if(path==='/api/account'&&req.method==='DELETE') {
         const data=await body(req);limit('delete:'+s.user_id,5,15*60000);
         const user=db.prepare('SELECT * FROM users WHERE id=?').get(s.user_id);
-        if(normalizeEmail(data.confirmation)!==(s.email||s.username)||!passwordOK(data.password)||!await matches(data.password,user.password)) throw apiError(400,'이메일(또는 아이디)과 비밀번호로 탈퇴를 확인해 주세요.');
+        if(normalizeEmail(data.confirmation)!==s.email||!passwordOK(data.password)||!await matches(data.password,user.password)) throw apiError(400,'이메일과 비밀번호로 탈퇴를 확인해 주세요.');
         transaction(db,()=>{
           if(db.prepare('SELECT password FROM users WHERE id=?').get(s.user_id)?.password!==user.password)throw apiError(409,'계정 정보가 바뀌었어요. 다시 확인해 주세요.');
           recordDeletion(dataDirectory,s.user_id,clock());
@@ -267,6 +252,12 @@ export function makeApp(options={}) {
         db.prepare('UPDATE users SET nickname=? WHERE id=?').run(nickname,s.user_id);
         return json(res,200,{user:publicUser({...s,nickname})});
       }
+      if(path==='/api/account/timezone'&&req.method==='POST') {
+        const timezone=(await body(req)).timezone;
+        if(!timezoneOK(timezone)) throw apiError(400,'시간대를 확인해 주세요.');
+        db.prepare('UPDATE users SET timezone=? WHERE id=?').run(timezone,s.user_id);
+        return json(res,200,{user:publicUser({...s,timezone})});
+      }
       if(path==='/api/account/email'&&req.method==='POST') {
         // Sends a check link; the address changes only when that link is opened. No email = resend for the current one.
         const data=await body(req),email=normalizeEmail(data.email??s.email);limit('email:'+s.user_id,5,60*60000);
@@ -276,7 +267,7 @@ export function makeApp(options={}) {
         await mailLink({id:s.user_id,username:s.username,nickname:s.nickname},'verify',email);
         return json(res,200,{ok:true,email});
       }
-      if(path==='/api/export'&&req.method==='GET') return json(res,200,{format:'anotar-planner-v1',user:{username:s.username,nickname:s.nickname||s.username,email:s.email,timezone:s.timezone},days:db.prepare('SELECT date,document,version FROM days WHERE user_id=? ORDER BY date').all(s.user_id).map(d=>({...d,document:JSON.parse(d.document)})),planning:listPlanning(db,s.user_id)});
+      if(path==='/api/export'&&req.method==='GET') return json(res,200,{format:'anotar-planner-v1',user:{nickname:s.nickname,email:s.email,timezone:s.timezone},days:db.prepare('SELECT date,document,version FROM days WHERE user_id=? ORDER BY date').all(s.user_id).map(d=>({...d,document:JSON.parse(d.document)})),planning:listPlanning(db,s.user_id)});
       if(path==='/api/days'&&req.method==='GET') {
         const from=url.searchParams.get('from'),to=url.searchParams.get('to');
         if((from!==null||to!==null)&&(!validDate(from)||!validDate(to)||from>to||(Date.parse(to)-Date.parse(from))/86400000>365)) throw apiError(400,'날짜를 확인해 주세요.');

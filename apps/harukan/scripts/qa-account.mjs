@@ -45,6 +45,14 @@ try{
   await page.getByText('이메일 또는 비밀번호를 확인해 주세요').waitFor();
   await page.getByLabel('비밀번호',{exact:true}).fill('account-qa-password-2');await page.getByRole('button',{name:'로그인',exact:true}).click();
   await page.waitForURL('**/app**');checks.push('the old password is refused, the new one signs in');
+  // Time zone: pick another zone, confirm, and the account keeps it.
+  await page.goto(base+'/app/settings');page.once('dialog',d=>d.accept());await page.getByLabel('시간대').selectOption('Asia/Tokyo');await page.locator('form',{has:page.getByLabel('시간대')}).getByRole('button',{name:'바꾸기'}).click();
+  await page.waitForFunction(()=>document.querySelector('select[aria-label="시간대"]')?.value==='Asia/Tokyo');checks.push('settings changes the time zone');
+  // Deleting the account: the button opens only for the account's own email.
+  await page.getByText('계정과 기록 삭제').click();const remove=page.getByRole('button',{name:'탈퇴하고 기록 삭제'});
+  await page.getByLabel('이메일을 다시 입력').fill('someone.else@example.test');assert.equal(await remove.isDisabled(),true);
+  await page.getByLabel('이메일을 다시 입력').fill('QA.Person@example.test');await page.locator('details',{hasText:'계정과 기록 삭제'}).getByLabel('비밀번호').fill('account-qa-password-2');assert.equal(await remove.isDisabled(),false);
+  page.once('dialog',d=>d.accept());await remove.click();await page.waitForURL(u=>u.pathname==='/');checks.push('account deletion with the email and password');
   assert.deepEqual(errors,[]);
   console.log(JSON.stringify({ok:true,checks},null,2));
 }finally{await browser.close();await app.close();await rm(dir,{recursive:true,force:true});}

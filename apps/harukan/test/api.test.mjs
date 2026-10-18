@@ -57,17 +57,12 @@ test('optimistic conflicts preserve saved data and priority links stay within th
   doc.entries=[{id:'plan',title:'중복 ID',start:200,end:300}];assert.equal((await a.send('/api/days/2026-10-11','PUT',{version:1,document:doc})).status,400);
   assert.equal((await a.send('/api/days/2026-02-30')).status,400);
 });
-test('recovery codes are one-use even for concurrent requests and revoke older sessions',async t=>{
-  // An account from before email sign-in: username + recovery code, no email.
-  const {client,register,db}=await fixture(t),a=client(),other=client();await register(a,'recovery_seed');
-  const seed=db.prepare('SELECT password FROM users WHERE email=?').get('recovery_seed@example.test').password,code='legacy-recovery-code-0001';
-  db.prepare("UPDATE users SET username='recovery_test',email=NULL,recovery_hash=? WHERE password=?").run(createHash('sha256').update(code).digest('hex'),seed);
-  assert.equal((await other.send('/api/auth/login','POST',{login:'recovery_test',password})).status,200);
-  const recover=client(),next=client();const data={username:'recovery_test',password:'replacement-password-2026',recoveryCode:code};
-  const results=await Promise.all([recover.send('/api/auth/recover','POST',data),next.send('/api/auth/recover','POST',data)]);
-  assert.deepEqual(results.map(r=>r.status).sort(),[200,401]);
-  assert.equal((await a.send('/api/export')).status,401);assert.equal((await other.send('/api/export')).status,401);
-  assert.equal((await client().send('/api/auth/login','POST',{login:'recovery_test',password})).status,401);
+test('sign-in is by email only; the internal username is not a login',async t=>{
+  const {client,register,db}=await fixture(t),a=client();await register(a,'email_only');
+  const {username}=db.prepare('SELECT username FROM users WHERE email=?').get('email_only@example.test');
+  assert.equal((await client().send('/api/auth/login','POST',{login:username,password})).status,401);
+  assert.equal((await client().send('/api/auth/login','POST',{login:'EMAIL_ONLY@example.test',password})).status,200);
+  assert.equal((await client().send('/api/auth/recover','POST',{username,password,recoveryCode:'x'})).status,401,'no recovery route: an unknown path asks for sign-in');
 });
 test('password rotation revokes other sessions and invalid credentials do not reveal accounts',async t=>{
   const {client,register}=await fixture(t),a=client(),b=client();await register(a,'password_test');await b.send('/api/auth/login','POST',{login:'password_test@example.test',password});

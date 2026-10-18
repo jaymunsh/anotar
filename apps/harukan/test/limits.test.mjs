@@ -53,3 +53,17 @@ test('a session lasts 30 days from the last visit', async t=>{
   now+=25*86400000;assert.ok((await send('/api/auth/session')).value.user,'renewed at day 20, so day 45 is fine');
   now+=31*86400000;assert.equal((await send('/api/auth/session')).value.user,null);
 });
+
+test('time zone: set from the browser at sign-up, changeable, validated', async t=>{
+  const {send}=await setup(t);
+  const r=await send('/api/auth/register','POST',{email:'zone@example.test',nickname:'zone',password:'limits-test-password',termsVersion:'2026-10-18',ageConfirmed:true,timezone:'America/Los_Angeles'});
+  assert.equal(r.value.user.timezone,'America/Los_Angeles');
+  assert.equal((await send('/api/account/timezone','POST',{timezone:'Mars/Olympus'})).status,400);
+  assert.equal((await send('/api/account/timezone','POST',{timezone:'Asia/Tokyo'})).value.user.timezone,'Asia/Tokyo');
+  assert.equal((await send('/api/auth/session')).value.user.timezone,'Asia/Tokyo');
+});
+test('an unknown time zone at sign-up falls back to Seoul', async t=>{
+  const {send}=await setup(t);
+  const r=await send('/api/auth/register','POST',{email:'zone2@example.test',nickname:'zone',password:'limits-test-password',termsVersion:'2026-10-18',ageConfirmed:true,timezone:'nope'});
+  assert.equal(r.value.user.timezone,'Asia/Seoul');
+});

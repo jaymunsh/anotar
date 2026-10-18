@@ -85,6 +85,7 @@ export function Guide(){
   <ul>
    <li>{pair('이메일과 비밀번호로 로그인해요. 화면에는 가입할 때 정한 닉네임이 보여요. 닉네임과 이메일은 설정 › 계정에서 바꿔요.','Sign in with your email and password. Screens show the nickname you chose at sign-up; change it or your email under Settings › Account.')}</li>
    <li>{pair('가입하면 확인 메일이 가요. 링크를 열면 ‘확인됨’이 되고, 안 보이면 스팸함을 확인하거나 설정에서 다시 보내요. 새 이메일로 바꿀 때도 새 주소로 간 링크를 열어야 바뀌어요.','After sign-up we send a confirmation email. Open its link to see Confirmed; if it isn’t there, check spam or resend it from Settings. A new address takes effect only after you open the link sent to it.')}</li>
+   <li>{pair('시간대는 가입한 기기 기준으로 정해지고, 설정 › 계정에서 바꿀 수 있어요. ‘오늘’이 어느 날인지와 현재 시각 선만 따라 바뀌고, 이미 적은 기록의 날짜와 시각은 그대로예요. 여행 가는 날은 출발지 시간으로 적고 다음 날부터 바꾸면 깔끔해요.','Your time zone comes from the device you signed up on; change it under Settings › Account. It only moves which day is “today” and the now-line. Dates and times you already wrote stay put. On a travel day, keep the old zone and switch from the next day.')}</li>
    <li>{pair('비밀번호를 잊으면 로그인 화면의 ‘비밀번호를 잊었어요’에서 재설정 링크를 받아요. 링크는 30분 동안 한 번만 쓸 수 있고, 바꾸면 다른 기기의 로그인은 끝나요.','Forgot your password? Choose “Forgot password” on the sign-in screen for a reset link. It works once, for 30 minutes, and other devices are signed out after the change.')}</li>
   </ul>
   </details>
