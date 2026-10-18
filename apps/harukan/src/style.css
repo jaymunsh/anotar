@@ -110,3 +110,4 @@ body:has(.journal-page:not(.journal-preview)) .public-header{padding-inline:max(
 .app-header{position:sticky;top:0;z-index:30;background:var(--canvas)}
 .now-jump{display:inline-grid;place-items:center;flex:none;width:40px;height:40px;margin-left:6px;border-radius:10px;color:var(--action)}
 .now-jump:hover{background:var(--hover)}
+@media(min-width:641px){.now-jump{display:none}}
