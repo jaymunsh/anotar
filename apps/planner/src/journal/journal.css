@@ -195,31 +195,31 @@
 .journal-empty-hint a{color:var(--action);margin-left:4px}
 .journal-overview .journal-empty-hint{flex-shrink:0}
 /* 회고: the week first, then the unfinished list. */
-.weekly-review{margin-bottom:40px;padding-bottom:28px;border-bottom:1px solid var(--line)}
-.weekly-review>header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.weekly-review>header h2{font-size:20px}
-.weekly-review>header nav{display:flex;align-items:center;gap:4px}
-.weekly-review>header nav button{min-width:40px;min-height:40px;display:inline-grid;place-items:center;color:var(--muted)}
-.weekly-review>header nav .text-button{padding:0 10px;font-size:13px}
-.weekly-review h3{margin:28px 0 10px;font-size:14px}
-.weekly-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0 0}
-.weekly-stats>div{padding:14px 16px;border-radius:10px;background:var(--surface);box-shadow:0 0 0 1px var(--line)}
-.weekly-stats dt{font-size:12px;color:var(--muted)}
-.weekly-stats dd{margin:4px 0 0;font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
-.weekly-stats dd small{font-size:14px;color:var(--muted);font-weight:400}
-.weekly-goals{list-style:none;margin:0;padding:0;max-width:720px}
-.weekly-goals li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:8px 0;font-size:13px}
-.weekly-goals li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.weekly-goals li b{font-variant-numeric:tabular-nums;font-size:12px}
-.weekly-goals .weekly-bar{grid-column:1/-1;height:6px;border-radius:3px;background:var(--muted);opacity:.85;min-width:4px}
-.weekly-goals .unlinked{color:var(--muted)}.weekly-goals .unlinked .weekly-bar{opacity:.3}
-.weekly-notes{list-style:none;margin:0;padding:0;max-width:820px}
-.weekly-notes li{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
-.weekly-notes button{align-self:start;text-align:left;font-size:12px;color:var(--action);font-weight:600;min-height:28px}
-.weekly-notes p{margin:4px 0 0;font-size:13px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
-@media(max-width:640px){.weekly-stats{gap:8px}.weekly-stats>div{padding:10px}.weekly-stats dd{font-size:18px}.weekly-notes li{grid-template-columns:1fr;gap:2px}}
-@media(max-width:640px){.weekly-stats dd{font-size:16px}}
-.journal-review-more>summary{padding:14px 0;font-size:13px;color:var(--action);cursor:pointer}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Year/quarter/month selects: one quiet chevron instead of the native arrow. */
 .journal-broad-picker select,.activity-dialog select{appearance:none;-webkit-appearance:none;padding:8px 30px 8px 12px;border-radius:8px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23586c5c' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center;cursor:pointer}.activity-dialog select{padding-right:36px;font-variant-numeric:tabular-nums}
 .journal-broad-picker select:hover{border-color:var(--focus)}
