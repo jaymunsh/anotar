@@ -3,9 +3,9 @@ import {createPortal} from 'react-dom';
 import {X} from 'lucide-react';
 import {pair} from '../i18n';
 import {Entry,Plan,PlanningItem} from '../api';
-import {Editor,ItemForm} from '../planner';
+import {Editor,ItemForm,type Overflow} from '../planner';
 
-export function ActivityDialog({editor,planning,others,disabled,onClose,onSave,onDelete,onDirty}:{editor:Editor;planning:PlanningItem[];others?:Plan[];disabled:boolean;onClose:()=>void;onSave:(value:Plan|Entry,moved?:Plan[])=>void;onDelete:()=>void;onDirty:(dirty:boolean)=>void}){
+export function ActivityDialog({editor,planning,others,disabled,onClose,onSave,onDelete,onDirty}:{editor:Editor;planning:PlanningItem[];others?:Plan[];disabled:boolean;onClose:()=>void;onSave:(value:Plan|Entry,moved?:Plan[],overflow?:Overflow)=>void;onDelete:()=>void;onDirty:(dirty:boolean)=>void}){
  const ref=useRef<HTMLDialogElement>(null),titleId=useId();
  useEffect(()=>{const dialog=ref.current!,previous=document.activeElement as HTMLElement|null;dialog.showModal();dialog.querySelector<HTMLInputElement>('#item-title')?.focus();return()=>{dialog.close();if(previous?.isConnected)previous.focus({preventScroll:true});};},[]);
  return createPortal(<dialog ref={ref} className="activity-dialog" aria-labelledby={titleId} onCancel={e=>{e.preventDefault();onClose();}} onClick={e=>{if(e.target!==e.currentTarget)return;const r=e.currentTarget.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)onClose();}}>
