@@ -6,7 +6,7 @@ export function Guide(){
  return <article className="legal-page guide-page">
   <a href="/">{pair('서비스 소개로','Back to home')}</a>
   <h1>{pair('사용 안내','How harukan works')}</h1>
-  <p>{pair('harukan은 하루를 시간으로 계획하는 플래너예요. 생각을 비우고, 꼭 할 일을 고르고, 그 일을 시간표에 놓는 순서로 써요.','harukan is a planner for laying out your day in time. Empty your head, pick what must get done, and give it a place on the timetable.')}</p>
+  <p>{pair('harukan은 하루를 10분 칸 시간표로 계획하는 플래너예요. 목표를 세우고(계획), 오늘 할 일을 시간표에 놓고(일정), 쓴 시간을 돌아봐요(회고).','harukan is a planner that lays out your day in 10-minute cells. Set goals (Plans), give today’s tasks a place on the timetable (Schedule), and look back at where the time went (Review).')}</p>
   <figure><img src="/guide/day.png" alt={pair('일간 화면: 왼쪽에 오늘 꼭 할 일과 메모, 오른쪽에 하루 시간표','Day view: priorities and notes on the left, timetable on the right')} width="1280" height="820" loading="lazy"/><figcaption>{pair('일간 화면 (체험용 예시)','Day view (demo data)')}</figcaption></figure>
 
   <h2>{pair('하루 쓰는 순서','A day, step by step')}</h2>
@@ -19,19 +19,19 @@ export function Guide(){
 
   <h2>{pair('오늘 꼭 할 일','Today’s priorities')}</h2>
   <ul>
-   <li>{pair('체크하면 끝난 일이 되고, 그 일에 연결된 시간표 블록도 흐려져요.','Checking a task marks it done and fades its blocks on the timetable.')}</li>
+   <li>{pair('끝낸 일은 체크해요. 완료는 할 일 목록에만 표시되고, 시간표 블록은 그대로예요.','Check a task when it’s done. Done shows in the list only; its timetable blocks stay as they are.')}</li>
    <li>{pair('줄 끝의 ×로 할 일도 세부 할 일도 지워요. 내용을 지워도 할 일이 지워지고, 1–3번 자리는 빈 칸으로 남아요.','The × at a row’s end deletes a task or step. Clearing the text also removes a task; slots 1–3 stay as blanks.')}</li>
    <li>{pair('긴 제목은 한 줄로 줄여 보여요. 제목 옆 ‘펼치기’를 누르면 모든 할 일의 제목과 세부 할 일이 한 번에 펼쳐져요.','Long titles are cut to one line. Expand, next to the heading, shows every title in full and opens all steps.')}</li>
    <li>{pair('할 일 줄 끝의 목록 아이콘을 누르면 아래에 세부 할 일을 적을 수 있어요. 평소엔 접혀 있고 ‘1/3’처럼 개수만 보여요. 세부 할 일을 다 해도 할 일은 직접 체크해요.','The list icon at the end of a task opens steps under it. They stay folded, showing a count like “1/3”. Finishing every step doesn’t check the task for you.')}</li>
    <li>{pair('하나의 할 일을 여러 번에 나눠 해도 돼요. 시간을 여러 번 잡으면 ‘09:00 +1’처럼 보여요.','A task can be split across several blocks; it then shows like “09:00 +1”.')}</li>
-   <li>{pair('어제 못 한 일이 있으면 제목 바로 옆 ‘어제 N개’를 눌러 가져와요. 일정이 빈 날에는 최근 날의 일정을 가져올 수 있어요.','Unfinished tasks from yesterday come over with the “N from yesterday” button. An empty day can copy the most recent day’s schedule.')}</li>
+   <li>{pair('못 끝낸 일이 있으면 제목 옆 ‘어제 N개’(어제 쓰지 않았으면 마지막으로 쓴 날짜)를 눌러 가져와요. 일정이 빈 날에는 시간표 위 버튼으로 최근 날의 일정을 가져오거나 하루 틀을 깔 수 있어요.','Unfinished tasks come over with the “N from yesterday” button next to the heading (it names the last day you wrote, if not yesterday). On an empty day, buttons above the timetable copy the most recent day’s schedule or lay down a day template.')}</li>
   </ul>
 
   <h2>{pair('하루 시간표','Timetable')}</h2>
   <ul>
    <li>{pair('한 줄이 한 시간, 한 칸이 10분이에요. 빈 칸을 누르면 그 시각에 새 일정이 생기고, 블록을 누르면 고칠 수 있어요.','Each row is an hour and each cell 10 minutes. Click an empty cell for a new plan; click a block to edit it.')}</li>
-   <li>{pair('마우스로 블록을 끌어 옮기고, 블록 오른쪽 끝을 끌어 길이를 바꿔요. 10분 단위로 맞춰지고, 뒤 일정과 겹치면 그 일정이 밀려요. 자정을 넘는 일은 일정 창의 종료에서 ‘다음 날 01:00’(또는 다음 날 화면에서 시작을 ‘전날 23:00’)처럼 고르면 두 날짜에 나뉘어 들어가고, 이어지는 쪽 끝에 ‹ › 표시가 붙어요.','Drag a block to move it, drag its right edge to change its length, in 10-minute steps. Overlapped later activities move along. For something past midnight, pick an end like “Next day 01:00”: (or a start like “Day before 23:00”): it is saved on both days, with ‹ › at the joined ends.')}</li>
-   <li>{pair('오늘을 볼 때는 빨간 선이 지금 시각이에요. 지금 하고 있어야 할 일정은 노란색으로 강조돼요. 계획이 밀렸으면 일정 창의 ‘미루기 +10분·+30분·+1시간’을 눌러요. 겹치게 되는 뒤 일정만 함께 밀리고, 24:00을 넘기지는 않아요.','When viewing today, the red line is now, and the block in progress is outlined. The block under way is highlighted; running late? In its dialog, Push back +10/+30/+1 hr moves it, and only the later activities it would overlap, never past midnight.')}</li>
+   <li>{pair('마우스로 블록을 끌어 옮기고, 블록 오른쪽 끝을 끌어 길이를 바꿔요. 10분 단위로 맞춰지고, 뒤 일정과 겹치면 그 일정이 밀려요. 자정을 넘는 일은 일정 창의 종료에서 ‘다음 날 01:00’(또는 다음 날 화면에서 시작을 ‘전날 23:00’)처럼 고르면 두 날짜에 나뉘어 들어가고, 이어지는 쪽 끝에 ‹ › 표시가 붙어요.','Drag a block to move it, drag its right edge to change its length, in 10-minute steps. Later activities it would overlap move along. For something past midnight, pick an end like “Next day 01:00” in the dialog (or, on the next day, a start like “Day before 23:00”); it is saved on both days, with ‹ › at the joined ends.')}</li>
+   <li>{pair('오늘을 볼 때는 빨간 선이 지금 시각이에요. 지금 하고 있어야 할 일정은 노란색으로 강조돼요. 계획이 밀렸으면 일정 창의 ‘미루기 +10분·+30분·+1시간’을 눌러요. 겹치게 되는 뒤 일정만 함께 밀리고, 24:00을 넘기지는 않아요.','When viewing today, the red line is now and the block that should be under way is highlighted in yellow. Running late? Push back +10 min, +30 min or +1 hr in its dialog. Only the later activities it would overlap move with it, and nothing goes past 24:00.')}</li>
    <li>{pair('‘하루’와 ‘목록’ 보기를 바꿀 수 있어요. 폰은 목록으로 시작해요.','Switch between Day and List. Phones start with the list.')}</li>
    <li>{pair('블록마다 완료를 표시할 필요는 없어요. 끝난 건 할 일 체크로 충분하고, 못 한 일정만 블록에 마우스를 올려 ×를 누르거나 일정 창에서 ‘미이행’ 버튼을 눌러요. 취소선으로 표시돼요.','You don’t need to mark each block. Checking tasks is enough; for a plan you skipped, hover it and press × or press Unfinished in its window. It gets a strike-through.')}</li>
   </ul>
@@ -40,7 +40,7 @@ export function Guide(){
   <ul>
    <li>{pair('‘계획 > 목표’에서 그해 목표를 카드로 만들고, 제목 아래에 끝났을 때 모습을 한 줄 적은 뒤 끝내야 할 세부 계획을 체크리스트로 적어요. 핀을 눌러 지금 집중하는 목표를 정하면 맨 앞에 놓여요. 목표 색(16가지)은 점을 눌러 고르고, 연결한 시간표 블록도 같은 색이에요.','Under Plans > Goals, each goal for the year is a card: a line on what done looks like, then the steps that finish it. Pin the goals you are focusing on; they come first. Tap the dot to pick one of 16 colours; linked timetable blocks share it.')}</li>
    <li>{pair('일간 화면 위 ‘집중’에 핀을 꽂은 목표와 그 목표의 다음 할 일이 보여요. 누르면 끝났을 때 모습, 남은 세부 계획(+를 누르면 시간표에 넣기), 이번 주 시간표에 잡은 시간이 나와요. 넣은 일정에는 그 목표의 색 띠가 붙어요.','“Focus” above the day view shows your pinned goals, each with its next step. Open one to see what done looks like, its open steps (+ puts one on the timetable) and time scheduled this week; linked blocks get the goal’s colour.')}</li>
-   <li>{pair('루틴은 자주 하는 일의 이름이에요. 계획 메뉴의 ‘편의’ 탭 루틴 카드에서 만들고, 일정 화면 위 루틴을 누르면 바로 시간표에 들어가요. 같은 탭의 ‘하루 틀’에는 시간까지 정한 하루 시간표를 저장해 두고, ‘하루 시간표’ 옆 틀 아이콘으로 한 번에 깔거나(빈 날엔 시간표 위 버튼도 있어요), 그날 시간표를 틀로 저장해요.','Routines are names of things you do often. Create them on the Tools tab under Plans; tap one above the schedule to add it. Day templates in the same tab save a whole timed day; an empty day lays one down in one tap.')}</li>
+   <li>{pair('루틴은 자주 하는 일의 이름이에요. 계획 메뉴의 ‘편의’ 탭 루틴 카드에서 만들고, 일정 화면 위 루틴을 누르면 바로 시간표에 들어가요. 같은 탭의 ‘하루 틀’에는 시간까지 정한 하루 시간표를 저장해 두고, ‘하루 시간표’ 옆 틀 아이콘으로 한 번에 깔거나(빈 날엔 시간표 위 버튼도 있어요), 그날 시간표를 틀로 저장해요.','Routines are names of things you do often. Create them on the Routines card of the Tools tab under Plans, then tap one above the schedule to put it on the timetable. Day templates, in the same tab, keep a whole timed day: lay one down from the template icon next to the Timetable heading (an empty day also has a button above the timetable), or save the day you’re looking at as a template.')}</li>
   </ul>
 
   <h2>{pair('주간 · 월간 · 회고','Week, month and review')}</h2>
@@ -49,12 +49,20 @@ export function Guide(){
    <li>{pair('회고는 주·달·연 단위로 모아 보여 줘요: 맨 위 한 문장 요약과 계획한 시간·목표에 쓴 비율·꼭 할 일 완료·미이행(지난 기간과 비교), 아래에 목표마다 시간·세부 계획 완료(목표 색), 하루하루 언제 무엇을 했는지 한 줄 타임라인(연은 달마다 막대), 다시 계획할 것, 하루 돌아보기. 연에는 올해 흐름도 있어요. ‘기록’ 탭에서는 그 기간의 꼭 할 일·머릿속 생각·아이디어·하루 돌아보기를 날짜별로 모아 보고, 종류를 골라 보거나 단어로 찾을 수 있어요. 따로 적을 건 없어요.','Review gathers a week, month or year: a one-line summary, planned time, share on goals, priorities done and unfinished (compared with the period before), then each goal’s time and steps done in its colour, each day as a 0–24 strip showing what sat when (month bars for a year), what to plan again and daily reviews. The year adds the year flow. The Records tab gathers that period’s priorities, thoughts, ideas and daily reviews by day, with a kind filter and search. Nothing extra to fill in.')}</li>
   </ul>
 
+  <h2>{pair('계정','Your account')}</h2>
+  <ul>
+   <li>{pair('이메일과 비밀번호로 로그인해요. 화면에는 가입할 때 정한 닉네임이 보여요. 닉네임과 이메일은 설정 › 계정에서 바꿔요.','Sign in with your email and password. Screens show the nickname you chose at sign-up; change it or your email under Settings › Account.')}</li>
+   <li>{pair('가입하면 확인 메일이 가요. 링크를 열면 ‘확인됨’이 되고, 안 보이면 스팸함을 확인하거나 설정에서 다시 보내요. 새 이메일로 바꿀 때도 새 주소로 간 링크를 열어야 바뀌어요.','After sign-up we send a confirmation email. Open its link to see Confirmed; if it isn’t there, check spam or resend it from Settings. A new address takes effect only after you open the link sent to it.')}</li>
+   <li>{pair('비밀번호를 잊으면 로그인 화면의 ‘비밀번호를 잊었어요’에서 재설정 링크를 받아요. 링크는 30분 동안 한 번만 쓸 수 있고, 바꾸면 다른 기기의 로그인은 끝나요.','Forgot your password? Choose “Forgot password” on the sign-in screen for a reset link. It works once, for 30 minutes, and other devices are signed out after the change.')}</li>
+   <li>{pair('이메일 없이 가입한 예전 계정은 아이디로 로그인하고, 비밀번호는 가입 때 받은 복구코드로 재설정해요. 설정에서 이메일을 등록하면 이메일로도 로그인하고 재설정할 수 있어요.','Older accounts made without an email sign in with their username and reset the password with the recovery code from sign-up. Add an email in Settings to sign in and reset with it too.')}</li>
+  </ul>
+
   <h2>{pair('단축키','Keyboard shortcuts')}</h2>
   <p>{pair('입력 칸 밖에서 눌러요.','Use them outside text fields.')}</p>
   <table><tbody>{keys.map(([key,ko,en])=><tr key={key}><td><kbd>{key}</kbd></td><td>{pair(ko,en)}</td></tr>)}</tbody></table>
 
   <h2>{pair('기록 보관','Your records')}</h2>
-  <p>{pair('설정에서 모든 기록을 파일로 내보낼 수 있어요.','You can export all your records as a file from Settings.')}</p>
+  <p>{pair('설정에서 일정·메모·계획을 JSON 파일로 내보낼 수 있어요. 계정과 기록 삭제도 설정에서 해요.','Export your schedule, notes and plans as a JSON file from Settings. You can also delete your account and records there.')}</p>
   <p><a href="/demo">{pair('시간표 체험해 보기','Try the timetable')}</a> · <a href="/signup">{pair('시작하기','Get started')}</a></p>
  </article>;
 }
