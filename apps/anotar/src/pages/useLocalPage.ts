@@ -1,82 +1,82 @@
 import { useEffect, useState } from 'react';
-import { getWorkspaceRuntime, queueValue, enqueueCurrentPage } from '../sync/runtime';
-import {
-  readLocalEntity,
-  subscribeLocalChanges,
-  listRecords,
-  type Entity,
-} from '../sync/repository';
-import type { ConflictRecord } from '../sync/conflicts';
 import type { PageRecord } from './types';
+
+// 온라인 전용 페이지 로더. 서버 GET으로 현재 문서를 읽는다.
+// 예전 기기 우선 IndexedDB entity/conflict 대신 서버 응답을 그대로 쓴다.
+export type LocalPageRecord = {
+  current: PageRecord;
+  localRevision: number;
+  dirty: false;
+  base: PageRecord;
+};
+
 export function useLocalPage(pageId: string) {
-  const [record, setRecord] = useState<Entity>(),
-    [conflict, setConflict] = useState<ConflictRecord>();
+  const [record, setRecord] = useState<LocalPageRecord>();
   useEffect(() => {
     let active = true;
-    let sequence = 0;
-    async function refresh() {
-      const current = ++sequence;
-      try {
-        const { workspaceId } = await getWorkspaceRuntime();
-        const [entity, conflicts] = await Promise.all([
-          readLocalEntity({ workspaceId, kind: 'page', id: pageId }),
-          listRecords<ConflictRecord>('conflicts', workspaceId, 10000),
-        ]);
-        if (active && current === sequence) {
-          setRecord(entity);
-          setConflict(conflicts.find((c) => c.entityId === pageId && !c.resolvedAt));
-        }
-      } catch {}
-    }
-    void refresh();
-    const off = subscribeLocalChanges(() => void refresh());
+    const controller = new AbortController();
+    void fetch('/api/pages/' + pageId, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const item = (await response.json()).item as PageRecord;
+        if (active) setRecord({ current: item, localRevision: 0, dirty: false, base: item });
+      })
+      .catch(() => {});
     return () => {
       active = false;
-      off();
+      controller.abort();
     };
   }, [pageId]);
-  return { record, conflict };
+  // 충돌은 저장 시점(409)에서 처리하므로 여기서는 항상 없음이다.
+  return { record, conflict: undefined as undefined };
 }
+
+export class PageSaveConflictError extends Error {
+  current: PageRecord | null;
+  constructor(message: string, current: PageRecord | null) {
+    super(message);
+    this.name = 'PageSaveConflictError';
+    this.current = current;
+  }
+}
+
+// 서버에 페이지를 저장한다. 성공 = 서버 응답 성공.
 export async function persistLocalPage(
   pageId: string,
   changes: Pick<PageRecord, 'title' | 'icon' | 'document'>,
   base: PageRecord,
-  expectedLocalRevision?: number,
-  stableAt = 0,
-  lastPersisted?: Pick<PageRecord, 'title' | 'icon' | 'document'> | null,
-) {
-  const { workspaceId } = await getWorkspaceRuntime(),
-    entity = await readLocalEntity({ workspaceId, kind: 'page', id: pageId });
-  if (!entity?.current) throw Error('먼저 페이지를 열어 주세요.');
-  const value = {
-    ...entity.current,
-    ...changes,
-    title: changes.title.trim() || '제목 없음',
-    updatedAt: new Date().toISOString(),
-  };
-  // A clean entity still holding exactly what this editor last saved got its newer base from
-  // our own acknowledged save; the editor's base may lag behind it, so trust the stored one.
-  const current = entity.current as Partial<PageRecord>;
-  const ownAck =
-    !entity.dirty && !!entity.base && !!lastPersisted &&
-    current.title === lastPersisted.title && current.icon === lastPersisted.icon &&
-    JSON.stringify(current.document) === JSON.stringify(lastPersisted.document);
-  if (new TextEncoder().encode(JSON.stringify(value.document)).length > 1024 * 1024)
-    throw Error('페이지 본문은 1MB까지 저장할 수 있어요.');
-  return (await queueValue(
-    'page',
-    pageId,
-    value,
-    crypto.randomUUID(),
-    [],
-    [],
-    true,
-    stableAt,
-    entity.dirty || !entity.base || ownAck ? entity.base : base,
-    expectedLocalRevision,
-    true,
-  )) as PageRecord;
+): Promise<PageRecord> {
+  const title = changes.title.trim() || '제목 없음';
+  if (new TextEncoder().encode(JSON.stringify(changes.document)).length > 1024 * 1024)
+    throw new Error('페이지 본문은 1MB까지 저장할 수 있어요.');
+  let response: Response;
+  try {
+    response = await fetch('/api/pages/' + pageId, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title,
+        icon: changes.icon ?? '',
+        document: changes.document,
+        expectedVersion: base.version,
+      }),
+    });
+  } catch {
+    throw new Error('저장하지 못했어요. 연결을 확인하고 다시 시도해 주세요.');
+  }
+  if (response.status === 409) {
+    const data = await response.json().catch(() => ({}));
+    throw new PageSaveConflictError(
+      data.error || '다른 곳에서 바뀌었어요.',
+      (data.current as PageRecord) ?? null,
+    );
+  }
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || '저장하지 못했어요.');
+  }
+  return (await response.json()).item as PageRecord;
 }
-export async function enqueueLocalPage(pageId: string) {
-  await enqueueCurrentPage(pageId);
-}
+
+// 온라인 전용에서는 별도 대기열 전송이 없다. 호출부 호환용 no-op.
+export async function enqueueLocalPage(_pageId: string) {}

@@ -599,35 +599,21 @@ PC의 이어서 작업 영역은 대시보드 두 열에 걸친 별도 행이다
 
 검증과 화면은 `.omo/evidence/workspace-refinement/`에 기록한다. `scripts/qa-workspace-refinement.mjs`는 GET 응답 fixture와 쓰기 차단으로 복구 동작·키보드 초점·정확한 결과 링크를 확인한다. 실제 사용자 저장소를 seed하지 않는다.
 
-## 오프라인·동기화 현재 구현 (2026-10-03)
+## 온라인 전용 저장 현재 구현 (2026-10-19)
 
-이 절은 앞의 온라인 autosave/초안 설명 중 기기 저장 경로를 대체한다. 전체 계약은 [사용 안내](docs/OFFLINE_USAGE.md), 검증 근거는 [보고](.omo/evidence/offline-workspace/REPORT.md).
+예전 기기 우선(local-first) 오프라인 작성·동기화를 제거하고 **온라인 전용**으로 바꿨다. 사용자 안내는 [사용 안내](docs/OFFLINE_USAGE.md)를 따른다.
 
-- `server/sync/`: protocol1/workspace UUID/epoch, additive sync_meta/changes/receipts/uploads, 원자적 mutation+receipt, tombstone/readSeq, bootstrap 및 본문 없는 페이지 metadata 읽기. private 전용. 기존 REST 쓰기도 DB trigger로 변경 피드를 갱신한다. 명시 backup restore만 epoch를 변경한다.
-- `src/sync/`: IndexedDB v2 entities/entitySummaries/outbox/blobs/conflicts/pins/meta/leases. base/current/remote/불변 in-flight와 localRevision 분리. lease30초/갱신10초/fence, 재시도2/5/15/30/60초 ±20%, Retry-After 최대5분. JSON15초/파일60초, 가시 폴링30초. 고정 UUID+본문 hash로 중복 방지.
-- 페이지 입력 즉시 복구 초안·약250ms 간격 local commit와 durable outbox, 텍스트 sync1초/최대5초, 최신 revision의 late ACK 보존; 재시작 시 큐 없는 dirty 사본 복구. 단일 문서 버전 비교와 양쪽 보존. CRDT/자동 병합 없음. 메모50개 keyset 페이지, tree 초기50+추가 표시/선택 경로 보존. 목록 projection에는 페이지 본문 없음.
-- 파일25MiB/합계100MiB/8개, 문서1MiB/작업1100KiB. raw upload stage/consume/replay. 직접 첨부 보관200MiB 예산, partial/retry/last-success 유지. 보관 해제 시 미전송/충돌/다른 페이지/복구 기록의 참조 보존.
-- root SW와 manifest는 정적 파일 및 lazy editor chunk를 hash 검증 후 보관한다. 개인 navigation만 fallback. API/share/외부 URL을 cache하지 않는다. 기존 share-target 수신 원문 보존. 자동 skipWaiting/claim 없이 기기 저장 뒤 명시 업데이트.
-- offline 검색은 기기 메모/할 일/본문 캐시 페이지/파일명이며 scope=local 표시. 서버 전체·OCR/완료 AI 결과 전문의 offline 검색은 지원하지 않는다.
-- 단일 memo organize/AI submit·Page AI submit은 immutable 원본/템플릿 및 CRUD receipt 의존성으로 큐에 저장. 기기 대기는 서버 job 상태와 분리. 일괄 organize/unorganize/결과 적용/undo·공유·댓글·지도·휴지통·관리 쓰기는 online/pending 가드.
-- 서버 identity/epoch 또는 cursor 역전 시 큐 중지. 원문·첨부 SHA256 ZIP export, explicit review/rebootstrap, 선택한 fresh operation. 이전 AI/정리는 자동 재실행하지 않는다. 다른 workspace 파티션 유지. ZIP 자동 가져오기 없음. quota/upgrade blocked/version mismatch에서 원문 보존·오류 안내.
-
-Offline production 의존성 추가 없음. QA는 기존 Playwright/Vite esbuild 사용. 실제 원문·첨부를 reseed/reset하지 않았다. 실행 중인 서버의 additive schema migration은 기존 data에 적용되며 원문을 삭제하지 않는다. 실제 Oracle/Tailscale/TLS·휴대폰·ARM64/N100 성능은 미검증이다.
-
-
-#### 오프라인 최종 검증 보강
-
-동일 기기 경쟁 편집은 `localRevision` 원자 비교와 `localEditConflict` 사본으로 보존한다. 취소 요청은 원자적 claim 실패 시 upload/apply하지 않는다. canonical 응답에 workspace/epoch가 포함되고 remote ingress/cache commit에서 다시 확인한다. persisted recovery pause는 명시 재연결 전 전송을 막는다.
-
-보관 페이지의 새 첨부가 빠지면 partial로 전환하며 마지막 완전 본문을 보존한다. 복구 archive/충돌/불변 요청의 중첩 첨부 참조는 ZIP과 GC가 같은 수집기를 사용한다. 미전송 Blob/upload bytes 누락은 내보내기를 거부하고, 기기에 없는 서버-only 첨부는 `complete:false`/`missingAssets`와 UI 경고로 알린다. 복구 시 선택한 페이지 계층과 링크 ID를 함께 매핑한다.
-
-확정적 저장 거부는 수정 후 동기화 패널에서 새 UUID로 다시 전송하며 원래 요청을 archive한다. 의존 workflow는 source_review로 재검토한다. 요청 결과가 불확정하거나 payload_mismatch면 UUID를 교체하지 않는다. Page AI는 outbox ACK 뒤 이력을 갱신하고 새 요청 결과를 선택한다.
-
-검증: 전체 332개 tests, 실제 임시 Chrome review regression 8개, 기존 offline/AI/UI gates. 실제 휴대폰 OS·Oracle 배포는 아직 미검증이며 문서 수동 확인표를 따른다. 당시 Minor: local commit→queue 사이 약 500ms 간격. 2026-10-06 개선에서는 기기 저장과 outbox를 같은 트랜잭션으로 생성한다.
+- 서버가 원본이다. 저장 = 서버 응답 성공, 읽기 = 서버 GET. 클라이언트는 `/api/captures`·`/api/tasks`·`/api/pages` CRUD와 AI·정리 REST(`/api/captures/:id/ai-jobs`, `/api/pages/:id/ai-jobs`, `/api/capture-batches/organize`, `/api/pages/:id/capture-imports`)만 사용한다. 새 서버 라우트는 추가하지 않았다(기존 REST로 충분).
+- `src/sync/runtime.ts`의 `workspaceFetch`는 이제 그냥 `fetch` 래퍼다. `queueWorkflow`(AI 요청·메모 정리)는 서버 REST로 직접 보낸다. IndexedDB `leneu-offline-v1`(entities/entitySummaries/outbox/blobs/conflicts/pins/leases)과 sync 엔진·리포지토리·전송·충돌 UI·복구·오프라인 보관·오프라인 로컬 검색은 제거했다.
+- 저장 실패/연결 끊김: 입력을 지우지 않고 **저장하지 못했어요 · 다시 시도**를 보여준다. 메모 입력은 전송 성공 후에만 비운다. 페이지 편집기는 디바운스 자동저장(`src/sync/autosave.ts`의 `createDebouncedSync`, 250ms/최대5초) + 저장 상태(저장됨/저장 중…/저장 못 함) + 실패 재시도를 쓴다.
+- 409 충돌: **다른 곳에서 바뀌었어요** 안내 + [서버 내용 불러오기] [내 내용 복사] [내 내용으로 덮어쓰기(= 서버 current.version 기준으로 다시 PUT)]. 복잡한 3-way 비교 UI는 없다.
+- 입력 손실 방지 초안(`src/drafts/*` localStorage, prompts 초안)은 유지한다. PWA 설치·서비스워커 앱 쉘 캐시·앱 업데이트 알림(`offline/update.ts`, `AppUpdateNotice.tsx`)·OS 공유 수신(`public/capture-worker.js`, `src/capture/`)도 유지한다. 오프라인 첫 화면은 **연결이 필요해요** 수준의 안내만 한다.
+- 서버 sync 계층(`server/sync/*`, `/api/sync/*`, sync 테이블·트리거, backups의 `rotateSyncEpochAfterRestore`)은 그대로 두되 **클라이언트가 더 이상 쓰지 않는다.** 관련 서버 테스트(`test/sync-operations|sync-api|sync-feed|sync-schema|sync-pages|sync-uploads|sync-workflows|sync-recovery`)는 유지한다.
+- 기존 사용자 기기의 IndexedDB는 삭제하지 않고 그냥 열지 않는다.
 
 ### 설정 UI와 글자 간격 (2026-10-03)
 
-사이드바 하단 **설정** 아이콘으로 여는 설정은 **화면 / 기기 저장소 / 작업 공간** 세 구역이다. PC에는 왼쪽 탐색 열과 오른쪽 독립 스크롤 본문을, 모바일에는 위쪽 가로 메뉴를 사용한다. 설정창 높이는 일정하고 제목·닫기·탐색은 스크롤 밖에 둔다. 기기 저장소 사용량은 첨부 바이트 기준이며 전체 브라우저 사용량으로 표시하지 않는다. 원래 보관 해제·영구 유지 요청·ZIP 내보내기를 제공하고 새 데이터 저장 계약은 추가하지 않았다. 프롬프트·백업·휴지통은 작업 공간 구역에서 연다. 처음에는 시스템 화면 모드를 따르고 직접 바꾼 모드는 기존 `leneu:theme`에 저장한다.
+사이드바 하단 **설정** 아이콘으로 여는 설정은 **화면 / AI / 보안 / 작업 공간 / 서비스 정보** 구역이다. PC에는 왼쪽 탐색 열과 오른쪽 독립 스크롤 본문을, 모바일에는 위쪽 가로 메뉴를 사용한다. 설정창 높이는 일정하고 제목·닫기·탐색은 스크롤 밖에 둔다. 온라인 전용 전환으로 기기 저장소 구역은 제거했다. 프롬프트·백업·휴지통은 작업 공간 구역에서 연다. 처음에는 시스템 화면 모드를 따르고 직접 바꾼 모드는 기존 `leneu:theme`에 저장한다.
 
 본문은 기존 16px·자간 normal을 유지하면서 BlockNote 기본 글꼴과 앱 글꼴을 통일하고 행간을 1.7·문단 블록 상하 간격을 5px로 맞췄다. 제목의 음수 자간은 -0.015em으로 줄인다. 공유·오프라인 HTML도 본문 리듬을 맞추며 코드 고정폭·작은 글씨 옵션·목록 말줄임은 유지한다. 확인: `node scripts/qa-settings-typography.mjs`(임시 데이터, 1440/768/390/320px·양쪽 테마·키보드/닫기/관리 화면 이동·저장소 동작).
 

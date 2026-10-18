@@ -78,18 +78,32 @@ export async function requestAiJob(
   } catch {
     throw new Error('요청 확인 정보를 보관하지 못했어요. 브라우저 저장 공간을 확인해 주세요.');
   }
-  const {getWorkspaceRuntime}=await import('../sync/runtime');const {readLocalEntity}=await import('../sync/repository');const {queueWorkflow,workflowResult}=await import('../sync/workflows');const {workspaceId}=await getWorkspaceRuntime();
-  const source=await readLocalEntity({workspaceId,kind:'capture',id:captureId});
-  const stored=source?.current?.aiRequest as AiJob['request']|undefined;
-  if(!stored)throw Error('메모에 보관한 요청문을 먼저 확인해 주세요.');
-  const template=stored.template?{...stored.template,description:'',archived:false,revisionId:stored.template.revisionId??undefined}:null;
-  await queueWorkflow('ai.submit','capture',captureId,pending.requestId,{request:{template,additional:stored.additional,...((execution || stored.execution) ? {execution:execution || stored.execution}: {})},retryOf:retryOf??null});
-  const result=await workflowResult(pending.requestId);
+  const captureResponse = await fetch('/api/captures/' + captureId, { signal });
+  if (!captureResponse.ok) throw Error('메모에 보관한 요청문을 먼저 확인해 주세요.');
+  const capture = (await captureResponse.json()).item as { aiRequest?: AiJob['request'] };
+  const stored = capture?.aiRequest;
+  if (!stored) throw Error('메모에 보관한 요청문을 먼저 확인해 주세요.');
+  const template = stored.template
+    ? { ...stored.template, description: '', archived: false, revisionId: stored.template.revisionId ?? undefined }
+    : null;
+  const selection = {
+    template,
+    additional: stored.additional,
+    ...((execution || stored.execution) ? { execution: execution || stored.execution } : {}),
+  };
+  const response = await fetch('/api/captures/' + captureId + '/ai-jobs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ requestId: pending.requestId, expectedVersion, selection, retryOf: retryOf ?? null }),
+    signal,
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || '요청을 처리하지 못했어요. 다시 확인해 주세요.');
   try {
     if (JSON.parse(localStorage.getItem(key) || 'null')?.requestId === pending.requestId)
       localStorage.removeItem(key);
   } catch {
     /* Receipt can be safely replayed. */
   }
-  return result?.item as unknown as AiJob|undefined;
+  return data.item as unknown as AiJob | undefined;
 }

@@ -1,14 +1,12 @@
 import {savedAppFont, applyAppFont, type AppFont} from './appearance';
 import AiSettingsPanel from './AiSettingsPanel';
 import DocumentTypographySettings from './DocumentTypographySettings';
-import DeviceStorage from '../offline/DeviceStorage';
 import SecuritySettings from '../auth/SecuritySettings';
 import { useEffect, useRef, useState } from 'react';
 import {
   ChevronRight,
   DatabaseBackup,
   ExternalLink,
-  HardDrive,
   Globe,
   MessageCircle,
   Info,
@@ -44,7 +42,6 @@ function ArchitectureResource() {
 const sections = [
   { id: 'appearance', label: '화면', Icon: Palette },
   { id: 'ai', label: 'AI', Icon: WandSparkles },
-  { id: 'storage', label: '기기 저장소', Icon: HardDrive },
   { id: 'security', label: '보안', Icon: ShieldCheck },
   { id: 'workspace', label: '작업 공간', Icon: Settings },
   { id: 'about', label: '서비스 정보', Icon: Info },
@@ -180,8 +177,7 @@ export default function WorkspaceSettings({
               <p className="settings-save-note">변경한 설정은 자동으로 저장됩니다.</p>
             </section>
           )}
-          {section === 'ai' && <AiSettingsPanel onOpenStorage={() => setSection('storage')} />}
-          {section === 'storage' && <DeviceStorage />}
+          {section === 'ai' && <AiSettingsPanel />}
           {section === 'security' && <SecuritySettings />}
           {section === 'workspace' && (
             <section className="settings-resources" aria-labelledby="settings-resources-title">

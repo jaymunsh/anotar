@@ -35,12 +35,6 @@ export async function sendPageAiPending<T>(
   pending: PageAiPending,
   signal?: AbortSignal,
 ): Promise<T> {
-  if(pending.kind==='request' && typeof indexedDB!=='undefined') {
-    const {queueWorkflow,workflowResult}=await import('../sync/workflows');
-    const id=pending.path.split('/')[3],requestId=String(pending.body.requestId);
-    await queueWorkflow('ai.submit','page',id,requestId,{request:pending.body.aiRequest,blockIds:pending.body.blockIds??[],retryOf:pending.body.retryOf??null});
-    const result=await workflowResult(requestId);return (result??{queued:true,operationId:requestId}) as T;
-  }
   const {onlineActionFetch}=await import('../sync/onlineActions.ts');
   const response = await onlineActionFetch(pending.path, {
     method: 'POST',

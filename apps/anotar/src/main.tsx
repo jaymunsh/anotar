@@ -1,10 +1,9 @@
 import { defaultDocumentTitle } from '../shared/documentTitle';
 import { workspaceFetch } from './sync/runtime';
 import { SyncStatus } from './sync/SyncStatus';
-import { getSyncSnapshot, subscribeSync } from './sync/runtime';
 import AppUpdateNotice from './offline/AppUpdateNotice';
 import AuthBoundary from './auth/AuthBoundary';
-import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {
@@ -65,7 +64,6 @@ import { publishRecordChange, subscribeRecordChanges } from './trash/events';
 import { kstToday, parseDueDate, shortDue } from './tasks/dueDate';
 
 const PageWorkspace = React.lazy(() => import('./pages/PageWorkspace'));
-const SyncConflictReview = React.lazy(() => import('./sync/SyncConflictReview'));
 const SearchPalette = React.lazy(() => import('./search/SearchPalette'));
 import { openSearchEvent } from './search/openSearch';
 const PromptWorkspace = React.lazy(() => import('./prompts/PromptWorkspace'));
@@ -151,7 +149,6 @@ function savedThemeMode(): ThemeMode {
 }
 
 function App() {
-  const syncConflicts = useSyncExternalStore(subscribeSync, () => getSyncSnapshot().conflicts);
   const [route, setRoute] = useState(currentRoute);
   useEffect(() => {
     if (route.section !== 'pages' || !route.pageId) document.title = defaultDocumentTitle;
@@ -280,7 +277,6 @@ function App() {
   }, []);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [aiSettingsRequested, setAiSettingsRequested] = useState(false);
-  const [storageSettingsRequested, setStorageSettingsRequested] = useState(false);
   const [aiAvailable, setAiAvailable] = useState(false);
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
@@ -1200,13 +1196,7 @@ function App() {
           <AppUpdateNotice />
           <div className="sidebar-footer">
             <img className="sidebar-profile" src="/profile.png" alt="" width="20" height="20" />
-            <SyncStatus
-              onNavigate={navigate}
-              onOpenStorage={() => {
-                setStorageSettingsRequested(true);
-                setSettingsOpen(true);
-              }}
-            />
+            <SyncStatus />
             <button
               type="button"
               className="sidebar-settings-button"
@@ -1220,19 +1210,15 @@ function App() {
         </aside>
         {settingsOpen && (
           <WorkspaceSettings
-            initialSection={
-              storageSettingsRequested ? 'storage' : aiSettingsRequested ? 'ai' : 'appearance'
-            }
+            initialSection={aiSettingsRequested ? 'ai' : 'appearance'}
             theme={activeTheme}
             onThemeChange={setThemeMode}
             onClose={() => {
               setSettingsOpen(false);
               setAiSettingsRequested(false);
-              setStorageSettingsRequested(false);
             }}
             onOpen={(path) => {
               setSettingsOpen(false);
-              setStorageSettingsRequested(false);
               navigate(path);
             }}
           />
@@ -1676,15 +1662,6 @@ function App() {
               </aside>
             </div>
           </main>
-          {syncConflicts > 0 && (isTaskView || isMemoView) && (
-            <React.Suspense fallback={null}>
-              <SyncConflictReview
-                key={route.section + (isMemoView ? route.captureId || '' : '')}
-                kind={isTaskView ? 'task' : 'capture'}
-                entityId={isMemoView ? route.captureId : null}
-              />
-            </React.Suspense>
-          )}
           {isMemoView && (
             <main
               className={`memo-workspace${selected && memoDesktop ? ' memo-split' : ''}${aiResultView ? ' memo-ai-reading' : ''}`}

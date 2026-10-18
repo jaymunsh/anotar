@@ -1,5 +1,5 @@
 import { setWorkspaceNotice } from '../workspace/notices';
-import { onlineActionFetch, PENDING_REASON } from '../sync/onlineActions';
+import { onlineActionFetch } from '../sync/onlineActions';
 import { workspaceFetch } from '../sync/runtime';
 import { Fragment, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, DragEvent, MouseEvent, ReactNode } from 'react';
@@ -570,9 +570,7 @@ export default function PageWorkspace({
     setWorkspaceNotice('page-navigation', preferenceFailure ? {
       title: preferenceFailure.input?.favorite !== undefined ? '즐겨찾기 저장 확인'
         : preferenceFailure.input?.visited ? '최근 열람 기록 확인' : '페이지 탐색 정보 확인',
-      message: preferenceFailure.message === PENDING_REASON
-        ? '문서의 서버 반영을 기다리면서 이 작업을 보류했어요. 동기화가 완료됐으면 다시 시도해 주세요.'
-        : preferenceFailure.message,
+      message: preferenceFailure.message,
       retry: retryPreference,
     } : null);
   }, [preferenceFailure]);

@@ -1,27 +1,4 @@
-import { useEffect, useState } from 'react';
-import { localAssetUrl } from '../sync/runtime';
-import { subscribeLocalChanges } from '../sync/repository';
+// 온라인 전용: 자산은 서버 URL을 그대로 쓴다.
 export function useAssetUrl(id: string) {
-  const [url, setUrl] = useState(id ? `/api/assets/${id}` : '');
-  useEffect(() => {
-    let active = true;
-    const refresh = () => {
-      if (!id) {
-        setUrl('');
-        return;
-      }
-      void localAssetUrl(id)
-        .then((value) => {
-          if (active) setUrl(value);
-        })
-        .catch(() => {});
-    };
-    refresh();
-    const off = subscribeLocalChanges(refresh);
-    return () => {
-      active = false;
-      off();
-    };
-  }, [id]);
-  return url;
+  return id ? `/api/assets/${id}` : '';
 }

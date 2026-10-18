@@ -1,13 +1,10 @@
 import { createDebouncedSync } from '../sync/autosave';
 import { reconcileChildPageLinks } from '../../shared/childPageLinks';
 import {documentTitle,defaultDocumentTitle} from '../../shared/documentTitle';
-import { canPerformOnlineAction, useOnlineAction } from '../sync/onlineActions';
-import { requestWorkspaceSync, workspaceFetch } from '../sync/runtime';
-import { useLocalPage, persistLocalPage, enqueueLocalPage } from './useLocalPage';
+import { useOnlineAction } from '../sync/onlineActions';
+import { useLocalPage, persistLocalPage, PageSaveConflictError } from './useLocalPage';
 import { usePageLock } from './usePageLock';
 import { registerLocalFlush } from '../offline/update';
-import ConflictPanel from '../sync/ConflictPanel';
-import OfflinePageControl from '../offline/OfflinePageControl';
 import {
   Fragment,
   lazy,
@@ -438,7 +435,7 @@ export default function PageEditor({
       setBookmarkNotice('페이지 링크를 확인하고 있어요…');
       let linkedPage: Pick<PageRecord, 'title'> | null = null;
       try {
-        const response = await workspaceFetch(`/api/pages/${pending.pageId}`);
+        const response = await fetch(`/api/pages/${pending.pageId}`);
         if (response.ok) linkedPage = (await response.json()).item;
       } catch { /* A plain URL remains usable when the destination is unavailable. */ }
       if (!editorAlive.current || !editor.isEditable) return;
@@ -494,6 +491,7 @@ export default function PageEditor({
   const lastPersisted = useRef<PageRecord | null>(null);
   const editorRevision=useRef(page.localRevision??0);
   const [localSaveError,setLocalSaveError]=useState('');
+  const [conflictCurrent,setConflictCurrent]=useState<PageRecord | null>(null);
   const localTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const commitPromise = useRef<Promise<void> | null>(null);
   const committedRevision = useRef(0);
@@ -886,10 +884,7 @@ export default function PageEditor({
       } else if (!insertionLocked && !toolsPending) {
         syncScheduler.current?.cancel();
         await saveLatest();
-        await enqueueLocalPage(page.id);
-        await requestWorkspaceSync();
-        const check = await canPerformOnlineAction('page', page.id);
-        if (!check.allowed) throw new Error(check.reason);
+        if (navigator.onLine === false) throw new Error('서버 연결 후 사용할 수 있어요.');
         const currentPage = await readCurrentPage(page.id);
         const pending = await createPageAssetPending(currentPage, files);
         await submitTool(pending);
@@ -979,14 +974,13 @@ export default function PageEditor({
   function queueSave(next: Draft) {
     latest.current = next;
     changes.current += 1;
-    try { localStorage.setItem(draftKey(page.id), JSON.stringify(next)); } catch { /* IDB commit below owns success */ }
+    try { localStorage.setItem(draftKey(page.id), JSON.stringify(next)); } catch { /* 서버 저장 성공이 최종 기준 */ }
     setStatus('saving');
     syncScheduler.current ??= createDebouncedSync(async () => {
       await saveLatest();
-      await enqueueLocalPage(page.id);
     });
     syncDeadline.current = syncScheduler.current.schedule();
-    // Persist periodically during continuous typing, not only after a pause.
+    // 연속 입력 중에도 주기적으로 저장을 시도한다.
     if (!localTimer.current) localTimer.current = setTimeout(() => {
       localTimer.current = null;
       void saveLatest().catch(() => {});
@@ -1000,9 +994,11 @@ export default function PageEditor({
     saving.current = true;
     const commit = (async () => {
       try {
-        const item = await persistLocalPage(page.id, {...snapshot,icon:snapshot.icon??''}, basePage.current,editorRevision.current,syncDeadline.current,lastPersisted.current);
+        const item = await persistLocalPage(page.id, {...snapshot,icon:snapshot.icon??''}, basePage.current);
         lastPersisted.current = item;
-        editorRevision.current=item.localRevision??editorRevision.current;setLocalSaveError('');
+        basePage.current = item;
+        version.current = item.version;
+        setLocalSaveError('');
         committedRevision.current = snapshotChange;
         rawDocument.current = item.document;
         setSavedPage(item);
@@ -1013,7 +1009,14 @@ export default function PageEditor({
           setStatus('saved');
         }
       } catch (error) {
-        setStatus('error');setLocalSaveError(error instanceof Error?error.message:'기기에 저장하지 못했어요.');
+        if (error instanceof PageSaveConflictError) {
+          conflicted.current = true;
+          setConflictCurrent(error.current);
+          setStatus('conflict');
+        } else {
+          setStatus('error');
+          setLocalSaveError(error instanceof Error ? error.message : '저장하지 못했어요.');
+        }
         throw error;
       } finally { saving.current = false; commitPromise.current = null; }
     })();
@@ -1021,7 +1024,7 @@ export default function PageEditor({
     return commit;
   }
   useEffect(() => {
-    const flush = async () => { syncScheduler.current?.cancel(); await saveLatest(); await enqueueLocalPage(page.id); };
+    const flush = async () => { syncScheduler.current?.cancel(); await saveLatest(); };
     const unregister = registerLocalFlush(flush);
     const hidden = () => { if(document.visibilityState==='hidden')void flush().catch(()=>{}); };
     document.addEventListener('visibilitychange',hidden);
@@ -1032,16 +1035,11 @@ export default function PageEditor({
   useEffect(() => {
     const record = localPage.record;
     const current = record?.current;
-    if(!record || !current || record.localRevision < editorRevision.current || record.dirty || localPage.conflict || status !== 'saved' || saving.current || changes.current !== committedRevision.current)return;
-    if(current.title === (latest.current.title.trim() || '제목 없음') && current.icon === (latest.current.icon ?? '') && JSON.stringify(current.document) === JSON.stringify(latest.current.document)) {
-      const acknowledged=current as unknown as PageRecord;
-      version.current=acknowledged.version; basePage.current=acknowledged; editorRevision.current=record.localRevision; setSavedPage(acknowledged); setSavedAt(acknowledged.updatedAt);
-    } else if (Number(current.version) > version.current) {
-      // An untouched editor can follow a newly synced server version. Pending
-      // local edits and conflicts are handled separately and retain both copies.
-      acceptAiPage({...current,localRevision:record.localRevision} as unknown as PageRecord);
-    }
-  }, [localPage.record, localPage.conflict, status]);
+    // 서버에서 더 최신 버전을 읽었고 편집기가 깨끗하면 그 내용을 따라간다.
+    if(!current || status !== 'saved' || saving.current || changes.current !== committedRevision.current)return;
+    if (Number(current.version) > version.current)
+      acceptAiPage(current as unknown as PageRecord);
+  }, [localPage.record, status]);
 
   function editTitle(value: string) {
     if (documentLocked) return;
@@ -1380,12 +1378,12 @@ export default function PageEditor({
           {itineraryEditing
             ? '일정 수정 중'
             : status === 'saved'
-              ? localPage.record?.dirty ? '기기에 저장됨' : '서버 반영됨'
+              ? '저장됨'
               : status === 'saving'
                 ? '저장 중…'
                 : status === 'conflict'
-                  ? '저장 충돌'
-                  : '저장 실패'}
+                  ? '다른 곳에서 바뀜'
+                  : '저장 못 함'}
         </span>
         <div className="page-document-actions">
           {pageLock.locked && <button type="button" className="page-lock-toggle" aria-label="페이지 잠금 해제"
@@ -1577,7 +1575,6 @@ export default function PageEditor({
               <div className="page-menu-group">
                 <strong>문서 관리</strong>
                 {onlineReason && <small className="page-online-reason">{onlineReason}</small>}
-                <OfflinePageControl pageId={page.id} />
                 <button
                   type="button"
                   disabled={toolsDisabled || toolsLocked}
@@ -1818,9 +1815,6 @@ export default function PageEditor({
       )}
       {toolbarTarget ? createPortal(toolbar, toolbarTarget) : toolbar}
       {pageLock.error && <p className="page-lock-feedback" role="alert">{pageLock.error}</p>}
-      {pageLock.locked && localPage.record?.dirty && <p className="page-lock-feedback" role="status">
-        다른 기기에서 페이지를 잠갔어요. 기기의 변경은 보관 중이며, 잠금을 해제하면 다시 전송해요.
-      </p>}
       {shareOpen && (
         <Suspense fallback={null}>
           <PageSharePanel pageId={page.id} onClose={() => setShareOpen(false)} />
@@ -1904,24 +1898,37 @@ export default function PageEditor({
           </button>
         </div>
       )}
-      {localPage.conflict && <ConflictPanel conflict={localPage.conflict} local={localPage.record?.current ?? null} onResolved={({pageId,item})=>{if(pageId!==page.id)navigate('/pages/'+pageId);else if(item){acceptAiPage(item as unknown as PageRecord);basePage.current=item as unknown as PageRecord;}else navigate('/memo');}} />}
       {status === 'conflict' && (
         <div className="page-banner page-banner-error" role="alert">
-          <span>다른 곳에서 먼저 수정했어요. 현재 내용은 이 기기에 남아 있습니다.</span>
+          <span>다른 곳에서 바뀌었어요. 지금 작성한 내용은 이 창에 그대로 있어요.</span>
+          <button type="button" onClick={() => location.reload()}>
+            서버 내용 불러오기
+          </button>
           <button type="button" onClick={() => void copyMarkdown()}>
             내 내용 복사
           </button>
-          <button type="button" onClick={() => location.reload()}>
-            최신본 열기
+          <button
+            type="button"
+            onClick={() => {
+              // 내 내용으로 덮어쓰기: 서버 최신 버전 기준으로 다시 저장한다.
+              if (conflictCurrent) basePage.current = conflictCurrent;
+              version.current = conflictCurrent?.version ?? version.current;
+              latest.current = { ...latest.current, baseVersion: version.current };
+              conflicted.current = false;
+              setStatus('saving');
+              changes.current += 1;
+              void saveLatest().catch(() => {});
+            }}
+          >
+            내 내용으로 덮어쓰기
           </button>
         </div>
       )}
       {status === 'error' && (
         <div className="page-banner page-banner-error" role="alert">
-          <span>{localSaveError||'기기에 저장하지 못했어요. 작성 중인 내용을 복사한 뒤 저장 공간을 확인해 주세요.'}</span>
-          {localSaveError.includes('다른 창')&&<button type="button" onClick={()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(latest.current,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='leneu-local-page.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}}>이 창 원문 내려받기</button>}
+          <span>{localSaveError||'저장하지 못했어요. 작성 중인 내용은 그대로 있어요.'}</span>
           <button type="button" onClick={() => void saveLatest()}>
-            <RotateCcw size={15} /> 다시 저장
+            <RotateCcw size={15} /> 다시 시도
           </button>
         </div>
       )}

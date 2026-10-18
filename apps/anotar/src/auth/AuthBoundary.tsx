@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { getAuthSnapshot, subscribeAuth, refreshAuth, watchAuthTabs } from './state';
-import { readRecord } from '../sync/repository';
 import LoginForm from './LoginForm';
 import './auth.css';
 function LoginDialog({ close }: { close: () => void }) {
@@ -27,7 +26,6 @@ function LoginDialog({ close }: { close: () => void }) {
 }
 export default function AuthBoundary({ children }: { children: ReactNode }) {
   const auth = useSyncExternalStore(subscribeAuth, getAuthSnapshot),
-    [binding, setBinding] = useState<boolean>(),
     [started, setStarted] = useState(false),
     [login, setLogin] = useState(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
@@ -42,14 +40,6 @@ export default function AuthBoundary({ children }: { children: ReactNode }) {
     document.querySelector<HTMLInputElement>('.auth-screen input')?.focus();
   }, [auth.locked]);
   useEffect(() => {
-    let alive = true;
-    void readRecord<{ boundWorkspaceId?: string }>('meta', '@device', 'binding')
-      .then((value) => {
-        if (alive) setBinding(Boolean(value?.boundWorkspaceId));
-      })
-      .catch(() => {
-        if (alive) setBinding(false);
-      });
     void refreshAuth();
     const off = watchAuthTabs();
     const online = () => {
@@ -70,7 +60,6 @@ export default function AuthBoundary({ children }: { children: ReactNode }) {
           ? 'dark'
           : 'light';
     return () => {
-      alive = false;
       off();
       window.removeEventListener('online', online);
     };
@@ -78,7 +67,7 @@ export default function AuthBoundary({ children }: { children: ReactNode }) {
   const canStart =
     auth.state === 'disabled' ||
     auth.state === 'authenticated' ||
-    (binding === true && !auth.locked);
+    (auth.state !== 'loading' && !auth.locked);
   useEffect(() => {
     if (canStart) setStarted(true);
   }, [canStart]);
@@ -97,7 +86,7 @@ export default function AuthBoundary({ children }: { children: ReactNode }) {
             <img src="/capture-icons/icon-192.png" alt="" width="30" height="30" />
             <span>anotar</span>
           </a>
-          {auth.state === 'loading' || binding === undefined ? (
+          {auth.state === 'loading' ? (
             <p role="status">나의 공간을 확인하는 중…</p>
           ) : auth.state === 'required' || auth.state === 'authenticated' ? (
             <LoginForm />

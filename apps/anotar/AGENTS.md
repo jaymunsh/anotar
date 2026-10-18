@@ -201,23 +201,21 @@ node scripts/benchmark-search.mjs                 # 임시 1만·10만 혼합 �
 여행 공유서의 새 읽기 정리는 [trip-sharing brief](.impeccable/briefs/trip-sharing.md)를 따른다. PlanConnections의 기본 summary에는 실제 항목만 표시하고 관리 도구는 행 ··· 메뉴의 manage에 둔다. 공개 선택·개인 자료 격리·UUID 재시도 계약을 변경하지 않는다. 본문에 빈 준비 버튼/0/0을 다시 넣지 않는다. 공유 rich 목록은 서식 있는 제목과 본문을 별도 flex 열로 나누지 않으며, 명시 줄바꿈을 보존한다. 문서 재정리 전 사본/expectedVersion을 확보하고 기존 블록/항목 ID·시각·지도 asset/source/input·출처·댓글 앵커를 보존한다. 이번 확인 기록은 `.omo/evidence/trip-clarity/REPORT.md`다.
 
 
-### 오프라인·동기화 작업 진입점 (2026-10-03, 설계 단계)
+### 온라인 전용 전환 (2026-10-19)
 
-오프라인/PWA 동기화를 구현할 때는 [설계지시서](docs/superpowers/specs/2026-10-03-offline-workspace-design.md), [실행 계획](docs/superpowers/plans/2026-10-03-offline-workspace.md), [6.1-Sol xhigh 인계](docs/handoffs/2026-10-03-offline-workspace.md)를 먼저 읽는다. 이 문서들은 **구현 전 목표**이며 현재 기능 완료 근거가 아니다. v1은 IndexedDB + outbox + 버전 충돌 보존 방식, CRDT는 후속 실험이다. 기존 실제 데이터·공유 경계를 보존한다.
+클라이언트의 기기 우선(local-first) 오프라인 작성·동기화를 제거하고 **온라인 전용**으로 바꿨다. 사용자는 혼자 쓰는 개인 앱이고 안정성을 위해 지웠다.
 
-### 오프라인 구현 유지 계약 (2026-10-03)
-
-위 설계 단계 표시는 승인 당시 기록이다. 현재 구현은 CURRENT_IMPLEMENTATION의 오프라인 절·docs/OFFLINE_USAGE.md·검증 REPORT를 우선한다.
-
-- 원본 엔티티 변경은 putEntity/removeEntity로 entities와 entitySummaries를 같은 트랜잭션에서 갱신한다. 본문을 summary에 추가하지 않는다. additive IDB v2 migration에서 원문/영수증 삭제 금지.
-- workspaceFetch가 local CRUD를 맡는다. 기존 fetch PUT autosave를 병행하지 않는다. 최신 localRevision보다 오래된 ACK/remote로 입력을 교체하지 않는다.
-- workflow UUID/원본/템플릿/receipt 의존성은 고정한다. 전송 후 payload 수정·응답 유실 시 다른 UUID 실행 금지. source conflict 해결 뒤 dependent 요청은 재검토한다.
-- SW는 static shell만. API/본문/첨부는 IDB 경로, 공개/개인 경계 유지. pin은 직접 참조만 보관하고 자식을 재귀 다운로드하지 않는다.
-- 게이트: build/test, qa-offline-*.mjs 각각, qa-sync-engine/qa-pwa-shell/qa-mobile-capture/qa-workspace-ui. 10k/1k/100 fixture는 qa-offline-performance. 실제 data/.env/AI/maps 키로 QA 금지. 실기기 미검증을 browser QA 통과와 구분한다.
+- 서버가 원본이다. 저장 = 서버 응답 성공, 읽기 = 서버 GET. 클라이언트는 `/api/captures`·`/api/tasks`·`/api/pages` CRUD와 AI·정리 REST(`/api/captures/:id/ai-jobs`, `/api/pages/:id/ai-jobs`, `/api/capture-batches/organize`, `/api/pages/:id/capture-imports`)만 쓴다.
+- IndexedDB `leneu-offline-v1`(entities/entitySummaries/outbox)과 sync 엔진·리포지토리·전송·충돌 UI는 제거했다. `src/sync/runtime.ts`의 `workspaceFetch`는 이제 그냥 `fetch` 래퍼이고, `queueWorkflow`는 서버 REST로 직접 보낸다.
+- 저장 실패/연결 끊김: 입력을 지우지 않고 **저장하지 못했어요 · 다시 시도**를 보여준다. 메모 입력은 전송 성공 후에만 비운다. 페이지 편집기는 디바운스 자동저장(`src/sync/autosave.ts`) + 저장 상태(저장됨/저장 중/저장 못 함) + 실패 재시도를 쓴다.
+- 409 충돌: **다른 곳에서 바뀌었어요** 안내 + [서버 내용 불러오기] [내 내용 복사] [내 내용으로 덮어쓰기(= current.version으로 다시 PUT)]. 과한 3-way 비교 UI는 만들지 않는다.
+- 유지: `src/drafts/*`(localStorage 초안)·prompts 초안, PWA 설치·서비스워커 앱 쉘 캐시·앱 업데이트 알림(`offline/update.ts`, `AppUpdateNotice.tsx`)·OS 공유 수신(`public/capture-worker.js`, `src/capture/`). 기존 기기의 IndexedDB는 삭제하지 않고 그냥 열지 않는다.
+- 서버 sync 계층(`server/sync/*`, `/api/sync/*`, sync 테이블·트리거, `rotateSyncEpochAfterRestore`)은 이번엔 그대로 두되 **클라이언트가 더 이상 쓰지 않는다.** 관련 서버 테스트(`test/sync-*.test.mjs` 중 server/sync 대상)는 유지한다.
+- 사용자 화면 안내는 `docs/OFFLINE_USAGE.md`를 따른다.
 
 ### 문서 템플릿과 자료 가져오기
 
-리서치·여행·회의·개발 문서를 작성할 때 `docs/DOCUMENT_BLUEPRINTS.md`와 `shared/documentBlueprints.ts`의 해당 버전 지침을 먼저 확인한다. 틀의 안내 문구를 사실로 취급하지 않으며 예약·가격·좌표·검증 결과를 추측하지 않는다. 원시 개인 API의 POST 페이지 생성은 본문을 받지 않는다. 반환 ID/버전을 보존하고 PUT expectedVersion으로 저장하며, 응답 유실 때 조회로 확인한다. 브라우저의 workspaceFetch 로컬 생성 계약과 혼동하지 않는다. 자료 삽입은 JSON 전송 형태로 `shared/pageValidation.mjs`를 검증한 뒤 편집기를 변경하고, 원본 및 기존 첨부/참조를 보존한다.
+리서치·여행·회의·개발 문서를 작성할 때 `docs/DOCUMENT_BLUEPRINTS.md`와 `shared/documentBlueprints.ts`의 해당 버전 지침을 먼저 확인한다. 틀의 안내 문구를 사실로 취급하지 않으며 예약·가격·좌표·검증 결과를 추측하지 않는다. 원시 개인 API의 POST 페이지 생성은 본문을 받지 않는다. 반환 ID/버전을 보존하고 PUT expectedVersion으로 저장하며, 응답 유실 때 조회로 확인한다. 자료 삽입은 JSON 전송 형태로 `shared/pageValidation.mjs`를 검증한 뒤 편집기를 변경하고, 원본 및 기존 첨부/참조를 보존한다.
 
 ### 개인 인증 계약 (2026-10-04)
 

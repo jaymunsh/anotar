@@ -20,11 +20,10 @@ export async function fetchSearch(
   cursor: string | null,
   signal: AbortSignal,
 ): Promise<SearchBatch> {
-  if(navigator.onLine===false)return (await import('../offline/search')).searchLocalWorkspace({query,kinds:type});
+  if (navigator.onLine === false) throw new Error('검색은 연결 후 사용할 수 있어요.');
   const parameters = new URLSearchParams({ q: query, type });
   if (cursor) parameters.set('cursor', cursor);
-  let response:Response;
-  try {response=await fetch('/api/search?' + parameters, { signal });}catch(error){if(signal.aborted)throw error;return (await import('../offline/search')).searchLocalWorkspace({query,kinds:type});}
+  const response = await fetch('/api/search?' + parameters, { signal });
   if (!response.ok) throw new Error('검색을 불러오지 못했어요.');
   let batch: SearchBatch;
   try {

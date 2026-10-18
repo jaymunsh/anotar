@@ -7,8 +7,6 @@ import { aiPageMarkdown, suggestedAiPageTitle } from '../ai/pageContent';
 import { renderReadMarkdown } from '../ai/markdownReading';
 import { publishRecordChange } from '../trash/events';
 import './capturePageImport.css';
-import { queueWorkflow, workflowResult, useQueuedWorkflows } from '../sync/workflows';
-import { listLocalEntities } from '../sync/runtime';
 
 type Destination = PageSummary & { path: { id: string; title: string }[] };
 type Pending = { path: string; body: Record<string, unknown>; label: string };
@@ -108,10 +106,6 @@ export default function CapturePageImport({
   const [pending, setPending] = useState<Pending | null>(() => recover(capture.id));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const queued = useQueuedWorkflows(capture.id).find(
-    (p) => p.operation.kind === 'capture.organize',
-  );
-  const [notice, setNotice] = useState('');
   const [awaitingOperation, setAwaitingOperation] = useState<string | null>(null);
   const openedOperation = useRef<string | null>(null);
   const search = useRef<HTMLInputElement>(null);
@@ -142,22 +136,9 @@ export default function CapturePageImport({
     try {
       const params = new URLSearchParams({ q: query.trim() });
       if (nextCursor) params.set('cursor', nextCursor);
-      let data: { items: Destination[]; nextCursor: string | null };
-      try {
-        const response = await fetch('/api/pages/search?' + params);
-        if (!response.ok) throw Error();
-        data = await response.json();
-      } catch {
-        const rows = await listLocalEntities('page', 10000);
-        const items = rows.map((e) => e.current as unknown as PageSummary);
-        data = {
-          items: items
-            .filter((p) => p.title.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()))
-            .slice(0, 50)
-            .map((p) => ({ ...p, path: [{ id: p.id, title: p.title }] })),
-          nextCursor: null,
-        };
-      }
+      const response = await fetch('/api/pages/search?' + params);
+      if (!response.ok) throw Error();
+      const data: { items: Destination[]; nextCursor: string | null } = await response.json();
       if (!Array.isArray(data.items)) throw new Error();
       if (generation.current !== requestGeneration) return;
       setPages((current) =>
@@ -207,27 +188,12 @@ export default function CapturePageImport({
     );
   }
   useEffect(() => {
-    if (!expanded) return;
-    if (queued) {
-      setAwaitingOperation(queued.operation.operationId);
-      return;
-    }
-    if (!awaitingOperation) return;
-    let active = true;
-    void workflowResult(awaitingOperation)
-      .then((result) => {
-        if (active && result?.item) openResult(awaitingOperation, result);
-      })
-      .catch(() => {
-        /* The durable queue retains unknown outcomes for retry. */
-      });
-    return () => {
-      active = false;
-    };
-  }, [expanded, queued?.operation.operationId, queued?.state, awaitingOperation]);
+    if (!expanded || !awaitingOperation) return;
+    // 서버가 바로 결과를 돌려주므로 추가 폴링이 필요 없다.
+  }, [expanded, awaitingOperation]);
 
   async function submit() {
-    if (queued || busyRef.current || (!pending && mode === 'existing' && !target)) return;
+    if (busyRef.current || (!pending && mode === 'existing' && !target)) return;
     busyRef.current = true;
     setBusy(true);
     onBusy(true);
@@ -293,38 +259,27 @@ export default function CapturePageImport({
     try {
       const body = (request.body.captureImport ?? request.body) as Record<string, unknown>;
       const requestId = String(body.operationId);
-      await queueWorkflow('capture.organize', 'capture', capture.id, requestId, {
-        copyContent: body.copyContent,
-        assetIds: body.assetIds,
-        aiResult: body.aiResult,
-        target:
-          request.path === '/api/pages'
-            ? {
-                newPageId: crypto.randomUUID(),
-                title: request.body.title,
-                parentId: request.body.parentId,
-              }
-            : { pageId: request.path.split('/')[3], expectedVersion: target?.version },
-      });
       setAwaitingOperation(requestId);
-      const data = (await workflowResult(requestId)) as
+      const response = await fetch(request.path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request.body),
+      });
+      const data = (await response.json().catch(() => undefined)) as
         | {
             item?: PageRecord;
             blockIds?: string[];
             error?: string;
           }
         | undefined;
+      if (!response.ok) throw new Error(data?.error || '정리하지 못했어요.');
       try {
         sessionStorage.removeItem(keyFor(capture.id));
         draftSubmitted.current = true;
         sessionStorage.removeItem(draftKey);
       } catch {}
       setPending(null);
-      if (!data) {
-        setNotice('페이지에 정리 대기 · 연결 후 원본과 페이지를 함께 반영해요.');
-        return;
-      }
-      if (!data.item || !Array.isArray(data.blockIds)) throw new Error();
+      if (!data || !data.item || !Array.isArray(data.blockIds)) throw new Error();
       openResult(requestId, { item: data.item, blockIds: data.blockIds });
     } catch {
       setError('저장 여부를 확인하지 못했어요. 같은 요청으로 다시 확인해 주세요.');
@@ -338,11 +293,10 @@ export default function CapturePageImport({
   if (!expanded)
     return (
       <section className="capture-page-actions" aria-label="페이지 정리">
-        <button className="capture-organize" type="button" onClick={onExpand} disabled={!!queued}>
+        <button className="capture-organize" type="button" onClick={onExpand}>
           <FolderPlus size={17} />내 페이지에 정리
           <ArrowUpRight size={16} />
         </button>
-        {queued && <p role="status">페이지에 정리 대기 · 원본은 서버 반영 전까지 남아 있어요.</p>}
       </section>
     );
 
@@ -405,26 +359,7 @@ export default function CapturePageImport({
           <p className="capture-import-original">{capture.text || capture.url || '첨부 메모'}</p>
         )}
       </details>
-      {notice && <p role="status">{notice}</p>}
-      {queued ? (
-        <section className="capture-import-pending" role="status">
-          <h3>
-            {queued.state === 'conflict' || queued.state === 'failed'
-              ? '정리 요청 확인이 필요해요'
-              : '정리 요청을 기기에 저장했어요'}
-          </h3>
-          <p>
-            {queued.state === 'conflict' || queued.state === 'failed'
-              ? '동기화 상태에서 요청을 확인해 주세요. 서버 반영 전까지 원본은 입력함에 남아 있어요.'
-              : '연결 후 선택한 페이지와 원본 메모를 함께 반영해요. 서버 반영 전까지 원본은 입력함에 남아 있어요.'}
-          </p>
-          {queued.error && <p>{queued.error}</p>}
-          <p>이 요청의 대상과 선택은 유지돼요. 동기화 상태에서 진행 상황을 확인할 수 있어요.</p>
-          <button className="capture-import-return" type="button" onClick={onBack}>
-            메모로 돌아가기
-          </button>
-        </section>
-      ) : pending ? (
+      {pending ? (
         <section className="capture-import-pending" role="status">
           <h3>제출한 요청 확인</h3>
           <p>{pending.label}</p>
@@ -604,7 +539,7 @@ export default function CapturePageImport({
           </section>
         </div>
       )}
-      {!queued && (
+      {!pending && (
         <footer className="capture-import-footer">
           <p>원문과 결과는 그대로 보관하고, 메모는 ‘정리 완료’로 옮겨요.</p>
           {error && (
