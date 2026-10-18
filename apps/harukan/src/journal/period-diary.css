@@ -78,3 +78,7 @@
 
 .month-clock{display:inline-block;width:30px;margin-right:4px;text-align:center;font-style:normal;font-size:9px;color:var(--muted);font-variant-numeric:tabular-nums}
 
+/* Narrow month cells: the day's planned total as h:mm so it stays on one line. */
+.month-total .short{display:none}
+@media(max-width:640px){.month-total .long{display:none}.month-total .short{display:inline;white-space:nowrap}}
+@media(max-width:640px){.month-summary{flex-wrap:wrap;gap:0 6px}.month-summary b{white-space:nowrap}}

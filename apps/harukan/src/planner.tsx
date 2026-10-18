@@ -62,8 +62,25 @@ export function useDay(date:string,user:User|undefined,csrf:string,demo:boolean)
   return{document,change,loading,state,error,pendingDraft,restore,discard,save,canLeave};
 }
 
-// 10-minute steps plus the current value, so odd times from drag or old data stay selectable.
-export const times=(from:number,to:number,current:string)=>Array.from({length:(to-from)/10+1},(_,i)=>clock(from+i*10)).concat(current).filter((t,i,a)=>a.indexOf(t)===i).sort();
+// Minutes ↔ the form's time strings: '-23:00' is 23:00 the day before, '25:00' is 01:00 the day after, '24:00' is midnight at the end of the day.
+export const toMinutes=(v:string):number=>v.startsWith('-')?toMinutes(v.slice(1))-1440:Number(v.slice(0,2))*60+Number(v.slice(3));
+export const fromMinutes=(m:number)=>m<0?'-'+clock(m+1440):clock(m);
+/** A time as one small 시 : 분 box (10-minute steps). Hours before 0 read 전날, after 24 read 다음 날, so no separate day field. min/max are minutes from this day's 00:00. */
+export function TimePick({label,value,onChange,min,max}:{label:[string,string];value:number;onChange:(minutes:number)=>void;min:number;max:number}){
+  const hour=Math.floor(value/60),minute=value-hour*60,steps=[0,10,20,30,40,50];
+  const fits=(m:number)=>m>=min&&m<=max;
+  const hours=Array.from({length:37},(_,i)=>i-6).filter(h=>steps.some(m=>fits(h*60+m)));
+  const minutes=steps.concat(minute%10?[minute]:[]).sort((a,b)=>a-b).filter(m=>m===minute||fits(hour*60+m));
+  const hourName=(h:number)=>h<0?pair(`전날 ${String(h+24).padStart(2,'0')}`,`Prev ${String(h+24).padStart(2,'0')}`):h>24?pair(`다음 날 ${String(h-24).padStart(2,'0')}`,`Next ${String(h-24).padStart(2,'0')}`):String(h).padStart(2,'0');
+  // A new hour keeps the minute when it fits there, otherwise the nearest allowed time.
+  const go=(h:number,m:number)=>onChange(Math.min(max,Math.max(min,h*60+m)));
+  const [ko,en]=label;
+  return <span className="time-pick" role="group" aria-label={pair(ko,en)}>
+    <select aria-label={pair(`${ko} 시`,`${en} hour`)} value={hour} onChange={e=>go(Number(e.target.value),minute)}>{hours.map(h=><option key={h} value={h}>{hourName(h)}</option>)}</select>
+    <span aria-hidden="true">:</span>
+    <select aria-label={pair(`${ko} 분`,`${en} minute`)} value={minute} onChange={e=>go(hour,Number(e.target.value))}>{minutes.map(m=><option key={m} value={m}>{String(m).padStart(2,'0')}</option>)}</select>
+  </span>;
+}
 // Activities after `from` that [start,end) would overlap, moved later just enough to clear it (chain-wise); null if any would pass 24:00.
 export function ripple(others:Plan[],from:number,start:number,end:number):Plan[]|null{
   const moved:Plan[]=[];let cursor=end;
@@ -86,7 +103,6 @@ export function ItemForm({editor,planning=[],others=[],onSave,onCancel,onDelete,
   useEffect(()=>{onDirty(JSON.stringify([title,start,end,status,planningId])!==initial.current);},[title,start,end,status,planningId,onDirty]);
   // 미루기 keeps the length; later activities it would now overlap move just enough (never past 24:00, never into tomorrow).
   // '-23:00' is 23:00 the day before; '25:00' is 01:00 the day after.
-  const toMinutes=(v:string):number=>v.startsWith('-')?toMinutes(v.slice(1))-1440:Number(v.slice(0,2))*60+Number(v.slice(3));
   const shifted=(n:number):[number,number]|null=>{const a=toMinutes(start)+n,b=toMinutes(end)+n;return a>=n&&b<=1440&&ripple(others,item?.start??a,a,b)?[a,b]:null;};
   const moved=pushed?ripple(others,item?.start??toMinutes(start),toMinutes(start),toMinutes(end)):null;
   function submit(e?:React.FormEvent,nextStatus=status){e?.preventDefault();const a=toMinutes(start),b=toMinutes(end);
@@ -95,7 +111,18 @@ export function ItemForm({editor,planning=[],others=[],onSave,onCancel,onDelete,
     const value={id:item?.id||uuid(),title:title.trim(),start:Math.max(a,0),end:Math.min(b,1440),...((item as Plan)?.priorityId?{priorityId:(item as Plan).priorityId}:{})};if(editor.kind==='plan'&&planningId)rememberPlanning(planningId);if(editor.kind==='plan'&&pushed&&!moved){setError('뒤 일정을 밀면 24:00을 넘어요. 시간을 다시 골라 주세요.');return;}onSave(editor.kind==='plan'?{...value,status:nextStatus,...(planningId?{planningId}:{})}:{...value,...((item as Entry)?.planId||plan?.id?{planId:(item as Entry)?.planId||plan?.id}:{})},moved||undefined,overflow);
   }
   return <form className="item-form" onSubmit={submit}><h2 id={headingId}>{item&&!editor.newItem?t("항목 수정"):editor.kind==='plan'?t("계획 추가"):t("실제로 한 일 기록")}</h2><label htmlFor="item-title">{t("활동")}</label><input id="item-title" autoFocus required maxLength={200} value={title} onChange={e=>setTitle(e.target.value)} placeholder={t("무엇을 할까요?")}/>
-    <div className="form-pair"><label>{t("시작")}<select value={start} onChange={e=>setStart(e.target.value)} required>{editor.kind==='plan'&&Array.from({length:36},(_,i)=>'-'+clock(1080+i*10)).map(t=><option key={t} value={t}>{pair(`전날 ${t.slice(1)}`,`Day before ${t.slice(1)}`)}</option>)}{times(0,1430,start).map(t=><option key={t}>{t}</option>)}</select></label><label>{t("종료")}<select value={end} onChange={e=>setEnd(e.target.value)} required>{times(10,1440,end).map(t=><option key={t}>{t}</option>)}{editor.kind==='plan'&&Array.from({length:36},(_,i)=>clock(1450+i*10)).map(t=><option key={t} value={t}>{pair(`다음 날 ${clock(toMinutes(t)-1440)}`,`Next day ${clock(toMinutes(t)-1440)}`)}</option>)}</select></label></div>
+    {(()=>{const a=toMinutes(start),b=toMinutes(end),len=b-a,plan=editor.kind==='plan',minStart=plan?-360:0,maxEnd=plan?1800:1440;
+      // Moving the start keeps the length when it fits, so a block slides instead of stretching.
+      const setA=(m:number)=>{setStart(fromMinutes(m));const keep=m+len;if(len>0&&keep<=maxEnd)setEnd(fromMinutes(Math.max(10,keep)));else if(b<=m)setEnd(fromMinutes(Math.min(maxEnd,Math.max(10,m+10))));};
+      return <div className="time-panel">
+        <div className="time-panel-head"><span>{pair('시간','Time')}</span>{len>0&&<b>{duration(len)}</b>}</div>
+        <div className="time-panel-range">
+          <div><small>{t("시작")}</small><TimePick label={['시작','Start']} value={a} min={minStart} max={1430} onChange={setA}/></div>
+          <span className="time-panel-arrow" aria-hidden="true">→</span>
+          <div><small>{t("종료")}</small><TimePick label={['종료','End']} value={b} min={Math.max(10,a+10)} max={maxEnd} onChange={m=>setEnd(fromMinutes(m))}/></div>
+        </div>
+        <div className="time-panel-lengths" role="group" aria-label={pair('길이 고르기','Pick a length')}>{[30,60,90,120].map(n=><button type="button" key={n} aria-pressed={len===n} className={len===n?'selected':''} disabled={a+n>maxEnd} onClick={()=>setEnd(fromMinutes(a+n))}>{duration(n)}</button>)}</div>
+      </div>;})()}
     {editor.kind==='plan'&&<div className="form-shift" role="group" aria-label={pair('이 일정 미루기','Push this back')}><span>{pair('미루기','Push back')}</span>{[10,30,60].map(n=>{const next=shifted(n);return <button type="button" key={n} disabled={!next} title={next?undefined:pair('24:00을 넘겨 미룰 수 없어요','Can’t go past midnight')} onClick={()=>{if(!next)return;setStart(clock(next[0]));setEnd(clock(next[1]));setPushed(true);}}>+{duration(n)}</button>;})}{pushed&&moved&&moved.length>0&&<small>{pair(`뒤 일정 ${moved.length}개도 함께 밀려요`,`${moved.length} later ${moved.length>1?'activities move':'activity moves'} too`)}</small>}</div>}
     {editor.kind==='plan'&&planning.length>0&&<label className="planning-pick">{pair('계획','Plan')}<select aria-label={pair('연결할 계획','Related plan')} value={planningId} onChange={e=>setPlanningId(e.target.value)}><option value="">{pair('연결 안 함','No plan')}</option>{recent.length>0&&<optgroup label={pair('최근 선택','Recent')}>{recent.map(p=><option value={p.id} key={'r'+p.id}>{p.title}</option>)}</optgroup>}<optgroup label={pair('이번 달 계획','This month')}>{rest.map(p=><option value={p.id} key={p.id}>{p.title}</option>)}</optgroup></select></label>}
     

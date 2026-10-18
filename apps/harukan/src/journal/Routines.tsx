@@ -2,8 +2,8 @@
 // No rules, times or targets — what lands on a day is an ordinary activity for that day only.
 import {useState} from 'react';
 import {Plus,X} from 'lucide-react';
-import {clock,type DayTemplate,type Routine,type TemplateBlock} from '../api';
-import {times} from '../planner';
+import {type DayTemplate,type Routine,type TemplateBlock} from '../api';
+import {TimePick} from '../planner';
 import {pair} from '../i18n';
 import type {PlanningState} from './PlanningBoard';
 
@@ -30,7 +30,6 @@ export function RoutineList({state,seed}:{state:PlanningState;seed?:{date:string
 }
 
 // 하루 틀: a named day of timed blocks. On an empty day the schedule offers to lay it down in one tap; after that the blocks are ordinary activities.
-const minutes=(value:string)=>Number(value.slice(0,2))*60+Number(value.slice(3));
 function TemplateList({state,seed}:{state:PlanningState;seed?:{date:string;blocks:TemplateBlock[]}}){
  const [error,setError]=useState('');
  async function run(action:()=>Promise<unknown>){setError('');try{await action();}catch(e){setError((e as Error).message);}}
@@ -44,8 +43,8 @@ function TemplateList({state,seed}:{state:PlanningState;seed?:{date:string;block
    <div className="template-head"><input key={item.version} defaultValue={item.title} maxLength={100} aria-label={pair('틀 이름','Template name')} onBlur={e=>{const title=e.target.value.trim();if(title&&title!==item.title)void save({...item,title});}} onKeyDown={e=>{if(e.key==='Enter')e.currentTarget.blur();}}/>
     <button className="routine-remove" aria-label={pair(`${item.title} 틀 지우기`,`Delete template ${item.title}`)} title={pair('지우기','Delete')} onClick={()=>{if(confirm(pair(`'${item.title}' 틀을 지울까요? 이미 깐 일정은 그대로 남아요.`,`Delete '${item.title}'? Days already filled stay.`)))void run(()=>state.remove(item));}}><X size={15}/></button></div>
    <ul>{item.blocks.map((block,i)=><li key={`${item.version}-${i}`}>
-    <select aria-label={pair('시작','Start')} value={clock(block.start)} onChange={e=>void setBlock(item,i,{start:minutes(e.target.value)})}>{times(0,1430,clock(block.start)).map(t=><option key={t}>{t}</option>)}</select>
-    <select aria-label={pair('종료','End')} value={clock(block.end)} onChange={e=>void setBlock(item,i,{end:minutes(e.target.value)})}>{times(10,1440,clock(block.end)).map(t=><option key={t}>{t}</option>)}</select>
+    <TimePick label={['시작','Start']} value={block.start} min={0} max={1430} onChange={m=>void setBlock(item,i,{start:m})}/>
+    <TimePick label={['종료','End']} value={block.end} min={Math.min(1440,block.start+10)} max={1440} onChange={m=>void setBlock(item,i,{end:m})}/>
     <input defaultValue={block.title} maxLength={200} aria-label={pair('일정','Activity')} onBlur={e=>{const title=e.target.value.trim();if(!title)void save({...item,blocks:item.blocks.filter((_,j)=>j!==i)});else if(title!==block.title)void setBlock(item,i,{title});}} onKeyDown={e=>{if(e.key==='Enter')e.currentTarget.blur();}}/>
     <button className="routine-remove" aria-label={pair(`${block.title} 빼기`,`Remove ${block.title}`)} onClick={()=>void save({...item,blocks:item.blocks.filter((_,j)=>j!==i)})}><X size={14}/></button>
    </li>)}

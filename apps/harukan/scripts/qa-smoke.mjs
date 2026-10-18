@@ -53,7 +53,9 @@ try{
   await page.setViewportSize({width:390,height:844});await page.goto(base+'/app/settings?lang=ko');await page.locator('.now-jump').click();
   await page.waitForURL(u=>u.searchParams.get('view')==='day');await page.locator('.journal-grid,.journal-activity-list').first().waitFor();await page.waitForTimeout(900);
   const fit=await page.evaluate(()=>({head:document.querySelector('.app-header').getBoundingClientRect(),grid:document.querySelector('.journal-schedule').getBoundingClientRect().top,date:new URLSearchParams(location.search).get('date'),today:new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}).format(new Date())}));
-  assert.equal(fit.head.top,0,'header stays at the top');assert.equal(fit.date,fit.today);assert.ok(fit.grid>=fit.head.bottom&&fit.grid<fit.head.bottom+40,`timetable under the header (${fit.grid} vs ${fit.head.bottom})`);
+  assert.equal(fit.head.top,0,'header stays at the top');assert.equal(fit.date,fit.today);const nowRow=await page.evaluate(()=>{const r=document.querySelector('.journal-hour.now')?.getBoundingClientRect();return r&&{top:r.top,bottom:r.bottom};});
+  // The whole timetable sits under the header when it fits; on a busier day (carry-over offer, first-use hint) the current hour is kept in sight instead.
+  assert.ok((fit.grid>=fit.head.bottom&&fit.grid<fit.head.bottom+40)||(nowRow&&nowRow.top>=fit.head.bottom&&nowRow.bottom<=844),`timetable or current hour under the header (${fit.grid} vs ${fit.head.bottom})`);
   checks.push('오늘 시간표로 jumps to today and fits the timetable under the sticky header');
 
   // Notes save and come back after reload; a save from another device keeps this device's draft.
