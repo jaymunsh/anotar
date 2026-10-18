@@ -35,7 +35,7 @@ export default function AiExecutionPicker({
       <div className="ai-execution-overview">
         <div className="ai-execution-current" title={`${profile?.label || ''} · ${value?.model || profile?.model || ''}`}>
           <strong>{profile?.label || 'AI 연결 확인 중'}</strong>
-          <span>{value?.model || profile?.model || '모델 설정 필요'}</span>
+          <span>{value?.model || profile?.model || (profile?.id === 'http' ? '실행기 기본 모델' : '모델 설정 필요')}</span>
         </div>
         <span className={`ai-execution-state ${usable ? 'ready' : ''}`} role="status">{usable ? '실행 가능' : !settings && !error ? '확인 중' : '연결 확인 필요'}</span>
         <button type="button" className="ai-settings-link" aria-label="AI 설정 열기" title="AI 설정 열기"
@@ -90,7 +90,7 @@ export default function AiExecutionPicker({
                 </optgroup>
               ) : (
                 <option key={p.id} value={p.id}>
-                  {p.label} · {p.model || '모델 설정 필요'}
+                  {p.label} · {p.model || (p.id === 'http' ? '실행기 기본 모델' : '모델 설정 필요')}
                   {p.enabled ? '' : ' · 연결 필요'}
                 </option>
               ),

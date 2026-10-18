@@ -210,6 +210,8 @@ export async function runPageAiQa(browser, baseUrl, calls) {
     assert.doesNotMatch(requested.request.prompt, /PRIVATE-ATTACHMENT-BYTES/);
     assert.equal(requested.request.prompt.includes(original.files[0].id), false);
     await page.reload({waitUntil:'networkidle'});await openAi();
+    // 온라인 전용: 새로고침 뒤 보관한 제출이 복원되고, 사용자가 '같은 요청 다시 확인'을 눌러 같은 requestId로 다시 보낸다.
+    await ai.getByRole('button', { name: '같은 요청 다시 확인', exact: true }).click();
     await waitUntil(async()=>requestBodies.length,count=>count>=2);
     assert.deepEqual(requestBodies[1],requestBodies[0]);
     await page.unroute(`**/api/pages/${target.id}/ai-jobs`);

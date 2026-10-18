@@ -29,3 +29,12 @@ test('execution guidance blocks disabled, stale, unsupported or empty model with
   assert.equal(describeExecution(settings, null, false, false).usable, false);
   assert.deepEqual(value, { profileId: 'hive', model: 'chosen' });
 });
+
+test('HTTP gateway runs without a model so its own default applies', async () => {
+  const { describeExecution } = await import('../src/ai/executionPresentation.ts');
+  const http = { id: 'http', label: 'HTTP', model: '', enabled: true, status: 'configured', researchModes: ['url', 'keyword'] };
+  const settings = { defaultProfile: 'http', profiles: [http] };
+  const result = describeExecution(settings, { profileId: 'http', model: '' }, false, false);
+  assert.equal(result.reason, 'ready');
+  assert.equal(result.usable, true);
+});

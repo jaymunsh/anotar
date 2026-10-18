@@ -8,6 +8,8 @@ export function describeExecution(settings: AiSettings | null, value: AiExecutio
     : value.model !== profile.model));
   const unsupported = Boolean(research && profile && !profile.researchModes.includes(hasUrl ? 'url' : 'keyword'));
   const reason = !settings ? 'loading' : !profile ? 'missing' : stale ? 'stale'
-    : unsupported ? 'unsupported' : !profile.enabled ? 'disabled' : !value?.model.trim() ? 'model' : 'ready';
+    : unsupported ? 'unsupported' : !profile.enabled ? 'disabled'
+    // The HTTP gateway picks its own model when none is sent; only other runners need one.
+    : !value?.model.trim() && profile.id !== 'http' ? 'model' : 'ready';
   return { profile, stale, unsupported, reason, usable: reason === 'ready' };
 }

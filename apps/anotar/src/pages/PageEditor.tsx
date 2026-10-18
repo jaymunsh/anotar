@@ -922,7 +922,7 @@ export default function PageEditor({
           : [{ ...block, children: publicBlocks(block.children || []) }],
       );
     }
-    const source=(localPage.record?.current?.document?localPage.record.current:savedPage) as unknown as PageRecord;
+    const source=savedPage as unknown as PageRecord; // 마지막으로 저장된 내용(처음 읽은 사본이 아니라)
     const blocks = publicBlocks(editablePageBlocks(source.document.blocks));
     return `${ids.length ? '' : '# ' + source.title + '\n\n'}${renderPageMarkdown(ids.length ? choose(blocks) : blocks)}`.trim();
   }
@@ -2062,7 +2062,8 @@ export default function PageEditor({
         >
           <Suspense fallback={<p role="status">페이지 AI를 여는 중…</p>}>
             <PageAiPanel
-              page={(localPage.record?.current?.document?localPage.record.current:savedPage) as unknown as PageRecord}
+              // 온라인 전용: 저장·AI 반영마다 갱신되는 savedPage를 쓴다(useLocalPage는 처음 한 번만 읽는다).
+              page={savedPage as unknown as PageRecord}
               blocked={
                 status !== 'saved' ||
                 Boolean(recovery) ||
