@@ -7,7 +7,6 @@ export type Organization = 'inbox' | 'organized';
 export type StoredFile = { id: string; key: string; name: string; mime: string; size: number; localUrl?: string };
 export type Capture = {
   id: string;
-  syncState?: 'pending' | 'synced';
   clientCreatedAt?: string | null;
   kind: Kind;
   text: string;

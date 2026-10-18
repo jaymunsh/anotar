@@ -1,4 +1,4 @@
-/* 온라인 전용 연결 상태 표시. 연결이 끊겼을 때만 사이드바에 조용히 한 줄로 보인다. */
+/* 온라인 전용 사이드바 상태: 연결 끊김 한 줄과 화면 안내(안내 확인 · N건) 모달. */
 .sync-status {
   position: relative;
   flex: 1;
@@ -11,10 +11,24 @@
   width: 100%;
   min-height: 32px;
   padding: 4px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
   color: var(--theme-muted, #6b7a70);
+  font: inherit;
   font-size: 12.5px;
   line-height: 1.5;
   text-align: left;
+}
+.sidebar-footer .sync-status-trigger {
+  color: inherit;
+}
+button.sync-status-trigger:hover {
+  background: var(--sidebar-hover, rgba(255, 255, 255, 0.07));
+}
+button.sync-status-trigger:focus-visible {
+  outline: 2px solid #d8e6b5;
+  outline-offset: -2px;
 }
 .sync-status-trigger svg {
   flex: none;
@@ -24,4 +38,114 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.sync-status-trigger.needs-attention {
+  color: var(--sidebar-notice);
+}
+.sync-status-trigger .sync-status-more {
+  margin-left: auto;
+}
+.sync-status-panel {
+  width: min(480px, calc(100vw - 32px));
+  max-height: min(680px, calc(100dvh - 48px));
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--theme-line);
+  border-radius: 12px;
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.sync-status-panel::backdrop {
+  background: var(--overlay-backdrop, #14201b66);
+}
+.sync-status-panel header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--theme-line);
+  background: var(--theme-surface);
+}
+.sync-status-panel h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.sync-status-panel header button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+}
+.sync-status-panel header button:hover {
+  background: var(--theme-soft);
+}
+.sync-status-panel button {
+  font: inherit;
+}
+.sync-status-panel button:focus-visible {
+  outline: 2px solid var(--theme-accent, var(--theme-ink));
+  outline-offset: 2px;
+}
+.sync-status-panel .sync-details-body {
+  padding: 16px 20px 20px;
+}
+.sync-status-panel p {
+  color: var(--theme-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.sync-status-panel .sync-details-body > p:first-child {
+  margin-top: 0;
+}
+.sync-status-panel .sync-workspace-notice {
+  margin-bottom: 16px;
+  padding: 0 0 16px;
+  border-bottom: 1px solid var(--theme-line);
+}
+.sync-status-panel .sync-workspace-notice h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.sync-retry {
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--theme-line);
+  border-radius: 6px;
+  background: var(--theme-surface);
+  color: var(--theme-ink);
+}
+@media (max-width: 760px) {
+  .sync-status-trigger,
+  .sync-status-panel header button,
+  .sync-retry {
+    min-height: 44px;
+  }
+  .sync-status-panel {
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 32px);
+  }
+  .sync-status-panel header {
+    padding: 12px 16px;
+  }
+  .sync-status-panel .sync-details-body {
+    padding: 16px;
+  }
 }

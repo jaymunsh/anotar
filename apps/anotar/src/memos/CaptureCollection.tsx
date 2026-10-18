@@ -355,7 +355,6 @@ export default function CaptureCollection(props: Props) {
                           {formatKoreanTime(item.createdAt)}
                         </time>
                         {meta && <span className="capture-meta">{meta}</span>}
-                        {item.syncState === 'pending' && <span className="capture-sync-pending">전송 대기</span>}
                       </span>
                       <span className="capture-preview">{capturePreview(item)}</span>
                       {secondary && (
