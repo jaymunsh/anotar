@@ -299,6 +299,13 @@ main.shared-document {
   flex-shrink: 0;
   margin-inline-start: calc(-1 * var(--bn-table-handle-size));
 }
+/* The right widget gutter overflows narrow documents (18px inset < widget size), causing
+   horizontal page scroll. On mobile keep only the left handle offset. */
+@media (max-width: 760px) {
+  .page-document .page-block-editor .bn-editor [data-content-type='table'] .tableWrapper {
+    width: calc(100% + var(--bn-table-handle-size));
+  }
+}
 
 .page-document .page-toc-item, .shared-document .page-toc-item {
   font-size: calc(var(--document-body) * .9333333333);
