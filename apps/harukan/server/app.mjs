@@ -6,7 +6,7 @@ import { resolve, extname, sep } from 'node:path';
 import { openStore, transaction, validDate, emptyDay, validateDay } from './store.mjs';
 import {recordDeletion,purgeDeletions} from './deletions.mjs';
 import {listPlanning,savePlanning,deletePlanning} from './planning.mjs';
-import {makeMailer} from './mail.mjs';
+import {makeMailer,accountMail} from './mail.mjs';
 
 const derive=promisify(scrypt), digest=value=>createHash('sha256').update(value).digest('hex');
 const token=()=>randomBytes(32).toString('base64url');
@@ -61,7 +61,7 @@ export function makeApp(options={}) {
   const registration=(options.registration??process.env.REGISTRATION_ENABLED==='true')&&(!production||legalReady);
   const cookieName=production?'__Host-anotar-planner':'anotar-planner-dev';
   const cookie=value=>`${cookieName}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${value?7*86400:0}${production?'; Secure':''}`;
-  const termsVersion='2026-10-11-v1';
+  const termsVersion='2026-10-18-v1';
   const clock=options.clock??Date.now;
   const sendMail=options.mailer??makeMailer();
   const mailLife={verify:3*86400000,reset:30*60000};
@@ -97,9 +97,7 @@ export function makeApp(options={}) {
       db.prepare('INSERT INTO mail_tokens VALUES(?,?,?,?,?)').run(digest(value),user.id,kind,email,clock()+mailLife[kind]);
     });
     const link=`${origin}/${kind}?token=${value}`,name=user.nickname||user.username;
-    const mail=kind==='verify'
-      ?{subject:'[harukan] 이메일 주소를 확인해 주세요',text:`${name}님, harukan에 이 주소를 등록하려면 아래 링크를 눌러 주세요. 3일 동안 쓸 수 있어요.\n\n${link}\n\n직접 요청하지 않았다면 이 메일은 무시해 주세요.`}
-      :{subject:'[harukan] 비밀번호 재설정',text:`${name}님, 아래 링크에서 새 비밀번호를 정할 수 있어요. 30분 동안, 한 번만 쓸 수 있어요.\n\n${link}\n\n직접 요청하지 않았다면 이 메일은 무시해 주세요. 비밀번호는 바뀌지 않아요.`};
+    const mail=accountMail({kind,name,link,contact:legal.contact});
     try {await sendMail({to:email,...mail});}catch(error) {console.error('[mail] failed',error.message);}
   }
   function takeMailToken(value,kind) {
