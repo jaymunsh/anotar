@@ -57,7 +57,7 @@ try {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     await page.screenshot({ path: `${evidence}/${name}-private.png` });
     if (width === 1440 && theme === 'light') {
-      for (const title of ['2. 전체 구조', '3. 저장과 동기화', '4. AI 요청 처리']) {
+      for (const title of ['2. 전체 구조', '3. 저장과 서버 확인', '4. AI 요청 처리']) {
         const heading = page.locator('[data-content-type="heading"]').filter({ hasText: title });
         await heading.evaluate(element => window.scrollBy({ top: element.getBoundingClientRect().top - 72, behavior: 'instant' }));
         await page.screenshot({ path: `${evidence}/section-${title[0]}-private.png` });

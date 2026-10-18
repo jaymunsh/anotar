@@ -13,3 +13,7 @@ dist/
 /hosted-sites/
 /.local-workspace/
 share-link.key
+
+# QA 결과물(스크린샷·리포트)
+/.omo/
+/.impeccable/review/

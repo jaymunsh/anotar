@@ -20,7 +20,7 @@ test('architecture is an editable native page that can use the ordinary public r
   assert.equal(blocks.filter(b => b.type === 'tableOfContents').length, 1, 'reuse one native table of contents');
   const html = renderSharedPage(page, 'fixture', new Map());
   assert.equal((html.match(/aria-label="목차"/g) || []).length, 1);
-  for (const term of ['전체 구조', 'server/index.mjs', 'OpenCode', 'IndexedDB', '블록 JSON'])
+  for (const term of ['전체 구조', 'server/index.mjs', 'OpenCode', 'expectedVersion', '블록 JSON'])
     assert.ok(html.includes(term), term);
   assert.ok(!html.includes('app.example.com'));
   const edited = store.updatePage({ ...page, title: '내가 수정한 구조 문서', expectedVersion: page.version });
