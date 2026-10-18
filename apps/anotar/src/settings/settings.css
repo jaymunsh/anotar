@@ -676,3 +676,49 @@
   .document-type-sample { padding:14px; }
   .document-type-sample-title { font-size:calc(var(--page-type-title,32px) * .875); }
 }
+/* A section that could not load: the reason, then what to do, as normal settings buttons. */
+.settings-load-problem {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--theme-line);
+  border-radius: 8px;
+  background: var(--theme-surface);
+}
+.settings-load-problem p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--theme-ink);
+}
+.settings-load-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.settings-load-actions button {
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--theme-line);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--theme-ink);
+  background: var(--theme-surface);
+  cursor: pointer;
+}
+.settings-load-actions button.primary {
+  background: var(--theme-accent);
+  border-color: var(--theme-accent);
+  color: var(--theme-accent-ink);
+}
+.settings-loading {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--theme-muted);
+}
+@media (max-width: 760px) {
+  .settings-load-actions button {
+    min-height: 44px;
+  }
+}

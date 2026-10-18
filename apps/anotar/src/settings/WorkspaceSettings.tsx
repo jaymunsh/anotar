@@ -180,7 +180,7 @@ export default function WorkspaceSettings({
               <p className="settings-save-note">변경한 설정은 자동으로 저장됩니다.</p>
             </section>
           )}
-          {section === 'ai' && <AiSettingsPanel />}
+          {section === 'ai' && <AiSettingsPanel onOpenStorage={() => setSection('storage')} />}
           {section === 'storage' && <DeviceStorage />}
           {section === 'security' && <SecuritySettings />}
           {section === 'workspace' && (

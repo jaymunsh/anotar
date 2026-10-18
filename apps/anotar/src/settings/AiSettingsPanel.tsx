@@ -2,8 +2,8 @@ import OpenCodeModels from './OpenCodeModels';
 import { useEffect, useState } from 'react';
 import { onlineActionFetch } from '../sync/onlineActions';
 import { useAiProfiles, type AiSettings } from '../ai/useAiProfiles';
-export default function AiSettingsPanel() {
-  const { settings, error: loadError, reload } = useAiProfiles();
+export default function AiSettingsPanel({ onOpenStorage }: { onOpenStorage?: () => void }) {
+  const { settings, error: loadError, errorKind, reload } = useAiProfiles();
   const [draft, setDraft] = useState<AiSettings | null>(null);
   const [busy, setBusy] = useState(false);
   const [catalogBusy, setCatalogBusy] = useState(false);
@@ -44,10 +44,23 @@ export default function AiSettingsPanel() {
       <h3 id="settings-ai-title">AI</h3>
       <p className="settings-description">기본 실행기와 모델을 정하고, 요청할 때 바꿀 수 있어요.</p>
       {!draft ? (
-        <p role="status">
-          {loadError || '설정을 불러오는 중…'}
-          {loadError && <button onClick={reload}>다시 불러오기</button>}
-        </p>
+        loadError ? (
+          <div className="settings-load-problem" role="alert">
+            <p>{loadError}</p>
+            <div className="settings-load-actions">
+              {errorKind === 'changed' && onOpenStorage && (
+                <button type="button" className="primary" onClick={onOpenStorage}>
+                  기기 저장소 열기
+                </button>
+              )}
+              <button type="button" onClick={reload}>
+                다시 불러오기
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p role="status" className="settings-loading">설정을 불러오는 중…</p>
+        )
       ) : (
         <>
           <label className="settings-ai-field">
