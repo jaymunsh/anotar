@@ -1962,3 +1962,17 @@ kbd {
 :root[data-app-font='pretendard'] { --font-ui:'Pretendard Variable','Noto Sans KR',sans-serif; }
 :root[data-app-font='ridibatang'] { --font-ui:'RIDIBatang','Noto Sans KR',serif; font-synthesis:weight style; }
 :root[data-app-font='ridibatang'] .page-document { font-synthesis:weight style; }
+
+/* Every single-line select gets the same chevron with breathing room from the edge (the native arrow sat on the border). */
+select:not([multiple]):not([size]) {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 32px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23637568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 11px center !important;
+  background-size: 14px 14px !important;
+}
+:root[data-theme='dark'] select:not([multiple]):not([size]) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bdc5bc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+}

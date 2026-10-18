@@ -722,3 +722,6 @@
     min-height: 44px;
   }
 }
+
+/* The 화면 rows already end with a line; the typography section under them doesn't need a second one. */
+.settings-row + .settings-document-type { border-top: 0; margin-top: 4px; padding-top: 8px; }
