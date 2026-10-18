@@ -136,13 +136,16 @@ export function Journal({user,csrf='',demo=false,preview=false,onViewChange}:{us
   if(!toNow||view!=='day'||date!==today(user?.timezone)||state.loading)return;setToNow(false);
   // A short wait lets the day's data and the rows above settle before measuring.
   setTimeout(()=>{
-   const header=document.querySelector('.app-header'),top=(header?.getBoundingClientRect().height??0)+8;
+   const header=document.querySelector('.app-header'),top=(header?.getBoundingClientRect().height??0)+4;
    const box=document.querySelector<HTMLElement>('.journal-grid,.journal-activity-list');if(!box)return;
+   const section=box.closest<HTMLElement>('.journal-schedule');
    const nowRow=box.querySelector<HTMLElement>('.journal-hour.now');
    // Desktop keeps the timetable in its own scroll box; phones scroll the page.
    if(nowRow&&box.scrollHeight>box.clientHeight+4)box.scrollTo({top:Math.max(0,nowRow.offsetTop-box.clientHeight/3),behavior:'smooth'});
    const head=box.querySelector<HTMLElement>('.journal-grid-header')??box.previousElementSibling as HTMLElement|null;
-   let y=Math.min(box.getBoundingClientRect().top,head?.classList.contains('journal-grid-header')?head.getBoundingClientRect().top:Infinity)+scrollY-top;
+   // The whole section (heading included) when it fits; otherwise start at the column header.
+   const sectionTop=section?section.getBoundingClientRect().top:Infinity,gridTop=Math.min(box.getBoundingClientRect().top,head?.classList.contains('journal-grid-header')?head.getBoundingClientRect().top:Infinity);
+   let y=(section&&section.getBoundingClientRect().height<=innerHeight-top?sectionTop:gridTop)+scrollY-top;
    if(nowRow&&box.scrollHeight<=box.clientHeight+4){const r=nowRow.getBoundingClientRect(),rowY=r.top+scrollY;if(rowY+r.height>y+innerHeight-top)y=rowY-top-(innerHeight-top)/3;}
    scrollTo({top:Math.max(0,y),behavior:'smooth'});
   },250);

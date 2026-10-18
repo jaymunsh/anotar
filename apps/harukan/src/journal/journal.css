@@ -327,6 +327,8 @@
 @media(max-width:640px){.journal-page .journal-priority>textarea{font-size:16px}}
 /* Phones: one column in the order the day is used — priorities, then the timetable, then the notes (no tabs). Date controls stay on one row. */
 @media(max-width:640px){
+ /* Hour rows shrink (down to 20px) so the whole day — heading, 24 rows and the 24:00 line — fits one screen under the sticky header. */
+ .journal-page:not(.journal-preview) .journal-workspace{--journal-hour:clamp(20px,calc((100dvh - var(--day-chrome,205px)) / 24),30px)}
  .journal-workspace{display:flex;flex-direction:column;gap:24px}
  .journal-workspace .journal-left{display:contents}
  .journal-workspace .journal-sidebar{order:1}
