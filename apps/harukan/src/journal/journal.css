@@ -336,3 +336,11 @@
  .journal-heading .journal-date>input{width:100%}
  .journal-heading .journal-date>button:nth-of-type(3),.journal-heading .journal-date:has(>input[type=month])>button:nth-of-type(3),.journal-heading .journal-date:has(.journal-broad-picker)>button:nth-of-type(3){grid-column:auto;justify-self:stretch;width:auto;padding:0 10px}
 }
+/* Phones: date and 일간·주간·월간 right under the title; focus goals and routines follow, just above the day itself. */
+@media(max-width:640px){
+ .journal-page:not(.journal-preview) .journal-heading:not(.journal-review-heading){display:flex;flex-direction:column;align-items:stretch}
+ .journal-page:not(.journal-preview) .journal-heading:not(.journal-review-heading)>div:first-child{order:-1}
+ .journal-page:not(.journal-preview) .journal-heading:not(.journal-review-heading)>.journal-date{order:1}
+ .journal-page:not(.journal-preview) .journal-heading:not(.journal-review-heading)>.journal-period-tabs{order:2}
+ .journal-page:not(.journal-preview) .journal-heading:not(.journal-review-heading)>.planning-context{order:3;margin-bottom:8px}
+}
