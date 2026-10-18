@@ -110,3 +110,7 @@
 .review-record li i{width:11px;height:11px;border:1.5px solid var(--line-strong);border-radius:3px;flex:none}
 .review-records-more{align-self:center}
 @media(max-width:640px){.review-search{margin-left:0;min-width:0;width:100%}.review-record-days>li{grid-template-columns:minmax(0,1fr);gap:8px;padding:14px}.review-record{grid-template-columns:minmax(0,1fr);gap:2px}}
+.review-goal-name>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Long totals (a year: '1628시간 30분') stay on one line; phones shrink them a little instead of wrapping. */
+.review-kpis dd{white-space:nowrap}
+@media(max-width:640px){.review-kpis dd{font-size:clamp(16px,5vw,22px)}}

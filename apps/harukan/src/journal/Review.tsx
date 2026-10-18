@@ -89,7 +89,7 @@ export function Review({tab,date,days,items,today,demo,onDate,onReplan}:{tab:'su
    <article className="review-card full">
     <h3>{pair('목표','Goals')}<small>{pair(`계획한 날 ${activeDays}/${allDays}일 · 목표 없음 ${duration(unlinked)}`,`${activeDays}/${allDays} days planned · ${duration(unlinked)} without a goal`)}</small></h3>
     {progress.length?<ul className="review-goals">{progress.map(({goal,done,total,value,before:then})=><li key={goal.id} style={{'--goal':tagColor(goal.id)} as React.CSSProperties}>
-     <span className="review-goal-name"><i/>{goal.title}</span>
+     <span className="review-goal-name" title={goal.title}><i/><span>{goal.title}</span></span>
      <span className="review-goal-time"><b>{duration(value)}</b><small>{percent(value,planned)}%</small></span>
      {hadBefore&&<small className="review-goal-delta">{value===then?pair(`${unit}와 같아요`,`same as ${unit}`):<>{value>then?<TrendingUp size={13}/>:<TrendingDown size={13}/>}{pair(`${unit}보다 ${duration(Math.abs(value-then))} ${value>then?'더':'덜'}`,`${duration(Math.abs(value-then))} ${value>then?'more':'less'} than ${unit}`)}</>}</small>}
      <span className="review-goal-steps"><small>{pair('세부 계획','Steps')}</small><span className="review-track"><i style={{width:`${percent(done,total)}%`}}/></span><b>{done}/{total}</b></span>
@@ -97,8 +97,8 @@ export function Review({tab,date,days,items,today,demo,onDate,onReplan}:{tab:'su
    </article>
 
    <article className="review-card full">
-    <h3>{span==='year'?pair('달마다 계획한 시간','Planned per month'):pair('하루하루 언제 무엇을','Each day, what and when')}<small>{span==='year'?'':pair('누르면 그날로 가요','tap a day to open it')}</small></h3>
-    {span==='year'?<div className="review-bars" role="list">{rhythm.map(b=>{const text=`${b.full} · ${b.total?duration(b.total):pair('일정 없음','nothing planned')}`;return <button key={b.key} role="listitem" className={b.from<=today&&today<=b.to?'today':undefined} title={text} aria-label={text} onClick={()=>{setSpan('month');onDate(b.from,'review');}}><em>{b.total?pair(`${Math.round(b.total/60)}시간`,`${Math.round(b.total/60)}h`):''}</em><span className="review-bar" style={{height:`${b.total/rhythmPeak*100}%`}}/><small>{b.name}</small></button>;})}</div>
+    <h3>{span==='year'?pair('달마다 계획한 시간 (시간)','Planned per month (hours)'):pair('하루하루 언제 무엇을','Each day, what and when')}<small>{span==='year'?'':pair('누르면 그날로 가요','tap a day to open it')}</small></h3>
+    {span==='year'?<div className="review-bars" role="list">{rhythm.map(b=>{const text=`${b.full} · ${b.total?duration(b.total):pair('일정 없음','nothing planned')}`;return <button key={b.key} role="listitem" className={b.from<=today&&today<=b.to?'today':undefined} title={text} aria-label={text} onClick={()=>{setSpan('month');onDate(b.from,'review');}}><em>{b.total?Math.round(b.total/60):''}</em><span className="review-bar" style={{height:`${b.total/rhythmPeak*100}%`}}/><small>{b.name}</small></button>;})}</div>
     :<div className={`review-days ${span}`} role="list">
      <div className="review-days-hours" aria-hidden="true"><span/><span className="review-day-track">{[0,6,12,18,24].map(h=><small key={h} style={{left:`${h/24*100}%`}}>{h}</small>)}</span><span/></div>
      {datesBetween(start,end).map(d=>{const dayPlans=plans.filter(p=>p.date===d),total=minutes(dayPlans),w=weekday(d),text=`${label(d,{month:'long',day:'numeric',weekday:'short'})} · ${total?duration(total):pair('일정 없음','nothing planned')}`;return <button key={d} role="listitem" className={`review-day${d===today?' today':''}${w===5?' sat':w===6?' sun':''}`} aria-label={text} title={text} onClick={()=>onDate(d,'day')}>
