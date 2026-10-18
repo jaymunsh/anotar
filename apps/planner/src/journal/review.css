@@ -7,7 +7,9 @@
 .review .segmented.review-span{width:auto}
 
 .review-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0}
-.review-kpis>div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.review-kpis{background:var(--surface);border-radius:8px;padding:16px 0}
+.review-kpis>div{padding:0 20px;display:flex;flex-direction:column;gap:4px;min-width:0;border-left:1px solid var(--line)}
+.review-kpis>div:first-child{border-left:0}
 .review-kpis dt{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
 .review-kpis dt i{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;color:var(--kpi);background:color-mix(in srgb,var(--kpi) 14%,transparent)}
 .review-kpis>div{--kpi:var(--action)}
@@ -16,10 +18,10 @@
 .review-delta{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted)}
 .review-headline{margin:0;font-size:17px;line-height:1.6;color:var(--ink)}
 .review-headline b{font-weight:700}
-.review-headline b[style]{box-shadow:inset 0 -.45em 0 color-mix(in srgb,var(--goal) 28%,transparent)}
+.review-goal-mark i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--goal);margin:0 5px 0 2px;vertical-align:middle}
 
 .review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
-.review-card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}
+.review-card{background:var(--surface);border-radius:8px;padding:18px 20px;min-width:0}
 .review-card.wide{grid-column:span 2}
 .review-card.full{grid-column:1/-1}
 .review-card h3{font-size:14px;margin:0 0 12px}
@@ -34,7 +36,8 @@
 .review-bars em{font-style:normal;font-size:11px;font-weight:600;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
 .review-bar{display:flex;flex-direction:column-reverse;gap:2px;min-height:0;border-radius:4px 4px 0 0;overflow:hidden}
 .review-bar i{display:block;min-height:2px}
-.review-bar i.unlinked,.review-day-track i.unlinked{background:color-mix(in srgb,var(--muted) 24%,transparent)}
+.review-bar{background:color-mix(in srgb,var(--action) 55%,var(--surface))}
+.review-day-track i.unlinked{background:color-mix(in srgb,var(--muted) 12%,var(--surface));box-shadow:none}
 .review-bars small{font-size:11px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden}
 .review-bars>button.today small{color:var(--ink);font-weight:700}
 
@@ -47,8 +50,8 @@
 .review-day-label small{font-size:10px}
 .review-day.sat .review-day-label{color:var(--sat)}.review-day.sun .review-day-label{color:var(--sun)}
 .review-day.today .review-day-label{color:var(--ink);font-weight:700}
-.review-day-track{position:relative;height:24px;border-radius:4px;background:var(--hover) repeating-linear-gradient(to right,transparent 0 calc(25% - 1px),var(--line) calc(25% - 1px) 25%)}
-.review-day-track i{position:absolute;top:0;bottom:0;border-radius:2px;box-shadow:0 0 0 1px var(--surface)}
+.review-day-track{position:relative;height:24px;border-radius:4px;background:repeating-linear-gradient(to right,transparent 0 calc(25% - 1px),var(--line) calc(25% - 1px) 25%);box-shadow:inset 0 0 0 1px var(--line)}
+.review-day-track i{position:absolute;top:2px;bottom:2px;border-radius:2px;background:color-mix(in srgb,var(--action) 40%,var(--surface));box-shadow:inset 3px 0 0 var(--goal)}
 .review-day-total{font-size:12px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .review-days-hours .review-day-track{height:14px;background:none}
 .review-days-hours small{position:absolute;transform:translateX(-50%);font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -58,18 +61,18 @@
 
 /* Goals: a tile each, shaped like the 계획 › 목표 cards — goal-colour top line, dot and count; time here is the big number. */
 .review-goals{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.review-goals li{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border:1px solid var(--line);border-top:3px solid var(--goal);border-radius:8px;min-width:0}
+.review-goals li{display:flex;flex-direction:column;gap:6px;padding:14px 16px;background:var(--canvas);border-radius:8px;min-width:0}
 .review-goal-name{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .review-goal-name i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--goal)}
 .review-goal-time{display:flex;align-items:baseline;gap:8px}
 .review-goal-time b{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
-.review-goal-time small{font-size:13px;font-weight:600;color:var(--goal)}
+.review-goal-time small{font-size:13px;font-weight:600;color:var(--muted)}
 .review-goal-delta{display:flex;align-items:center;gap:4px;min-height:16px;color:var(--muted);font-size:11px}
 .review-goal-steps{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;margin-top:4px}
 .review-goal-steps small{font-size:11px;color:var(--muted)}
-.review-goal-steps b{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--goal)}
+.review-goal-steps b{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
 .review-track{height:6px;border-radius:3px;background:var(--hover);overflow:hidden}
-.review-track i{display:block;height:100%;border-radius:3px;background:var(--goal,var(--line-strong))}
+.review-track i{display:block;height:100%;border-radius:3px;background:var(--action)}
 
 .review-missed .journal-review-row{padding:10px 0 10px 12px;min-height:0;gap:8px;border-left:3px solid var(--goal,var(--line-strong))}
 .review-notes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
@@ -78,4 +81,4 @@
 .review-notes p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .review-more>summary{padding:8px 0;font-size:12px;color:var(--action);cursor:pointer}
 
-@media(max-width:640px){.review-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.review-kpis dd{font-size:22px}.review-grid{grid-template-columns:minmax(0,1fr)}.review-headline{font-size:15px}.review-goals{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.review-goals li{padding:12px}.review-goal-time b{font-size:18px;white-space:nowrap}.review-goal-time{flex-wrap:wrap;gap:0 6px}.review-bars{height:140px;gap:3px}.review-bars em{font-size:9px}.review-days>div,.review-day{grid-template-columns:34px minmax(0,1fr) 64px;gap:8px}.review-head h2{flex-basis:100%;order:-1}}
+@media(max-width:640px){.review-kpis{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:16px}.review-kpis>div:nth-child(3){border-left:0}.review-kpis dd{font-size:22px}.review-grid{grid-template-columns:minmax(0,1fr)}.review-headline{font-size:15px}.review-goals{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.review-goals li{padding:12px}.review-goal-time b{font-size:18px;white-space:nowrap}.review-goal-time{flex-wrap:wrap;gap:0 6px}.review-bars{height:140px;gap:3px}.review-bars em{font-size:9px}.review-days>div,.review-day{grid-template-columns:34px minmax(0,1fr) 64px;gap:8px}.review-head h2{flex-basis:100%;order:-1}}
