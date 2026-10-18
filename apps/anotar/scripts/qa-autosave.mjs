@@ -1,224 +1,180 @@
 import assert from 'node:assert/strict';
-import { build } from 'esbuild';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { offlineApp, waitForAsync } from './fixtures/offline-app.mjs';
-const app = await offlineApp(),
+import { qaApp } from './fixtures/qa-app.mjs';
+
+// 온라인 전용 자동저장 검증(2026-10-19 로컬 우선 동기화 제거 후).
+// 실제 페이지 편집기에서 디바운스 저장(PUT /api/pages/:id), 연속 입력 중 주기적 전송,
+// 네트워크 실패 재시도, 409 충돌 처리, hidden/pagehide flush를 확인한다.
+const app = await qaApp(),
   evidence = '.omo/evidence/autosave',
   report = { checks: [], measurements: {} };
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-async function until(predicate) {
-  const end = Date.now() + 5000;
-  while (Date.now() < end) {
-    if (await predicate()) return;
-    await pause(30);
-  }
-  throw Error('operation not observed');
+
+async function waitState(page, needle, timeout = 15000) {
+  await page.waitForFunction(
+    (text) => document.querySelector('.page-save-state')?.textContent?.includes(text),
+    needle,
+    { timeout },
+  );
 }
+
 try {
-  const context = await app.browser.newContext(),
-    page = await context.newPage(),
-    requests = [];
-  page.on('request', (r) => {
-    if (r.url().endsWith('/api/sync/operations')) requests.push(r.postDataJSON());
-  });
+  // 1) 디바운스: 빠른 입력은 서버로 매 글자 전송하지 않고 합쳐 저장한다.
   const { item: fixturePage } = await app.request('/api/pages', { title: 'autosave fixture' });
+  const context = await app.browser.newContext({ viewport: { width: 1280, height: 1000 } });
+  const page = await context.newPage();
+  const puts = [];
+  page.on('request', (r) => {
+    if (r.method() === 'PUT' && r.url().includes('/api/pages/' + fixturePage.id))
+      puts.push(JSON.parse(r.postData() || '{}').title);
+  });
   await page.goto(app.base + '/pages/' + fixturePage.id);
   const title = page.getByLabel('페이지 제목', { exact: true });
   await title.waitFor();
-  await pause(500);
-  await waitForAsync(page, () =>
-    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
-  );
-  const text = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX';
-  const start = requests.length;
-  await title.fill('');
-  await title.pressSequentially(text, { delay: 35 });
-  assert.equal(
-    requests.slice(start).filter((r) => r.kind === 'page.update').length,
-    0,
-    'text is not sent on every input',
-  );
-  await pause(1200);
-  await waitForAsync(page, () =>
-    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
-  );
-  await pause(300);
-  const typed = requests.slice(start).filter((r) => r.kind === 'page.update');
-  assert.equal(typed.length, 1);
-  assert.equal(typed.at(-1).payload.title, text);
-  report.measurements.rapidPageTyping = { inputEvents: text.length, serverOperations: typed.length };
-  report.checks.push('real page UI: rapid title typing combines into one latest server operation');
+  await waitState(page, '저장됨');
 
-  const continuousStart = requests.length,
-    time = Date.now();
+  const text = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX';
+  const before = puts.length;
+  await title.fill('');
+  await title.pressSequentially(text, { delay: 30 });
+  assert.ok(
+    puts.length - before < text.length,
+    'rapid typing must not send one server write per keystroke',
+  );
+  await waitState(page, '저장됨');
+  await pause(300);
+  assert.equal(puts.at(-1), text, 'the latest typed value is the one persisted');
+  const serverAfterTyping = (await (await fetch(app.base + '/api/pages/' + fixturePage.id)).json())
+    .item.title;
+  assert.equal(serverAfterTyping, text);
+  report.measurements.rapidTyping = { inputEvents: text.length, serverWrites: puts.length - before };
+  report.checks.push('real page editor: rapid title typing coalesces into few writes with the latest value');
+
+  // 2) 연속 입력: 입력이 끝나기 전에도 주기적으로 저장하고, 최종 값이 보존된다.
+  const continuousStart = puts.length;
+  const startTime = Date.now();
   for (let i = 1; i <= 30; i++) {
     await title.fill('continuous ' + i);
     await pause(200);
   }
-  assert.ok(requests.length > continuousStart, 'max wait dispatches before typing stops');
-  const firstOp = requests.slice(continuousStart).find((r) => r.kind === 'page.update');
-  assert.ok(firstOp && firstOp.payload.title !== 'continuous 30');
-  await pause(1200);
-  await waitForAsync(page, () =>
-    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
-  );
+  assert.ok(puts.length > continuousStart, 'continuous typing dispatches periodically before it stops');
+  await waitState(page, '저장됨');
   await pause(300);
   assert.equal(
-    requests.filter((r) => r.kind === 'page.update').at(-1).payload.title,
+    (await (await fetch(app.base + '/api/pages/' + fixturePage.id)).json()).item.title,
     'continuous 30',
   );
   report.measurements.continuousTyping = {
-    durationMs: Date.now() - time,
-    serverOperations: requests.slice(continuousStart).filter((r) => r.kind === 'page.update').length,
+    durationMs: Date.now() - startTime,
+    serverWrites: puts.length - continuousStart,
   };
-  report.checks.push(
-    'real page UI: continuous typing dispatches at max wait and preserves final value',
-  );
+  report.checks.push('real page editor: continuous typing keeps saving and preserves the final value');
 
-  await page.evaluate(async () => {
-    await navigator.serviceWorker.ready;
+  // 3) hidden/pagehide flush: 디바운스를 기다리지 않고 바로 저장한다.
+  await title.fill('flush before hidden');
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
+    document.dispatchEvent(new Event('visibilitychange'));
   });
-  await context.setOffline(true);
-  await title.fill('offline durable title');
-  await pause(250);
-  await page.reload();
-  await title.waitFor();
-  await until(async () => (await title.inputValue()) === 'offline durable title');
-  assert.equal(await title.inputValue(), 'offline durable title');
-  await context.setOffline(false);
-  await waitForAsync(page, () =>
-    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
-  );
+  for (let i = 0; i < 100; i++) {
+    if ((await (await fetch(app.base + '/api/pages/' + fixturePage.id)).json()).item.title === 'flush before hidden')
+      break;
+    await pause(50);
+  }
   assert.equal(
-    requests.filter((r) => r.kind === 'page.update').at(-1).payload.title,
-    'offline durable title',
+    (await (await fetch(app.base + '/api/pages/' + fixturePage.id)).json()).item.title,
+    'flush before hidden',
+    'visibility hidden flushes the pending edit immediately',
   );
-  report.checks.push('offline edit survives reload and reconnect');
-
-  await title.fill('navigation flush');
-  await page.locator('a[href="/tasks"]').first().click();
-  await pause(350);
-  await page.goto(app.base + '/pages/' + fixturePage.id);
-  await title.waitFor();
-  await until(async () => (await title.inputValue()) === 'navigation flush');
-  assert.equal(await title.inputValue(), 'navigation flush');
-  report.checks.push('navigation retains the latest page value');
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await title.fill('flush on pagehide');
+  await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
+  for (let i = 0; i < 100; i++) {
+    if ((await (await fetch(app.base + '/api/pages/' + fixturePage.id)).json()).item.title === 'flush on pagehide')
+      break;
+    await pause(50);
+  }
+  assert.equal(
+    (await (await fetch(app.base + '/api/pages/' + fixturePage.id)).json()).item.title,
+    'flush on pagehide',
+    'pagehide flushes the pending edit immediately',
+  );
+  report.checks.push('visibility hidden and pagehide flush pending edits without waiting for the debounce');
   await context.close();
 
-  // Exercise queue races directly in an isolated browser, never user data.
-  const bundle = await build({
-    stdin: {
-      contents:
-        "import * as runtime from './src/sync/runtime.ts';import * as repo from './src/sync/repository.ts';window.fixture={...runtime,...repo};",
-      resolveDir: process.cwd(),
-    },
-    bundle: true,
-    write: false,
-    format: 'iife',
-    platform: 'browser',
-  });
-  const isolated = await app.browser.newContext(),
-    q = await isolated.newPage();
-  await q.route(app.base + '/autosave-fixture', (r) =>
-    r.fulfill({ contentType: 'text/html', body: '<!doctype html><body>queue fixture</body>' }),
+  // 4) 네트워크 실패 재시도: 저장 실패 배너에서 다시 시도하면 입력 그대로 다시 저장된다.
+  const { item: failPage } = await app.request('/api/pages', { title: 'fail fixture' });
+  const failContext = await app.browser.newContext({ viewport: { width: 1280, height: 1000 } });
+  const fp = await failContext.newPage();
+  await fp.goto(app.base + '/pages/' + failPage.id);
+  const failTitle = fp.getByLabel('페이지 제목', { exact: true });
+  await failTitle.waitFor();
+  await waitState(fp, '저장됨');
+  await fp.route('**/api/pages/' + failPage.id, (route) =>
+    route.request().method() === 'PUT' ? route.abort() : route.continue(),
   );
-  await q.goto(app.base + '/autosave-fixture');
-  await q.addScriptTag({ content: bundle.outputFiles[0].text });
-  const safety = await q.evaluate(async () => {
-    const f = fixture,
-      r = await f.getWorkspaceRuntime();
-    await r.engine.requestSync();
-    r.engine.stop();
-    let lease;
-    for (let attempt = 0; attempt < 100 && !lease; attempt++) {
-      lease = await r.repository.acquireLease('autosave-test', Date.now());
-      if (!lease) await new Promise((resolve) => setTimeout(resolve, 50));
-    }
-    if (!lease) throw Error('test lease was not released');
-    const id = crypto.randomUUID(),
-      now = new Date().toISOString(),
-      base = {
-        id,
-        title: 'queue race',
-        icon: '',
-        parentId: null,
-        position: Date.now(),
-        version: 1,
-        createdAt: now,
-        updatedAt: now,
-        document: {
-          schemaVersion: 1,
-          blocks: [
-            { id: crypto.randomUUID(), type: 'paragraph', props: {}, content: [], children: [] },
-          ],
-        },
-      };
-    const save = async (title) =>
-      f.queueValue(
-        'page',
-        id,
-        { ...base, title },
-        crypto.randomUUID(),
-        [],
-        [],
-        true,
-        0,
-        undefined,
-        undefined,
-        true,
-      );
-    const head = async () =>
-      (await f.listRecords('outbox', r.workspaceId)).find((p) => p.operation.entityId === id);
-    await save('first');
-    const old = await head();
-    await save('latest unsent');
-    const latest = await head();
-    const staleClaim = await r.repository.markSending(old, lease);
-    const freshClaim = await r.repository.markSending(latest, lease);
-    await save('new while sending');
-    const sending = await head();
-    await r.repository.reject(sending, 'queued', Error('response lost'), 0, lease);
-    await save('new while retrying');
-    const retry = await head();
-    await r.repository.markSending(retry, lease);
-    const item = { ...base, title: latest.operation.payload.title };
-    await r.repository.acknowledge(
-      retry,
-      {
-        status: 'applied',
-        operationId: retry.operation.operationId,
-        item,
-        version: 1,
-        replayed: true,
-      },
-      lease,
-    );
-    const follow = await head(),
-      entity = await f.readLocalEntity({ workspaceId: r.workspaceId, kind: 'page', id });
-    await r.repository.releaseLease(lease);
-    return { old, latest, staleClaim, freshClaim, sending, retry, follow, entity };
-  });
-  assert.equal(safety.old.operation.operationId, safety.latest.operation.operationId);
-  assert.equal(safety.latest.operation.payload.title, 'latest unsent');
-  assert.equal(safety.staleClaim, false);
-  assert.equal(safety.freshClaim, true);
-  assert.deepEqual(safety.sending.operation, safety.latest.operation);
-  assert.deepEqual(safety.retry.operation, safety.latest.operation);
-  assert.equal(safety.retry.attempt, 1);
-  assert.notEqual(safety.follow.operation.operationId, safety.retry.operation.operationId);
-  assert.equal(safety.follow.operation.baseVersion, 1);
-  assert.equal(safety.follow.operation.payload.title, 'new while retrying');
-  assert.equal(safety.entity.current.title, 'new while retrying');
-  assert.equal(safety.entity.dirty, true);
-  report.checks.push(
-    'only unsent snapshots coalesce; stale atomic claim rejected; sending/retry UUID and payload immutable; late ACK emits latest correctly versioned follow-up',
+  await failTitle.fill('실패해도 남는 제목');
+  await waitState(fp, '저장 못 함');
+  const errorBanner = fp.locator('.page-banner-error');
+  assert.equal(await errorBanner.count(), 1, 'a save failure shows the error banner');
+  assert.equal(
+    await failTitle.inputValue(),
+    '실패해도 남는 제목',
+    'the input stays intact while saving fails',
   );
-  await isolated.close();
+  await fp.unroute('**/api/pages/' + failPage.id);
+  await errorBanner.getByRole('button', { name: /다시 시도/ }).click();
+  await waitState(fp, '저장됨');
+  assert.equal(
+    (await (await fetch(app.base + '/api/pages/' + failPage.id)).json()).item.title,
+    '실패해도 남는 제목',
+    'retry re-sends the kept input and the server stores it',
+  );
+  report.checks.push('network failure keeps the input and the retry button re-saves it successfully');
+  await failContext.close();
+
+  // 5) 409 충돌: 다른 곳에서 먼저 바뀌면 배너로 알리고 작성 중 내용을 유지한다.
+  const { item: conflictPage } = await app.request('/api/pages', { title: 'conflict fixture' });
+  const conflictContext = await app.browser.newContext({ viewport: { width: 1280, height: 1000 } });
+  const cp = await conflictContext.newPage();
+  await cp.goto(app.base + '/pages/' + conflictPage.id);
+  const conflictTitle = cp.getByLabel('페이지 제목', { exact: true });
+  await conflictTitle.waitFor();
+  await waitState(cp, '저장됨');
+  // 서버를 먼저 바꿔 버전을 올린다.
+  const current = (await (await fetch(app.base + '/api/pages/' + conflictPage.id)).json()).item;
+  await app.request(
+    '/api/pages/' + conflictPage.id,
+    { title: '서버가 먼저 바꾼 제목', icon: '', document: current.document, expectedVersion: current.version },
+    'PUT',
+  );
+  await conflictTitle.fill('내 창의 변경');
+  await waitState(cp, '다른 곳에서 바뀜');
+  const conflictBanner = cp.locator('.page-banner-error');
+  assert.match(
+    await conflictBanner.textContent(),
+    /다른 곳에서 바뀌었어요\./,
+    'conflict banner explains the remote change',
+  );
+  for (const name of ['서버 내용 불러오기', '내 내용 복사', '내 내용으로 덮어쓰기'])
+    assert.equal(await conflictBanner.getByRole('button', { name }).count(), 1, `conflict offers ${name}`);
+  assert.equal(await conflictTitle.inputValue(), '내 창의 변경', 'my unsaved edit stays in the window');
+  // '내 내용으로 덮어쓰기'로 서버 최신 버전 위에 다시 저장한다.
+  await conflictBanner.getByRole('button', { name: '내 내용으로 덮어쓰기' }).click();
+  await waitState(cp, '저장됨');
+  assert.equal(
+    (await (await fetch(app.base + '/api/pages/' + conflictPage.id)).json()).item.title,
+    '내 창의 변경',
+    'overwrite re-saves my content against the latest server version',
+  );
+  report.checks.push('409 conflict banner preserves the draft and overwrite resaves onto the latest version');
+  await conflictContext.close();
+
   await mkdir(evidence, { recursive: true });
-  await writeFile(
-    evidence + '/result.json',
-    JSON.stringify({ status: 'PASS', ...report }, null, 2),
-  );
+  await writeFile(evidence + '/result.json', JSON.stringify({ status: 'PASS', ...report }, null, 2));
   console.log(JSON.stringify({ status: 'PASS', ...report }, null, 2));
 } finally {
   await app.close();

@@ -9,6 +9,11 @@ import { chromium } from 'playwright-core';
 import { openStore } from '../server/store.mjs';
 import { createAuthenticator } from '../server/auth/service.mjs';
 import { totp } from '../server/auth/crypto.mjs';
+
+// 온라인 전용 개인 인증(2026-10-19 로컬 우선 동기화 제거 후).
+// 인증은 유지 기능이다: 잠긴 상태는 로그인 화면으로 가리고, 로그인한 뒤 저장할 수 있다.
+// 저장 중 401이 나면 입력을 유지하고, 다시 로그인하면 같은 입력이 한 번만 저장된다.
+// 예전 기기 저장·전송 대기(outbox)·'지금 동기화'는 더 이상 없다.
 const evidence = '.omo/evidence/private-auth';
 await mkdir(evidence, { recursive: true });
 const dir = await mkdtemp(join(tmpdir(), 'leneu-auth-ui-')),
@@ -48,7 +53,15 @@ const browser = await chromium.launch({
   headless: true,
 });
 const failures = [];
-let report = [];
+const report = [];
+// 잠긴 상태로 열어 로그인 화면을 보여준다.
+const lockedInit = () => {
+  try {
+    localStorage.setItem('leneu:auth-locked', 'true');
+  } catch {
+    /* 메모리 상태만으로도 이 탭은 잠긴다 */
+  }
+};
 try {
   for (let i = 0; i < 80; i++) {
     try {
@@ -56,6 +69,8 @@ try {
     } catch {}
     await new Promise((r) => setTimeout(r, 100));
   }
+
+  // 1) 잠긴 상태의 로그인 화면은 앱 셸을 가리고 어떤 뷰포트·테마에서도 넘치지 않는다.
   for (const [width, theme] of [
     [1440, 'light'],
     [390, 'light'],
@@ -64,158 +79,85 @@ try {
   ]) {
     const ctx = await browser.newContext({ viewport: { width, height: 900 }, colorScheme: theme });
     const page = await ctx.newPage();
-    page.setDefaultTimeout(7000);
+    page.setDefaultTimeout(8000);
     page.on('pageerror', (e) => failures.push(e.message));
+    await page.addInitScript(lockedInit);
     await page.goto(base);
-    await page.getByLabel('비밀번호', { exact: true }).waitFor({ timeout: 3000 });
+    await page.getByLabel('비밀번호', { exact: true }).waitFor();
     assert.equal(
-      await page.locator('.app-shell').count(),
+      await page.locator('.app-shell:visible').count(),
       0,
-      'private app must not initialize before first login',
+      'the locked login screen must hide the private workspace',
     );
-    assert.equal(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-      true,
-    );
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     await page.screenshot({ path: `${evidence}/login-${width}-${theme}.png`, fullPage: true });
     await ctx.close();
   }
-  const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
-    page = await ctx.newPage();
+  report.push('locked login screen at 1440/390/320 in light/dark hides the workspace without overflow');
+
+  // 2) 비밀번호+TOTP 로그인(이 브라우저 기억)으로 앱에 들어간다.
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  const page = await ctx.newPage();
   page.setDefaultTimeout(12000);
   page.on('pageerror', (e) => failures.push(e.message));
+  await page.addInitScript(lockedInit);
   await page.goto(base);
   await page.getByLabel('비밀번호', { exact: true }).fill('UI fixture private password!');
   await page.getByLabel('인증 코드', { exact: true }).fill(totp(secret));
   await page.getByLabel('이 브라우저를 30일 동안 기억하기').check();
   await page.getByRole('button', { name: '로그인', exact: true }).click();
-  await page.getByRole('button', { name: '동기화 상태', exact: true }).waitFor();
-  await page.waitForFunction(() =>
-    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
-  );
-  // Locate the existing quick memo textarea without relying on placeholder copy.
-  const memo = page.locator('textarea').first();
-  await memo.fill('인증이 만료되어도 남아야 하는 입력 초안');
-  // Preserve existing IndexedDB and drafts while forcing server cookie expiration.
+  await page.waitForFunction(() => !document.querySelector('.auth-screen'));
+  await page.getByRole('button', { name: '작성 메뉴 열기', exact: true }).waitFor();
+  report.push('password + TOTP login with remembered browser unlocks the workspace');
+
+  // 3) 인증 만료(쿠키 삭제) 중 저장 시도는 입력을 유지하고 로그인 안내를 보여준다.
+  const openMemo = async () => {
+    const existing = page.getByRole('textbox', { name: '메모 내용', exact: true });
+    if (await existing.isVisible().catch(() => false)) return existing;
+    await page.getByRole('button', { name: '작성 메뉴 열기', exact: true }).click();
+    await page
+      .getByRole('dialog', { name: '새로 작성' })
+      .getByRole('button', { name: '빠른 메모', exact: true })
+      .click();
+    await existing.waitFor();
+    return existing;
+  };
+  const memo = await openMemo();
+  await memo.fill('인증이 만료되어도 남아야 하는 입력');
   await ctx.clearCookies();
-  await page.getByRole('button', { name: '동기화 상태', exact: true }).click();
-  await page.getByRole('button', { name: '지금 동기화', exact: true }).click();
+  await page.getByRole('button', { name: '저장', exact: true }).first().click();
+  // 저장이 401로 실패하면 다시 로그인하라는 안내를 보여주고 입력은 그대로 둔다.
+  await page.getByText('다시 로그인해 주세요. 기기에 저장한 글은 유지돼요.', { exact: false }).waitFor();
+  assert.equal(await memo.inputValue(), '인증이 만료되어도 남아야 하는 입력', 'the input survives the 401');
+  // 앱은 연결 복구 시 인증을 다시 확인한다. 그때 재로그인 안내가 사이드바에 뜬다.
+  await page.evaluate(() => window.dispatchEvent(new Event('online')));
   await page.locator('.auth-expiry').waitFor();
-  assert.equal(await memo.inputValue(), '인증이 만료되어도 남아야 하는 입력 초안');
-  await page.getByRole('button', { name: '동기화 상태 닫기' }).click();
-  // Saving while authentication is unavailable keeps a durable operation and attachment locally.
-  await memo.fill('인증 대기 중 저장한 메모');
-  await page.locator('input[type=file]').setInputFiles({
-    name: 'auth-offline.txt',
-    mimeType: 'text/plain',
-    buffer: Buffer.from('auth queue exact bytes'),
-  });
-  await page.getByText('첨부 임시저장 중…', { exact: true }).waitFor({ state: 'hidden' });
-  await page.getByRole('button', { name: '저장', exact: true }).click();
-  await page.getByText('기기에 저장했어요. 연결되면 동기화해요.', { exact: true }).waitFor();
-  const pending = await page.evaluate(async () => {
-    const db = await new Promise((resolve, reject) => {
-      const r = indexedDB.open('leneu-offline-v1', 2);
-      r.onsuccess = () => resolve(r.result);
-      r.onerror = () => reject(r.error);
-    });
-    const items = await new Promise((resolve, reject) => {
-      const r = db.transaction('outbox').objectStore('outbox').getAll();
-      r.onsuccess = () => resolve(r.result);
-      r.onerror = () => reject(r.error);
-    });
-    db.close();
-    return items.find((p) => p.operation.kind === 'capture.create' && p.state !== 'acked')
-      ?.operation;
-  });
-  assert.ok(pending, 'capture must remain in the outbox');
-  const originalUUID = pending.operationId;
-  assert.ok(originalUUID);
-  await memo.fill('인증이 만료되어도 남아야 하는 입력 초안');
+  assert.match(
+    await page.locator('.auth-expiry').innerText(),
+    /로그인이 필요해요\. 로그인한 뒤 저장할 수 있고/,
+  );
+  assert.equal(await memo.inputValue(), '인증이 만료되어도 남아야 하는 입력', 'the re-login notice keeps the input');
+  report.push('a 401 save shows the re-login message, keeps the input, and surfaces the re-login notice on reconnect');
+
+  // 4) 안내의 '로그인'으로 다시 로그인하면(복구 코드 사용) 입력이 그대로 남고 한 번만 저장된다.
+  // 빠른 기록 다이얼로그는 모달이라 사이드바 안내를 가린다. 닫아도 초안은 그대로 남는다.
+  await page.getByRole('button', { name: '입력 닫기', exact: true }).click();
   await page.locator('.auth-expiry').getByRole('button', { name: '로그인', exact: true }).click();
   await page.getByLabel('비밀번호', { exact: true }).fill('UI fixture private password!');
   await page.getByRole('button', { name: '복구 코드 사용' }).click();
   await page.getByLabel('복구 코드', { exact: true }).fill(recovery.recoveryCodes[0]);
   await page.locator('.auth-dialog').getByRole('button', { name: '로그인', exact: true }).click();
   await page.waitForFunction(() => !document.querySelector('.auth-dialog'));
-  assert.equal(await memo.inputValue(), '인증이 만료되어도 남아야 하는 입력 초안');
-  await page.waitForFunction(() =>
-    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
-  );
+  const resumed = await openMemo();
+  assert.equal(await resumed.inputValue(), '인증이 만료되어도 남아야 하는 입력', 'the draft is restored after re-login');
+  await page.getByRole('button', { name: '저장', exact: true }).first().click();
+  await page.getByText('보관함에 저장했어요', { exact: true }).waitFor();
   const saved = await (await ctx.request.get(base + '/api/captures')).json();
-  assert.equal(saved.items.length, 1);
-  assert.equal(saved.items[0].text, '인증 대기 중 저장한 메모');
-  assert.equal(
-    await (await ctx.request.get(base + '/api/assets/' + saved.items[0].files[0].id)).text(),
-    'auth queue exact bytes',
-  );
-  const acknowledged = await page.evaluate(async () => {
-    const db = await new Promise((resolve) => {
-      const r = indexedDB.open('leneu-offline-v1', 2);
-      r.onsuccess = () => resolve(r.result);
-    });
-    const rows = await new Promise((resolve) => {
-      const r = db.transaction('meta').objectStore('meta').getAll();
-      r.onsuccess = () => resolve(r.result);
-    });
-    db.close();
-    return rows.filter((p) => p.result).map((p) => p.result.operationId);
-  });
-  assert.ok(
-    acknowledged.includes(originalUUID),
-    're-login must acknowledge the identical operation UUID',
-  );
-  await page.getByRole('button', { name: '설정 열기', exact: true }).click();
-  await page.getByRole('button', { name: '보안', exact: true }).click();
-  await page.getByText('현재 브라우저', { exact: true }).first().waitFor();
-  // A recovery login must also be able to revoke a lost browser without its Authenticator.
-  await page.getByRole('button', { name: '복구 코드로 확인', exact: true }).click();
-  await page
-    .getByLabel('로그아웃 확인용 복구 코드', { exact: true })
-    .fill(recovery.recoveryCodes[1]);
-  await page.getByRole('button', { name: '내 브라우저 로그아웃', exact: true }).click();
-  await page.waitForFunction(() => document.querySelectorAll('.security-devices li').length === 1);
-  await page.screenshot({ path: `${evidence}/security-desktop.png` });
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.evaluate(() => (document.documentElement.dataset.theme = 'dark'));
-  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-  await page.screenshot({ path: `${evidence}/security-mobile-dark.png` });
-  const second = await ctx.newPage();
-  second.on('pageerror', (e) => failures.push(e.message));
-  await second.goto(base);
-  await second.getByRole('button', { name: '설정 열기', exact: true }).click();
-  await second.locator('dialog:modal').waitFor();
-  await page.getByRole('button', { name: '이 브라우저 로그아웃', exact: true }).click();
-  await page.getByLabel('비밀번호', { exact: true }).waitFor();
-  assert.equal(
-    await page.locator('dialog:modal').count(),
-    0,
-    'logout must close hidden native modals',
-  );
-  await page.getByLabel('비밀번호', { exact: true }).click();
-  await page.getByLabel('비밀번호', { exact: true }).fill('UI fixture private password!');
-  assert.equal(
-    await page.getByLabel('비밀번호', { exact: true }).inputValue(),
-    'UI fixture private password!',
-  );
-  assert.equal(
-    await page.evaluate(() => document.querySelector('textarea')?.value),
-    '인증이 만료되어도 남아야 하는 입력 초안',
-  );
-  await second.getByLabel('비밀번호', { exact: true }).waitFor();
-  assert.equal(
-    await second.locator('dialog:modal').count(),
-    0,
-    'other tab logout also closes native modal',
-  );
-  await second.getByLabel('비밀번호', { exact: true }).click();
-  await second.close();
-  await page.getByRole('button', { name: '복구 코드 사용', exact: true }).click();
-  await page.getByLabel('복구 코드', { exact: true }).fill(recovery.recoveryCodes[2]);
-  await page.getByRole('button', { name: '로그인', exact: true }).click();
-  await page.waitForFunction(() => !document.querySelector('.auth-screen'));
-  assert.equal(await memo.inputValue(), '인증이 만료되어도 남아야 하는 입력 초안');
-  await page.setViewportSize({ width: 1440, height: 1000 });
+  assert.equal(saved.items.length, 1, 're-login resumes the save exactly once');
+  assert.equal(saved.items[0].text, '인증이 만료되어도 남아야 하는 입력');
+  report.push('re-login restores the kept draft and stores it exactly once');
+
+  // 5) 보안 설정에서 로그아웃하면 잠기고, 새로고침해도 잠긴 로그인 화면이 유지된다.
   await page.getByRole('button', { name: '설정 열기', exact: true }).click();
   await page.getByRole('button', { name: '보안', exact: true }).click();
   await page.getByRole('button', { name: '이 브라우저 로그아웃', exact: true }).click();
@@ -227,9 +169,8 @@ try {
     0,
     'explicit logout stays locked after reload',
   );
-  report.push(
-    '1440/390/320px both themes; first-login gate; password+TOTP; remembered cookie;401 preserves mounted memo draft and exact attachment/UUID; queued save resumes once; recovery re-login resumes; security device list; recovery code revokes other device; logout closes current/other-tab native modals; immediate re-login retains draft; reload stays locked.',
-  );
+  report.push('security logout locks the workspace and the lock survives a reload');
+
   await ctx.close();
   assert.deepEqual(failures, []);
   await writeFile(`${evidence}/ui-report.txt`, report.join('\n') + '\n');

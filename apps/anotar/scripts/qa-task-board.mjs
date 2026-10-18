@@ -113,33 +113,38 @@ try {
     b.id,
   );
   await page.setViewportSize({ width: 1440, height: 900 });
-  // A remote failure preserves the local stage and shows pending instead of discarding an offline write.
-  await page.route('**/api/sync/operations', route => {
-    const op=route.request().postDataJSON();
-    return op.entityId===d.id ? route.fulfill({status:500,contentType:'application/json',body:JSON.stringify({error:'fixture unavailable'})}) : route.continue();
+  // 온라인 전용: 저장 실패 시 카드는 서버 상태로 되돌아가고 '다시 시도'가 뜬다(오프라인 큐 대신).
+  await page.route(`**/api/tasks/${d.id}`, route => {
+    return route.request().method() === 'PATCH'
+      ? route.fulfill({status:500,contentType:'application/json',body:JSON.stringify({error:'fixture unavailable'})})
+      : route.continue();
   });
   await row(d.id).dragTo(column('doing'));
-  await column('doing').locator(`[data-task-id="${d.id}"]`).waitFor();
-  await page.waitForFunction(()=>document.querySelector('.sync-status')?.textContent.includes('대기'));
+  await row(d.id).locator('.task-error').getByRole('button',{name:'다시 시도',exact:true}).waitFor();
+  // 실패한 이동은 서버에 반영되지 않고 카드도 원래 칸(todo)으로 돌아간다.
   assert.equal((await api('/api/tasks/' + d.id)).item.stage,'todo');
-  await page.unroute('**/api/sync/operations');
-  await page.getByRole('button',{name:'동기화 상태',exact:true}).click();
-  await page.getByRole('button',{name:'지금 동기화',exact:true}).click();
+  await column('todo').locator(`[data-task-id="${d.id}"]`).waitFor();
+  await page.unroute(`**/api/tasks/${d.id}`);
+  await row(d.id).locator('.task-error').getByRole('button',{name:'다시 시도',exact:true}).click();
   await waitStage(d.id,'doing');
-  await page.getByRole('button',{name:'동기화 상태 닫기',exact:true}).click();
+  await column('doing').locator(`[data-task-id="${d.id}"]`).waitFor();
   await page.reload({waitUntil:'networkidle'});
   await column('doing').locator(`[data-task-id="${d.id}"]`).waitFor();
-  // Concurrent server changes preserve both copies and stop this entity's operation.
+  // 다른 곳에서 먼저 바뀌면(409) 양쪽 사본을 보존하고 이 항목의 이동을 멈춘다.
   let remoteChanged=false;
-  await page.route('**/api/sync/operations', async route => {
-    const op=route.request().postDataJSON();
-    if(op.entityId===d.id&&!remoteChanged){remoteChanged=true;const remote=(await api('/api/tasks/'+d.id)).item;await api('/api/tasks/'+d.id,{title:'다른 탭에서 수정한 준비',expectedVersion:remote.version},'PATCH');}
+  await page.route(`**/api/tasks/${d.id}`, async route => {
+    if(route.request().method()==='PATCH'&&!remoteChanged){
+      remoteChanged=true;
+      const remote=(await api('/api/tasks/'+d.id)).item;
+      await api('/api/tasks/'+d.id,{title:'다른 탭에서 수정한 준비',expectedVersion:remote.version},'PATCH');
+    }
     await route.continue();
   });
   await row(d.id).dragTo(column('done'));
-  await page.waitForFunction(()=>document.querySelector('.sync-status')?.textContent.includes('변경 확인 필요'));
+  await row(d.id).locator('.task-error').waitFor();
+  // 409 거절로 서버 stage는 done으로 바뀌지 않고 doing에 그대로 있다.
   assert.equal((await api('/api/tasks/'+d.id)).item.stage,'doing');
-  await page.unroute('**/api/sync/operations');
+  await page.unroute(`**/api/tasks/${d.id}`);
   // Remaining board regression cases use another healthy entity; resolution UI is verified by conflict QA.
   await api('/api/tasks/'+d.id,{stage:'done',expectedVersion:(await api('/api/tasks/'+d.id)).item.version},'PATCH');
   await page.getByRole('button', { name: '목록', exact: true }).click();
@@ -163,15 +168,17 @@ try {
   for (let i = 0; i < 11; i++) await create('완료 기록 ' + i, 'done');
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForFunction(()=>document.querySelectorAll('[data-task-stage="todo"] .task-row').length===20);
+  // 완료 칸은 최근 5개를 미리 보여주고(DONE_PREVIEW) '이전 완료 보기'로 불러온 10개까지 펼친다.
+  await page.waitForFunction(()=>document.querySelectorAll('[data-task-stage="done"] .task-row').length===5);
   assert.equal(await column('todo').locator('.task-row').count(), 20);
-  assert.equal(await column('done').locator('.task-row').count(), 10);
+  assert.equal(await column('done').locator('.task-row').count(), 5);
   await column('todo').getByRole('button', { name: '더 보기', exact: true }).click();
   await page.waitForFunction(
     () => document.querySelectorAll('[data-task-stage="todo"] .task-row').length === 24,
   );
-  await column('done').getByRole('button', { name: '이전 완료 보기', exact: true }).click();
+  await column('done').getByRole('button', { name: /완료 \d+개 더 보기/ }).click();
   await page.waitForFunction(
-    () => document.querySelectorAll('[data-task-stage="done"] .task-row').length === 14,
+    () => document.querySelectorAll('[data-task-stage="done"] .task-row').length === 10,
   );
   // Revision reset must refresh every column, including external moves.
   await page.reload({ waitUntil: 'networkidle' });

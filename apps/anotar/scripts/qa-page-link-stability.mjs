@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { mkdir } from 'node:fs/promises';
-import { offlineApp, prepareShell } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 
-const app = await offlineApp();
+const app = await qaApp();
 const evidence = '.omo/evidence/page-link-stability';
 await mkdir(evidence, { recursive: true });
 const text = (value) => [{ type: 'text', text: value, styles: {} }];
@@ -161,12 +161,6 @@ try {
       await first.getByText(renamed.title, { exact: true }).waitFor();
       assert.equal(await first.locator('.page-link-icon').innerText(), renamed.icon);
       await page.screenshot({ path: `${evidence}/links-${width}-${colorScheme}.png` });
-      await prepareShell(page);
-      await context.setOffline(true);
-      await page.reload();
-      await first.getByText(renamed.title, { exact: true }).waitFor();
-      assert.equal(await first.locator('.page-link-icon').innerText(), renamed.icon);
-      await context.setOffline(false);
       const deleted = await app.request(
         `/api/pages/${renamed.id}/trash`,
         { operationId: randomUUID(), expectedVersion: renamed.version },
@@ -183,7 +177,7 @@ try {
       await page.evaluate(() => dispatchEvent(new Event('focus')));
       await first.getByText(renamed.title, { exact: true }).waitFor();
       assert.equal(await first.locator('.page-link-icon').innerText(), renamed.icon);
-      console.log(`PASS title/icon updates, offline, deletion/restore ${width}-${colorScheme}`);
+      console.log(`PASS title/icon updates, deletion/restore ${width}-${colorScheme}`);
       targets[0] = renamed;
       assert.deepEqual(errors, []);
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
@@ -192,7 +186,7 @@ try {
   }
   assert.deepEqual(failures, [], failures.join('\n'));
   console.log(
-    'PASS linked page stability: bounded idle reads, continuous icons, refresh, metadata updates, offline, delete/restore',
+    'PASS linked page stability: bounded idle reads, continuous icons, refresh, metadata updates, delete/restore',
   );
 } finally {
   await app.close();

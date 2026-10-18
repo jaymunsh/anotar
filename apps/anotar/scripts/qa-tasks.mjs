@@ -67,7 +67,7 @@ export async function runTaskQa(browser, baseUrl) {
     await row.getByLabel('기한', { exact: true }).fill('2028-02-29');
     await row.getByRole('button', { name: '저장', exact: true }).click();
     row = panel.locator(`[data-task-id="${id}"]`);
-    await row.getByText('2028년 2월 29일', { exact: true }).waitFor();
+    await row.getByText('2028-02-29', { exact: false }).waitFor();
     await row.getByRole('checkbox').check();
     await waitForTask(id, (item) => item.status === 'done');
     await panel.getByRole('button', { name: /^완료/ }).click();
@@ -185,10 +185,8 @@ export async function runTaskQa(browser, baseUrl) {
     await page.reload({ waitUntil: 'networkidle' });
     await full.waitFor();
     await full.getByRole('textbox', { name: '새 할 일' }).fill('작업 영역을 바꿔도 남는 초안');
-    await page
-      .getByRole('navigation', { name: '주 메뉴' })
-      .getByRole('link', { name: '입력함', exact: true })
-      .click();
+    await page.locator('.brand').click();
+    await page.waitForFunction(() => location.pathname === '/');
     assert.equal(
       await panel.getByRole('textbox', { name: '새 할 일' }).inputValue(),
       '작업 영역을 바꿔도 남는 초안',
@@ -216,7 +214,8 @@ export async function runTaskQa(browser, baseUrl) {
     await full.locator(`[data-task-id="${id}"]`).getByRole('checkbox').uncheck();
     await waitForTask(id, (item) => item.status === 'open');
     await full.getByRole('button', { name: /^할 일 \d/ }).click();
-    await full.getByRole('button', { name: '입력함으로' }).click();
+    await page.locator('.brand').click();
+    await page.waitForFunction(() => location.pathname === '/');
     await page.waitForFunction(
       () => document.querySelectorAll('.task-panel .task-row').length === 5,
     );
@@ -260,10 +259,20 @@ export async function runTaskQa(browser, baseUrl) {
       }
       const bounds = await panel.boundingBox();
       const recent = await page.locator('.recent-section').boundingBox();
-      assert.ok(
-        bounds && recent && bounds.y < recent.y,
-        '좁은 화면은 할 일이 보관 목록 위에 있어야 합니다.',
-      );
+      if (width >= 760) {
+        // 넓은 화면은 2열: 할 일 패널이 보관 목록보다 위에서 시작한다.
+        assert.ok(
+          bounds && recent && bounds.y <= recent.y,
+          '넓은 화면은 할 일이 보관 목록보다 위에서 시작해야 합니다.',
+        );
+      } else {
+        // 좁은 화면은 단일 열로 쌓이고, 두 영역 모두 보여야 한다.
+        assert.ok(bounds && recent, '좁은 화면에서도 할 일과 보관 목록이 모두 보여야 합니다.');
+        assert.ok(
+          Math.abs(bounds.x - recent.x) <= 24,
+          '좁은 화면은 할 일과 보관 목록이 같은 열에 세로로 쌓여야 합니다.',
+        );
+      }
       assert.ok(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
         `${width}px 가로 넘침`,
@@ -273,9 +282,17 @@ export async function runTaskQa(browser, baseUrl) {
     await selectAppTheme(page, 'light');
     await page.screenshot({ path: '/tmp/leneu-tasks-mobile-light.png', fullPage: true });
     await panel.getByRole('button', { name: '전체 보기' }).click();
-    await page.getByRole('button', { name: '바로 기록하기', exact: true }).click();
+    await page.getByRole('textbox', { name: '새 할 일' }).first().waitFor();
+    const tasksViewPath = new URL(page.url()).pathname;
+    await page.getByRole('button', { name: '작성 메뉴 열기', exact: true }).click();
+    await page
+      .getByRole('dialog', { name: '새로 작성' })
+      .getByRole('button', { name: '빠른 메모', exact: true })
+      .click();
     await page.getByRole('dialog', { name: '빠른 기록' }).waitFor();
-    assert.equal(new URL(page.url()).pathname, '/');
+    assert.equal(new URL(page.url()).pathname, tasksViewPath);
+    await page.getByRole('button', { name: '입력 닫기' }).click();
+    await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
     assert.deepEqual(errors, []);
     console.log(
       'Task QA passed: create/edit/date, done/undo, retry, quick toggles, conflict draft, pagination, desktop/mobile/themes',

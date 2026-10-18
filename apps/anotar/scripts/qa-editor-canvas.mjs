@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
-import { offlineApp, prepareShell } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 import { clickPageTool } from './qa-page-tools.mjs';
 
-const app = await offlineApp();
+const app = await qaApp();
 const evidence = '.omo/evidence/editor-canvas';
 await mkdir(evidence, { recursive: true });
 const failures = [];
@@ -102,7 +102,7 @@ try {
       await inline.click();
       await page.keyboard.press('End');
       await page.keyboard.insertText(' 입력');
-      await page.getByText('서버 반영됨', { exact: true }).waitFor();
+      await page.locator('.page-save-state.state-saved').waitFor();
       assert.equal(
         await page.locator('.page-selection-tools').count(),
         0,
@@ -201,7 +201,7 @@ try {
         count,
       );
       await page.keyboard.insertText('아래 공간에서 이어 쓴 내용');
-      await page.getByText('서버 반영됨', { exact: true }).waitFor();
+      await page.locator('.page-save-state.state-saved').waitFor();
       const saved = (await (await fetch(`${app.base}/api/pages/${id}`)).json()).item;
       assert.deepEqual(saved.document.blocks[0].content, text('보존할 첫 문장'));
       assert.equal(saved.document.blocks[1].id, 'tail');
@@ -221,13 +221,23 @@ try {
       );
       await page.getByRole('button', { name: '댓글 닫기', exact: true }).click();
       if (width === 390) {
-        await prepareShell(page);
+        // 온라인 전용: 연결이 끊기면 저장이 실패하고 입력은 유지된다. 다시 연결해 '다시 시도'로 저장한다.
         await context.setOffline(true);
         await clickBelow(page);
-        await page.keyboard.insertText(' 오프라인 작성');
-        await page.getByText('기기에 저장됨', { exact: true }).waitFor();
-        await page.reload();
-        await page.getByText('오프라인 작성', { exact: false }).first().waitFor();
+        await page.keyboard.insertText(' 연결 끊긴 사이 작성');
+        const errorBanner = page.locator('.page-banner-error');
+        await errorBanner.getByRole('button', { name: '다시 시도', exact: true }).waitFor();
+        assert.equal(await page.locator('.page-save-state').innerText(), '저장 못 함');
+        await page.getByText('연결 끊긴 사이 작성', { exact: false }).first().waitFor();
+        await context.setOffline(false);
+        await errorBanner.getByRole('button', { name: '다시 시도', exact: true }).click();
+        await page.locator('.page-save-state.state-saved').waitFor();
+        for (let i = 0; i < 300; i++) {
+          const item = (await (await fetch(`${app.base}/api/pages/${id}`)).json()).item;
+          if (JSON.stringify(item.document.blocks).includes('연결 끊긴 사이 작성')) break;
+          if (i === 299) throw Error('재시도 저장이 서버에 반영되지 않았습니다.');
+          await new Promise((r) => setTimeout(r, 100));
+        }
       }
       assert.equal(
         await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),

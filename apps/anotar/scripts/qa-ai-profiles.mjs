@@ -6,6 +6,14 @@ import { mkdtemp, mkdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright-core';
+import { openQuickMemo } from './fixtures/qa-app.mjs';
+// AI 실행기·모델 선택은 '모델 변경' details 안에 있다. 선택 전에 펼친다.
+async function openExecutionOptions(page) {
+  const options = page.locator('.ai-execution-options');
+  await options.first().waitFor();
+  if (!(await options.first().evaluate((el) => el.open)))
+    await options.locator('> summary').first().click();
+}
 const calls = [];
 let failNext = false;
 const provider = createServer(async (req, res) => {
@@ -89,11 +97,13 @@ try {
   await page.getByText('저장했어요. 새 요청부터 적용됩니다.').waitFor();
   await page.screenshot({ path: evidence + '/settings-1440.png' });
   await page.getByRole('button', { name: '설정 닫기' }).click();
+  await openQuickMemo(page);
   await page
     .getByRole('textbox', { name: '메모 내용', exact: true })
     .fill('오늘 작업의 우선순위를 정리해줘.');
   await page.getByRole('checkbox', { name: 'AI 요청', exact: true }).check();
-  await page.getByRole('combobox', { name: 'AI 실행기와 모델' }).selectOption('hive');
+  await openExecutionOptions(page);
+    await page.getByRole('combobox', { name: 'AI 실행기와 모델' }).selectOption('hive');
   assert.match(
     await page.getByRole('combobox', { name: 'AI 실행기와 모델' }).textContent(),
     /fixture\/second/,
@@ -104,10 +114,7 @@ try {
   await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption(researchTemplate.id);
   await page.waitForTimeout(100);
   assert.equal(await page.getByRole('button', { name: '저장하고 AI 요청', exact: true }).isDisabled(), true, 'unsupported keyword research must not be queued');
-  await context.setOffline(true);
-  await page.waitForFunction(() => !document.querySelector('.save-button').disabled, null, { timeout: 2000 });
-  await context.setOffline(false);
-  await page.waitForFunction(() => document.querySelector('.save-button').disabled);
+  // 온라인 전용: 지원하지 않는 키워드 리서치는 연결 상태와 무관하게 요청 버튼이 잠긴다.
   await page.screenshot({ path: evidence + '/unsupported-keyword-1440.png' });
   await page.getByRole('button', { name: '메모만 저장', exact: true }).click();
   await page.getByText(/기기에 저장했어요|보관함에 저장했어요/).waitFor();
@@ -120,9 +127,11 @@ try {
   assert.equal(memos.length, 1);
   assert.equal(memos[0].aiRequest, null);
   assert.equal(calls.length, 0, 'memo-only save must never call provider');
+  await openQuickMemo(page);
   await page.getByRole('textbox', { name: '메모 내용', exact: true }).fill('오늘 작업의 우선순위를 정리해줘.');
   await page.getByRole('checkbox', { name: 'AI 요청', exact: true }).check();
-  await page.getByRole('combobox', { name: 'AI 실행기와 모델' }).selectOption('hive');
+  await openExecutionOptions(page);
+    await page.getByRole('combobox', { name: 'AI 실행기와 모델' }).selectOption('hive');
   await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption('direct');
   await page.screenshot({ path: evidence + '/request-1440.png' });
   await page.getByRole('button', { name: '저장하고 AI 요청', exact: true }).click();
@@ -164,9 +173,10 @@ try {
   const setSettings=async(settings,defaultProfile,model)=>{const response=await fetch(base+'/api/ai/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({expectedVersion:settings.version,defaultProfile,models:{hive:model}})});assert.equal(response.status,200);return response.json();};
   const changedSettings=await setSettings(currentSettings,'hive','fixture/changed');
   await page.goto(base+`/captures/${failedCapture.id}?aiJob=${failedJob.id}`);
-  await page.getByRole('combobox',{name:'AI 실행기와 모델'}).waitFor();
-  const retry=page.getByRole('button',{name:'실패한 요청 그대로 재시도',exact:true});
-  assert.equal(await retry.isEnabled(),true,'current unavailable picker must not disable historical retry');await retry.click();
+  // 현재 설정 모델이 바뀌어도(fixture/changed) 과거 실패 요청은 당시 모델 그대로 재시도한다.
+  const retry=page.getByRole('button',{name:'같은 조건으로 재시도',exact:true});
+  await retry.waitFor();
+  assert.equal(await retry.isEnabled(),true,'changed current model must not disable historical retry');await retry.click();
   await page.locator('.ai-job-state').getByText('결과 준비됨',{exact:true}).waitFor();
   assert.equal(calls.length,3);assert.equal(calls[2].model,'fixture/second');
   await setSettings(changedSettings,'hive','fixture/second');
@@ -179,7 +189,7 @@ try {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await page.goto(base + '/ai');
     await page.getByRole('button', { name: '새 AI 요청', exact: true }).click();
-    await page.getByRole('combobox', { name: 'AI 실행기와 모델' }).waitFor();
+    await page.locator('.ai-execution-overview').waitFor();
     await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption(researchTemplate.id);
     await page.waitForTimeout(100);
     assert.equal(await page.getByRole('button', { name: '저장하고 AI 요청', exact: true }).isDisabled(), true);

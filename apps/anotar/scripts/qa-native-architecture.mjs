@@ -5,11 +5,11 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { openStore } from '../server/store.mjs';
 import { ensureArchitecturePage } from './seed-architecture.mjs';
-import { offlineApp } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 
 const evidence = resolve('.omo/evidence/native-architecture');
 await mkdir(evidence, { recursive: true });
-const app = await offlineApp();
+const app = await qaApp();
 const store = openStore(app.dir), errors = [], checks = [];
 let publicServer;
 try {

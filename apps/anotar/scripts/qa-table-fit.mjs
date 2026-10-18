@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { offlineApp } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 import { openStore } from '../server/store.mjs';
 import { ensureArchitecturePage } from './seed-architecture.mjs';
-const app=await offlineApp();
+const app=await qaApp();
 const evidence='.omo/evidence/table-hierarchy';
 await mkdir(evidence,{recursive:true});
 try {

@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { offlineApp } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 
 const out = '.omo/evidence/mobile-document-width';
 await mkdir(out, { recursive: true });
-const app = await offlineApp();
+const app = await qaApp();
 try {
   const { item } = await app.request('/api/pages', { title: 'Shared Pages', icon: '🌐' });
   await app.request('/api/pages/' + item.id, {

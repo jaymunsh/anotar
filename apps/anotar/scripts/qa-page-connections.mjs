@@ -86,17 +86,18 @@ export async function runPageConnectionQa(browser, baseUrl) {
     await dialog.getByRole('button', { name: '주말 여행 정리 내 페이지', exact: true }).click();
     await dialog.getByRole('textbox', { name: '새 페이지 제목' }).fill('예약과 교통');
     await dialog.getByRole('checkbox', { name: '여행.png' }).uncheck();
+    // 온라인 전용: 응답이 유실되면 같은 제출을 다시 확인해도 페이지가 한 번만 생긴다.
     let lost=false;
-    await page.route('**/api/sync/operations',async route=>{
-      if(route.request().postDataJSON()?.kind!=='capture.organize'||lost)return route.continue();
+    await page.route('**/api/**',async route=>{
+      const request=route.request();
+      if(lost||request.method()!=='POST'||!/\/api\/(pages(\?|$)|pages\/[^/]+\/capture-imports|capture-batches)/.test(request.url()))return route.continue();
       lost=true;await route.fetch();await route.abort('failed');
     });
     await dialog.locator('.capture-import-submit').click();
-    await dialog.getByText('페이지에 정리 대기 · 연결 후 원본과 페이지를 함께 반영해요.',{exact:true}).waitFor();
-    await page.reload({waitUntil:'domcontentloaded'});
-    await page.getByRole('button',{name:'동기화 상태',exact:true}).click();
-    await page.getByRole('button',{name:'지금 동기화',exact:true}).click();
-    await page.getByRole('button',{name:'동기화 상태 닫기'}).click();
+    await dialog.getByText('다시 확인해도 중복으로 담기지 않아요.',{exact:false}).waitFor();
+    await page.unroute('**/api/**');
+    await dialog.locator('.capture-import-submit').click();
+    await page.waitForURL('**/pages/*');
     let list=[];
     for(let i=0;i<450;i++){list=(await(await fetch(baseUrl+'/api/pages')).json()).items;if(list.some(item=>item.title==='예약과 교통'))break;await new Promise(r=>setTimeout(r,100));}
     assert.equal(list.filter(item=>item.title==='예약과 교통').length,1);
@@ -124,17 +125,23 @@ export async function runPageConnectionQa(browser, baseUrl) {
       assetIds: [],
     });
     await old.getByRole('textbox', { name: '페이지 제목' }).fill('충돌 중인 초안');
-    await old.getByText('서버본과 기기본이 달라요', {exact:true}).waitFor();
-    await old.reload({waitUntil:'domcontentloaded'});
+    await old.getByText('다른 곳에서 바뀌었어요.', {exact:false}).waitFor();
     assert.equal(await old.getByRole('textbox',{name:'페이지 제목',exact:true}).inputValue(),'충돌 중인 초안');
+    await old.reload({waitUntil:'domcontentloaded'});
+    // 새로고침하면 서버 본문을 열고, 409로 남은 초안은 덮지 않고 복사 안내로 보여준다.
+    await old.getByText('다른 기기에서 수정된 뒤 남은 초안이 있어요.', {exact:true}).waitFor();
+    await old.getByRole('button',{name:'초안 복사',exact:true}).waitFor();
     await old.close();
 
-    // A cached original stays readable when its legacy REST endpoint fails.
+    // 온라인 전용: 원본 조회가 실패하면 기술 문구 없이 다시 불러오기를 안내하고, 복구 후 원본을 연다.
     await page.route(`**/api/captures/${capture.id}`,route=>route.fulfill({status:502,contentType:'text/html',body:'<html>temporary connection failure</html>'}));
     await page.goto(baseUrl+'/captures/'+capture.id,{waitUntil:'domcontentloaded'});
+    const routeError=page.locator('.capture-route-error[role="alert"]');
+    await routeError.getByText('원본 메모를 불러오지 못했어요. 다시 시도해 주세요.',{exact:true}).waitFor();
+    await page.unroute(`**/api/captures/${capture.id}`);
+    await routeError.getByRole('button',{name:'다시 불러오기',exact:true}).click();
     await dialog.locator('.detail-text').waitFor();
     assert.equal(await dialog.locator('.detail-text').textContent(),capture.text);
-    await page.unroute(`**/api/captures/${capture.id}`);
 
     if (process.env.QA_CAPTURE_SCREENSHOTS !== '0') {
       await mkdir('.impeccable/review/page-connections', { recursive: true });
@@ -164,7 +171,7 @@ export async function runPageConnectionQa(browser, baseUrl) {
     }
     assert.deepEqual(errors, []);
     console.log(
-      'Page connections QA passed: original, selected assets, child, lost response/reload, durable delivery recovery, visible selected child, stale draft, cached original on endpoint failure.' +
+      'Page connections QA passed: original, selected assets, child, lost response retry without duplicate, visible selected child, 409 draft kept, original reload after endpoint failure.' +
         (process.env.QA_CAPTURE_SCREENSHOTS !== '0' ? ' Six viewport/theme pairs captured.' : ''),
     );
   } finally {

@@ -189,8 +189,9 @@ try {
   const originalIds = (await stored()).entries.map((e) => e.id);
   await first.locator('.itinerary-row-menu > summary').click();
   let rejected = false;
-  await p.route('**/api/sync/operations', async (route) => {
-    if (route.request().method() === 'POST' && !rejected) {
+  // 온라인 전용: 페이지 PUT 저장이 한 번 실패하면 입력은 유지되고 '다시 시도'로 다시 저장한다.
+  await p.route('**/api/pages/' + seeded.id, async (route) => {
+    if (route.request().method() === 'PUT' && !rejected) {
       rejected = true;
       await route.fulfill({
         status: 500,
@@ -202,12 +203,11 @@ try {
   await first.locator('[data-field="title"] [role="button"]').click();
   await first.getByRole('textbox', { name: '일정 내용' }).fill('재시도 후 저장한 아침 일정');
   await first.getByRole('textbox', { name: '일정 내용' }).press('Enter');
-  await p.waitForFunction(()=>document.querySelector('.sync-status')?.textContent.includes('대기'));
-  await p.getByRole('button',{name:'동기화 상태',exact:true}).click();
-  await p.getByRole('button',{name:'지금 동기화',exact:true}).click();
-  await p.getByRole('button',{name:'동기화 상태 닫기'}).click();
+  const retry = p.locator('.page-banner-error').getByRole('button', { name: '다시 시도', exact: true });
+  await retry.waitFor();
+  await p.unroute('**/api/pages/' + seeded.id);
+  await retry.click();
   await saved(p, (d) => d.entries[0].title === '재시도 후 저장한 아침 일정');
-  await p.unroute('**/api/sync/operations');
   await first.locator('.itinerary-coordinate-options > summary').click();
   await first.getByLabel('위도', { exact: true }).fill('34.71');
   await first.getByRole('button', { name: '좌표 적용', exact: true }).click();

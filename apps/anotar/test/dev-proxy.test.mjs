@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createServer } from 'vite';
 import config from '../vite.config.ts';
-import { offlineApp } from '../scripts/fixtures/offline-app.mjs';
+import { qaApp } from '../scripts/fixtures/qa-app.mjs';
 
 test('development proxy accepts its own browser writes and rejects foreign origins', async () => {
-  const app = await offlineApp();
+  const app = await qaApp();
   const proxy = config.server.proxy['/api'];
   const vite = await createServer({
     ...config,

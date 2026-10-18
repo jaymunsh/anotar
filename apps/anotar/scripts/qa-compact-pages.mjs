@@ -31,7 +31,7 @@ export async function runCompactPageQa(browser, baseUrl) {
     await page.getByRole('textbox', { name: '페이지 제목' }).fill('정리한 문서에서 작성한 실제 글');
     await page.getByRole('textbox', { name: '페이지 제목' }).press('Enter');
     await page.keyboard.type('분배하기 전 보관할 내용');
-    await page.getByText('서버 반영됨', { exact: true }).waitFor();
+    await page.locator('.page-save-state').getByText('저장됨', { exact: true }).waitFor();
     await page.waitForFunction(async (pageId) => {
       const { item } = await (await fetch('/api/pages/' + pageId)).json();
       return (

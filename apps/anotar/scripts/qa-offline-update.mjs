@@ -4,7 +4,7 @@ import {readFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {build} from 'esbuild';
 import {chromium} from 'playwright-core';
-import {waitForAsync} from './fixtures/offline-app.mjs';
+import {waitForAsync} from './fixtures/qa-app.mjs';
 const bundle=await build({stdin:{contents:"import * as update from './src/offline/update.ts';window.fixture=update;update.registerLocalFlush(async()=>{await new Promise(r=>setTimeout(r,60));localStorage.setItem('retainedDraft',document.querySelector('textarea').value);});",resolveDir:process.cwd()},bundle:true,write:false,format:'iife',platform:'browser'});
 const worker=await readFile('public/capture-worker.js','utf8'),captureStore=await readFile('public/capture-store.js');let version='v1',fail=false;
 const index=()=>Buffer.from('<textarea aria-label="draft"></textarea><script src="/assets/fixture.js"></script>');const js=()=>Buffer.from(bundle.outputFiles[0].text+`;window.buildVersion='${version}';`);

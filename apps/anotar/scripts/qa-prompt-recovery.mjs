@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { openQuickMemo } from './fixtures/qa-app.mjs';
 
 export async function runPromptRecoveryQa(browser, baseUrl) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
@@ -48,9 +49,8 @@ export async function runPromptRecoveryQa(browser, baseUrl) {
     });
     assert.equal(response.status(), 200);
     await page.goto(baseUrl, { waitUntil: 'networkidle' });
-    await page
-      .getByRole('textbox', { name: '메모 내용', exact: true })
-      .fill('https://example.com/research');
+    const recoveryMemo = await openQuickMemo(page);
+    await recoveryMemo.fill('https://example.com/research');
     await page.getByRole('checkbox', { name: 'AI 요청', exact: true }).check();
     await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption('research-brief');
     await page.getByRole('button', { name: '템플릿 관리' }).click();
@@ -79,7 +79,9 @@ export async function runPromptRecoveryQa(browser, baseUrl) {
     });
     const synced = await page.evaluate(() => localStorage.getItem('leneu:prompt-library-sync:v1'));
     await page.getByRole('button', { name: '브라우저 템플릿 가져오기' }).click();
-    await page.locator('.sidebar').getByRole('link', { name: '입력함', exact: true }).click();
+    await page.locator('.brand').click();
+    await page.waitForFunction(() => location.pathname === '/');
+    await openQuickMemo(page);
     await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption('idea-outline');
     const imported = page.waitForResponse(
       (item) => item.url().endsWith('/api/prompt-templates/import') && item.status() === 200,

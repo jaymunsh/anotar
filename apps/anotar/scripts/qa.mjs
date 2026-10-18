@@ -18,6 +18,21 @@ import { runTrashQa } from './qa-trash.mjs';
 import { runSearchQa } from './qa-search.mjs';
 import { runAiQa } from './qa-ai.mjs';
 import { clickPageTool } from './qa-page-tools.mjs';
+import { openQuickMemo } from './fixtures/qa-app.mjs';
+
+// 홈에는 인라인 입력이 없다(2026-10-17). 작성 메뉴 → 빠른 메모 다이얼로그를 열고,
+// 링크·이미지 종류는 접힌 '링크·이미지·파일 추가' 옵션을 펼쳐 탭을 눌러 고른다.
+async function openQuickMemoKind(page, tabName) {
+  const input = await openQuickMemo(page);
+  const dialog = page.getByRole('dialog', { name: '빠른 기록' });
+  if (tabName) {
+    const tab = dialog.locator('.composer-tabs').getByRole('tab', { name: tabName });
+    if (!(await tab.isVisible().catch(() => false)))
+      await dialog.locator('.composer-options summary').click();
+    await tab.click();
+  }
+  return { input, dialog };
+}
 
 const dataDir = await mkdtemp(join(tmpdir(), 'leneu-qa-'));
 const baseUrl = 'http://127.0.0.1:8789';
@@ -58,7 +73,7 @@ try {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto(baseUrl, { waitUntil: 'networkidle' });
-  if ((await page.title()) !== 'leneu. — 생각을 놓아두는 곳')
+  if ((await page.title()) !== 'anotar | 나만의 워크스페이스')
     throw new Error('서비스 이름이 브라우저 제목에 표시되어야 합니다.');
   const favicon = page.locator('link[rel="icon"]');
   const faviconHref = (await favicon.count()) ? await favicon.getAttribute('href') : null;
@@ -90,17 +105,19 @@ try {
   )
     throw new Error('제공된 프로필 이미지가 사이드바 작업 공간에 보여야 합니다.');
 
-  await page
-    .getByRole('textbox', { name: '메모 내용' })
-    .fill('교토 여행 항공권 확인\n가격 비교하기');
+  const firstMemo = await openQuickMemo(page);
+  await firstMemo.fill('교토 여행 항공권 확인\n가격 비교하기');
   await page.getByRole('button', { name: '저장', exact: true }).click();
-  await page.getByText('기기에 저장했어요. 연결되면 동기화해요.', { exact: true }).waitFor();
-  if ((await page.getByRole('textbox', { name: '메모 내용' }).inputValue()) !== '')
-    throw new Error('기기 저장 성공 뒤 입력을 비워야 합니다.');
-  await page.waitForFunction(() => document.querySelector('.sync-status')?.textContent.includes('동기화 완료'));
+  await page.getByText('보관함에 저장했어요', { exact: true }).waitFor();
+  await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
+  await page.locator('.capture-card').first().waitFor();
   const savedNotes = (await (await fetch(baseUrl + '/api/captures')).json()).items;
-  if (savedNotes.filter((item) => item.text === '교토 여행 항공권 확인\n가격 비교하기').length !== 1)
-    throw new Error('기기 저장한 메모는 서버에 한 번만 동기화되어야 합니다.');
+  if (
+    savedNotes.filter(
+      (item) => item.text.replace(/\r\n/g, '\n') === '교토 여행 항공권 확인\n가격 비교하기',
+    ).length !== 1
+  )
+    throw new Error('저장한 메모는 서버에 한 번만 있어야 합니다.');
   const firstPreview = page.locator('.capture-card').first().locator('.capture-preview');
   if (
     (await firstPreview.count()) !== 1 ||
@@ -145,14 +162,15 @@ try {
   )
     throw new Error('PC 목록의 NEW는 생성 시각 줄 오른쪽 끝에 같은 높이로 있어야 합니다.');
 
-  await page.locator('.composer-tabs').getByRole('tab', { name: '링크' }).click();
-  await page.getByRole('textbox', { name: '링크 주소' }).fill('https://example.com/research');
-  await page.getByRole('textbox', { name: '메모 내용' }).fill('나중에 읽을 리서치');
+  const { input: linkMemo, dialog: linkDialog } = await openQuickMemoKind(page, '링크');
+  await linkDialog.getByRole('textbox', { name: '링크 주소' }).fill('https://example.com/research');
+  await linkMemo.fill('나중에 읽을 리서치');
   await page.getByRole('button', { name: '저장', exact: true }).click();
   await page.getByText('example.com', { exact: true }).waitFor();
+  await linkDialog.waitFor({ state: 'hidden' });
 
-  await page.locator('.composer-tabs').getByRole('tab', { name: '이미지' }).click();
-  await page.locator('input[type=file]').setInputFiles({
+  const { input: imageMemo, dialog: imageDialog } = await openQuickMemoKind(page, '이미지');
+  await imageDialog.locator('input[type=file]').setInputFiles({
     name: 'screenshot.png',
     mimeType: 'image/png',
     buffer: Buffer.from(
@@ -160,9 +178,10 @@ try {
       'base64',
     ),
   });
-  await page.getByRole('textbox', { name: '메모 내용' }).fill('테스트 스크린샷');
+  await imageMemo.fill('테스트 스크린샷');
   await page.getByRole('button', { name: '저장', exact: true }).click();
   await page.getByText('테스트 스크린샷', { exact: true }).waitFor();
+  await imageDialog.waitFor({ state: 'hidden' });
 
   await page
     .getByRole('navigation', { name: '주 메뉴' })
@@ -172,17 +191,19 @@ try {
   await page.getByRole('textbox', { name: '보관함 검색' }).pressSequentially('항공권');
   await page.waitForFunction(() => document.querySelectorAll('.capture-card').length === 1);
   await page.locator('.capture-card').click();
-  await page.getByRole('dialog').getByText('가격 비교하기').waitFor();
-  if (await page.getByRole('dialog').locator('h2').count())
+  // 넓은 화면의 메모 뷰에서 상세는 dialog가 아니라 분할 region(.detail-panel)으로 열린다.
+  const detail = page.locator('.detail-panel');
+  await detail.getByText('가격 비교하기').waitFor();
+  if (await detail.locator('h2').count())
     throw new Error('제목이 없는 메모에 가짜 제목을 만들면 안 됩니다.');
   if (
-    (await page.getByRole('dialog').locator('.detail-text').textContent())?.replace(
+    (await detail.locator('.detail-text').textContent())?.replace(
       /\r\n/g,
       '\n',
     ) !== '교토 여행 항공권 확인\n가격 비교하기'
   )
     throw new Error('상세 화면은 메모 원문을 한 번만 보여줘야 합니다.');
-  const detailTime = page.getByRole('dialog').locator('time');
+  const detailTime = detail.locator('time');
   if (
     (await detailTime.count()) !== 2 ||
     !(await detailTime.allTextContents()).every((value) =>
@@ -198,14 +219,12 @@ try {
     .fill('교토 여행 항공권 확인\n날짜도 다시 보기');
   await page.getByRole('button', { name: '변경 저장' }).click();
   await page.getByRole('button', { name: '항목 수정' }).waitFor();
-  await page.getByRole('dialog').getByText('날짜도 다시 보기').waitFor();
-  const editedTime = await page
-    .getByRole('dialog')
+  await detail.getByText('날짜도 다시 보기').waitFor();
+  const editedTime = await detail
     .locator('time')
     .first()
     .getAttribute('datetime');
-  const editedFlag = await page
-    .getByRole('dialog')
+  const editedFlag = await detail
     .getByText('최종 수정일', { exact: true })
     .count();
   const editedNew = await page.locator('.capture-card').first().locator('.capture-new').count();
@@ -239,14 +258,16 @@ try {
   await page.getByRole('textbox', { name: '보관한 링크 주소' }).fill('https://example.org/updated');
   await page.getByRole('textbox', { name: '보관한 내용' }).fill('수정한 리서치 링크');
   await page.getByRole('button', { name: '변경 저장' }).click();
+  await page.getByRole('button', { name: '항목 수정' }).waitFor();
   if (
-    (await page.getByRole('dialog').locator('.detail-link').getAttribute('href')) !==
+    (await detail.locator('.detail-link').getAttribute('href')) !==
     'https://example.org/updated'
   )
     throw new Error('저장된 링크 주소도 수정되어야 합니다.');
   await page.getByRole('button', { name: '닫기' }).click();
   await page.screenshot({ path: '/tmp/leneu-populated-desktop.png', fullPage: true });
-  await page.getByRole('link', { name: '입력함', exact: true }).click();
+  await page.locator('.brand').click();
+  await page.waitForFunction(() => location.pathname === '/');
 
   const mobile = await browser.newPage({
     viewport: { width: 390, height: 844 },
@@ -255,20 +276,18 @@ try {
   });
   mobile.on('pageerror', (error) => errors.push(error.message));
   await mobile.goto(baseUrl, { waitUntil: 'networkidle' });
-  await mobile
-    .getByRole('region', { name: '새 항목 저장' })
-    .getByRole('textbox', { name: '메모 내용' })
-    .waitFor();
-  const quickCapture = mobile.getByRole('button', { name: '전체 화면으로 쓰기' });
-  await mobile.getByRole('button', { name: '메뉴 열기' }).click();
+  // 홈에는 인라인 입력이 없다. 작성 메뉴로 빠른 기록을 연다.
+  const quickCapture = mobile.getByRole('button', { name: '작성 메뉴 열기', exact: true });
+  await quickCapture.waitFor();
+  await mobile.getByRole('button', { name: '메뉴 열기', exact: true }).click();
   await mobile.getByRole('button', { name: '메뉴 닫기' }).waitFor();
   await mobile
     .getByRole('button', { name: '메뉴 닫기' })
     .click({ position: { x: mobile.viewportSize().width - 10, y: 80 } });
   if (!(await quickCapture.isVisible()))
-    throw new Error('모바일 메뉴를 닫으면 입력창을 펼칠 수 있어야 합니다.');
-  await quickCapture.click();
+    throw new Error('모바일 메뉴를 닫으면 작성 메뉴로 입력을 열 수 있어야 합니다.');
   const mobileEditor = mobile.getByRole('dialog', { name: '빠른 기록' });
+  await openQuickMemo(mobile);
   await mobileEditor.waitFor();
   await mobile.screenshot({ path: '/tmp/leneu-mobile-editor.png', fullPage: true });
   if (
@@ -290,7 +309,8 @@ try {
   await mobile.setViewportSize({ width: 390, height: 844 });
   await mobileEditor.getByRole('textbox', { name: '메모 내용' }).fill('이동 중 떠오른 생각');
   await mobileEditor.getByRole('button', { name: '입력 닫기' }).click();
-  await quickCapture.click();
+  await mobileEditor.waitFor({ state: 'hidden' });
+  await openQuickMemo(mobile);
   if (
     (await mobileEditor.getByRole('textbox', { name: '메모 내용' }).inputValue()) !==
     '이동 중 떠오른 생각'
@@ -319,9 +339,9 @@ try {
   await mobile.getByRole('button', { name: '닫기' }).click();
   const quickBounds = await quickCapture.boundingBox();
   if (!quickBounds || quickBounds.y + quickBounds.height > 844)
-    throw new Error('저장 후 모바일 입력창을 펼치는 버튼이 화면에 보여야 합니다.');
+    throw new Error('저장 후 모바일에서 작성 메뉴 버튼이 화면에 보여야 합니다.');
   await mobile.screenshot({ path: '/tmp/leneu-populated-mobile.png' });
-  await quickCapture.click();
+  await openQuickMemo(mobile);
   await mobileEditor.getByRole('textbox', { name: '메모 내용' }).evaluate((element) => {
     const clipboard = new DataTransfer();
     clipboard.setData('text/plain', 'https://example.org/article');
@@ -334,12 +354,11 @@ try {
     'https://example.org/article'
   )
     throw new Error('메모에 URL만 붙여넣으면 링크 입력으로 바뀌어야 합니다.');
-  await mobileEditor.getByRole('button', { name: '입력 닫기' }).click();
+  // 접힌 옵션과 무관하게 작성 영역 하단의 첨부 버튼을 쓴다.
+  const mobileAttach = mobileEditor.locator('.attach-button');
+  await mobileAttach.waitFor({ state: 'visible' });
   const chooserPromise = mobile.waitForEvent('filechooser');
-  await mobile
-    .getByRole('region', { name: '새 항목 저장' })
-    .getByRole('button', { name: '첨부하기' })
-    .click();
+  await mobileAttach.click();
   const chooser = await chooserPromise;
   await chooser.setFiles({
     name: 'mobile-shot.png',
@@ -359,18 +378,23 @@ try {
     throw new Error('모바일 이미지 첨부가 기존 링크 종류와 주소를 보존해야 합니다.');
   await mobileEditor.getByText('mobile-shot.png').waitFor();
   await mobileEditor.getByRole('button', { name: '입력 닫기' }).click();
+  await mobileEditor.waitFor({ state: 'hidden' });
   await mobile.setViewportSize({ width: 320, height: 640 });
   if (await mobile.evaluate(() => document.documentElement.scrollWidth > innerWidth))
     throw new Error('모바일에서 가로 스크롤이 생겼습니다.');
-  await quickCapture.click();
+  await openQuickMemo(mobile);
   if (await mobile.evaluate(() => document.documentElement.scrollWidth > innerWidth))
     throw new Error('좁은 모바일 입력 시트에서 가로 스크롤이 생겼습니다.');
   await mobileEditor.getByRole('button', { name: '입력 닫기' }).click();
-  await page.getByRole('textbox', { name: '메모 내용' }).fill('전환 중 남겨둘 초안');
+  await mobileEditor.waitFor({ state: 'hidden' });
+  const transitionDraft = await openQuickMemo(page);
+  await transitionDraft.fill('전환 중 남겨둘 초안');
+  await page.getByRole('button', { name: '입력 닫기' }).click();
+  await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
   await page.evaluate(() => {
     window.__workspaceMarker = 'same-app';
   });
-  await page.getByRole('button', { name: '새 페이지', exact: true }).click();
+  await page.getByRole('button', { name: '새 페이지', exact: true }).click({ force: true });
   await page.getByRole('textbox', { name: '페이지 제목' }).waitFor();
   const previousPagePath = new URL(page.url()).pathname;
   if (
@@ -379,17 +403,19 @@ try {
     (await page.locator('.sidebar').count()) !== 1 ||
     (await page.locator('.pages-sidebar').count()) !== 0
   )
-    throw new Error('입력함과 페이지는 같은 앱 셸에서 전환돼야 합니다.');
-  await page.getByRole('link', { name: '입력함', exact: true }).click();
-  if (
-    (await page.getByRole('textbox', { name: '메모 내용' }).inputValue()) !== '전환 중 남겨둘 초안'
-  )
+    throw new Error('홈과 페이지는 같은 앱 셸에서 전환돼야 합니다.');
+  await page.locator('.brand').click();
+  await page.waitForFunction(() => location.pathname === '/');
+  const keptDraft = await openQuickMemo(page);
+  if ((await keptDraft.inputValue()) !== '전환 중 남겨둘 초안')
     throw new Error('페이지를 다녀와도 빠른 입력 초안은 남아 있어야 합니다.');
-  await page.getByRole('textbox', { name: '메모 내용' }).fill('');
+  await keptDraft.fill('');
+  await page.getByRole('button', { name: '입력 닫기' }).click();
+  await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
   await page.locator('.sidebar-page-item[href="' + previousPagePath + '"]').click();
   await page.getByRole('textbox', { name: '페이지 제목' }).waitFor();
   const stagingPath = new URL(page.url()).pathname;
-  await page.getByRole('button', { name: '새 페이지', exact: true }).click();
+  await page.getByRole('button', { name: '새 페이지', exact: true }).click({ force: true });
   await page.waitForURL(
     (url) => url.pathname !== stagingPath && /^\/pages\/[a-f0-9-]+$/.test(url.pathname),
   );
@@ -489,9 +515,17 @@ try {
     if (attempt === 59) throw new Error('Tab으로 블록을 다른 블록 안에 넣을 수 있어야 합니다.');
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
-  await page.locator('.bn-block', { hasText: '안쪽' }).last().hover();
-  await page.locator('[data-test="dragHandle"]').click();
   const dragMenu = page.locator('.bn-menu-dropdown');
+  // 손잡이는 hover로만 나타나고 재렌더로 클릭이 빗나갈 수 있어, 메뉴가 뜰 때까지 재시도한다.
+  for (let attempt = 0; attempt < 10; attempt++) {
+    await page.locator('.bn-block', { hasText: '안쪽' }).last().hover();
+    const handle = page.locator('[data-test="dragHandle"]');
+    await handle.waitFor({ state: 'visible' }).catch(() => {});
+    await handle.click().catch(() => {});
+    if (await dragMenu.getByText('내어쓰기', { exact: true }).isVisible().catch(() => false)) break;
+    await page.keyboard.press('Escape').catch(() => {});
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
   await dragMenu.getByText('내어쓰기', { exact: true }).waitFor();
   if ((await dragMenu.getByText('들여쓰기', { exact: true }).count()) !== 0)
     throw new Error('첫 자식 블록에는 들여쓰기 항목이 보이면 안 됩니다.');
@@ -522,11 +556,18 @@ try {
   }
   if (unhighlight !== 'rgba(0, 0, 0, 0)' && unhighlight !== 'transparent')
     throw new Error('손잡이 메뉴가 닫히면 블록 강조가 해제되어야 합니다.');
-  await page
-    .locator('.bn-block', { hasText: '바깥' })
-    .first()
-    .hover({ position: { x: 8, y: 4 } });
-  await page.locator('[data-test="dragHandle"]').click();
+  for (let attempt = 0; attempt < 10; attempt++) {
+    await page
+      .locator('.bn-block', { hasText: '바깥' })
+      .first()
+      .hover({ position: { x: 8, y: 4 } });
+    const handle = page.locator('[data-test="dragHandle"]');
+    await handle.waitFor({ state: 'visible' }).catch(() => {});
+    await handle.click().catch(() => {});
+    if (await dragMenu.getByText('들여쓰기', { exact: true }).isVisible().catch(() => false)) break;
+    await page.keyboard.press('Escape').catch(() => {});
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
   await dragMenu.getByText('들여쓰기', { exact: true }).waitFor();
   await page.keyboard.press('Escape');
   const tocBackground = await page
@@ -579,10 +620,13 @@ try {
     `.sidebar-page-row:has(.sidebar-page-item[href="/pages/${childId}"])`,
   );
   await childRow.waitFor();
-  const childIndent = await childRow.evaluate(
-    (element) => parseInt(element.style.paddingLeft || '0', 10) || 0,
+  const parentIndentRow = page.locator(
+    `.sidebar-page-row:has(.sidebar-page-item[href="/pages/${pageId}"])`,
   );
-  if (childIndent < 20)
+  const readIndent = (element) => parseInt(element.style.paddingLeft || '0', 10) || 0;
+  const childIndent = await childRow.evaluate(readIndent);
+  const parentIndent = await parentIndentRow.evaluate(readIndent);
+  if (childIndent <= parentIndent)
     throw new Error('하위 페이지는 사이드바에서 상위 페이지 아래에 들여져 보여야 합니다.');
   // 상위 행의 접기 화살표로 하위 페이지를 숨기고 다시 펼칠 수 있어야 합니다
   const parentRow = page.locator(
@@ -748,8 +792,10 @@ try {
     });
   if (darkModeContrast < 4.5)
     throw new Error('다크 모드 페이지의 본문 글자가 충분히 읽혀야 합니다.');
+  // 다이어그램 미리보기 SVG는 .diagram-preview 안에 그려진다(id는 anotar-diagram-*).
+  await darkPage.locator('.diagram-preview svg').first().waitFor();
   const diagramColors = await darkPage
-    .locator('svg[id^="mermaid-preview-"]')
+    .locator('.diagram-preview svg')
     .first()
     .evaluate((svg) => {
       const node = svg.querySelector('.node rect');
@@ -790,7 +836,7 @@ try {
   });
   await darkMobile.goto(baseUrl, { waitUntil: 'networkidle' });
   await darkMobile.screenshot({ path: '/tmp/leneu-mobile-dark.png' });
-  await darkMobile.getByRole('button', { name: '메뉴 열기' }).click();
+  await darkMobile.getByRole('button', { name: '메뉴 열기', exact: true }).click();
   await darkMobile
     .getByRole('navigation', { name: '페이지 목록' })
     .getByRole('link', { name: pageTitle })
@@ -816,9 +862,9 @@ try {
         field.scrollWidth > field.clientWidth || field.scrollHeight > field.clientHeight + 1,
     );
   if (titleClipped) throw new Error('모바일에서도 긴 페이지 제목이 잘리지 않아야 합니다.');
-  if ((await mobile.getByRole('button', { name: /^(바로|이어서) 기록하기$/ }).count()) !== 1)
-    throw new Error('모바일 페이지에서도 빠른 입력 버튼이 보여야 합니다.');
-  await mobile.getByRole('button', { name: '메뉴 열기' }).click();
+  if ((await mobile.getByRole('button', { name: '작성 메뉴 열기', exact: true }).count()) !== 1)
+    throw new Error('모바일 페이지에서도 작성 메뉴 버튼이 보여야 합니다.');
+  await mobile.getByRole('button', { name: '메뉴 열기', exact: true }).click();
   if (
     (await mobile
       .getByRole('navigation', { name: '페이지 목록' })
@@ -830,10 +876,17 @@ try {
     .getByRole('button', { name: '메뉴 닫기' })
     .click({ position: { x: mobile.viewportSize().width - 10, y: 80 } });
   await mobile.screenshot({ path: '/tmp/leneu-page-mobile.png', fullPage: true });
-  await mobile.getByRole('button', { name: /^(바로|이어서) 기록하기$/ }).click();
+  const mobilePagePath = new URL(mobile.url()).pathname;
+  await mobile.getByRole('button', { name: '작성 메뉴 열기', exact: true }).click();
+  await mobile
+    .getByRole('dialog', { name: '새로 작성' })
+    .getByRole('button', { name: '빠른 메모', exact: true })
+    .click();
   await mobile.getByRole('dialog', { name: '빠른 기록' }).waitFor();
-  if (new URL(mobile.url()).pathname !== '/')
-    throw new Error('페이지에서 바로 기록하기를 누르면 같은 앱의 입력함을 열어야 합니다.');
+  if (new URL(mobile.url()).pathname !== mobilePagePath)
+    throw new Error('페이지에서 빠른 메모를 열어도 같은 페이지 위에서 바로 기록할 수 있어야 합니다.');
+  await mobile.getByRole('button', { name: '입력 닫기' }).click();
+  await mobile.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
   await page.locator('.page-save-state').getByText('저장됨', { exact: true }).waitFor();
   const stale = await browser.newPage({ viewport: { width: 1000, height: 700 } });
   const fresh = await browser.newPage({ viewport: { width: 1000, height: 700 } });
@@ -851,9 +904,11 @@ try {
   }
   await stale.getByRole('textbox', { name: '페이지 제목' }).fill('늦은 수정');
   await stale
-    .getByRole('alert')
-    .getByText('다른 곳에서 먼저 수정했어요', { exact: false })
+    .locator('.page-banner-error')
+    .getByText('다른 곳에서 바뀌었어요.', { exact: false })
     .waitFor();
+  if ((await stale.locator('.page-save-state').innerText()).trim() !== '다른 곳에서 바뀜')
+    throw new Error('충돌 시 저장 상태는 다른 곳에서 바뀜으로 표시돼야 합니다.');
   const afterConflict = await (await fetch(`${baseUrl}/api/pages/${pageId}`)).json();
   if (afterConflict.item.title !== '최신 수정')
     throw new Error('늦은 탭의 저장이 최신 페이지를 덮었습니다.');

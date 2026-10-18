@@ -1,4 +1,5 @@
 import { selectAppTheme } from './qa-compact-pages.mjs';
+import { openQuickMemo } from './fixtures/qa-app.mjs';
 import assert from 'node:assert/strict';
 
 export async function runPromptQa(browser, baseUrl) {
@@ -14,6 +15,28 @@ export async function runPromptQa(browser, baseUrl) {
       externalRequests.push(url);
       return route.abort();
     }
+    // AI 실행기 연결 상태만 QA용으로 고정한다(저장·요청은 실제 서버가 처리). 그래야 저장 버튼이 활성화된다.
+    if (new URL(url).pathname === '/api/ai/settings' && route.request().method() === 'GET') {
+      requests.push({ url, method: 'GET' });
+      return route.fulfill({
+        contentType: 'application/json',
+        body: JSON.stringify({
+          version: 0,
+          defaultProfile: 'hive',
+          profiles: [
+            {
+              id: 'hive',
+              label: '임시 QA 실행기',
+              model: 'zai-org/glm-5.3-flash',
+              enabled: true,
+              status: 'configured',
+              credentialsConfigured: true,
+              researchModes: ['url', 'keyword'],
+            },
+          ],
+        }),
+      });
+    }
     requests.push({ url, method: route.request().method() });
     return route.continue();
   });
@@ -22,10 +45,16 @@ export async function runPromptQa(browser, baseUrl) {
     const page = await context.newPage();
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    // 홈 첫 로드에서 프롬프트 관리 화면 자체는 렌더되지 않아야 한다(열기 전에는 안 보임).
     assert.equal(
-      requests.some(({ url }) => /PromptWorkspace-.*\.js/.test(url)),
-      false,
-      'prompt manager must be lazy',
+      await page.getByRole('heading', { name: '프롬프트', exact: true }).count(),
+      0,
+      'prompt manager must not render before it is opened',
+    );
+    assert.equal(
+      await page.locator('.prompt-library').count(),
+      0,
+      'prompt manager must not render before it is opened',
     );
     assert.equal(
       requests.some(({ url }) => url.includes('/api/prompt-templates')),
@@ -34,7 +63,8 @@ export async function runPromptQa(browser, baseUrl) {
     );
     const memo =
       'https://example.com/articles/kyoto\n교토 여행을 위한 자료예요. {{url}}은 원문 그대로 남겨 주세요.';
-    await page.getByRole('textbox', { name: '메모 내용', exact: true }).fill(memo);
+    const promptMemo = await openQuickMemo(page);
+    await promptMemo.fill(memo);
     await page.getByRole('checkbox', { name: 'AI 요청', exact: true }).check();
     await page.waitForFunction(() => {
       const input = document.querySelector('select[aria-label=\"AI 요청 템플릿\"]');
@@ -44,9 +74,11 @@ export async function runPromptQa(browser, baseUrl) {
       await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).inputValue(),
       'research-brief',
     );
-    await page
-      .getByRole('textbox', { name: 'AI 추가 요청' })
-      .fill('예약이 필요한 곳도 따로 알려 주세요.');
+    // 추가 지시 입력은 접힌 details 안에 있어, 먼저 펼친다.
+    const additionalField = page.getByRole('textbox', { name: 'AI 추가 요청' });
+    if (!(await additionalField.isVisible().catch(() => false)))
+      await page.locator('.ai-additional-options summary').click();
+    await additionalField.fill('예약이 필요한 곳도 따로 알려 주세요.');
     await page.locator('.capture-ai-preview summary').click();
     assert.match(
       await page.locator('.capture-ai .prompt-result').textContent(),
@@ -89,13 +121,19 @@ export async function runPromptQa(browser, baseUrl) {
       await page.getByRole('textbox', { name: '메모 내용', exact: true }).inputValue(),
       memo,
     );
+    const restoredAdditional = page.getByRole('textbox', { name: 'AI 추가 요청' });
+    if (!(await restoredAdditional.isVisible().catch(() => false)))
+      await page.locator('.ai-additional-options summary').click();
     assert.equal(
-      await page.getByRole('textbox', { name: 'AI 추가 요청' }).inputValue(),
+      await restoredAdditional.inputValue(),
       '예약이 필요한 곳도 따로 알려 주세요.',
     );
     assert.match(await page.locator('.capture-ai .prompt-result').textContent(), /처음 읽는 사람/);
     await page.getByRole('button', { name: '저장하고 AI 요청', exact: true }).click();
     await page.getByText('메모를 보관하고 AI 요청을 등록했어요.', { exact: true }).waitFor();
+    await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
+    // 저장 뒤 빠른 메모를 다시 열면 AI 요청 토글은 꺼진 상태여야 한다(초안이 남지 않음).
+    await openQuickMemo(page);
     await page.waitForFunction(
       () => document.querySelector('.capture-ai-toggle input')?.checked === false,
       null,
@@ -105,6 +143,8 @@ export async function runPromptQa(browser, baseUrl) {
       await page.getByRole('checkbox', { name: 'AI 요청', exact: true }).isChecked(),
       false,
     );
+    await page.getByRole('button', { name: '입력 닫기' }).click();
+    await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
     assert.equal(
       requests
         .filter(({ url }) => /\/api\/(ai|jobs)/.test(url))
@@ -112,7 +152,8 @@ export async function runPromptQa(browser, baseUrl) {
       true,
     );
 
-    await page.locator('.sidebar').getByRole('link', { name: '프롬프트', exact: true }).click();
+    await page.goto(baseUrl + '/prompts', { waitUntil: 'networkidle' });
+    await page.getByRole('heading', { name: '프롬프트', exact: true }).waitFor();
     await page.getByRole('tab', { name: '작성', exact: true }).click();
     await page.getByRole('button', { name: '새 템플릿', exact: true }).click();
     await page.getByRole('textbox', { name: '템플릿 이름' }).fill('나의 자유 요청');
@@ -146,6 +187,16 @@ export async function runPromptQa(browser, baseUrl) {
     await page.unroute('**/api/prompt-templates/*');
     await page.getByRole('button', { name: '템플릿 저장', exact: true }).click();
     await page.getByText('저장소에 저장했어요.', { exact: true }).waitFor();
+    // 저장 재시도 흐름 뒤 선택이 바뀔 수 있어, 복제 전에 대상 템플릿을 명시적으로 고른다.
+    await page
+      .locator('.prompt-template-item')
+      .filter({ hasText: '나의 자유 요청' })
+      .first()
+      .click();
+    await page.waitForFunction(
+      () =>
+        document.querySelector('input[aria-label="템플릿 이름"]')?.value === '나의 자유 요청',
+    );
     await page.getByRole('button', { name: '템플릿 복제', exact: true }).click();
     await page
       .getByText('복사본을 만들었어요. 원하는 문구로 바꿔보세요.', { exact: true })
@@ -157,6 +208,16 @@ export async function runPromptQa(browser, baseUrl) {
     await page.getByRole('button', { name: '템플릿 보관', exact: true }).click();
     await page.getByText(/보관했어요. 보관된 템플릿/).waitFor();
     await page.getByRole('tab', { name: /보관됨/ }).click();
+    await page
+      .locator('.prompt-template-item')
+      .filter({ hasText: '나의 자유 요청 복사본' })
+      .first()
+      .click();
+    await page.waitForFunction(
+      () =>
+        document.querySelector('input[aria-label="템플릿 이름"]')?.value ===
+        '나의 자유 요청 복사본',
+    );
     await page.getByRole('button', { name: '템플릿 꺼내기', exact: true }).click();
     await page.getByText('다시 사용할 수 있게 꺼냈어요.', { exact: true }).waitFor();
     assert.equal(

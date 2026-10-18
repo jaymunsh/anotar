@@ -36,7 +36,7 @@ export async function runAiQa(browser, baseUrl, { configured = false, smoke = fa
     await page.getByRole('checkbox', { name: 'AI 요청', exact: true }).check();
     await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption('direct');
     await page.getByRole('button', { name: '저장하고 AI 요청', exact: true }).click();
-    await page.getByText(/메모를 보관하고 AI 요청을 등록했어요\.|기기에 저장했어요\. 연결되면 동기화해요\./).waitFor();
+    await page.getByText('메모를 보관하고 AI 요청을 등록했어요.', { exact: true }).waitFor();
     assert.equal(
       await page.getByRole('textbox', { name: '메모 내용', exact: true }).inputValue(),
       '',

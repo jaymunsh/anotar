@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
-import {offlineApp} from './fixtures/offline-app.mjs';
+import {qaApp} from './fixtures/qa-app.mjs';
 import {defaultDocumentTypography} from '../shared/documentTypography.ts';
 const evidence='.omo/evidence/document-typography-settings';
 await mkdir(evidence,{recursive:true});
-const app=await offlineApp(), errors=[];
+const app=await qaApp(), errors=[];
 const block=(type,text,props={})=>({id:crypto.randomUUID(),type,props,content:[{type:'text',text,styles:{}}],children:[]});
 try {
   const created=(await app.request('/api/pages',{title:'Anotar 글자 비율 확인'})).item;

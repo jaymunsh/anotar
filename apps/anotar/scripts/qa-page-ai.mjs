@@ -192,9 +192,9 @@ export async function runPageAiQa(browser, baseUrl, calls) {
     await ai.getByRole('textbox', { name: 'AI 추가 요청' }).fill('세 가지로 정리 [SLOW-PAGE]');
     let lostRequest = false;
     const requestBodies = [];
-    await page.route('**/api/sync/operations', async (route) => {
-      const body=route.request().postDataJSON();
-      if(body.kind!=='ai.submit'||body.entityId!==target.id)return route.continue();
+    await page.route(`**/api/pages/${target.id}/ai-jobs`, async (route) => {
+      if (route.request().method() !== 'POST') return route.continue();
+      const body = route.request().postDataJSON();
       requestBodies.push(body);
       if (lostRequest) return route.continue();
       lostRequest = true;
@@ -212,7 +212,7 @@ export async function runPageAiQa(browser, baseUrl, calls) {
     await page.reload({waitUntil:'networkidle'});await openAi();
     await waitUntil(async()=>requestBodies.length,count=>count>=2);
     assert.deepEqual(requestBodies[1],requestBodies[0]);
-    await page.unroute('**/api/sync/operations');
+    await page.unroute(`**/api/pages/${target.id}/ai-jobs`);
     await ai.locator('.ai-job-heading .ai-job-state').filter({ hasText: '결과 준비됨' }).waitFor();
     const resultJob = await waitJob(requested.id);
     assert.equal(resultJob.status, 'result_ready');
@@ -269,12 +269,11 @@ export async function runPageAiQa(browser, baseUrl, calls) {
     const selectionSubmitted = page.waitForRequest(
       (request) =>
         request.method() === 'POST' &&
-        new URL(request.url()).pathname === '/api/sync/operations' && request.postDataJSON()?.kind==='ai.submit' && request.postDataJSON()?.entityId===target.id,
+        new URL(request.url()).pathname === `/api/pages/${target.id}/ai-jobs`,
       {timeout:45000},
     );
     await ai.getByRole('button', { name: '현재 페이지로 요청', exact: true }).click();
-    const selectedOperation = (await selectionSubmitted).postDataJSON();
-    const selectedBody={...selectedOperation.payload,expectedVersion:selectedOperation.baseVersion};
+    const selectedBody = (await selectionSubmitted).postDataJSON();
     assert.equal(selectedBody.expectedVersion, beforeUiSelection.version);
     assert.ok(
       selectedBody.blockIds.length > 0,

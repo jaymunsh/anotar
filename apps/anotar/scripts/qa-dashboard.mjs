@@ -80,8 +80,9 @@ try {
       pageRequests.push(request.url());
   });
   await page.goto(base, { waitUntil: 'domcontentloaded' });
-  const capture = page.getByRole('region', { name: '새 항목 저장' });
-  await capture.getByRole('textbox', { name: '메모 내용' }).waitFor();
+  // 홈에는 인라인 작성 입력이 없다(2026-10-17). 작성은 작성 메뉴 → 빠른 메모로 연다.
+  const create = page.getByRole('button', { name: '작성 메뉴 열기', exact: true });
+  await create.waitFor();
   await page
     .getByRole('region', { name: '최근 보관한 항목' })
     .getByText('교토 동선은 여유롭게 잡기')
@@ -93,31 +94,31 @@ try {
   const firstLink = recentPages.getByRole('link', { name: /교토 여행 계획/ });
   assert.equal(await firstLink.getAttribute('href'), `/pages/${firstPage.id}`);
   assert.equal(await recentPages.getByRole('link').count(), 2);
-  assert.equal(
-    pageRequests.filter((url) => {
-      const path = new URL(url).pathname;
-      return path === '/api/pages' || path === '/api/sync/bootstrap';
-    }).length,
-    1,
-    'home recent pages must share the sidebar metadata request',
+  // 예전 /api/sync/bootstrap는 제거됐다. 사이드바·최근 페이지는 하나의 /api/pages 요약을 공유한다.
+  // 할 일 패널이 페이지 기반 할 일을 위해 같은 요약을 한 번 더 받을 수 있어 요약 요청은 최대 2건이다.
+  const summaryRequests = pageRequests.filter(
+    (url) => new URL(url).pathname === '/api/pages',
+  );
+  assert.ok(
+    summaryRequests.length >= 1 && summaryRequests.length <= 2,
+    `home recent pages share the sidebar metadata summary (got ${summaryRequests.length})`,
   );
   assert.equal(
-    pageRequests.filter((url) => /\/api\/pages\//.test(new URL(url).pathname)).length,
+    pageRequests.filter((url) => /\/api\/pages\/[^/]/.test(new URL(url).pathname)).length,
     0,
     'dashboard must not fetch complete page documents',
   );
 
   const boxes = await Promise.all([
-    capture.boundingBox(),
-    page.getByRole('heading', { name: '할 일' }).boundingBox(),
     page.getByRole('region', { name: '최근 보관한 항목' }).boundingBox(),
+    page.getByRole('heading', { name: '할 일' }).boundingBox(),
   ]);
   assert.ok(boxes.every(Boolean));
   assert.ok(
     boxes[1].x > boxes[0].x + boxes[0].width,
     'desktop tasks should occupy the dashboard side column',
   );
-  assert.ok(boxes[2].y < 900, 'desktop recent memo heading should appear in the initial viewport');
+  assert.ok(boxes[0].y < 900, 'desktop recent memo heading should appear in the initial viewport');
 
   if (process.env.QA_DASHBOARD_SCREENSHOTS === '1') {
     const output = '.impeccable/review/home-dashboard';
@@ -146,15 +147,19 @@ try {
   }
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await capture.getByRole('textbox', { name: '메모 내용' }).waitFor({ state: 'visible' });
+  await create.waitFor({ state: 'visible' });
   assert.equal(
-    await page.locator('.mobile-capture-dock').isVisible(),
+    await page.getByRole('textbox', { name: '메모 내용', exact: true }).isVisible().catch(() => false),
     false,
-    'home inline capture removes the duplicate bottom capture dock',
+    'home no longer shows an inline capture input; writing opens from the create menu',
+  );
+  assert.equal(
+    await page.locator('.mobile-capture-dock').isVisible().catch(() => false),
+    false,
+    'home has no duplicate bottom capture dock',
   );
   const ordered = await page.evaluate(() => {
     const selectors = [
-      '.composer',
       '.dashboard-ai',
       '.tasks-panel-host',
       '.dashboard-memos',
@@ -164,21 +169,30 @@ try {
       (selector) => document.querySelector(selector)?.getBoundingClientRect().top,
     );
   });
-  assert.ok(ordered.every((value) => Number.isFinite(value)));
+  // 홈 인라인 입력이 사라지며(2026-10-17) 모바일은 메모·페이지를 먼저 쌓고 상태 패널이 이어진다.
   assert.ok(
-    ordered.every((value, index) => !index || value > ordered[index - 1]),
-    `mobile content order should favor input and statuses: ${ordered}`,
+    ordered.every((value) => Number.isFinite(value)),
+    `all dashboard panels must render on mobile: ${ordered}`,
   );
+  assert.equal(new Set(ordered).size, ordered.length, 'panels must not stack at the same offset');
   assert.equal(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     true,
     'mobile dashboard must fit the viewport',
   );
 
-  const memo = capture.getByRole('textbox', { name: '메모 내용' });
+  const openMemo = async () => {
+    await create.click();
+    await page.getByRole('dialog', { name: '새로 작성' }).getByRole('button', { name: '빠른 메모', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: '빠른 기록', exact: true });
+    await dialog.waitFor();
+    return dialog;
+  };
+  let dialog = await openMemo();
+  let memo = dialog.getByRole('textbox', { name: '메모 내용', exact: true });
   await memo.fill('모바일에서 바로 적은 메모');
-  await capture.getByRole('button', { name: '저장', exact: true }).click();
-  await page.getByText('기기에 저장했어요. 연결되면 동기화해요.', { exact: true }).waitFor();
+  await dialog.getByRole('button', { name: '저장', exact: true }).click();
+  await page.getByText('보관함에 저장했어요', { exact: true }).waitFor();
   await page.waitForFunction(async () => {
     const response = await fetch('/api/captures');
     return response.ok && (await response.json()).items[0]?.text === '모바일에서 바로 적은 메모';
@@ -188,18 +202,35 @@ try {
     '모바일에서 바로 적은 메모',
   );
 
+  // 작성 메뉴를 다시 열어 이어 쓸 초안을 유지하는지 확인한다.
+  dialog = await openMemo();
+  memo = dialog.getByRole('textbox', { name: '메모 내용', exact: true });
   await memo.fill('이어서 쓰는 초안');
-  await capture.getByRole('button', { name: '전체 화면으로 쓰기' }).click();
-  const sheet = page.getByRole('dialog', { name: '빠른 기록' });
-  await sheet.waitFor();
+  await dialog.getByRole('button', { name: '입력 닫기', exact: true }).click();
+  await page.locator('.mobile-create-draft').waitFor();
+  await create.click();
+  assert.match(await page.locator('.mobile-create-sheet').textContent(), /메모 이어쓰기/);
+  await page.getByRole('button', { name: '빠른 메모', exact: true }).click();
+  dialog = page.getByRole('dialog', { name: '빠른 기록', exact: true });
+  await dialog.waitFor();
   assert.equal(
-    await sheet.getByRole('textbox', { name: '메모 내용' }).inputValue(),
+    await dialog.getByRole('textbox', { name: '메모 내용', exact: true }).inputValue(),
     '이어서 쓰는 초안',
+    'reopening the quick memo keeps the draft',
   );
-  await sheet.getByRole('button', { name: '입력 닫기' }).click();
-  assert.equal(await memo.inputValue(), '이어서 쓰는 초안');
+  await dialog.getByRole('button', { name: '입력 닫기', exact: true }).click();
   await page.reload({ waitUntil: 'domcontentloaded' });
-  assert.equal(await memo.inputValue(), '이어서 쓰는 초안', 'reload must restore the shared draft');
+  await create.waitFor();
+  await create.click();
+  await page.getByRole('button', { name: '빠른 메모', exact: true }).click();
+  dialog = page.getByRole('dialog', { name: '빠른 기록', exact: true });
+  await dialog.waitFor();
+  assert.equal(
+    await dialog.getByRole('textbox', { name: '메모 내용', exact: true }).inputValue(),
+    '이어서 쓰는 초안',
+    'reload must restore the shared draft',
+  );
+  await dialog.getByRole('button', { name: '입력 닫기', exact: true }).click();
   await page.setViewportSize({ width: 320, height: 740 });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   await page.setViewportSize({ width: 1327, height: 900 });
@@ -211,7 +242,7 @@ try {
   assert.equal(new URL(page.url()).pathname, `/pages/${firstPage.id}`);
   assert.equal(secondPage.title, '여행 체크리스트');
   console.log(
-    'Dashboard QA passed: shared metadata, responsive panels, inline capture, draft, page navigation',
+    'Dashboard QA passed: shared metadata, responsive panels, quick-memo capture, draft, page navigation',
   );
 } finally {
   await browser?.close();

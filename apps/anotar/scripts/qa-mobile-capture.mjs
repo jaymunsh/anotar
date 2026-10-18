@@ -140,8 +140,7 @@ export async function runMobileCaptureQa(browser, baseUrl, evidenceDir = '.omo/e
       if (width === 390) {
         // Explicit save is the only point that sends data to the server.
         await page.getByRole('button', { name: '저장', exact: true }).click();
-        await page.getByText('기기에 저장했어요. 연결되면 동기화해요.', { exact: true }).waitFor();
-        await page.waitForFunction(() => document.querySelector('.sync-status')?.textContent.includes('동기화 완료'));
+        await page.getByText('보관함에 저장했어요', { exact: true }).waitFor();
         const saved = (await (await fetch(`${baseUrl}/api/captures`)).json()).items.find((item) => item.text.includes('공유 원본'));
         assert.ok(saved);
         assert.equal(saved.files.length, 2);
@@ -156,8 +155,7 @@ export async function runMobileCaptureQa(browser, baseUrl, evidenceDir = '.omo/e
         await page.getByText('공유 내용을 초안에 가져왔어요. 내용과 첨부를 확인한 뒤 저장해 주세요.', { exact: true }).waitFor();
         assert.equal(await memo.inputValue(), '새 메모 초안\n\nhttps://note.example/preserve-url');
         await page.getByRole('button', { name: '저장', exact: true }).click();
-        await page.getByText('기기에 저장했어요. 연결되면 동기화해요.', { exact: true }).waitFor();
-        await page.waitForFunction(() => document.querySelector('.sync-status')?.textContent.includes('동기화 완료'));
+        await page.getByText('보관함에 저장했어요', { exact: true }).waitFor();
         const savedNote = (await (await fetch(`${baseUrl}/api/captures`)).json()).items.find((item) => item.text.includes('https://note.example/preserve-url'));
         assert.ok(savedNote, 'non-link draft retains imported URL in its actual saved body');
       }

@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { offlineApp } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 
-const app = await offlineApp();
+const app = await qaApp();
 const out = '.omo/evidence/capture-input';
 await mkdir(out, { recursive: true });
 try {

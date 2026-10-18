@@ -191,29 +191,8 @@ try {
     await page.waitForURL(`**/pages/${parent.id}?import=*`, { timeout: 45000 });
   } catch (error) {
     console.log('stuck', page.url(), await page.locator('.detail-panel').innerText());
-    console.log(
-      'outbox',
-      await page.evaluate(
-        () =>
-          new Promise((resolve) => {
-            const req = indexedDB.open('leneu-offline-v1');
-            req.onsuccess = () => {
-              const r = req.result.transaction('outbox').objectStore('outbox').getAll();
-              r.onsuccess = () =>
-                resolve(
-                  r.result.map((p) => ({
-                    kind: p.operation.kind,
-                    state: p.state,
-                    error: p.error,
-                    dependencies: p.dependencies,
-                    entityId: p.operation.entityId,
-                    operationId: p.operation.operationId,
-                  })),
-                );
-            };
-          }),
-      ),
-    );
+    // 온라인 전용: IndexedDB outbox는 제거됐다. 서버의 현재 대상 페이지 본문을 진단으로 남긴다.
+    console.log('parent document', JSON.stringify((await read('/api/pages/' + parent.id)).item.document).slice(0, 2000));
     await page.screenshot({ path: output + '/stuck.png' });
     throw error;
   }

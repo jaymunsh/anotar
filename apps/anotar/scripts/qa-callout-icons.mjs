@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
-import { offlineApp, settleSync } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 import { renderSharedPage } from '../server/publicPage.mjs';
 
 const evidence = resolve('.omo/evidence/callout-icons');
 await mkdir(evidence, { recursive: true });
-const app = await offlineApp();
+const app = await qaApp();
 const checks = [], errors = [];
+// settleSync 대체: 편집 후 저장 상태가 '저장됨'이 될 때까지 기다린다(서버 반영은 saved()가 폴링으로 확인).
+const settle = async page => { await page.waitForFunction(() => document.querySelector('.page-save-state')?.textContent?.includes('저장됨')); };
 const text = value => [{type:'text', text:value, styles:{}}];
 const paragraph = (id, value) => ({id, type:'paragraph', props:{backgroundColor:'default',textColor:'default',textAlignment:'left'}, content:text(value), children:[]});
 const get = async id => (await (await fetch(app.base + '/api/pages/' + id)).json()).item;
@@ -48,7 +50,7 @@ try {
   assert.equal(await box.locator('.page-callout').getAttribute('data-icon'),'none');
   checks.push('Dot menu hides icon and gutter; content, style and children survive save/reload');
   await choose('주의');
-  await settleSync(page);
+  await settle(page);
   await saved(page,seeded.id,'warning');
   assert.equal(await box.locator('.callout-marker').isVisible(),true);
   await page.reload(); await box.locator('.callout-content').waitFor();
@@ -56,7 +58,7 @@ try {
   checks.push('Same menu restores a chosen icon and persists it');
   await box.getByRole('button',{name:'콜아웃 모양',exact:true}).click();
   await box.locator('.callout-appearance:popover-open').getByRole('button',{name:'아이콘 없음',exact:true}).click();
-  await settleSync(page);
+  await settle(page);
   await saved(page,seeded.id,'none');
   assert.equal(await page.locator('.callout-appearance:popover-open').count(),0);
   checks.push('Existing appearance picker also collapses icon gutter and closes safely');

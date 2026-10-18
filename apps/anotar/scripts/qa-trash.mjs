@@ -73,9 +73,9 @@ export async function runTrashQa(browser, baseUrl) {
     await page.waitForURL('**/memo');
     assert.equal((await fetch(baseUrl + '/api/pages/' + child.id)).status, 404);
     await old.getByRole('textbox', { name: '페이지 제목' }).fill('삭제된 뒤에도 남길 초안');
-    await old
-      .getByText('서버에 저장하지 못했어요. 초안은 이 기기에 남아 있습니다.', { exact: true })
-      .waitFor();
+    // 온라인 전용: 휴지통으로 옮겨진 페이지는 저장이 거절되고 입력과 초안은 남는다.
+    await old.locator('.page-save-state').getByText('저장 못 함', { exact: true }).waitFor();
+    await old.locator('.page-banner-error').getByRole('button', { name: '다시 시도' }).waitFor();
     assert.ok(
       await old.evaluate((id) => localStorage.getItem('leneu:page-draft:' + id), parent.id),
     );
@@ -129,8 +129,8 @@ export async function runTrashQa(browser, baseUrl) {
       (await (await fetch(baseUrl + '/api/pages/' + child.id)).json()).item.parentId,
       parent.id,
     );
-    await old.getByRole('button', { name: '다시 저장' }).click();
-    await old.getByText('저장 충돌', { exact: true }).waitFor();
+    await old.locator('.page-banner-error').getByRole('button', { name: '다시 시도' }).click();
+    await old.getByText('다른 곳에서 바뀌었어요.', { exact: false }).waitFor();
     assert.equal(
       await old.getByRole('textbox', { name: '페이지 제목' }).inputValue(),
       '삭제된 뒤에도 남길 초안',

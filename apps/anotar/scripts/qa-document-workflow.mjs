@@ -2,10 +2,17 @@ import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { buildDocumentBlueprint } from '../shared/documentBlueprints.ts';
-import { offlineApp, settleSync } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 const evidence = '.omo/evidence/document-workflow';
 await mkdir(evidence, { recursive: true });
-const app = await offlineApp();
+const app = await qaApp();
+// 온라인 전용: 편집기 자동 저장이 '저장됨' 상태에 도달할 때까지 기다린다(예전 settleSync 대체).
+const settle = async (page) => {
+ await page.waitForFunction(() => {
+  const el = document.querySelector('.page-save-state');
+  return !el || el.textContent === '저장됨' || el.textContent === '일정 수정 중';
+ });
+};
 const block = (type, text, props = {}) => ({id: randomUUID(), type, props, content:[{type:'text',text,styles:{}}],children:[]});
 try {
  const blank = (await app.request('/api/pages',{title:'제목 없음'})).item;
@@ -31,7 +38,7 @@ try {
  assert.equal(await page.getByLabel('페이지 제목',{exact:true}).inputValue(),'문서흐름 4일 여행');
  assert.equal(await page.locator('.itinerary-block').count(),0);
  await page.waitForFunction(()=>document.querySelector('.page-save-state')?.textContent!=='저장 중…');
- await settleSync(page);
+ await settle(page);
  // Existing travel documents remain compatible although new-page menus hide them.
  const legacy=buildDocumentBlueprint('travel',{startDate:'2026-10-05',days:4});
  const legacyPage=(await app.request('/api/pages',{title:'既存旅行 · 호환 문서'})).item;
@@ -48,7 +55,7 @@ try {
  assert.ok(!options.some(text=>/^지도|^일정/.test(text.trim())));
  await page.screenshot({path:evidence+'/active-slash-menu.png'});
  await page.keyboard.press('Escape'); await page.keyboard.press('Backspace');
- await settleSync(page);
+ await settle(page);
  // Copying materials is explicit and does not mutate the source.
  await page.getByRole('button',{name:'자료 가져오기',exact:true}).click();
  const panel=page.getByRole('complementary',{name:'자료 가져오기',exact:true});
@@ -63,7 +70,7 @@ try {
  await panel.getByRole('button',{name:'본문 끝에 넣기',exact:true}).click();
  await page.locator('.bn-editor').getByText('자료검증 첫 번째 안내. 원본은 그대로 보존합니다.',{exact:true}).waitFor();
  assert.equal(await page.locator('.bn-editor').getByText('두 번째 안내는 가져오지 않습니다.',{exact:true}).count(),0);
- await settleSync(page);
+ await settle(page);
  await page.screenshot({path:evidence+'/materials-selection-desktop.png'});
  await page.getByRole('button',{name:'자료 가져오기 닫기'}).click();
  // Outline follows scroll location, preserving the established outline UI.
@@ -80,30 +87,29 @@ try {
    await page.screenshot({path:evidence+`/travel-template-${width}.png`,animations:'disabled'});
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
  }
- // Offline creation from the home template entry; online reconnection creates exactly once.
+ // Online-only: applying a template in the editor saves the full document to the server.
  await page.setViewportSize({width:1440,height:1000});
- await page.goto(app.base+'/');
- await page.getByRole('button',{name:'템플릿으로 만들기',exact:true}).click();
+ const fresh=(await app.request('/api/pages',{title:'제목 없음'})).item;
+ await page.goto(app.base+'/pages/'+fresh.id); await page.locator('.bn-editor').waitFor();
+ await page.getByRole('button',{name:'템플릿으로 시작',exact:true}).click();
  await picker.waitFor();
  await picker.getByRole('button',{name:/회의 기록/}).click();
- await picker.getByLabel('문서 제목').fill('오프라인 회의 기록 검증');
- await page.evaluate(()=>navigator.serviceWorker.ready);
- await context.setOffline(true);
+ await picker.getByLabel('문서 제목').fill('온라인 회의 기록 검증');
  await picker.getByRole('button',{name:'이 템플릿 사용'}).click();
- await page.getByLabel('페이지 제목',{exact:true}).waitFor();
- assert.equal(await page.getByLabel('페이지 제목',{exact:true}).inputValue(),'오프라인 회의 기록 검증');
- const offlineId=new URL(page.url()).pathname.split('/').at(-1);
- await page.reload(); await page.locator('.bn-editor').waitFor();
- assert.equal(await page.getByLabel('페이지 제목',{exact:true}).inputValue(),'오프라인 회의 기록 검증');
- await context.setOffline(false);
+ await picker.waitFor({state:'hidden'});
+ assert.equal(await page.getByLabel('페이지 제목',{exact:true}).inputValue(),'온라인 회의 기록 검증');
+ await settle(page);
  let created;
  for(let attempt=0;attempt<450;attempt++) {
-  const response=await fetch(app.base+'/api/pages/'+offlineId);
-  if(response.ok){created=(await response.json()).item;break;}
+  const response=await fetch(app.base+'/api/pages/'+fresh.id);
+  if(response.ok){const item=(await response.json()).item; if(item.title==='온라인 회의 기록 검증'&&item.document.blocks.length>5){created=item;break;}}
   await new Promise(r=>setTimeout(r,100));
  }
- assert.equal(created?.title,'오프라인 회의 기록 검증');
+ assert.equal(created?.title,'온라인 회의 기록 검증');
  assert.ok(created.document.blocks.length>5);
+ // Reloading reads the persisted document from the server.
+ await page.reload(); await page.locator('.bn-editor').waitFor();
+ assert.equal(await page.getByLabel('페이지 제목',{exact:true}).inputValue(),'온라인 회의 기록 검증');
  // Mobile/dark picker, native modal focus and narrow inspector.
  await page.goto(app.base+'/');
  await page.setViewportSize({width:320,height:850});
@@ -125,6 +131,6 @@ try {
  const afterSource=(await (await fetch(app.base+'/api/pages/'+source.id)).json()).item;
  assert.deepEqual(afterSource,sourceSaved);
  assert.deepEqual(errors,[]);
- await writeFile(evidence+'/browser-qa.json',JSON.stringify({passed:true,temporaryData:true,checks:['blank template application','4 day independent itineraries','save and reload','source excerpt inserted and original unchanged','outline follows scrolling','320/390 overflow','offline creation/reload/reconnect','mobile dark picker/inspector','modal keyboard focus'],errors},null,2));
+ await writeFile(evidence+'/browser-qa.json',JSON.stringify({passed:true,temporaryData:true,checks:['blank template application','4 day independent itineraries','save and reload','source excerpt inserted and original unchanged','outline follows scrolling','320/390 overflow','online creation/reload','mobile dark picker/inspector','modal keyboard focus'],errors},null,2));
  console.log('Document workflow browser QA passed');
 } catch (error) { for(const context of app.browser.contexts()) for(const p of context.pages()) { await p.screenshot({path:evidence+'/failure.png'}).catch(()=>{}); console.log((await p.locator('body').innerText()).slice(-2500)); } throw error; } finally { await app.close(); }

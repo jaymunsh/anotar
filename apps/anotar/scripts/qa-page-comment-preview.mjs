@@ -72,7 +72,16 @@ export async function runCommentPreviewQa(browser, baseUrl) {
     for (const width of [1440, 390, 320]) {
       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
       for (const theme of ['light', 'dark']) {
+        // 모바일에서 댓글 패널 본문이 설정 버튼을 가려, 테마 전환 동안엔 패널을 닫았다 다시 연다.
+        if (await page.getByRole('button', { name: '댓글 패널 닫기' }).isVisible().catch(() => false))
+          await page.getByRole('button', { name: '댓글 패널 닫기' }).click();
         await selectAppTheme(page, theme);
+        if (!(await page.locator('.page-comment-panel').count())) {
+          const commentToggle = page.getByRole('button', { name: '블록 댓글', exact: true });
+          await commentToggle.waitFor({ state: 'visible' });
+          await commentToggle.click();
+          await page.locator('.page-comment-panel').waitFor();
+        }
         assert.equal(
           await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
           false,
@@ -98,12 +107,20 @@ export async function runCommentPreviewQa(browser, baseUrl) {
           );
           await page.getByRole('button', { name: '댓글 패널 줄이기' }).click();
         }
+        // 블록 선택이 화면/설정 전환으로 풀릴 수 있어, 작성 영역 확인 직전에 블록을 다시 고른다.
+        if ((await page.locator('.page-comment-compose').count()) === 0) {
+          await page.getByRole('combobox', { name: '댓글 달 블록' }).selectOption({ index: 1 });
+          await page.locator('.page-comment-compose').waitFor();
+        }
         const composer = await page.locator('.page-comment-compose').boundingBox(),
           panel = await page.locator('.page-comment-panel').boundingBox();
         assert.ok(
           composer.y + composer.height <= panel.y + panel.height + 1,
           'Composer stays within the panel',
         );
+        // 다음 반복의 개요 검사를 위해 블록 선택을 해제해 개요 화면으로 돌아간다.
+        const blockPicker = page.getByRole('combobox', { name: '댓글 달 블록' });
+        if (await blockPicker.count()) await blockPicker.selectOption({ index: 0 });
         await page.screenshot({ path: `/tmp/leneu-comment-preview-${width}-${theme}.png` });
       }
     }

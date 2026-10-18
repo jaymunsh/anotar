@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { offlineApp } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 import { openStore } from '../server/store.mjs';
 import { ensureArchitecturePage } from './seed-architecture.mjs';
 
 const evidence = process.env.GUIDE_EVIDENCE || '.omo/evidence/explanatory-guide';
 await mkdir(evidence, { recursive: true });
-const app = await offlineApp();
+const app = await qaApp();
 const errors = [], checks = [];
 let publicServer;
 try {

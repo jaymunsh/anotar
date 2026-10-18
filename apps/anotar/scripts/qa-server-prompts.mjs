@@ -25,11 +25,12 @@ export async function runServerPromptQa(browser, baseUrl) {
       route.fulfill({ status: 503, json: { error: '저장소를 불러오지 못했어요.' } }),
     );
     await other.goto(page.url(), { waitUntil: 'networkidle' });
-    await other.getByRole('alert').getByText('저장소를 불러오지 못했어요.').waitFor();
+    // 온라인 전용 cachedRequest는 서버 본문 대신 일반 적재 오류 문구를 띄운다.
+    await other.getByRole('alert').getByText('자료를 불러오지 못했어요.').waitFor();
     assert.equal(
       await other
-        .locator('.prompt-workspace-heading')
         .getByRole('button', { name: '새 템플릿', exact: true })
+        .first()
         .isEnabled(),
       false,
     );

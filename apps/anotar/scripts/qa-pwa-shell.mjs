@@ -1,106 +1,101 @@
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { createServer } from 'node:net';
-import { chromium } from 'playwright-core';
-const probe = createServer();
-await new Promise((r) => probe.listen(0, '127.0.0.1', r));
-const port = probe.address().port;
-await new Promise((r) => probe.close(r));
-const dir = await mkdtemp(join(tmpdir(), 'leneu-pwa-shell-')),
-  base = `http://127.0.0.1:${port}`;
-const child = spawn(process.execPath, ['server/index.mjs'], {
-  env: {
-    ...process.env,
-    DATA_DIR: dir,
-    PORT: String(port),
-    HOST: '127.0.0.1',
-    AI_RUNNER_KIND: 'disabled',
-    AI_RUNNER_URL: '',
-    GEOAPIFY_API_KEY: '',
-    GOOGLE_MAPS_DEMO_KEY: '',
-  },
-  stdio: 'ignore',
-});
-let browser;
+import { mkdir, writeFile } from 'node:fs/promises';
+import { qaApp, prepareShell, openQuickMemo } from './fixtures/qa-app.mjs';
+
+// 온라인 전용 PWA 앱 쉘(2026-10-19 로컬 우선 동기화 제거 후).
+// 앱 쉘 캐시·설치는 유지 기능이다: 오프라인에서도 앱 껍데기는 뜨지만 자료는 연결이 필요하고,
+// 연결이 끊긴 동안 저장하면 입력을 유지한 채 안내하며, 연결이 복구되면 정상 저장된다.
+// 예전 기기 저장('기기에 저장했어요')·'지금 동기화'·오프라인 자료 열람은 더 이상 없다.
+const app = await qaApp();
+const evidence = '.omo/evidence/pwa-shell';
+await mkdir(evidence, { recursive: true });
 try {
-  for (let i = 0; i < 80; i++) {
-    try {
-      if ((await fetch(base + '/api/health')).ok) break;
-    } catch {}
-    await new Promise((r) => setTimeout(r, 100));
-  }
-  browser = await chromium.launch({
-    executablePath:
-      process.env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    headless: true,
-  });
-  const seed = new FormData();
-  seed.set('kind', 'note');
-  seed.set('text', '상세 경로 오프라인 회귀 원문');
-  const seedResponse = await fetch(base + '/api/captures', { method: 'POST', body: seed });
-  assert.equal(seedResponse.status, 201);
-  const capture = (await seedResponse.json()).item;
-  const context = await browser.newContext();
-  let page = await context.newPage();
-  await page.goto(base);
-  await page.waitForFunction(async () => {
-    const names = await caches.keys();
-    return names.some((name) => name.startsWith('leneu-shell-v1-'));
-  });
-  await page.evaluate(async () => {
-    await navigator.serviceWorker.ready;
-  });
-  await page.reload();
-  await page.goto(base + '/captures/' + capture.id);
-  await page.locator('.detail-text').getByText(capture.text, { exact: true }).waitFor();
+  const context = await app.browser.newContext();
+  const page = await context.newPage();
+  await page.goto(app.base + '/');
+  await prepareShell(page);
+
+  // 1) 앱 쉘이 캐시된다.
+  await page.waitForFunction(
+    async () => (await caches.keys()).some((name) => name.startsWith('leneu-shell-v1-')),
+    null,
+    { timeout: 20000 },
+  );
+  const shellCaches = await page.evaluate(async () =>
+    (await caches.keys()).filter((name) => name.startsWith('leneu-shell-v1-')),
+  );
+  assert.equal(shellCaches.length, 1, 'the app shell is cached under a single versioned cache');
+
+  // 2) 완전 오프라인에서도 앱 쉘이 뜬다(브라우저 오류 화면이 아니라 작성 UI가 동작).
   await context.setOffline(true);
-  for (const query of ['', '?aiJob=historical', '?ocrJob=historical']) {
-    await page.goto(base + '/captures/' + capture.id + query);
-    await page.locator('.detail-text').getByText(capture.text, { exact: true }).waitFor();
-    await page.reload();
-    await page.locator('.detail-text').getByText(capture.text, { exact: true }).waitFor();
-  }
-  const other = await context.newPage();
-  await other.goto(base + '/memo');
-  await other.getByRole('heading', { name: '메모', exact: true }).waitFor();
-  await other.goto(base + '/capture');
-  await other
-    .getByRole('textbox', { name: '메모 내용', exact: true })
-    .fill('완전 오프라인 부팅 후 메모');
-  await other.getByRole('button', { name: '저장', exact: true }).click();
-  await other.getByText('기기에 저장했어요. 연결되면 동기화해요.', { exact: true }).waitFor();
-  await other.reload();
-  await other.goto(base + '/memo');
-  await other.getByText('완전 오프라인 부팅 후 메모', { exact: true }).waitFor();
-  const denied = await other.evaluate(async () => {
+  await page.goto(app.base + '/');
+  await page.getByRole('button', { name: '작성 메뉴 열기', exact: true }).waitFor({ timeout: 15000 });
+
+  // 3) API·공유·외부 요청은 캐시된 앱 쉘 HTML로 대체되지 않는다(자료는 연결 필요).
+  const servedHtml = await page.evaluate(async () => {
     const outcomes = [];
-    for (const path of ['/api/sync/session', '/s/fake', 'https://example.com/'])
+    for (const path of ['/api/captures', '/s/fake', 'https://example.com/'])
       try {
-        const r = await fetch(path);
-        outcomes.push((await r.text()).includes('<html'));
+        const response = await fetch(path);
+        outcomes.push((await response.text()).includes('<!doctype html'));
       } catch {
         outcomes.push(false);
       }
     return outcomes;
   });
-  assert.deepEqual(denied, [false, false, false]);
-  await context.setOffline(false);
-  await other.goto(base);
-  await other.getByRole('button', { name: '동기화 상태', exact: true }).click();
-  await other.getByRole('button', { name: '지금 동기화', exact: true }).click();
-  await other.waitForFunction(() =>
-    document.querySelector('.sync-status')?.textContent.includes('동기화 완료'),
+  assert.deepEqual(servedHtml, [false, false, false], 'offline never serves app-shell HTML for API/share/external');
+  await page.screenshot({ path: evidence + '/offline-shell.png' });
+
+  // 4) 연결이 끊긴 동안 저장하면 입력을 유지한 채 연결 필요를 안내한다.
+  const input = await openQuickMemo(page);
+  await input.fill('연결 끊긴 동안 쓴 메모');
+  await page.getByRole('button', { name: '저장', exact: true }).first().click();
+  await page
+    .getByText('저장 여부를 확인하지 못했어요. 입력은 남아 있으니 다시 저장해 주세요.', { exact: true })
+    .waitFor();
+  assert.equal(await input.inputValue(), '연결 끊긴 동안 쓴 메모', 'the offline input stays intact');
+  assert.equal(
+    (await (await fetch(app.base + '/api/captures')).json()).items.length,
+    0,
+    'nothing is stored while offline',
   );
-  assert.equal((await (await fetch(base + '/api/captures')).json()).items.length, 2);
+
+  // 5) 연결이 복구되면 같은 입력이 정상 저장되어 서버에 반영된다.
+  await context.setOffline(false);
+  await page.getByRole('button', { name: '저장', exact: true }).first().click();
+  await page.getByText('보관함에 저장했어요', { exact: true }).waitFor();
+  await page.waitForFunction(
+    async () => {
+      const response = await fetch('/api/captures');
+      return response.ok && (await response.json()).items.some((item) => item.text === '연결 끊긴 동안 쓴 메모');
+    },
+    null,
+    { timeout: 15000 },
+  );
+  const saved = (await (await fetch(app.base + '/api/captures')).json()).items;
+  assert.equal(saved.length, 1);
+  assert.equal(saved[0].text, '연결 끊긴 동안 쓴 메모');
+  await page.screenshot({ path: evidence + '/reconnected.png' });
+
+  await context.close();
+  await writeFile(
+    evidence + '/result.json',
+    JSON.stringify(
+      {
+        status: 'PASS',
+        shellCached: true,
+        offlineShellBoots: true,
+        apiNotServedAsShell: true,
+        offlineSaveKeepsInput: true,
+        reconnectSaves: true,
+      },
+      null,
+      2,
+    ),
+  );
   console.log(
-    'PASS PWA shell: production prepare, offline capture detail/query reload, new tab/route/local save, API/share/external excluded, reconnect',
+    'PASS PWA shell: shell cache, offline shell boot, API/share/external excluded, offline save keeps input, reconnect saves to server',
   );
 } finally {
-  await browser?.close();
-  child.kill();
-  await new Promise((r) => child.once('exit', r));
-  await rm(dir, { recursive: true, force: true });
+  await app.close();
 }

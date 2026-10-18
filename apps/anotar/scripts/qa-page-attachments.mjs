@@ -271,29 +271,22 @@ try {
   await dialog.getByRole('button', { name: '원본 영역으로 초기화' }).click();
   assert.equal(await dialog.getByRole('slider', { name: '영역 너비' }).inputValue(), '1');
   await dialog.getByRole('button', { name: '취소', exact: true }).click();
-  await page.locator('.page-info>summary').click();
-  await page.getByRole('button', { name: '이 페이지 오프라인 보관', exact: true }).click();
-  await page.getByText('문서·직접 첨부 오프라인 사용 가능', { exact: true }).waitFor();
-  await page.locator('.page-info>summary').click();
-  await context.setOffline(true);
-  await page.reload({ waitUntil: 'domcontentloaded' });
+  // 온라인 전용: 기기 보관 기능은 제거됐다. 첨부 설명 수정이 서버에 저장되는지 확인한다.
   await first.locator('.page-attachment-cropped img').waitFor();
   assert.equal(await first.locator('img').evaluate((node) => node.naturalWidth), 800);
   await first.getByRole('button', { name: /첨부 메뉴/ }).click();
   await first.getByRole('button', { name: '설명 편집', exact: true }).click();
-  await first.getByRole('textbox', { name: '첨부 설명' }).fill('오프라인에서 보완한 풍경');
+  await first.getByRole('textbox', { name: '첨부 설명' }).fill('설명을 바꾼 풍경');
   await first.getByRole('button', { name: '저장', exact: true }).click();
-  await page.waitForTimeout(500);
-  await page.reload({ waitUntil: 'domcontentloaded' });
-  await page.getByText('오프라인에서 보완한 풍경', { exact: true }).waitFor();
-  await first.getByRole('button', { name: /첨부 메뉴/ }).click();
-  const offlineDownload = page.waitForEvent('download');
-  await first.getByRole('link', { name: '내려받기', exact: true }).click();
-  assert.deepEqual(await readFile(await (await offlineDownload).path()), png);
-  await context.setOffline(false);
   item = await saved((item) =>
-    item.document.blocks.some((b) => b.props?.caption === '오프라인에서 보완한 풍경'),
+    item.document.blocks.some((b) => b.props?.caption === '설명을 바꾼 풍경'),
   );
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.getByText('설명을 바꾼 풍경', { exact: true }).waitFor();
+  await first.getByRole('button', { name: /첨부 메뉴/ }).click();
+  const captionDownload = page.waitForEvent('download');
+  await first.getByRole('link', { name: '내려받기', exact: true }).click();
+  assert.deepEqual(await readFile(await (await captionDownload).path()), png);
   const lock = await context.request.put(base + '/api/pages/' + record.id + '/lock', {
     data: { locked: true, expectedLockVersion: 0, expectedVersion: item.version },
   });

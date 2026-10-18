@@ -33,6 +33,9 @@ try{
     assert(await page.getByRole('textbox',{name:'메모 내용',exact:true}).evaluate(el=>el===document.activeElement));
     await page.getByRole('textbox',{name:'메모 내용',exact:true}).fill('PC에서도 남는 초안');
     await page.getByRole('button',{name:'입력 닫기',exact:true}).click();
+    await create.click();
+    await page.getByRole('dialog',{name:'새로 작성'}).getByRole('button',{name:'빠른 메모',exact:true}).click();
+    await page.getByRole('dialog',{name:'빠른 기록',exact:true}).waitFor({timeout:3000});
     assert.equal(await page.getByRole('textbox',{name:'메모 내용',exact:true}).inputValue(),'PC에서도 남는 초안');
   }
   if(width<=760){
@@ -63,21 +66,24 @@ try{
   await page.getByRole('tab',{name:'메모',exact:true}).click();
   await text.fill(Array.from({length:12},(_,i)=>'메모 줄 '+i).join('\n'));assert((await text.boundingBox()).height>100,'textarea should grow with multiline draft');
   await text.fill('바로 적는 메모 '+width);
-  await page.getByRole('checkbox',{name:'AI 요청',exact:true}).check();await page.getByText('AI 연결 필요',{exact:true}).waitFor();
-  await page.route('**/api/ai/status',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({enabled:true,runner:{label:'QA 텍스트 실행기',mode:'test'},researchModes:['url'],supports:['text','research'],attachments:false})}));
-  await page.getByRole('button',{name:'AI 연결 다시 확인',exact:true}).click();await page.getByText('QA 텍스트 실행기',{exact:true}).waitFor();
+  await page.getByRole('checkbox',{name:'AI 요청',exact:true}).check();
+  // 현재 작성기는 실행기 선택(AiExecutionPicker)으로 연결 상태를 알린다.
+  await page.locator('.ai-execution-state').filter({hasText:'연결 확인 필요'}).waitFor();
   const template=page.getByRole('combobox',{name:'AI 요청 템플릿'});await template.selectOption('research-keyword');
-  await page.getByText(/키워드 리서치 연결이 필요해요\./).waitFor();
+  await page.waitForTimeout(100);
+  // 지원하지 않는 키워드 리서치는 '저장하고 AI 요청'을 잠근다(메모만 저장은 가능).
+  assert.equal(await page.getByRole('button',{name:'저장하고 AI 요청',exact:true}).isDisabled(),true,'unsupported keyword research must not be queued');
   await page.screenshot({path:`${evidence}/ai-${width}-${theme}.png`});
   await page.getByRole('checkbox',{name:'AI 요청',exact:true}).uncheck();
   await page.screenshot({path:`${evidence}/home-${width}-${theme}.png`});
   await page.getByRole('button',{name:'저장',exact:true}).click();
+  await page.getByText('보관함에 저장했어요',{exact:true}).waitFor();
   await page.locator('.capture-card').filter({hasText:'바로 적는 메모 '+width}).click();
   await page.getByRole('dialog',{name:'보관한 항목'}).waitFor();
   try { await page.getByRole('button',{name:'내 페이지에 정리',exact:false}).click({timeout:5000}); } catch(e) { await page.screenshot({path: evidence+'/failure.png'}); await writeFile(evidence+'/failure.txt',await page.locator('body').innerText()); throw e; }
   await page.getByRole('button',{name:'새 페이지',exact:true}).last().click();
   await page.getByRole('textbox',{name:'새 페이지 제목'}).fill('정리한 메모 '+width);
-  await page.getByText('정리 후 원본',{exact:true}).waitFor();
+  await page.getByText('원문과 결과는 그대로 보관하고, 메모는 ‘정리 완료’로 옮겨요.',{exact:true}).waitFor();
   await page.screenshot({path:`${evidence}/organize-${width}-${theme}.png`});
   await page.getByRole('button',{name:'새 페이지로 정리',exact:true}).click();
   await page.waitForURL('**/pages/**');

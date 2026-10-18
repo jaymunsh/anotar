@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { offlineApp } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 import { openStore } from '../server/store.mjs';
 
 const out='.omo/evidence/page-navigation-lock';await mkdir(out,{recursive:true});
-const app=await offlineApp();
+const app=await qaApp();
 try {
   const store=openStore(app.dir);
   const parent=store.createPage({title:'프로젝트와 문서',icon:'📚'});

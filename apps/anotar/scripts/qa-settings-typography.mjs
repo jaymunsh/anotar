@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
-import { build } from 'esbuild';
-import { offlineApp } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 
 const evidence = '.omo/evidence/settings-typography';
 await mkdir(evidence, { recursive: true });
-const app = await offlineApp();
+const app = await qaApp();
 try {
   const created = (
     await app.request('/api/pages', { title: '차분하게 읽고, 가볍게 기록하는 작업 공간' })
@@ -68,55 +67,29 @@ try {
     };
   });
   assert.match(styles.body.family, /Noto Sans KR/);
-  assert.equal(styles.body.size, '16px');
+  assert.equal(styles.body.size, '14px');
   assert.equal(styles.body.tracking, 'normal');
-  assert.ok(parseFloat(styles.body.leading) >= 27);
-  assert.equal(styles.h2.size, '24px');
-  assert.equal(styles.h3.size, '20px');
+  assert.ok(parseFloat(styles.body.leading) >= 21);
+  assert.equal(styles.h2.size, '17.92px');
+  assert.equal(styles.h3.size, '15.68px');
+  assert.ok(parseFloat(styles.h2.size) > parseFloat(styles.h3.size));
+  assert.ok(parseFloat(styles.h3.size) > parseFloat(styles.body.size));
   assert.match(styles.code.family, /mono/i);
   await page.screenshot({ path: evidence + '/document-desktop.png' });
   await page.getByRole('button', { name: '설정 열기', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: '설정', exact: true });
   const section = (name) =>
     page.getByRole('navigation', { name: '설정 항목' }).getByRole('button', { name, exact: true });
-  await section('기기 저장소').click();
-  await page
-    .locator('.settings-storage-usage strong')
-    .getByText('0.0 MB', { exact: true })
-    .waitFor();
-  await page.getByRole('button', { name: '저장 공간 유지 요청', exact: true }).click();
-  await dialog.getByRole('status').waitFor();
-  const downloadEvent = page.waitForEvent('download');
-  await page.getByRole('button', { name: '전송 대기 자료 내보내기', exact: true }).click();
-  const download = await downloadEvent;
-  assert.match(download.suggestedFilename(), /\.zip$/);
-
-  // Fixture-only pinned records stress long titles and a scrollable list.
-  const bundle = await build({
-    stdin: {
-      contents:
-        "import {writeRecord} from './src/sync/repository.ts'; import {getWorkspaceRuntime} from './src/sync/runtime.ts'; window.settingsFixture={writeRecord,getWorkspaceRuntime};",
-      resolveDir: process.cwd(),
-    },
-    bundle: true,
-    write: false,
-    format: 'iife',
-    platform: 'browser',
-  });
-  await page.addScriptTag({ content: bundle.outputFiles[0].text });
-  await page.evaluate(async () => {
-    const { workspaceId } = await settingsFixture.getWorkspaceRuntime();
-    for (let i = 0; i < 12; i++)
-      await settingsFixture.writeRecord('pins', workspaceId, ['fixture-' + i], {
-        pageId: 'fixture-' + i,
-        title: '긴 제목도 자연스럽게 읽히는 서울과 간사이 여행 계획 ' + (i + 1),
-        state: i === 0 ? 'partial' : 'ready',
-      });
-  });
+  // 기기 저장소 구역은 온라인 전용 전환으로 제거됐다. 현재 구역은 화면/AI/보안/작업 공간/서비스 정보다.
   await section('화면').click();
-  await section('기기 저장소').click();
-  await page.locator('.settings-pins li').first().waitFor();
-  assert.equal(await page.locator('.settings-pins li').count(), 12);
+  const sectionNames = await page
+    .getByRole('navigation', { name: '설정 항목' })
+    .getByRole('button')
+    .allInnerTexts();
+  assert.deepEqual(
+    sectionNames.map((t) => t.trim()),
+    ['화면', 'AI', '보안', '작업 공간', '서비스 정보'],
+  );
   assert.equal(
     await page.evaluate(() => localStorage.getItem('leneu:theme')),
     null,
@@ -134,7 +107,7 @@ try {
         await toggle.click();
       assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), theme);
       assert.equal(await page.evaluate(() => localStorage.getItem('leneu:theme')), theme);
-      for (const name of ['화면', '기기 저장소', '작업 공간']) {
+      for (const name of ['화면', 'AI', '작업 공간']) {
         await section(name).click();
         await page.waitForTimeout(250);
         assert.equal(
@@ -160,7 +133,7 @@ try {
     }
   }
   // Native modal focus stays inside across both directions, including every control.
-  await section('기기 저장소').click();
+  await section('작업 공간').click();
   await page.getByRole('button', { name: '설정 닫기', exact: true }).focus();
   for (let i = 0; i < 24; i++) {
     await page.keyboard.press('Tab');
@@ -219,7 +192,6 @@ try {
         navigation: true,
         focusTrap: true,
         returnFocus: true,
-        download: true,
         documentUnchanged: true,
       },
       null,
@@ -227,7 +199,7 @@ try {
     ),
   );
   console.log(
-    'PASS settings/type: 3 sections × 4 widths × 2 themes; persistence, native focus, Escape/backdrop, all management routes, storage permission/export; Noto body/16px/1.7, descending headings, monospace code; original document unchanged.',
+    'PASS settings/type: 3 sections × 4 widths × 2 themes; persistence, native focus, Escape/backdrop, all management routes, sections 화면/AI/보안/작업 공간/서비스 정보; Noto body/14px/1.55, descending headings, monospace code; original document unchanged.',
   );
 } finally {
   await app.close();

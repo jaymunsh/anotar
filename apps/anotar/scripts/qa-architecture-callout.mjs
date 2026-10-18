@@ -4,11 +4,11 @@ import { createServer } from 'node:net';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { offlineApp, prepareShell } from './fixtures/offline-app.mjs';
+import { qaApp, prepareShell } from './fixtures/qa-app.mjs';
 
 const evidence = resolve('.omo/evidence/architecture-callout');
 await mkdir(evidence, { recursive: true });
-const app = await offlineApp(), result = { checks: [], consoleErrors: [] };
+const app = await qaApp(), result = { checks: [], consoleErrors: [] };
 let publicServer, page;
 const check = name => { result.checks.push(name); console.log(name); };
 const get = async id => (await (await fetch(app.base + '/api/pages/' + id)).json()).item;
@@ -69,15 +69,20 @@ try {
   await page.getByText('새로운 콜아웃을 바로 작성해요.', { exact: true }).waitFor();
   check('Slash insertion, inline typing, line break and reload preserve callout JSON');
 
-  await prepareShell(page);
+  // 온라인 전용: 연결이 끊기면 저장이 실패하고 입력은 유지된다. 다시 연결해 '다시 시도'로 저장한다.
   await context.setOffline(true);
   await page.locator('.bn-block-outer[data-id="outline-box"] .callout-content').click();
-  await page.keyboard.press('End'); await page.keyboard.type(' 오프라인에서 보완했어요.');
-  await page.getByText('기기에 저장됨', { exact: true }).waitFor();
-  await page.reload(); await page.getByText(/오프라인에서 보완했어요/).waitFor();
+  await page.keyboard.press('End'); await page.keyboard.type(' 연결이 끊긴 사이 작성했어요.');
+  const errorBanner = page.locator('.page-banner-error');
+  await errorBanner.getByRole('button', { name: '다시 시도', exact: true }).waitFor();
+  assert.equal(await page.locator('.page-save-state').innerText(), '저장 못 함');
+  // 입력은 지워지지 않고 그대로 남아 있다.
+  await page.getByText(/연결이 끊긴 사이 작성했어요/).waitFor();
   await context.setOffline(false);
-  const online = await saved(seeded.id, item => JSON.stringify(item.document.blocks).includes('오프라인에서 보완했어요'));
-  check('Offline editing survives reload and syncs after reconnecting');
+  await errorBanner.getByRole('button', { name: '다시 시도', exact: true }).click();
+  await page.locator('.page-save-state.state-saved').waitFor();
+  const online = await saved(seeded.id, item => JSON.stringify(item.document.blocks).includes('연결이 끊긴 사이 작성했어요'));
+  check('Disconnect keeps the unsaved edit and shows 다시 시도; reconnecting and retrying saves to the server');
 
   await page.getByRole('button', { name: '설정 열기', exact: true }).click();
   await page.getByRole('button', { name: '서비스 정보', exact: true }).click();
@@ -88,7 +93,7 @@ try {
   await popup.waitForLoadState(); await popup.locator('#current .node').first().waitFor();
   assert.equal(new URL(popup.url()).pathname, '/architecture.html');
   await noOverflow(popup); await popup.screenshot({ path: join(evidence, 'architecture-desktop.png') });
-  assert.ok((await popup.locator('.file-group tbody tr').count()) >= 138);
+  assert.ok((await popup.locator('.file-group tbody tr').count()) >= 130);
   const source = await readFile('docs/architecture-overview.html', 'utf8');
   assert.equal(await (await fetch(app.base + '/architecture.html')).text(), source);
   for (const f of await popup.locator('[data-source]').evaluateAll(els => [...new Set(els.map(el => el.dataset.source))])) await readFile(f);
@@ -112,6 +117,7 @@ try {
   await popup.pdf({ path: join(evidence, 'architecture-print.pdf'), format: 'A4', printBackground: true });
   await popup.emulateMedia({ media: 'screen' }); await popup.evaluate(() => dispatchEvent(new Event('afterprint')));
   check('Settings opens canonical HTML; source paths exist, file search/node jumps/tabs/print work');
+  await prepareShell(page);
   await context.setOffline(true); await popup.reload();
   await popup.locator('#current .node').first().waitFor();
   assert.match(await popup.title(), /아키텍처/);

@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { openStore } from '../server/store.mjs';
+import { openQuickMemo } from './fixtures/qa-app.mjs';
 
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const output = '.omo/evidence/ai-flow-improvements';
@@ -55,7 +56,8 @@ await new Promise((resolve) => probe.listen(0, '127.0.0.1', resolve));
 const port = probe.address().port;
 await new Promise((resolve) => probe.close(resolve));
 const base = `http://127.0.0.1:${port}`;
-// No .env or inherited provider credentials; all background execution is disabled.
+// 온라인 전용: 저장 시점에 실행기 설정을 검증한다. 데스크톱 추가 요청이 실제로 등록되도록
+// 서버에 hive 실행기를 구성하되 백그라운드 워커는 꺼 둔다(실제 모델 호출 없음, 작업은 대기 상태 유지).
 const child = spawn(process.execPath, ['server/index.mjs'], {
   env: {
     PATH: process.env.PATH,
@@ -64,7 +66,8 @@ const child = spawn(process.execPath, ['server/index.mjs'], {
     HOST: '127.0.0.1',
     PORT: String(port),
     AUTH_MODE: 'disabled',
-    AI_RUNNER_KIND: 'disabled',
+    AI_RUNNER_KIND: 'hive',
+    HIVE_API_KEY: 'fixture-only',
     AI_OPENCODE_ENABLED: 'false',
     HIVE_MODEL: 'qa-model',
     BACKGROUND_WORKERS_ENABLED: 'false',
@@ -127,6 +130,7 @@ try {
   page.setDefaultTimeout(12000);
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto(base, { waitUntil: 'domcontentloaded' });
+  await openQuickMemo(page);
   await page
     .getByRole('textbox', { name: '메모 내용', exact: true })
     .fill('보존해야 하는 작성 중 초안');
@@ -195,17 +199,20 @@ try {
   if (process.env.QA_AI_FLOW_SCREENSHOTS !== '0')
     await page.screenshot({ path: `${output}/followup-desktop.png`, fullPage: true });
   await form.getByRole('button', { name: '새 AI 요청 등록', exact: true }).click();
+  // textarea를 거친 본문은 브라우저 표준대로 줄바꿈이 CRLF로 정규화된다. 줄바꿈만 맞춰 비교한다.
+  const lf = (value) => (typeof value === 'string' ? value.replace(/\r\n/g, '\n') : value);
   const created = await waitFor(async () => {
     const data = await json('/api/captures?scope=ai&organization=inbox');
-    return data.items.find((item) => item.id !== capture.id && item.text === resultText);
+    return data.items.find((item) => item.id !== capture.id && lf(item.text) === resultText);
   });
   assert.notEqual(created.id, capture.id);
   assert.equal(created.aiRequest.additional, '담당자별 체크리스트로 만들어 주세요.');
-  assert.equal(created.aiRequest.input.content, resultText);
+  assert.equal(lf(created.aiRequest.input.content), resultText);
   assert.deepEqual(created.aiRequest.execution, execution);
   assert.equal((await json(`/api/captures/${capture.id}`)).item.text, originalText);
   assert.equal((await json(`/api/ai-jobs/${resultJob.id}`)).item.result.markdown, resultText);
   await page.goto(base, { waitUntil: 'domcontentloaded' });
+  await openQuickMemo(page);
   assert.equal(
     await page.getByRole('textbox', { name: '메모 내용', exact: true }).inputValue(),
     '보존해야 하는 작성 중 초안',
@@ -224,34 +231,17 @@ try {
   await edit.getByRole('button', { name: '취소', exact: true }).click();
   const retryButton = page.getByRole('button', { name: '같은 조건으로 재시도', exact: true });
   await retryButton.click();
-  await pause(1200);
-  await page.getByRole('region', { name: '기기에서 전송 대기', exact: true }).waitFor();
+  // 온라인 전용: 재시도는 서버에 바로 등록된다. 등록되면 새 작업이 처리 대기로 바뀌고
+  // 실패 재시도 버튼은 사라져 중복 등록을 막는다.
+  await page.locator('.ai-job-panel').getByRole('status').filter({ hasText: /요청을 처리|순서가 되면/ }).first().waitFor();
+  await retryButton.waitFor({ state: 'detached' });
   assert.equal(
-    await retryButton.isDisabled(),
-    true,
+    await retryButton.count(),
+    0,
     'Pending AI submission must block a second registration',
   );
-  await retryButton.click({ force: true });
-  const pendingRetryIds = await page.evaluate(async (retryOf) => {
-    const db = await new Promise((resolve) => {
-      const request = indexedDB.open('leneu-offline-v1', 2);
-      request.onsuccess = () => resolve(request.result);
-    });
-    const pending = await new Promise((resolve) => {
-      const request = db.transaction('outbox').objectStore('outbox').getAll();
-      request.onsuccess = () => resolve(request.result);
-    });
-    db.close();
-    return pending
-      .filter(
-        (row) => row.operation.kind === 'ai.submit' && row.operation.payload.retryOf === retryOf,
-      )
-      .map((row) => row.operation.operationId);
-  }, failure.id);
-  assert.equal(new Set(pendingRetryIds).size, 1);
 
-  // Rapid hard-navigation can leave a previous engine's 30s fenced lease alive.
-  // Wait for admission while the existing workflow queue reports the actual pending state.
+  // Wait for admission while the workflow queue reports the actual pending state.
   const retry = await waitFor(
     async () =>
       (await json(`/api/captures/${failureCapture.id}/ai-jobs`)).items.find(
@@ -264,6 +254,7 @@ try {
       (job) => job.retryOf === failure.id,
     ).length,
     1,
+    'blocked double submit must create exactly one backend retry job',
   );
   assert.equal(retry.request.input.content, '실패 당시 원본');
   assert.equal(retry.request.additional, '기존 요청의 지시');
@@ -273,8 +264,11 @@ try {
     '실패 후 수정한 현재 메모',
   );
   await page.goto(base + '/ai', { waitUntil: 'domcontentloaded' });
-  await page.getByRole('tab', { name: /^확인할 결과/ }).click();
-  await page.locator(`[data-ai-job-id="${resultJob.id}"]`).waitFor();
+  // 결과를 열어 추가 요청까지 진행하면 '확인함'이 되어 '전체'에서 확인한다.
+  await page.getByRole('tab', { name: /^전체/ }).click();
+  const resultRow = page.locator(`[data-ai-job-id="${resultJob.id}"]`);
+  await resultRow.scrollIntoViewIfNeeded().catch(() => {});
+  await resultRow.waitFor();
   assert.match(
     await page.locator(`[data-ai-job-id="${resultJob.id}"]`).textContent(),
     /원본 정리 완료/,
@@ -282,6 +276,27 @@ try {
   if (process.env.QA_AI_FLOW_SCREENSHOTS !== '0')
     await page.screenshot({ path: `${output}/activity-desktop.png`, fullPage: true });
   const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  // 모바일은 서버 AI 실행이 꺼진 상황의 추가 요청 UX를 검증한다. 설정 읽기만 꺼짐으로 가장한다.
+  await mobileContext.route('**/api/ai/settings', (route) =>
+    route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        version: 0,
+        defaultProfile: 'hive',
+        profiles: [
+          {
+            id: 'hive',
+            label: '임시 QA 실행기',
+            model: 'qa-model',
+            enabled: false,
+            status: 'disabled',
+            credentialsConfigured: true,
+            researchModes: ['url'],
+          },
+        ],
+      }),
+    }),
+  );
   const mobile = await mobileContext.newPage();
   mobile.on('pageerror', (error) => errors.push(error.message));
   await mobile.goto(base + `/captures/${capture.id}?aiJob=${resultJob.id}`, {

@@ -4,7 +4,7 @@ import { join, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 import { DatabaseSync } from 'node:sqlite';
-import { offlineApp } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 
 const evidence=resolve('.omo/evidence/share-link-retrieval');
 await mkdir(evidence,{recursive:true});
@@ -12,7 +12,7 @@ const probe=createServer(); await new Promise(r=>probe.listen(0,'127.0.0.1',r));
 const port=probe.address().port; await new Promise(r=>probe.close(r));
 const original=process.env.PUBLIC_SHARE_ORIGIN;
 process.env.PUBLIC_SHARE_ORIGIN=`http://127.0.0.1:${port}`;
-const app=await offlineApp();
+const app=await qaApp();
 if(original===undefined)delete process.env.PUBLIC_SHARE_ORIGIN;else process.env.PUBLIC_SHARE_ORIGIN=original;
 const child=spawn(process.execPath,['server/public.mjs'],{env:{...process.env,DATA_DIR:app.dir,PUBLIC_HOST:'127.0.0.1',PUBLIC_PORT:String(port)},stdio:'ignore'});
 const checks=[],errors=[];

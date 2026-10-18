@@ -4,11 +4,11 @@ import { join, dirname } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { offlineApp, waitForAsync } from './fixtures/offline-app.mjs';
+import { qaApp, waitForAsync } from './fixtures/qa-app.mjs';
 import { openStore } from '../server/store.mjs';
 import { preparePageExport } from '../server/pageExport.mjs';
 
-const app = await offlineApp();
+const app = await qaApp();
 let publicServer;
 const out = '.omo/evidence/heading-code-copy';
 await mkdir(out, {recursive:true});

@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
-import { offlineApp } from './fixtures/offline-app.mjs';
+import { qaApp } from './fixtures/qa-app.mjs';
 import { selectAppTheme } from './qa-compact-pages.mjs';
 
 const evidence = '.omo/evidence/document-alignment';
 await mkdir(evidence, { recursive: true });
-const app = await offlineApp();
+const app = await qaApp();
 const probe = createServer();
 await new Promise((r) => probe.listen(0, '127.0.0.1', r));
 const port = probe.address().port;
@@ -102,23 +102,28 @@ try {
       assert.ok(Math.abs(geometry.title.right - geometry.toc.right) < 1, JSON.stringify(geometry));
       assert.equal(geometry.guide, 'dotted');
       const editor = page.locator('.bn-editor');
-      await editor.hover();
-      const comment = page.locator('.page-comment-gutter-button.is-visible').first();
-      await comment.waitFor();
-      const buttonBox = await comment.boundingBox(),
-        editorBox = await editor.boundingBox();
-      assert.ok(
-        buttonBox.x >= editorBox.x + editorBox.width,
-        'Comment button overlaps the document',
-      );
-      assert.ok(buttonBox.x + buttonBox.width <= width, 'Comment button leaves viewport');
-      if (width === 1440 && theme === 'light') {
-        await comment.click();
-        await page.getByRole('heading', { name: '블록 대화' }).waitFor();
-        await page.getByRole('textbox', { name: '댓글 입력' }).fill('바깥 여백에서 댓글 작성 확인');
-        await page.getByRole('button', { name: '댓글 남기기', exact: true }).click();
-        await page.getByText('바깥 여백에서 댓글 작성 확인', { exact: true }).waitFor();
-        await page.getByRole('button', { name: '댓글 패널 닫기', exact: true }).click();
+      // 외부 여백의 블록 댓글 거터는 데스크톱 폭에서만 열린다. 좁은 폭(390/320)에서는
+      // .page-comment-gutter가 display:none이고 모바일은 별도 '블록 댓글' 버튼으로 연다
+      // (qa-mobile-document-width에서 검사). 따라서 여백 거터 검사는 1440에서만 수행한다.
+      if (width === 1440) {
+        await editor.hover();
+        const comment = page.locator('.page-comment-gutter-button.is-visible').first();
+        await comment.waitFor();
+        const buttonBox = await comment.boundingBox(),
+          editorBox = await editor.boundingBox();
+        assert.ok(
+          buttonBox.x >= editorBox.x + editorBox.width,
+          'Comment button overlaps the document',
+        );
+        assert.ok(buttonBox.x + buttonBox.width <= width, 'Comment button leaves viewport');
+        if (theme === 'light') {
+          await comment.click();
+          await page.getByRole('heading', { name: '블록 대화' }).waitFor();
+          await page.getByRole('textbox', { name: '댓글 입력' }).fill('바깥 여백에서 댓글 작성 확인');
+          await page.getByRole('button', { name: '댓글 남기기', exact: true }).click();
+          await page.getByText('바깥 여백에서 댓글 작성 확인', { exact: true }).waitFor();
+          await page.getByRole('button', { name: '댓글 패널 닫기', exact: true }).click();
+        }
       }
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       await page.screenshot({ path: `${evidence}/editor-${width}-${theme}.png` });

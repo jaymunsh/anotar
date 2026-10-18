@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:net';
-import {offlineApp} from './fixtures/offline-app.mjs';
+import {qaApp} from './fixtures/qa-app.mjs';
 import {openStore} from '../server/store.mjs';
-const app=await offlineApp();let child;
+const app=await qaApp();let child;
 const out='.omo/evidence/code-fonts';await mkdir(out,{recursive:true});
 try{
  const store=openStore(app.dir);

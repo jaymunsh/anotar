@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
-import {offlineApp} from './fixtures/offline-app.mjs';
-const app=await offlineApp(),out='.omo/evidence/ai-request-usability';await mkdir(out,{recursive:true});
+import {qaApp,openQuickMemo} from './fixtures/qa-app.mjs';
+const app=await qaApp(),out='.omo/evidence/ai-request-usability';await mkdir(out,{recursive:true});
 try {
  const page=await app.browser.newPage({viewport:{width:1440,height:1000}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(app.base+'/');
+ await openQuickMemo(page);
  await page.getByRole('textbox',{name:'메모 내용',exact:true}).fill('자료를 핵심 세 줄로 정리해 주세요.');
  await page.getByRole('checkbox',{name:'AI 요청',exact:true}).check();
  await page.locator('.ai-execution-state').filter({hasText:'연결 확인 필요'}).waitFor();
