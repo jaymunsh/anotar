@@ -15,7 +15,7 @@ try{
   for(const [width,height,name] of [[1280,900,'pc'],[390,844,'phone']]){
     const context=await browser.newContext({viewport:{width,height}}),page=await context.newPage();
     page.on('pageerror',e=>errors.push(e.message));
-    const response=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{email:'carry_'+name+'@example.test',nickname:('carry_'+name).slice(0,20),password:'temporary-test-password',termsVersion:'2026-10-11-v1',ageConfirmed:true}});
+    const response=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{email:'carry_'+name+'@example.test',nickname:('carry_'+name).slice(0,20),password:'temporary-test-password',termsVersion:'2026-10-18-v1',ageConfirmed:true}});
     assert.equal(response.status(),201);
     const {csrf}=await response.json();
     // Friday has a routine, a cancelled item, one done and two open priorities; Monday is empty.

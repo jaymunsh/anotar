@@ -13,7 +13,7 @@ test('signed-in visitors skip the landing and sign-in pages; others still see th
  const base=`http://127.0.0.1:${app.server.address().port}`;
  const get=(path,cookie='')=>fetch(base+path,{redirect:'manual',headers:{Cookie:cookie}});
  for(const path of ['/','/login','/signup'])assert.notEqual((await get(path)).status,302,path);
- const registered=await fetch(base+'/api/auth/register',{method:'POST',headers:{Origin:'http://planner.test','Content-Type':'application/json'},body:JSON.stringify({email:'home_alice@example.test',nickname:'home_alice',password:'temporary-home-password',termsVersion:'2026-10-11-v1',ageConfirmed:true})});
+ const registered=await fetch(base+'/api/auth/register',{method:'POST',headers:{Origin:'http://planner.test','Content-Type':'application/json'},body:JSON.stringify({email:'home_alice@example.test',nickname:'home_alice',password:'temporary-home-password',termsVersion:'2026-10-18-v1',ageConfirmed:true})});
  const cookie=registered.headers.get('set-cookie').split(';')[0];
  for(const path of ['/','/login','/signup']){const response=await get(path,cookie);assert.equal(response.status,302,path);assert.equal(response.headers.get('location'),'/app');}
  for(const path of ['/guide','/about','/demo'])assert.notEqual((await get(path,cookie)).status,302,path);

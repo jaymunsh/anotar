@@ -32,7 +32,7 @@ try{
   checks.push('API down: landing and info pages render quietly; app shows a connection alert');await offline.close();
 
   // A signed-in account with one day of data.
-  const register=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{email:'smoke@example.test',nickname:'아주긴닉네임스무글자까지쓰는사람',password:'temporary-smoke-password',termsVersion:'2026-10-11-v1',ageConfirmed:true}});
+  const register=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{email:'smoke@example.test',nickname:'아주긴닉네임스무글자까지쓰는사람',password:'temporary-smoke-password',termsVersion:'2026-10-18-v1',ageConfirmed:true}});
   assert.equal(register.status(),201);const {csrf}=await register.json(),headers={Origin:base,'X-CSRF-Token':csrf};
   const document={plans:[{id:'p1',title:'Review mobile schedule and prepare the next release',start:540,end:650,status:'done'},{id:'p2',title:'Plan the next small step',start:720,end:780,status:'pending'}],entries:[],priorities:[{id:'pr',text:'Review the schedule',done:false}],notes:{thoughts:'Make room for the work that matters.',ideas:'',review:''}};
   assert.equal((await context.request.put(base+'/api/days/2026-10-13',{headers,data:{version:0,document}})).status(),200);
