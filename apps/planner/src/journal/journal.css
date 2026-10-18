@@ -323,6 +323,6 @@
 .journal-template-menu .journal-template-save{align-items:center;gap:6px;margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 6px 6px;color:var(--action);font-size:12px}
 .journal-template-menu .journal-template-save span{font-weight:400}
 .journal-template-menu>a{display:flex;align-items:center;gap:4px;padding:8px 8px 4px;font-size:12px;color:var(--muted)}
-/* Past midnight: today's part fades out at its right end, tomorrow's fades in at its left, as if the block runs off one page onto the next. */
-.journal-plan.to-next{border-top-right-radius:0;border-bottom-right-radius:0;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent)}
-.journal-plan.from-prev{border-top-left-radius:0;border-bottom-left-radius:0;-webkit-mask-image:linear-gradient(90deg,transparent,#000 36px);mask-image:linear-gradient(90deg,transparent,#000 36px);padding-left:20px}
+/* Past midnight: square corners where the block runs on into the next (or previous) day. */
+.journal-plan.to-next{border-top-right-radius:0;border-bottom-right-radius:0}
+.journal-plan.from-prev{border-top-left-radius:0;border-bottom-left-radius:0}
