@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>anotar 모노레포 · 전체 아키텍처</title>
+<style>
+:root{--canvas:#f6f5f0;--surface:#fff;--ink:#202b29;--muted:#586c5c;--line:#e0e5dc;--accent:#315843;--soft:#e9eeda;--warn:#9c6b12;--warn-bg:#f8efd9;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:15px/1.7 Pretendard,"Apple SD Gothic Neo",system-ui,sans-serif;word-break:keep-all;overflow-wrap:break-word}
+main{max-width:980px;margin:0 auto;padding:48px 24px 96px}
+h1{font-size:32px;line-height:1.3;margin:0 0 8px;letter-spacing:-.02em}
+h2{font-size:22px;margin:56px 0 14px;padding-top:28px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:28px 0 8px}
+p{margin:8px 0}
+.lead{color:var(--muted);max-width:70ch}
+.meta{font-size:13px;color:var(--muted)}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 16px;margin:24px 0 0;font-size:14px}
+a{color:var(--accent)}
+code{font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--soft);padding:1px 5px;border-radius:4px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+th{font-size:12.5px;color:var(--muted);font-weight:650}
+.wrap{overflow-x:auto}
+.note{background:var(--warn-bg);color:var(--ink);border-left:3px solid var(--warn);padding:12px 16px;border-radius:6px;margin:16px 0;font-size:14px}
+ul,ol{padding-left:22px}li{margin:4px 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+.cards .box{padding:16px}
+.cards h3{margin:0 0 6px}
+.cards dl{margin:8px 0 0;display:grid;grid-template-columns:64px 1fr;gap:4px 10px;font-size:13.5px}
+.cards dt{color:var(--muted)}
+.cards dd{margin:0}
+/* SVG diagrams: drawn once at desktop size; on phones they scroll sideways instead of shrinking the text. */
+figure{margin:20px 0}
+.fig{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px}
+.fig svg{display:block;width:100%;min-width:780px;height:auto}
+figcaption{font-size:13px;color:var(--muted);margin-top:8px}
+.fig-hint{display:none}
+svg text{font-family:Pretendard,"Apple SD Gothic Neo",system-ui,sans-serif;fill:#202b29}
+svg .t{font-size:14px;font-weight:700}
+svg .s{font-size:12px;fill:#586c5c}
+svg .h{font-size:12px;font-weight:700;fill:#586c5c;letter-spacing:.04em}
+svg .l{font-size:11.5px;fill:#315843;font-weight:600}
+svg .w{font-size:11.5px;fill:#9c6b12;font-weight:700}
+svg .who{fill:#fff;stroke:#e0e5dc}
+svg .app{fill:#fff;stroke:#315843;stroke-width:1.5}
+svg .db{fill:#e9eeda;stroke:#c9d4b8}
+svg .edge{fill:#20322d}
+svg .edge-t{fill:#f6f5f0;font-size:14px;font-weight:700}
+svg .edge-s{fill:#d8e6b5;font-size:12px}
+svg .frame{fill:#f6f5f0;stroke:#a5b5a6;stroke-dasharray:6 5}
+svg .a{fill:none;stroke:#586c5c;stroke-width:1.5}
+svg .a.link{stroke:#315843;stroke-dasharray:5 4}
+svg .a.warn{stroke:#9c6b12}
+svg .off{fill:#fff;stroke:#e0e5dc;stroke-dasharray:4 4}
+@media(max-width:640px){main{padding:32px 18px 72px}h1{font-size:26px}th,td{padding:8px}.fig-hint{display:block}}
+</style>
+</head>
+<body>
+<main>
+<h1>anotar 모노레포 · 전체 아키텍처</h1>
+<p class="lead">한 repo에 앱 세 개가 있고, 서버 한 대(Oracle)에서 주소 네 개로 나뉘어 돌아갑니다. 이 문서는 무엇이 어디 있고 서로 어떻게 이어지는지를 한 장으로 보여 줍니다. 앱 내부 구조는 각 앱 문서를 봅니다.</p>
+<p class="meta">기준: 2026-10-18 · 공개 문서라 비밀값·서버 내부 경로·운영 기록은 넣지 않습니다(그런 내용은 비공개 repo).</p>
+<nav class="toc" aria-label="목차"><a href="#overview">한눈에</a><a href="#apps">앱 세 개</a><a href="#links">앱 사이 연결</a><a href="#deploy">배포</a><a href="#target">지금과 바뀔 구성</a><a href="#repos">repo 세 개</a><a href="#more">더 자세한 문서</a></nav>
+
+<h2 id="overview">한눈에</h2>
+<p>바깥 요청은 모두 Cloudflare tunnel로 들어와 주소마다 서버의 다른 포트로 갑니다. 서버의 포트는 밖으로 직접 열려 있지 않습니다.</p>
+<figure><div class="fig"><svg viewBox="0 0 1000 600" role="img" aria-labelledby="ov-t ov-d"><title id="ov-t">전체 구성도</title><desc id="ov-d">사용자 요청은 Cloudflare tunnel을 거쳐 Oracle 서버의 포트 네 개로 간다. harukan은 자기 SQLite만 쓰고, anotar 개인 앱은 개인 DB와 공개 폴더에 쓰며, 공유 서버와 정적 호스팅은 공개 폴더를 읽기만 한다. 손님 댓글은 소켓으로 개인 앱에 간다. memory는 위키 데이터를 anotar 위키 화면에 준다. anotar의 하루칸 칸은 harukan을 새 탭으로 연다.</desc><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#586c5c"/></marker><marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#315843"/></marker></defs><text class="h" x="20" y="30">누가 · 주소</text><text class="h" x="200" y="30">입구</text><text class="h" x="380" y="30">앱 (포트)</text><text class="h" x="720" y="30">저장</text><rect class="frame" x="350" y="42" width="630" height="508" rx="14"/><text class="s" x="366" y="538">Oracle 서버 한 대 · 포트는 밖으로 열려 있지 않음</text><rect class="who" x="20" y="60" width="160" height="56" rx="10"/><text class="t" x="34" y="84">leneu.store</text><text class="s" x="34" y="103">누구나 · 가입</text><path class="a" d="M180 88H198" marker-end="url(#ah)"/><rect class="who" x="20" y="150" width="160" height="56" rx="10"/><text class="t" x="34" y="174">personal.leneu.store</text><text class="s" x="34" y="193">본인만 · 비번 + TOTP</text><path class="a" d="M180 178H198" marker-end="url(#ah)"/><rect class="who" x="20" y="240" width="160" height="56" rx="10"/><text class="t" x="34" y="264">share.leneu.store</text><text class="s" x="34" y="283">링크 받은 사람</text><path class="a" d="M180 268H198" marker-end="url(#ah)"/><rect class="who" x="20" y="330" width="160" height="56" rx="10"/><text class="t" x="34" y="354">host.leneu.store</text><text class="s" x="34" y="373">누구나</text><path class="a" d="M180 358H198" marker-end="url(#ah)"/><rect class="edge" x="200" y="60" width="120" height="326" rx="12"/><text class="edge-t" x="260" y="208" text-anchor="middle">Cloudflare</text><text class="edge-t" x="260" y="228" text-anchor="middle">tunnel</text><text class="edge-s" x="260" y="250" text-anchor="middle">TLS는 여기서</text><path class="a" d="M320 88H378" marker-end="url(#ah)"/><rect class="app" x="380" y="60" width="240" height="56" rx="10"/><text class="t" x="394" y="84">harukan · 8794</text><text class="s" x="394" y="103">하루 시간표 · 가입 서비스</text><path class="a" d="M320 178H378" marker-end="url(#ah)"/><rect class="app" x="380" y="150" width="240" height="56" rx="10"/><text class="t" x="394" y="174">anotar 개인 · 8787</text><text class="s" x="394" y="193">메모·페이지·할 일·AI·위키</text><path class="a" d="M320 268H378" marker-end="url(#ah)"/><rect class="app" x="380" y="240" width="240" height="56" rx="10"/><text class="t" x="394" y="264">anotar 공유 · 8790</text><text class="s" x="394" y="283">읽기 전용 문서 · 이름 댓글</text><path class="a" d="M320 358H378" marker-end="url(#ah)"/><rect class="app" x="380" y="330" width="240" height="56" rx="10"/><text class="t" x="394" y="354">정적 호스팅 · 8792</text><text class="s" x="394" y="373">HTML 사이트 파일만</text><rect class="app" x="380" y="450" width="240" height="56" rx="10"/><text class="t" x="394" y="474">memory · 8788</text><text class="s" x="394" y="493">위키·AI 기록 데이터 제공</text><rect class="db" x="720" y="60" width="240" height="56" rx="10"/><text class="t" x="734" y="84">harukan SQLite</text><text class="s" x="734" y="103">planner.sqlite · 매일 백업</text><rect class="db" x="720" y="150" width="240" height="56" rx="10"/><text class="t" x="734" y="174">개인 SQLite + 첨부</text><text class="s" x="734" y="193">기기엔 IndexedDB 사본</text><rect class="db" x="720" y="285" width="240" height="56" rx="10"/><text class="t" x="734" y="309">공개 폴더</text><text class="s" x="734" y="328">공유 스냅샷·첨부 · 사이트</text><rect class="db" x="720" y="450" width="240" height="56" rx="10"/><text class="t" x="734" y="474">memory-data (비공개 repo)</text><text class="s" x="734" y="493">wiki · sessions → data.json</text><path class="a" d="M620 88H718" marker-end="url(#ah)"/><path class="a" d="M620 178H718" marker-end="url(#ah)"/><path class="a" d="M620 196C668 196 672 300 718 302" marker-end="url(#ah)"/><text class="l" x="682" y="258">공유할 때 씀</text><path class="a" d="M620 268C664 268 680 300 718 306" marker-end="url(#ah)"/><path class="a" d="M620 358C664 358 680 324 718 320" marker-end="url(#ah)"/><text class="s" x="632" y="390">읽기만</text><path class="a" d="M620 478H718" marker-end="url(#ah)"/><path class="a link" d="M380 470H364V196H378" marker-end="url(#ag)"/><text class="l" x="384" y="424">↑ anotar 위키 화면에 데이터 (Caddy가 로그인 확인 뒤)</text><path class="a link" d="M560 150V118" marker-end="url(#ag)"/><text class="l" x="570" y="139">하루칸 칸 · 새 탭</text><path class="a link" d="M440 240V208" marker-end="url(#ag)"/><text class="l" x="450" y="229">손님 댓글 (소켓)</text><line class="a" x1="20" y1="582" x2="56" y2="582"/><text class="s" x="64" y="586">요청 · 저장</text><line class="a link" x1="160" y1="582" x2="196" y2="582"/><text class="s" x="204" y="586">앱 사이 연결 (DB는 서로 안 읽음)</text></svg></div><figcaption>주소 네 개, 앱 다섯 덩어리, 저장소 네 곳. 앱끼리는 DB를 읽지 않고 점선으로 표시한 곳으로만 이어집니다.</figcaption><p class="fig-hint meta">그림은 옆으로 밀어서 볼 수 있어요.</p></figure>
+<p>나중에 harukan은 <code>harukan.leneu.store</code>로 옮길 예정입니다.</p>
+
+<h2 id="apps">앱 세 개</h2>
+<div class="cards">
+ <div class="box app"><h3>anotar <code>apps/anotar</code></h3><p>본인만 쓰는 기록 앱. 같은 코드에서 공유 서버와 정적 호스팅 서버도 나옵니다.</p>
+  <dl><dt>화면</dt><dd>React 19 · Vite · TypeScript</dd><dt>서버</dt><dd>Node 24 (<code>server/index.mjs</code>), 공유 <code>public.mjs</code>, 호스팅 <code>sites.mjs</code></dd><dt>저장</dt><dd>서버 SQLite + 첨부 파일. 기기에는 IndexedDB 사본과 Service Worker 캐시(오프라인)</dd><dt>로그인</dt><dd>비밀번호 + TOTP, 한 사람</dd><dt>배포</dt><dd>main push → 자동</dd></dl></div>
+ <div class="box app"><h3>harukan <code>apps/harukan</code></h3><p>누구나 가입해 쓰는 하루 시간표 서비스. anotar와 DB·쿠키·배포를 공유하지 않습니다.</p>
+  <dl><dt>화면</dt><dd>React 19 · Vite · TypeScript</dd><dt>서버</dt><dd>Node 24 (<code>server/app.mjs</code>), 표준 <code>node:http</code></dd><dt>저장</dt><dd>SQLite 파일 하나(<code>node:sqlite</code>), 매일 백업 timer</dd><dt>로그인</dt><dd>이메일 + 비밀번호(scrypt), 확인 메일은 Resend, 세션 30일</dd><dt>배포</dt><dd>직접 (런북 절차)</dd></dl></div>
+ <div class="box app"><h3>memory <code>apps/memory</code></h3><p>AI 작업 기록과 위키를 모아 anotar <code>/wiki</code> 화면에 데이터를 줍니다. 데이터 자체는 비공개 repo에 있습니다.</p>
+  <dl><dt>언어</dt><dd>Python 표준 라이브러리만</dd><dt>빌드</dt><dd><code>import_sessions.py</code> → <code>build.py</code> → <code>site/data.json</code></dd><dt>제공</dt><dd><code>server.py</code> (8788), <code>/memory/data.json</code></dd><dt>화면</dt><dd>anotar 안 <code>src/wiki/</code></dd><dt>접근</dt><dd>앞단 Caddy가 anotar 로그인 확인 뒤에만</dd></dl></div>
+</div>
+
+<h2 id="links">앱 사이 연결</h2>
+<p>세 앱은 서로의 DB를 읽지 않습니다. 이어지는 곳은 아래 네 군데뿐입니다.</p>
+<div class="wrap"><table>
+ <thead><tr><th>어디서 → 어디로</th><th>방법</th><th>설정</th></tr></thead>
+ <tbody>
+  <tr><td>anotar → harukan</td><td>사이드바 '하루칸' 칸이 새 탭으로 harukan <code>/app</code>을 엽니다. 예전 <code>/journal</code> 주소는 302로 같은 곳에 보냅니다. (예전 anotar 일지는 harukan으로 옮겨져 anotar에서 지웠습니다.) 로그인은 따로입니다.</td><td>화면 <code>VITE_HARUKAN_URL</code>, 서버 <code>HARUKAN_URL</code>. 둘 다 기본값이 운영 주소</td></tr>
+  <tr><td>harukan → harukan</td><td>예전 <code>/journal</code> 주소는 <code>/app</code>으로 보냅니다.</td><td>—</td></tr>
+  <tr><td>anotar 개인 → 공유 서버</td><td>개인 앱이 공유 중인 페이지의 스냅샷과 그 페이지의 첨부만 공개 폴더에 쓰고, 공유 서버는 읽기만 합니다. 손님 댓글은 Unix 소켓으로 개인 앱에 전달됩니다.</td><td><code>PUBLIC_SHARES_DIR</code> (없으면 개인 데이터 폴더 안 <code>public-shares</code>)</td></tr>
+  <tr><td>memory → anotar 위키 화면</td><td>anotar <code>/wiki</code>가 <code>/memory/data.json</code>을 읽습니다. Caddy가 <code>/api/auth/check</code>로 로그인부터 확인합니다.</td><td><code>infra/edge/Caddyfile</code></td></tr>
+ </tbody>
+</table></div>
+
+<h2 id="deploy">배포</h2>
+<figure><div class="fig"><svg viewBox="0 0 1000 300" role="img" aria-labelledby="dp-t dp-d"><title id="dp-t">배포 흐름</title><desc id="dp-d">anotar는 main에 push하면 GitHub Actions가 검사하고, 서버 timer가 약 2분마다 성공한 커밋을 조회해 서버의 배포 스크립트로 반영한다. harukan은 push하면 검사만 하고, 서버 반영은 사람이 런북 절차로 한다.</desc><defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#586c5c"/></marker></defs><text class="h" x="20" y="30">anotar · 자동</text><rect class="who" x="20" y="44" width="165" height="56" rx="10"/><text class="t" x="32" y="68">main에 push</text><text class="s" x="32" y="87">harukan만 바뀌면 건너뜀</text><rect class="app" x="215" y="44" width="165" height="56" rx="10"/><text class="t" x="227" y="68">Actions oracle.yml</text><text class="s" x="227" y="87">build · test · memory test</text><rect class="app" x="410" y="44" width="165" height="56" rx="10"/><text class="t" x="422" y="68">서버 timer · 약 2분</text><text class="s" x="422" y="87">성공한 main을 조회</text><rect class="app" x="605" y="44" width="165" height="56" rx="10"/><text class="t" x="617" y="68">배포 스크립트</text><text class="s" x="617" y="87">서버에 설치된 사본</text><rect class="db" x="800" y="44" width="165" height="56" rx="10"/><text class="t" x="812" y="68">anotar 컨테이너</text><text class="s" x="812" y="87">개인 · 공유 · 호스팅</text><path class="a" d="M185 72H213" marker-end="url(#ah2)"/><path class="a" d="M380 72H408" marker-end="url(#ah2)"/><path class="a" d="M575 72H603" marker-end="url(#ah2)"/><path class="a" d="M770 72H798" marker-end="url(#ah2)"/><text class="s" x="410" y="122">서버가 GitHub을 보러 감 (들어오는 연결·키 없음)</text><path class="a warn" d="M687 100V132"/><text class="w" x="600" y="148">⚠ 자동으로 안 바뀜 — 새 구조용으로</text><text class="w" x="600" y="164">먼저 교체한 뒤에만 main merge</text><text class="h" x="20" y="204">harukan · 직접</text><rect class="who" x="20" y="218" width="165" height="56" rx="10"/><text class="t" x="32" y="242">push</text><text class="s" x="32" y="261">main · restructure</text><rect class="app" x="215" y="218" width="165" height="56" rx="10"/><text class="t" x="227" y="242">Actions harukan.yml</text><text class="s" x="227" y="261">build · test만</text><rect class="off" x="410" y="218" width="165" height="56" rx="10"/><text class="s" x="492" y="251" text-anchor="middle">자동 배포 없음</text><rect class="app" x="605" y="218" width="165" height="56" rx="10"/><text class="t" x="617" y="242">사람이 런북 실행</text><text class="s" x="617" y="261">백업 → 빌드 → 교체 → 확인</text><rect class="db" x="800" y="218" width="165" height="56" rx="10"/><text class="t" x="812" y="242">harukan 컨테이너</text><text class="s" x="812" y="261">8794</text><path class="a" d="M185 246H213" marker-end="url(#ah2)"/><path class="a" d="M770 246H798" marker-end="url(#ah2)"/></svg></div><figcaption>anotar는 서버가 성공한 커밋을 가져가는 방식이고, harukan은 검사만 자동이고 반영은 손으로 합니다.</figcaption><p class="fig-hint meta">그림은 옆으로 밀어서 볼 수 있어요.</p></figure>
+<p>자세한 절차: anotar <code>apps/anotar/docs/ORACLE_RELEASE_GUIDE.md</code>, harukan <code>apps/harukan/docs/LAUNCH_RUNBOOK.md</code>.</p>
+<h3>memory</h3>
+<p>코드는 anotar와 같이 검사합니다. 데이터는 비공개 repo에서 빌드해 <code>site/data.json</code>을 만듭니다.</p>
+
+<h2 id="target">지금 운영 구성과 바뀔 구성</h2>
+<p>repo의 <code>infra/</code>에는 다음 구성이 이미 들어 있지만, 운영 서버는 아직 예전 구성입니다.</p>
+<div class="wrap"><table>
+ <thead><tr><th></th><th>지금 운영</th><th>repo의 다음 구성 (<code>infra/</code>)</th></tr></thead>
+ <tbody>
+  <tr><td>개인 앱 주소</td><td><code>personal.leneu.store</code> → 8787 바로</td><td><code>my.</code> 주소 → Caddy(8780) → anotar·memory. <code>personal.</code>은 301로 넘김</td></tr>
+  <tr><td>개인 스택</td><td>anotar 컨테이너 하나</td><td><code>infra/personal</code>: anotar + memory + Caddy, Caddy만 열림</td></tr>
+  <tr><td>공유 스택</td><td>개인 데이터 폴더를 읽기 전용으로 붙임</td><td><code>infra/public</code>: 개인이 내보낸 공개 폴더만 읽음</td></tr>
+  <tr><td>harukan</td><td colspan="2">그대로: <code>apps/harukan/compose.oracle.yaml</code>, tunnel이 8794로 바로</td></tr>
+ </tbody>
+</table></div>
+<p>옮기는 순서(요약): 서버 배포 스크립트 갱신 → 개인 DB 백업 받기 → 서버에 개인 스택 준비 → tunnel 주소 변경 → 새 DB로 시작 → main merge. 자세한 절차와 확인 항목은 비공개 인계 문서에 있습니다.</p>
+
+<h2 id="repos">repo 세 개</h2>
+<div class="wrap"><table>
+ <thead><tr><th>로컬 경로</th><th>GitHub</th><th>무엇</th></tr></thead>
+ <tbody>
+  <tr><td><code>/</code> (이 repo)</td><td>jaymunsh/anotar · 공개</td><td>앱 세 개의 코드, <code>infra/</code>, 이 문서</td></tr>
+  <tr><td><code>data/memory/</code></td><td>jaymunsh/memory-data · 비공개</td><td>위키·세션 요약 데이터</td></tr>
+  <tr><td><code>private/</code></td><td>jaymunsh/anotar-private · 비공개</td><td>운영 기록, 설계 메모, 인계 문서</td></tr>
+ </tbody>
+</table></div>
+<p>비공개 두 폴더는 <code>.gitignore</code>로 이 repo에서 빠지고, 각자 자기 <code>.git</code>으로 커밋합니다. 코드 변경은 이 repo 하나에만 올라갑니다.</p>
+
+<h2 id="more">더 자세한 문서</h2>
+<ul>
+ <li>개발 규칙: <code>AGENTS.md</code>, 앱별 <code>apps/*/AGENTS.md</code>·<code>README.md</code></li>
+ <li>anotar 내부(저장·동기화·오프라인·API): <code>apps/anotar/docs/architecture-overview.html</code></li>
+ <li>anotar 배포: <code>apps/anotar/docs/ORACLE_RELEASE_GUIDE.md</code></li>
+ <li>harukan 설계·정책·출시: <code>apps/harukan/DESIGN.md</code>, <code>docs/POLICIES.md</code>, <code>docs/LAUNCH_RUNBOOK.md</code></li>
+ <li>서버 구성 파일: <code>infra/README.md</code></li>
+ <li>memory 도구: <code>apps/memory/README.md</code></li>
+</ul>
+</main>
+</body>
+</html>
