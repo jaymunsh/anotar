@@ -93,7 +93,7 @@ const CommentsAttention = React.lazy(() =>
 
 // The 일지(journal) feature moved to the separate harukan service; the sidebar
 // item opens it in a new tab. Build-time Vite env, default is the live address.
-const HARUKAN_URL = import.meta.env.VITE_HARUKAN_URL || 'https://leneu.store/app';
+const HARUKAN_URL = import.meta.env.VITE_HARUKAN_URL || 'https://harukan.leneu.store/app';
 
 function currentRoute() {
   if (/^\/hosting\/?$/.test(window.location.pathname))

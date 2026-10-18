@@ -7,11 +7,19 @@
 | 주소 | 역할 | Oracle 내부 연결 |
 |---|---|---|
 | personal.leneu.store | 기존 개인 Anotar, 기존 비밀번호+TOTP 유지 | 127.0.0.1:8787 |
-| leneu.store | 새 플래너 소개·계정·시간표 | 127.0.0.1:8794 |
+| harukan.leneu.store | harukan 소개·계정·시간표 (2026-10-18부터 기본 주소) | 127.0.0.1:8794 |
+| leneu.store | 예전 harukan 주소. 같은 앱이 받아 `harukan.leneu.store`의 같은 경로로 301 (`REDIRECT_FROM_HOSTS`) | 127.0.0.1:8794 그대로 |
 | share.leneu.store | 기존 공유 페이지 | 127.0.0.1:8790 그대로 |
 | host.leneu.store | 기존 웹 호스팅 | 127.0.0.1:8792 그대로 |
 
 기존 DB·첨부 `/srv/leneu/data-live`, 기존 인증·AI·봇·자동 배포는 그대로 사용한다. 새 플래너는 `/srv/anotar-planner/data`, `/srv/anotar-planner/backups`, 별도 Compose 프로젝트와 host-only 쿠키를 쓴다. 포트 8794를 인터넷에 직접 열지 않는다. Cloudflare tunnel 서비스 토큰을 출력하거나 저장소에 올리지 않는다.
+
+## 0. harukan.leneu.store 주소 추가 (2026-10-18)
+
+1. Cloudflare Zero Trust › Tunnels › 기존 tunnel › Public Hostname에 `harukan.leneu.store` → `http://127.0.0.1:8794`를 추가한다(DNS CNAME은 Cloudflare가 만든다). `leneu.store` 경로는 지우지 않는다. 두 경로 모두 HTTP Host header를 바꾸지 않는다(기본값) — 앱이 Host로 예전 주소를 알아본다.
+2. `/srv/anotar-planner/.env`에서 `PUBLIC_ORIGIN=https://harukan.leneu.store`, `REDIRECT_FROM_HOSTS=leneu.store`로 바꾸고 재시작한다. 가입·재설정 메일 링크와 쓰기 요청의 Origin 검사가 새 주소 기준이 된다. 보내는 주소(`MAIL_FROM`, `no-reply@leneu.store`)는 그대로 둔다.
+3. 확인: `curl -sI https://leneu.store/app?x=1` → `301`, `location: https://harukan.leneu.store/app?x=1`. 새 주소에서 가입·로그인·메일 링크.
+4. 쿠키는 host-only라 예전 주소의 로그인은 옮겨지지 않는다. 새 DB로 출시하면 영향 없음. 운영 anotar의 사이드바·`/journal` 기본값은 `https://harukan.leneu.store/app`이다.
 
 ## 1. SSH 접속 복구
 
@@ -41,7 +49,8 @@ sudo install -d -m 755 /srv/anotar-planner/releases
 후속 배포는 먼저 현재 서비스에서 온라인 백업을 만든다. 새 릴리스에 기존 환경 파일의 심볼릭 링크를 만들고 **정확한 새 `PLANNER_RELEASE` 이미지 태그로 빌드**한다. 빌드 성공 뒤 환경 파일의 릴리스 키와 current 링크를 원자적으로 바꾸고 Compose를 실행한다. 다른 환경 키나 데이터 경로는 덮어쓰지 않는다. health 실패 시 previous 이미지·current·릴리스 키를 되돌리고 데이터는 초기화하지 않는다.
 
 ```dotenv
-PUBLIC_ORIGIN=https://leneu.store
+PUBLIC_ORIGIN=https://harukan.leneu.store
+REDIRECT_FROM_HOSTS=leneu.store
 REGISTRATION_ENABLED=false
 LEGAL_REVIEWED=false
 OPERATOR_NAME=문성혁

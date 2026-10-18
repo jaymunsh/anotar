@@ -14,7 +14,7 @@
 
 | 주소 | 서비스 | 누가 | 서버 |
 |---|---|---|---|
-| `leneu.store` (나중에 `harukan.leneu.store`) | harukan | 누구나 (가입) | `/srv/anotar-planner`, 8794 |
+| `harukan.leneu.store` (예전 `leneu.store`는 같은 경로로 301) | harukan | 누구나 (가입) | `/srv/anotar-planner`, 8794 |
 | `personal.leneu.store` | anotar 개인 앱 | 본인만 | `/srv/leneu`, 8787 |
 | `share.leneu.store` | anotar 공유 문서·댓글 | 링크 받은 사람 | 8790 |
 | `host.leneu.store` | 정적 사이트 호스팅 | 누구나 | 8792 |

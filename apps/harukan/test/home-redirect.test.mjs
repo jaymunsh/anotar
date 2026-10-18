@@ -18,3 +18,18 @@ test('signed-in visitors skip the landing and sign-in pages; others still see th
  for(const path of ['/','/login','/signup']){const response=await get(path,cookie);assert.equal(response.status,302,path);assert.equal(response.headers.get('location'),'/app');}
  for(const path of ['/guide','/about','/demo'])assert.notEqual((await get(path,cookie)).status,302,path);
 });
+
+test('a former host sends every request to the same path on the current origin',async t=>{
+ const directory=await mkdtemp(join(tmpdir(),'anotar-host-'));
+ const app=makeApp({dataDirectory:directory,origin:'https://harukan.example.test',redirectHosts:['old.example.test','harukan.example.test']});
+ await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));
+ t.after(async()=>{await app.close();await rm(directory,{recursive:true,force:true});});
+ const port=app.server.address().port;
+ const {request}=await import('node:http');
+ const send=(host,path,method='GET')=>new Promise((resolve,reject)=>{const r=request({host:'127.0.0.1',port,path,method,headers:{Host:host}},res=>{res.resume();resolve(res);});r.on('error',reject);r.end();});
+ let r=await send('old.example.test','/app?view=month');assert.equal(r.statusCode,301);assert.equal(r.headers.location,'https://harukan.example.test/app?view=month');
+ r=await send('OLD.example.test','/');assert.equal(r.headers.location,'https://harukan.example.test/');
+ r=await send('old.example.test','/api/auth/login','POST');assert.equal(r.statusCode,308);
+ // The current host is never redirected, even if listed by mistake.
+ r=await send('harukan.example.test','/api/health');assert.equal(r.statusCode,200);
+});

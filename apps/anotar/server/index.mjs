@@ -86,7 +86,7 @@ const maxFileSize = 25 * 1024 * 1024;
 const maxTotalSize = 100 * 1024 * 1024;
 // The 일지(journal) feature moved to the separate harukan service. Old /journal
 // bookmarks get a 302 to this address so they keep working.
-const harukanUrl = (process.env.HARUKAN_URL || 'https://leneu.store/app').replace(/\/$/, '');
+const harukanUrl = (process.env.HARUKAN_URL || 'https://harukan.leneu.store/app').replace(/\/$/, '');
 
 function json(response, status, payload) {
   response.writeHead(status, {

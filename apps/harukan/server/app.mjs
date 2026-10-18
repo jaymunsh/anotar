@@ -48,6 +48,8 @@ export function makeApp(options={}) {
   const origin=options.origin??process.env.PUBLIC_ORIGIN??'http://127.0.0.1:5175';
   const urlOrigin=new URL(origin);
   if(production&&urlOrigin.protocol!=='https:') throw Error('운영 PUBLIC_ORIGIN은 HTTPS여야 합니다.');
+  // Former addresses (e.g. leneu.store after the move to harukan.leneu.store): every request is sent to the same path on PUBLIC_ORIGIN.
+  const redirectHosts=new Set((options.redirectHosts??(process.env.REDIRECT_FROM_HOSTS||'').split(',')).map(h=>h.trim().toLowerCase()).filter(h=>h&&h!==urlOrigin.host));
   const dataDirectory=options.dataDirectory??process.env.PLANNER_DATA_DIR??'./data';
   const db=openStore(dataDirectory);
   const dist=resolve(options.dist??'dist');
@@ -128,6 +130,7 @@ export function makeApp(options={}) {
     res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
     try {
       const url=new URL(req.url,'http://localhost'),path=url.pathname,write=!['GET','HEAD'].includes(req.method);
+      if(redirectHosts.has(String(req.headers.host||'').toLowerCase())){res.writeHead(write?308:301,{Location:origin+path+url.search,'Cache-Control':'no-store'});return res.end();}
       if(path==='/api/health') return json(res,200,{ok:true,service:'anotar-planner'});
       if(!path.startsWith('/api/')) {
         if(!['GET','HEAD'].includes(req.method)) throw apiError(405,'지원하지 않는 요청이에요.');

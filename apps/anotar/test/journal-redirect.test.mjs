@@ -44,14 +44,14 @@ test('GET /journal 302-redirects to the default harukan address', async (t) => {
   const { base } = await fixture(t);
   const response = await fetch(base + '/journal', { redirect: 'manual' });
   assert.equal(response.status, 302);
-  assert.equal(response.headers.get('location'), 'https://leneu.store/app');
+  assert.equal(response.headers.get('location'), 'https://harukan.leneu.store/app');
 });
 
 test('GET /journal/sub-path also redirects so old bookmarks keep working', async (t) => {
   const { base } = await fixture(t);
   const response = await fetch(base + '/journal/2026-10-18', { redirect: 'manual' });
   assert.equal(response.status, 302);
-  assert.equal(response.headers.get('location'), 'https://leneu.store/app');
+  assert.equal(response.headers.get('location'), 'https://harukan.leneu.store/app');
 });
 
 test('HARUKAN_URL env overrides the redirect target and trailing slash is trimmed', async (t) => {
