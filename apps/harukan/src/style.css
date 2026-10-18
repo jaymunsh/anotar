@@ -66,3 +66,5 @@ body:has(.journal-page:not(.journal-preview)) .public-header{padding-inline:max(
 .settings-account button{margin-top:14px}
 .app-header .header-save:empty{border:0;padding:0;margin:0}
 @media(max-width:640px){.app-header .header-save{border:0;padding-right:0}}
+.settings-inline{display:flex;flex-direction:row;align-items:flex-end;gap:10px;flex-wrap:wrap}.settings-inline label{flex:1;min-width:200px}
+.settings-email{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;margin:14px 0 4px}.settings-email .verified{color:var(--action);font-size:12px;font-weight:600}.settings-email .unverified{color:var(--danger);font-size:12px;font-weight:600}

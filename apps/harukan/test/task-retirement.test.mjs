@@ -10,7 +10,7 @@ test('explicit retirement removes task contents and links while preserving diary
  const directory=await mkdtemp(join(tmpdir(),'anotar-task-retirement-')),db=openStore(directory);
  try{
   assert.equal(db.prepare("SELECT name FROM sqlite_master WHERE name='tasks'").get(),undefined);
-  db.prepare('INSERT INTO users VALUES(?,?,?,?,?,?,?)').run('u','tester','hash','recovery','Asia/Seoul',1,'terms');
+  db.prepare('INSERT INTO users(id,username,password,recovery_hash,timezone,created_at,terms_version) VALUES(?,?,?,?,?,?,?)').run('u','tester','hash','recovery','Asia/Seoul',1,'terms');
   db.exec('CREATE TABLE tasks(id TEXT,user_id TEXT,title TEXT,status TEXT,version INTEGER,updated_at INTEGER)');
   db.prepare('INSERT INTO tasks VALUES(?,?,?,?,?,?)').run('task','u','Remove this backlog content','todo',1,1);
   const day={plans:[{id:'activity',title:'Preserve scheduled work',start:540,end:600,status:'pending',taskId:'task',priorityId:'priority'}],entries:[{id:'entry',title:'Past record',start:545,end:590,planId:'activity'}],priorities:[{id:'priority',text:'Today’s priority',done:false}],notes:{thoughts:'Preserve thoughts',ideas:'Idea',review:'Review'}};

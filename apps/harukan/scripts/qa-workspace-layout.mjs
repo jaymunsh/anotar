@@ -15,7 +15,7 @@ const checks=[],errors=[];
 try{
  const context=await browser.newContext(),page=await context.newPage();
  page.on('pageerror',error=>errors.push(error.message));
- const registration=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{username:'abcdefghijklmnopqrstuvwx12345678',password:'temporary-layout-password',termsVersion:'2026-10-11-v1',ageConfirmed:true}});
+ const registration=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{email:'abcdefghijklmnopqrstuvwx12345678'+'@example.test',nickname:('abcdefghijklmnopqrstuvwx12345678').slice(0,20),password:'temporary-layout-password',termsVersion:'2026-10-11-v1',ageConfirmed:true}});
  assert.equal(registration.status(),201);
  const session=await registration.json();
  const document={plans:[{id:'plan',title:'Review mobile schedule and prepare the next release',start:540,end:650,status:'done'},{id:'pending-plan',title:'Plan the next small step',start:720,end:780,status:'pending'}],entries:[],priorities:[{id:'priority',text:'Review the schedule',done:false}],notes:{thoughts:'Make room for the work that matters.',ideas:'One activity, shared across planning views.',review:'Leave enough time between appointments.'}};

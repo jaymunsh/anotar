@@ -11,7 +11,7 @@ await new Promise(resolve=>app.server.listen(8797,'127.0.0.1',resolve));
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||undefined}),checks=[],errors=[];
 try{
  const context=await browser.newContext().then(async c=>{await c.addInitScript(()=>localStorage.setItem('anotar-planner:schedule','grid'));return c;}),page=await context.newPage();page.setDefaultTimeout(5000);page.on('pageerror',error=>errors.push(error.message));
- const response=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{username:'navigation_qa',password:'temporary-navigation-password',termsVersion:'2026-10-11-v1',ageConfirmed:true}});assert.equal(response.status(),201);const session=await response.json(),headers={Origin:base,'X-CSRF-Token':session.csrf};
+ const response=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{email:'navigation_qa'+'@example.test',nickname:('navigation_qa').slice(0,20),password:'temporary-navigation-password',termsVersion:'2026-10-11-v1',ageConfirmed:true}});assert.equal(response.status(),201);const session=await response.json(),headers={Origin:base,'X-CSRF-Token':session.csrf};
  const goal={id:'goal',kind:'goal',title:'Release a useful planner',startMonth:'2026-01',endMonth:'2026-12',parentId:null,note:'',version:0};
  const step={...goal,id:'step',kind:'step',title:'Improve the mobile schedule',startMonth:'2026-10',endMonth:'2026-10',parentId:'goal'};
  for(const item of [goal,step])assert.equal((await context.request.put(base+'/api/planning/'+item.id,{headers,data:item})).status(),200);

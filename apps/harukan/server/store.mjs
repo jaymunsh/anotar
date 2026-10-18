@@ -30,7 +30,17 @@ export function openStore(directory) {
     );
     CREATE TABLE IF NOT EXISTS auth_limits (
       key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires_at INTEGER NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS mail_tokens (
+      token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      kind TEXT NOT NULL, email TEXT NOT NULL, expires_at INTEGER NOT NULL
     );`);
+  // Email sign-in (2026-10): older databases gain the columns in place; earlier accounts keep their username and recovery code.
+  const columns=new Set(db.prepare('PRAGMA table_info(users)').all().map(c=>c.name));
+  if(!columns.has('email')) db.exec('ALTER TABLE users ADD COLUMN email TEXT');
+  if(!columns.has('email_verified_at')) db.exec('ALTER TABLE users ADD COLUMN email_verified_at INTEGER');
+  if(!columns.has('nickname')) db.exec('ALTER TABLE users ADD COLUMN nickname TEXT');
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS users_email ON users(email COLLATE NOCASE) WHERE email IS NOT NULL');
   return db;
 }
 
