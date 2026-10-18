@@ -6,35 +6,24 @@
 .review-span button{min-height:34px;padding:6px 16px;font-size:13px}
 .review .segmented.review-span{width:auto}
 
-.review-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:0}
+.review-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0}
 .review-kpis>div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .review-kpis dt{font-size:12px;color:var(--muted)}
 .review-kpis dd{margin:0;font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
 .review-kpis dd small{font-size:14px;font-weight:500;color:var(--muted)}
-.review-delta{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+.review-delta{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted)}
+.review-headline{margin:0;font-size:17px;line-height:1.6;color:var(--ink)}
+.review-headline b{font-weight:700}
+.review-headline b[style]{box-shadow:inset 0 -.45em 0 color-mix(in srgb,var(--goal) 28%,transparent)}
 
-.review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .review-card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;min-width:0}
 .review-card.wide{grid-column:span 2}
 .review-card.full{grid-column:1/-1}
 .review-card h3{font-size:14px;margin:0 0 12px}
-.review-card h3 small{color:var(--muted);font-weight:500}
+.review-card h3{display:flex;align-items:baseline;gap:8px}.review-card h3 small{color:var(--muted);font-weight:400;font-size:12px}
 .review-card .journal-hint{margin:0}
 .review-card.full h2{font-size:14px;margin:0 0 12px}
-
-/* Time per goal: a donut (CSS conic-gradient) and its legend, which carries the names and numbers. */
-.review-share{display:flex;align-items:center;gap:20px}
-.review-donut{flex:none;width:120px;height:120px;border-radius:50%;display:grid;place-items:center}
-.review-donut>span{width:76px;height:76px;border-radius:50%;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center}
-.review-donut b{font-size:18px;font-variant-numeric:tabular-nums}
-.review-donut small{font-size:11px;color:var(--muted)}
-.review-legend,.review-progress,.review-top,.review-notes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
-.review-legend li{display:grid;grid-template-columns:10px minmax(0,1fr) auto 36px;align-items:center;gap:8px;font-size:12px}
-.review-legend li>i,.review-progress li>span:first-child i,.review-top li>span:first-child i{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
-.review-legend i.unlinked{background:var(--line-strong)}
-.review-legend span,.review-progress li>span:first-child,.review-top li>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.review-legend b,.review-progress b,.review-top b{font-variant-numeric:tabular-nums;font-weight:600}
-.review-legend small{color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
 
 /* Rhythm: stacked bars from the baseline, 2px gaps between goals. */
 .review-bars{display:flex;align-items:stretch;gap:4px;height:160px}
@@ -42,32 +31,43 @@
 .review-bars>button:hover{background:var(--hover)}
 .review-bar{display:flex;flex-direction:column-reverse;gap:2px;min-height:0;border-radius:4px 4px 0 0;overflow:hidden}
 .review-bar i{display:block;min-height:2px}
+.review-bar i.unlinked{background:color-mix(in srgb,var(--muted) 22%,transparent)}
 .review-bars small{font-size:10px;color:var(--muted);text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden}
 .review-bars>button.today small{color:var(--ink);font-weight:700}
 .review-bars.month{gap:2px}
 .review-bars.month small{font-size:9px}
 
-/* When in the day: weekday rows × 24 hours, one hue light → dark. Night hours stay full width. */
-.review-heat{display:flex;flex-direction:column;gap:2px}
+/* When in the day (folded under the bars): weekday rows × 24 hours, one hue light → dark. Night hours stay full width. */
+.review-heat-wrap{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.review-heat-wrap>summary{font-size:12px;color:var(--action);cursor:pointer}
+.review-heat{display:flex;flex-direction:column;gap:2px;margin-top:10px;max-width:720px}
 .review-heat>div{display:grid;grid-template-columns:28px repeat(24,minmax(0,1fr));gap:2px;align-items:center}
 .review-heat [role=rowheader],.review-heat-hours span{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
-.review-heat [role=cell]{position:relative;aspect-ratio:1;max-height:22px;background:var(--hover);border-radius:2px;overflow:hidden}
+.review-heat [role=cell]{position:relative;height:16px;background:var(--hover);border-radius:2px;overflow:hidden}
 .review-heat [role=cell] i{position:absolute;inset:0;background:var(--action)}
 
-/* Goal progress and most time: name, number, a thin track underneath. */
-.review-progress li,.review-top li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;align-items:center;font-size:12px}
-.review-top li{grid-template-columns:minmax(0,1fr) auto 32px}
-.review-progress li>span:first-child,.review-top li>span:first-child{display:flex;align-items:center;gap:8px}
-.review-top small,.review-progress small{color:var(--muted);font-size:11px;text-align:right}
-.review-progress small{grid-column:1/-1;text-align:left}
-.review-track{grid-column:1/-1;height:6px;border-radius:3px;background:var(--hover);overflow:hidden}
-.review-track i{display:block;height:100%;border-radius:3px;background:var(--line-strong)}
+/* Goals: one row each, in the goal's own colour — time here (bar, share), steps done (bar), change on the period before. */
+.review-goals{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.review-goals li{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.6fr) minmax(0,1fr) 72px;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.review-goals li:last-child{border-bottom:0}
+.review-goals li.review-goals-head{padding:0 0 6px;font-size:11px;color:var(--muted)}.review-goals-head span:last-child{text-align:right}
+.review-goal-name{display:flex;align-items:center;gap:8px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.review-goal-name i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--goal)}
+.review-goal-time,.review-goal-steps{display:grid;grid-template-columns:minmax(0,1fr) auto 34px;gap:8px;align-items:center;min-width:0}
+.review-goal-time b,.review-goal-steps b{font-variant-numeric:tabular-nums;font-weight:600;font-size:12px}
+.review-goal-time small,.review-goal-steps small,.review-goal-delta{color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.review-goal-delta{text-align:right}
+.review-track{height:8px;border-radius:4px;background:var(--hover);overflow:hidden}
+.review-track i{display:block;height:100%;border-radius:4px;background:var(--goal,var(--line-strong))}
+.review-goal-steps .review-track{height:6px}
+.review-goal-steps .review-track i{opacity:.55}
 
 .review-missed .journal-review-row{padding:10px 0;min-height:0;gap:8px}
+.review-notes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .review-notes li{display:flex;gap:12px;font-size:13px;border-bottom:1px solid var(--line);padding-bottom:8px}
 .review-notes li button{flex:none;font-size:12px;color:var(--action);padding:0;min-height:0;align-self:flex-start}
 .review-notes p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .review-more>summary{padding:8px 0;font-size:12px;color:var(--action);cursor:pointer}
 
-@media(max-width:1100px){.review-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:640px){.review-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.review-kpis dd{font-size:22px}.review-kpis>div:last-child{grid-column:1/-1}.review-grid{grid-template-columns:minmax(0,1fr)}.review-card.wide{grid-column:auto}.review-share{flex-direction:column;align-items:stretch}.review-donut{align-self:center}.review-bars{height:120px}.review-bars.month small{display:none}.review-head h2{flex-basis:100%;order:-1}}
+@media(max-width:900px){.review-goals li{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 16px}.review-goal-name{grid-column:1/-1}.review-goal-delta,.review-goals li.review-goals-head{display:none}}
+@media(max-width:640px){.review-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.review-kpis dd{font-size:22px}.review-grid{grid-template-columns:minmax(0,1fr)}.review-headline{font-size:15px}.review-goals li{grid-template-columns:minmax(0,1fr)}.review-bars{height:120px}.review-bars.month small{display:none}.review-head h2{flex-basis:100%;order:-1}}
