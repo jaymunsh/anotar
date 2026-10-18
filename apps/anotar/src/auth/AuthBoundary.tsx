@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { X } from 'lucide-react';
-import { getAuthSnapshot, subscribeAuth, refreshAuth, watchAuthTabs } from './state';
+import { getAuthSnapshot, subscribeAuth, refreshAuth, watchAuthTabs, observeAuthFailures } from './state';
 import LoginForm from './LoginForm';
 import './auth.css';
 function LoginDialog({ close }: { close: () => void }) {
@@ -41,6 +41,7 @@ export default function AuthBoundary({ children }: { children: ReactNode }) {
   }, [auth.locked]);
   useEffect(() => {
     void refreshAuth();
+    observeAuthFailures();
     const off = watchAuthTabs();
     const online = () => {
       void refreshAuth();

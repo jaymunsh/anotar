@@ -286,6 +286,23 @@ export default function PageWorkspace({
       });
       if (!response.ok) throw new Error('새 페이지를 만들지 못했습니다.');
       const { item } = (await response.json()) as { item: PageRecord };
+      // POST는 본문을 받지 않는다. 템플릿 본문은 반환 버전 기준 PUT으로 저장한다.
+      if (blueprint?.document) {
+        const saved = await workspaceFetch('/api/pages/' + item.id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: blueprint.title || item.title,
+            icon: blueprint.icon ?? item.icon ?? '',
+            document: blueprint.document,
+            expectedVersion: item.version,
+          }),
+        });
+        if (!saved.ok) {
+          navigate('/pages/' + item.id);
+          throw new Error('페이지는 만들었지만 템플릿 내용을 넣지 못했어요. 페이지에서 템플릿으로 시작을 다시 눌러 주세요.');
+        }
+      }
       setBlueprintsOpen(false);
       navigate('/pages/' + item.id);
     } catch (cause) {

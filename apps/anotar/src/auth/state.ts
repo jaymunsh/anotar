@@ -36,6 +36,23 @@ export function authenticationRequired() {
   generation++;
   if (snapshot.state !== 'disabled') publish({ state: 'required' });
 }
+// 온라인 전용: 개인 API가 401을 돌려주면 어느 호출 경로든 바로 로그인 안내로 바꾼다.
+// (예전에는 sync 전송 계층이 맡았다.) 입력·초안은 건드리지 않는다.
+let fetchObserved = false;
+export function observeAuthFailures() {
+  if (fetchObserved || typeof window === 'undefined') return;
+  fetchObserved = true;
+  const original = window.fetch.bind(window);
+  window.fetch = async (input, init) => {
+    const response = await original(input, init);
+    if (response.status === 401) {
+      const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url, location.href);
+      if (url.origin === location.origin && url.pathname.startsWith('/api/') && !url.pathname.startsWith('/api/auth/'))
+        authenticationRequired();
+    }
+    return response;
+  };
+}
 export function lockWorkspace() {
   generation++;
   saveLock(true);
