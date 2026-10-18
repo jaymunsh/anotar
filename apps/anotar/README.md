@@ -265,11 +265,11 @@ UI·저장·AI 실행 흐름은 로컬에서 개발하고 나중에 미니PC로 
 현재 운영 주소·구성은 [실운영 연결](docs/ORACLE_LIVE_DEPLOYMENT.md), 작업 반영의 상세 순서·백업·확인은 [Oracle 서버 반영 가이드](docs/ORACLE_RELEASE_GUIDE.md)를 참고합니다. 아래 최초 설치 미실시 표시는 이전 준비 당시 기록입니다.
 
 Ubuntu ARM64 A1 2 OCPU / 12GB의 준비·자료 이전·Docker·개인 HTTPS·공유 도메인·백업/복구 절차는 [상세 설치 가이드](docs/ORACLE_INSTALLATION.md)를 확인하세요.
-## 오프라인 작업 공간 (2026-10-03)
+## 연결과 저장 (2026-10-19 온라인 전용)
 
-메모·할 일·열어둔/보관한 페이지를 기기에 먼저 저장하고 연결 후 서버에 동기화합니다. 페이지 충돌은 양쪽 사본을 보존하며 직접 선택합니다. 단일 메모 정리와 AI 제출은 고정 사본과 의존 작업을 큐에 보관합니다.
+저장은 서버 응답이 성공했을 때 끝나고, 읽기는 서버에서 바로 합니다. 예전의 기기 우선 오프라인 작성·동기화는 제거했습니다. 저장에 실패하면 입력을 지우지 않고 다시 시도를 보여주며, 페이지가 다른 곳에서 바뀌면 409 안내에서 서버 내용 불러오기·내 내용 복사·내 내용으로 덮어쓰기 중에 고릅니다.
 
-- [사용·복구·실기기 점검](docs/OFFLINE_USAGE.md)
+- [연결·설치·공유 수신 안내](docs/OFFLINE_USAGE.md)
 - [Oracle A1 Ubuntu/Docker 설치](docs/ORACLE_INSTALLATION.md)
 - [자동화·성능·남은 원격 점검 보고](.omo/evidence/offline-workspace/REPORT.md)
 

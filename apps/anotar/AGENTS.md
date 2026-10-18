@@ -206,7 +206,7 @@ node scripts/benchmark-search.mjs                 # 임시 1만·10만 혼합 �
 클라이언트의 기기 우선(local-first) 오프라인 작성·동기화를 제거하고 **온라인 전용**으로 바꿨다. 사용자는 혼자 쓰는 개인 앱이고 안정성을 위해 지웠다.
 
 - 서버가 원본이다. 저장 = 서버 응답 성공, 읽기 = 서버 GET. 클라이언트는 `/api/captures`·`/api/tasks`·`/api/pages` CRUD와 AI·정리 REST(`/api/captures/:id/ai-jobs`, `/api/pages/:id/ai-jobs`, `/api/capture-batches/organize`, `/api/pages/:id/capture-imports`)만 쓴다.
-- IndexedDB `leneu-offline-v1`(entities/entitySummaries/outbox)과 sync 엔진·리포지토리·전송·충돌 UI는 제거했다. `src/sync/runtime.ts`의 `workspaceFetch`는 이제 그냥 `fetch` 래퍼이고, `queueWorkflow`는 서버 REST로 직접 보낸다.
+- IndexedDB `leneu-offline-v1`(entities/entitySummaries/outbox)과 sync 엔진·리포지토리·전송·충돌 UI는 제거했다. `src/sync/runtime.ts`의 `workspaceFetch`는 이제 그냥 `fetch` 래퍼다. AI 요청·메모 정리는 `src/ai/api.ts`·`src/ai/pageSubmission.ts`·`src/memos/CapturePageImport.tsx`가 서버 REST로 직접 보낸다(`queueWorkflow` 삭제).
 - 저장 실패/연결 끊김: 입력을 지우지 않고 **저장하지 못했어요 · 다시 시도**를 보여준다. 메모 입력은 전송 성공 후에만 비운다. 페이지 편집기는 디바운스 자동저장(`src/sync/autosave.ts`) + 저장 상태(저장됨/저장 중/저장 못 함) + 실패 재시도를 쓴다.
 - 409 충돌: **다른 곳에서 바뀌었어요** 안내 + [서버 내용 불러오기] [내 내용 복사] [내 내용으로 덮어쓰기(= current.version으로 다시 PUT)]. 과한 3-way 비교 UI는 만들지 않는다.
 - 유지: `src/drafts/*`(localStorage 초안)·prompts 초안, PWA 설치·서비스워커 앱 쉘 캐시·앱 업데이트 알림(`offline/update.ts`, `AppUpdateNotice.tsx`)·OS 공유 수신(`public/capture-worker.js`, `src/capture/`). 기존 기기의 IndexedDB는 삭제하지 않고 그냥 열지 않는다.
@@ -221,7 +221,7 @@ node scripts/benchmark-search.mjs                 # 임시 1만·10만 혼합 �
 
 `docs/AUTHENTICATION.md`와 private-auth 설계/계획을 먼저 읽는다. `server/auth/`·`src/auth/`는 단일 개인 계정·기기 신뢰를 맡으며 공유 방문자 인증과 구분한다. 모든 개인 API guard는 sync/upload보다 먼저 실행한다. 공개 등록 경로·공개 프로세스의 개인 auth API·AUTH_SECRET_KEY·auth 테이블의 sync/search/HTML 노출을 추가하지 않는다. production/외부 HOST/Compose의 required 기본을 유지한다. Cookie만으로 쓰기를 허용하거나 Secure를 공개 운영에서 해제하지 않는다.
 
-로그인/401/로그아웃 때문에 열린 편집기나 IndexedDB/outbox/초안/첨부를 삭제하지 않는다. 명시 로그아웃은 숨기고 잠금 상태를 유지하며 재로그인 시 동일 UUID를 재개한다. 초기 계정/복구 코드는 실제 사용자 데이터로 QA하지 않는다. CLI는 password/OTP를 argv/env로 받지 않고 .env를0600으로 보존한다. DB 복원에는 기존 AUTH_SECRET_KEY가 필요하고 epoch를 바꾸어 이전 세션을 무효화한다. 검증은 auth/auth-api/auth-setup 테스트와 build, `qa:auth`; 실제 TLS/휴대폰/PWA를 임시 Chrome 성공과 구분한다.
+로그인/401/로그아웃 때문에 열린 편집기나 초안/첨부 초안을 삭제하지 않는다. 명시 로그아웃은 숨기고 잠금 상태를 유지하며 재로그인 시 동일 UUID를 재개한다. 초기 계정/복구 코드는 실제 사용자 데이터로 QA하지 않는다. CLI는 password/OTP를 argv/env로 받지 않고 .env를0600으로 보존한다. DB 복원에는 기존 AUTH_SECRET_KEY가 필요하고 epoch를 바꾸어 이전 세션을 무효화한다. 검증은 auth/auth-api/auth-setup 테스트와 build, `qa:auth`; 실제 TLS/휴대폰/PWA를 임시 Chrome 성공과 구분한다.
 
 
 ## 여행 기능 분리 (2026-10-05)

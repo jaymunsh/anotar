@@ -245,7 +245,7 @@ sudo docker compose exec storage node scripts/backup-data.mjs verify /backups/be
 | A1 Out of capacity        | 홈 리전 가용 용량. 무료 표시 없는 유료 shape로 임의 변경하지 않는다. |
 | SSH timeout               | IP, 인터넷 게이트웨이/route, TCP22 source CIDR, 호스트 방화벽.       |
 | 8787 외부 접속 안 됨      | 의도된 설정. 개인 HTTPS/Tailscale 주소 사용.                         |
-| PWA 설치/오프라인 안 됨   | HTTPS, service worker 준비, 같은 origin, 기기 저장소 및 구현 단계.   |
+| PWA 설치/오프라인 안 됨   | HTTPS, service worker 준비, 같은 origin. 앱은 온라인 전용(앱 쉘만 캐시). |
 | shared comment 저장 안 됨 | 두 프로세스 모두 실행, Unix socket 볼륨, 공개 Origin, 댓글 허용.     |
 | 지도 이미지 생성 실패     | 서버 `.env`, API 제공자 한도. 기존 저장 이미지와 생성 동작을 구분.   |
 | 복원 경로 존재 오류       | 존재하지 않는 새 디렉터리로 복원. 기존 원본 삭제 금지.               |
