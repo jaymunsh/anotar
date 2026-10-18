@@ -47,7 +47,7 @@ ${lines.map(l=>`<p style="margin:0 0 8px;font-size:15px;line-height:1.65;color:$
 <p style="margin:0 0 4px;font-size:13px;line-height:1.6;color:${muted}">버튼이 눌리지 않으면 아래 주소를 복사해 브라우저에 붙여 넣어 주세요.</p>
 <p style="margin:0;font-size:12px;line-height:1.6;word-break:break-all"><a href="${escape(link)}" style="color:${muted}">${escape(link)}</a></p>
 </td></tr>
-<tr><td style="padding:18px 6px 0;font-size:12px;line-height:1.7;color:${muted}">${escape(ignore)}<br>harukan · 하루를 칸으로, 시간으로 · 문의 <a href="mailto:${escape(contact)}" style="color:${muted}">${escape(contact)}</a></td></tr>
+<tr><td style="padding:18px 6px 0;font-size:12px;line-height:1.7;color:${muted}">${escape(ignore)}<br>harukan · 하루 144칸, 어디에 쓸지 먼저 정해요 · 문의 <a href="mailto:${escape(contact)}" style="color:${muted}">${escape(contact)}</a></td></tr>
 </table></td></tr></table></body></html>`;
   return {subject,text,html};
 }
