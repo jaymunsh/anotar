@@ -1,14 +1,14 @@
-.planning-toolbar{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:52px;margin:8px 0 20px}.planning-toolbar>p{font-size:12px;color:var(--muted)}.planning-toolbar>button{font-size:12px;white-space:nowrap}
-.planning-focus{padding:16px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}.planning-focus h2{font-size:14px;margin-bottom:12px}.planning-focus>p{font-size:12px;color:var(--muted)}.planning-focus>div{display:flex;flex-wrap:wrap;gap:12px 28px}.planning-focus button{min-height:44px;text-align:left;padding:6px 0;max-width:320px}.planning-focus strong{font-size:14px;display:block;overflow-wrap:anywhere}.planning-focus small{display:block;font-size:10px;margin-top:4px}
-.quarter-plan-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}.quarter-plan-month{min-width:0}.quarter-plan-month>header{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}.quarter-plan-month>header button{min-height:44px;text-align:left;padding:4px}.quarter-plan-month>header h3{font-size:18px}.quarter-plan-month>header small{font-size:10px;display:block;margin-top:4px}.quarter-plan-month>header>button:last-child{min-width:44px;text-align:center}
-.planning-step{padding:20px 0;border-bottom:1px solid var(--line)}.planning-step-title{display:flex;align-items:start;justify-content:space-between;width:100%;min-height:44px;text-align:left;gap:12px;padding:4px 0;border-radius:0}.planning-step-title strong{font-size:14px;line-height:1.5;overflow-wrap:anywhere}.planning-step-title svg{color:var(--muted);margin-top:5px;opacity:0}.planning-step-title:hover svg,.planning-step-title:focus-visible svg{opacity:1}.planning-step>small{display:block;font-size:10px;line-height:1.7}.planning-step .planning-step-goal{color:var(--action);font-weight:600;margin:2px 0 4px}.planning-step>p{font-size:12px;color:var(--muted);margin-top:10px;white-space:pre-wrap}.planning-empty-month{display:flex;align-items:center;gap:8px;min-height:64px;width:100%;padding:12px 0;text-align:left;color:var(--muted);font-size:12px}
-.annual-plan-head,.annual-plan-row{display:grid;grid-template-columns:minmax(160px,.8fr) repeat(4,minmax(0,1fr))}.annual-plan-head{background:var(--hover);border-bottom:1px solid var(--line);min-height:64px}.annual-plan-head>span{padding:20px 12px;font-size:13px}.annual-plan-head>button{border-radius:0;font-weight:650;font-size:14px;min-height:64px}.annual-plan-head small{font-size:10px;display:block;font-weight:400;color:var(--muted);margin-top:4px}.annual-plan-row{border-bottom:1px solid var(--line)}.annual-goal-name{padding:16px 12px}.annual-goal-name>button{width:100%;min-height:44px;text-align:left;padding:0}.annual-goal-name strong{font-size:14px;line-height:1.5;overflow-wrap:anywhere}.annual-goal-name small{display:block;font-size:10px;margin-top:8px}.annual-goal-name p{font-size:12px;color:var(--muted);margin-top:10px;white-space:pre-wrap}.annual-quarter-cell{min-width:0;padding:12px;border-left:1px solid var(--line);min-height:132px}.annual-quarter-cell.in-scope{background:rgba(49,88,67,.025)}.annual-quarter-label{display:none}.annual-plan-step{display:block;width:100%;min-height:44px;padding:8px 0;text-align:left;border-radius:0}.annual-plan-step strong{display:block;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.annual-plan-step small{display:block;font-size:10px;line-height:1.7;margin-top:4px}.annual-add-step{display:flex;align-items:center;gap:5px;min-height:44px;width:100%;font-size:11px;color:var(--muted);padding:8px 0}.annual-plan-empty{padding:36px 12px}.annual-plan-empty p{font-size:13px;max-width:65ch;color:var(--muted);margin-bottom:16px}
-.planning-dialog{width:min(520px,calc(100vw - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:0;border:0;border-radius:12px;box-shadow:0 20px 60px rgba(32,50,45,.2);background:var(--surface);color:var(--ink);overflow:auto}.planning-dialog::backdrop{background:rgba(32,50,45,.35)}.planning-dialog form{padding:24px}.planning-dialog h2{font-size:20px;margin-bottom:24px;padding-right:36px}.planning-dialog fieldset{border:0;padding:0;margin:0;min-width:0}.planning-dialog fieldset>label{font-size:13px;margin-bottom:8px}.planning-close{position:absolute;right:10px;top:10px;min-height:44px;min-width:44px;color:var(--muted)}.planning-dialog .form-pair{margin-top:20px}.planning-dialog .form-pair label{font-size:12px;min-width:0}.planning-dialog input[type=month]{min-width:0;font-size:14px}.planning-parent{margin-top:20px}.planning-options{border-top:1px solid var(--line);margin-top:20px}.planning-options>summary{font-size:12px;color:var(--muted)}.planning-options label{font-size:12px;margin-bottom:12px}.planning-dialog .form-actions{margin-top:24px}.planning-dialog .form-actions button{font-size:12px}
-.planning-context{display:flex;flex-wrap:wrap;align-items:center;gap:8px 28px;min-width:0;font-size:12px}.planning-context>div{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}.planning-context-label{color:var(--muted);font-size:11px;margin-right:4px}.planning-context-item{max-width:320px;min-height:30px;padding:4px 10px;border-radius:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--ink);background:var(--hover)}.planning-context-item.goal{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}.planning-context-item:hover{background:var(--lime)}.planning-context-more{display:inline-flex;align-items:center;gap:4px;min-height:30px;padding:4px 6px;color:var(--muted);font-size:12px}.planning-context-more:hover{color:var(--action)}
-@media(max-width:900px){.quarter-plan-columns{gap:20px}.annual-plan-head,.annual-plan-row{grid-template-columns:minmax(128px,.8fr) repeat(4,minmax(0,1fr))}.annual-quarter-cell{padding:8px}.annual-goal-name{padding:12px 8px}}
-@media(max-width:640px){.planning-toolbar{align-items:start;gap:12px;margin-top:8px}.planning-toolbar>p{font-size:12px;flex:1}.planning-focus>div{display:block}.planning-focus button{display:block;max-width:none;width:100%}.quarter-plan-columns{grid-template-columns:1fr;gap:28px}.quarter-plan-month>header h3{font-size:18px}.planning-step-title svg{opacity:1}.annual-plan-head{display:none}.annual-plan-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:0}.annual-goal-name{grid-column:1/-1;padding:20px 0 14px}.annual-quarter-cell{border-top:1px solid var(--line);padding:10px;min-height:116px}.annual-quarter-cell:nth-child(2),.annual-quarter-cell:nth-child(4){border-left:0}.annual-quarter-label{display:block;min-height:44px;padding:0;font-size:13px;font-weight:650}.annual-plan-step strong{font-size:12px}.planning-dialog form{padding:22px 18px}.planning-dialog input,.planning-dialog input[type=month],.planning-dialog select,.planning-dialog textarea{font-size:16px}.planning-dialog .form-actions{flex-wrap:wrap}.planning-context>summary{gap:8px}.planning-context>summary span{flex:1}}
 
-.planning-focus-goal{min-width:0;flex:1;max-width:340px}
+
+
+
+
+
+.planning-context{display:flex;flex-wrap:wrap;align-items:center;gap:8px 28px;min-width:0;font-size:12px}.planning-context>div{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}.planning-context-label{color:var(--muted);font-size:11px;margin-right:4px}.planning-context-item{max-width:320px;min-height:30px;padding:4px 10px;border-radius:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--ink);background:var(--hover)}.planning-context-item.goal{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}.planning-context-item:hover{background:var(--lime)}.planning-context-more{display:inline-flex;align-items:center;gap:4px;min-height:30px;padding:4px 6px;color:var(--muted);font-size:12px}.planning-context-more:hover{color:var(--action)}
+
+@media(max-width:640px){.planning-context>summary{gap:8px}.planning-context>summary span{flex:1}}
+
+
 /* Routine list at the bottom of 계획. */
 .routine-list{margin-top:48px;padding-top:28px;border-top:1px solid var(--line);max-width:560px}
 .routine-list h2{font-size:18px}
@@ -21,26 +21,26 @@
 .routine-list form{display:flex;gap:8px;margin-top:16px}
 .routine-list form .secondary{white-space:nowrap}
 /* Plan board, compact: steps grouped under their goal in each month, one line each, with time spent. */
-.quarter-goal-group{padding:14px 0 10px;border-bottom:1px solid var(--line)}
-.quarter-goal-name{display:flex;align-items:center;margin:0 0 4px;font-size:11px;font-weight:600;color:var(--muted);overflow-wrap:anywhere}
-.planning-board .planning-step{display:block;width:100%;padding:8px 0 8px 12px;border:0;border-radius:0;text-align:left}
-.planning-board .planning-step:hover{background:var(--hover)}
-.planning-board .planning-step-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;min-height:0;padding:0}
-.planning-board .planning-step-title strong{font-size:14px;line-height:1.45}
-.planning-board .planning-step>small{display:block;font-size:10px;color:var(--muted);margin-top:2px}
-.planning-board .planning-step>p{margin-top:2px;font-size:12px;color:var(--muted);white-space:normal;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
-.planning-spent{flex-shrink:0;font-size:11px;font-weight:600;color:var(--action);font-variant-numeric:tabular-nums}
-.planning-spent.none{color:var(--muted);font-weight:400}
-.planning-focus strong .planning-context-dot,.annual-goal-name strong .planning-context-dot{vertical-align:2px}
-.annual-quarter-spent{margin:0 0 4px;font-size:11px}
+
+
+
+
+
+
+
+
+
+
+
+
 .routine-list>summary{display:flex;align-items:baseline;gap:12px;cursor:pointer;list-style:none;min-height:44px}
 .routine-list>summary::-webkit-details-marker{display:none}
 .routine-list>summary::after{content:'펼치기';margin-left:auto;font-size:12px;color:var(--muted)}
 .routine-list[open]>summary::after{content:'접기'}
 .routine-list>summary span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.planning-focus-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.planning-focus-head h2{margin:0}
-.planning-add-goal{display:inline-flex;align-items:center;gap:4px;min-height:36px;font-size:12px;color:var(--action)}
-.annual-plan-head>span{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+
+
+
 /* Routines as their own 계획 tab. */
 .journal-content>.routine-list{margin-top:8px;padding-top:0;border-top:0}
 .journal-content>.routine-list>p:first-child{margin-top:0}

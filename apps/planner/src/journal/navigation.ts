@@ -1,4 +1,4 @@
-const views = ['day','week','month','quarter','year','routines','review'];
+const views = ['day','week','month','year','routines','review'];
 
 export function journalView(path:string,query:URLSearchParams) {
   const value=query.get('view');
@@ -9,7 +9,7 @@ export function journalView(path:string,query:URLSearchParams) {
 }
 
 export function journalSection(view:string) {
-  return view==='review'?'review':['quarter','year','routines'].includes(view)?'plans':'schedule';
+  return view==='review'?'review':['year','routines'].includes(view)?'plans':'schedule';
 }
 
 export function journalPath(view:string) {
