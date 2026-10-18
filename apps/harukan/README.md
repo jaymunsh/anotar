@@ -1,6 +1,6 @@
 # harukan (하루칸)
 
-하루를 10분 칸 시간표로 계획하고 생각과 회고를 남기는 별도 서비스. 2026-10-18에 'anotar 플래너'에서 이름을 바꿨다(개인 anotar는 그대로). 색·폰트는 anotar와 같고, 로고는 `public/brand/harukan.svg`(3×3 칸, 두 칸을 묶은 박스 하나)에서 아이콘 PNG·`og.png`를 만든다. 화면에 보이는 이름만 바꿨고 쿠키(`anotar-planner-dev`/`__Host-anotar-planner`)·localStorage 키(`anotar-planner:*`)·내보내기 형식(`anotar-planner-v1`)·서버 경로(`/srv/anotar-planner`)는 기존 사용자 호환을 위해 그대로 둔다.
+하루를 10분 칸 시간표로 계획하고 생각과 회고를 남기는 별도 서비스. 2026-10-18에 'anotar 플래너'에서 이름을 바꿨다(개인 anotar는 그대로). 색·폰트는 anotar와 같고, 로고는 `public/brand/harukan.svg`(3×3 칸 중 채운 칸이 소문자 h, 남은 오른쪽 위 칸은 시계)에서 아이콘 PNG·`og.png`를 만든다. 화면에 보이는 이름만 바꿨고 쿠키(`anotar-planner-dev`/`__Host-anotar-planner`)·localStorage 키(`anotar-planner:*`)·내보내기 형식(`anotar-planner-v1`)·서버 경로(`/srv/anotar-planner`)는 기존 사용자 호환을 위해 그대로 둔다.
 
 ## 지금 동작하는 범위
 
