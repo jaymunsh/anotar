@@ -114,3 +114,11 @@
 /* Long totals (a year: '1628시간 30분') stay on one line; phones shrink them a little instead of wrapping. */
 .review-kpis dd{white-space:nowrap}
 @media(max-width:640px){.review-kpis dd{font-size:clamp(16px,5vw,22px)}}
+/* Narrow screens: 요약|기록 sit on the 회고 title row so the description runs the full width below; ‹ 올해 › goes to the right. */
+@media(max-width:760px){
+ .journal-review-heading>div:first-child{display:contents}
+ .journal-review-heading>div:first-child>h1{grid-column:1;grid-row:1;align-self:center}
+ .journal-review-heading>.review-tabs{grid-column:2;grid-row:1;align-self:center}
+ .journal-review-heading>div:first-child>p{grid-column:1/-1;grid-row:2;margin-top:4px}
+ .review-head nav{margin-left:auto}
+}
