@@ -52,7 +52,7 @@ try{
   // 오늘 시간표로: from any screen, the header button lands on today's day view with the timetable right under the sticky header.
   await page.setViewportSize({width:390,height:844});await page.goto(base+'/app/settings?lang=ko');await page.locator('.now-jump').click();
   await page.waitForURL(u=>u.searchParams.get('view')==='day');await page.locator('.journal-grid,.journal-activity-list').first().waitFor();await page.waitForTimeout(900);
-  const fit=await page.evaluate(()=>({head:document.querySelector('.app-header').getBoundingClientRect(),grid:(document.querySelector('.journal-grid-header')??document.querySelector('.journal-activity-list')).getBoundingClientRect().top,date:new URLSearchParams(location.search).get('date'),today:new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}).format(new Date())}));
+  const fit=await page.evaluate(()=>({head:document.querySelector('.app-header').getBoundingClientRect(),grid:document.querySelector('.journal-schedule').getBoundingClientRect().top,date:new URLSearchParams(location.search).get('date'),today:new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}).format(new Date())}));
   assert.equal(fit.head.top,0,'header stays at the top');assert.equal(fit.date,fit.today);assert.ok(fit.grid>=fit.head.bottom&&fit.grid<fit.head.bottom+40,`timetable under the header (${fit.grid} vs ${fit.head.bottom})`);
   checks.push('오늘 시간표로 jumps to today and fits the timetable under the sticky header');
 
