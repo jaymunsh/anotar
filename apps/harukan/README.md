@@ -36,16 +36,21 @@ npm start
 ## 검증
 
 ```sh
-npm test
-npm run build
-node scripts/qa-planner-navigation.mjs
-node scripts/qa-planning-board.mjs
-node scripts/qa-period-diary.mjs
-# 켜진 로컬 미리보기(5175)의 API 장애 대응 확인
-node scripts/qa-public-availability.mjs
+npm test      # 서버·저장 규격 테스트
+npm run qa    # 빌드 후 scripts/qa-*.mjs 전부를 차례로 실행, ok/FAIL 출력
 ```
 
-브라우저 QA는 설치된 Chrome for Testing을 `CHROME_PATH`로 지정할 수 있다. 새 브라우저와 임시 DB를 사용한다. 기본 QA는8795, 한영 QA는8796 포트에서 실행한다. 기존 개인 서비스와 실제 계정을 사용하지 않는다. 증거는 `.omo/evidence/qa.json`, 화면은 `.impeccable/review/`에 남는다.
+각 QA 스크립트는 자기 포트(8796–8802)에 임시 DB로 서버를 띄우고 새 브라우저로 검사한 뒤 지운다. 실제 계정·미리보기 DB(`.omo/preview-data`)는 건드리지 않는다. Chrome for Testing 경로는 `CHROME_PATH`로 지정할 수 있다.
+
+| 스크립트 | 무엇 |
+|---|---|
+| `qa-smoke` | 공개 페이지 한·영 1440/390/320(넘침·영어 번역 누락), API 장애 시 화면, 로그인한 계정의 일·주·월·회고·계획·설정 7개 폭, 메모 저장/새로고침, 다른 기기 충돌 시 초안 보존, 로그인 오류 언어 전환 |
+| `qa-account` | 이메일 가입·확인 링크·닉네임 변경·비밀번호 재설정(한 번만)·예전 아이디 계정 |
+| `qa-planner-navigation` | 날짜·보기 이동, 주소 |
+| `qa-planning-board` | 목표·세부 계획 |
+| `qa-period-diary` | 일간·주간·월간 기록 |
+| `qa-carry-over` | 미룬 일 이어가기 |
+| `qa-routines` | 루틴·하루 틀 |
 
 ## 배포 및 운영
 
@@ -69,19 +74,19 @@ node scripts/qa-public-availability.mjs
 
 http://127.0.0.1:5175 에서 소개, /demo에서 계정 없이 일지를 확인한다. 로그인 후 /app은 동일한 Journal 컴포넌트를 사용한다. 24시간 × 10분 시간표, 오늘 꼭 할 일, 머릿속 생각/아이디어/하루 돌아보기, 일간/주간/월간/미이행 보기로 구성한다. 오늘 할 일은 날짜 문서의 optional priorities 필드로 저장하고, 기존 계획·실제 기록·메모는 보존한다. 개인 Anotar 계정 자료를 새 서비스에 자동으로 옮기지 않는다.
 
-현재 화면의 검증 명령은 `npm run build`, `npm test`, `node scripts/qa-journal.mjs`이다. 예전 화면의 `qa-bilingual.mjs`, `qa-public-availability.mjs`, `qa-finish.mjs` 캡처는 이전 UI 증거이며 현재 일지 검증을 대신하지 않는다. 새 증거는 `.impeccable/review/journal/`에 있다. 이 일지 개편은 로컬 검토 단계이며 운영 배포 전이다.
+이 일지 개편은 로컬 검토 단계이며 운영 배포 전이다.
 
-Desktop daily overview fits the remaining viewport height, with a 420px minimum workspace. Task backlog holds undated work; Past journals lists saved daily records. `node scripts/qa-overview.mjs` verifies 12 Korean/English viewport cases plus save/reload and navigation using an isolated test account.
+Desktop daily overview fits the remaining viewport height, with a 420px minimum workspace. Task backlog holds undated work; Past journals lists saved daily records.
 
-Current activity editing uses a native modal. Week/month/quarter/year totals and status filtering are available locally. See docs/PLANNER_PERIOD_REVIEW_DESIGN.md for exact metric meanings and the future rescheduling-history model. Verify via npm test and node scripts/qa-modal-period.mjs.
+Current activity editing uses a native modal. Week/month/quarter/year totals and status filtering are available locally. See docs/PLANNER_PERIOD_REVIEW_DESIGN.md for exact metric meanings and the future rescheduling-history model.
 
 Period diaries: Week is a seven-day plan/actual timetable, Month an activity calendar, Quarter three month sheets, Year twelve record maps. Current visual and drill-down checks: node scripts/qa-period-diary.mjs. Old bucket-list capture assertions are superseded.
 
 ## 일지 폭과 헤더 정렬
 
-일지와 앱 헤더는 최대 1280px(좌우 여백 포함)의 같은 폭 기준을 사용한다. 화면이 작아지면 유동적으로 줄고 여백은 32/24/18px다. 좁은 화면의 주간표만 내부 가로 스크롤을 사용한다. `node scripts/qa-workspace-layout.mjs`는 임시 계정으로 한·영 일간/주간의 320–1920px 정렬·넘침·첫 화면 높이를 검사한다. 증거는 `.impeccable/review/workspace-layout/qa.json`이다.
+일지와 앱 헤더는 최대 1280px(좌우 여백 포함)의 같은 폭 기준을 사용한다. 화면이 작아지면 유동적으로 줄고 여백은 32/24/18px다. 좁은 화면의 주간표만 내부 가로 스크롤을 사용한다.
 
-월간은 월 제목·직접 월 선택·이전 달/다음 달/이번 달을 제공한다. 헤더 브랜드는 PC 이미지 28px·글자 22px, 모바일 이미지 26px·글자 21px로 축소했다. `qa-workspace-layout.mjs`는 월간도 검사하고 연도 경계·윤년·이번 달 이동을 확인한다. 분기·연간 계획표 방향은 `docs/GOAL_TASK_PLANNING_PROPOSAL.md`의 제안이며 아직 구현되지 않았다.
+월간은 월 제목·직접 월 선택·이전 달/다음 달/이번 달을 제공한다. 헤더 브랜드는 PC 이미지 28px·글자 22px, 모바일 이미지 26px·글자 21px로 축소했다. 분기·연간 계획표 방향은 `docs/GOAL_TASK_PLANNING_PROPOSAL.md`의 제안이며 아직 구현되지 않았다.
 
 일간 시간표는 일반 일정의 완료 색·체크 아이콘을 표시하지 않는다. PC 시간표는 24시간을 화면 높이에 맞춘 한 가지 보기만 둔다(여유롭게 보기는 2026-10-18에 뺐다). 할 일은 평소 한 줄(…), 제목 옆 펼치기로 모든 제목 줄바꿈 + 세부 할 일 펼침. 계획 참고 요약의 일간·주간·월간 연결은 설계 제안 단계다.
 
@@ -93,7 +98,7 @@ Period diaries: Week is a seven-day plan/actual timetable, Month an activity cal
 
 상단은 일정·계획·회고. 독립 할 일 메뉴·API·등록 내용·연결 필드는 제거했다. 일간의 오늘 꼭 할 일(우선순위)은 별도 기능으로 유지한다. `/app/tasks`는 계획으로 이동하고 `/api/tasks`는410을 반환한다. 로컬 삭제 전에 백업하고 일지122개/계획28개 본문을 보존했다. [삭제·후속 연결 방향](docs/PLAN_CONNECTIONS.md). 운영 반영은 하지 않았다.
 
-`qa.mjs`, `qa-bilingual.mjs`, `qa-journal.mjs`, `qa-overview.mjs`에는 이전 할 일/구형 랜딩 전제 검증이 남아 있어 현재 기능의 승인 근거로 사용하지 않는다. 현재 기본 검증은 `qa-planner-navigation.mjs`·`qa-planning-board.mjs`·`qa-period-diary.mjs`·`qa-carry-over.mjs`·`qa-routines.mjs`다(실행: `CHROME_PATH=<Chrome 경로> node scripts/<이름>.mjs`). 이 스크립트들은 시간표를 모든 폭에서 '하루' 보기로 시작한다(휴대폰 기본은 '목록').
+이 스크립트들은 시간표를 모든 폭에서 '하루' 보기로 시작한다(휴대폰 기본은 '목록').
 
 **지난 날에서 가져오기**: 일정이 빈 날에는 최근 7일 안에서 일정이 있는 가장 가까운 날의 일정(취소 제외)을 새 '예정' 항목으로 복사하는 버튼이, 가장 최근에 오늘 할 일을 적은 날에 체크하지 않은 항목이 있으면 빈 칸부터 채워 넣는 버튼이 나온다. 하루/목록 선택은 브라우저에 기억하고, 처음엔 760px 이하에서 목록으로 연다.
 

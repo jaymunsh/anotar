@@ -7,7 +7,8 @@
     "dev": "vite --host 127.0.0.1 --port 5175",
     "start": "node --env-file-if-exists=.env server/index.mjs",
     "build": "tsc --noEmit && vite build",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "qa": "npm run build && node scripts/run-qa.mjs"
   },
   "dependencies": {
     "lucide-react": "0.468.0",
