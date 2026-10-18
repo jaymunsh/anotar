@@ -37,7 +37,7 @@
 .review-bar{display:flex;flex-direction:column-reverse;gap:2px;min-height:0;border-radius:4px 4px 0 0;overflow:hidden}
 .review-bar i{display:block;min-height:2px}
 .review-bar{background:color-mix(in srgb,var(--action) 55%,var(--surface))}
-.review-day-track i.unlinked{background:color-mix(in srgb,var(--muted) 12%,var(--surface));box-shadow:none}
+.review-day-track i.unlinked{background:color-mix(in srgb,var(--muted) 10%,var(--canvas));box-shadow:none}
 .review-bars small{font-size:11px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden}
 .review-bars>button.today small{color:var(--ink);font-weight:700}
 
@@ -45,13 +45,13 @@
 .review-days{display:flex;flex-direction:column;gap:6px}
 .review-days>div,.review-day{display:grid;grid-template-columns:44px minmax(0,1fr) 84px;gap:12px;align-items:center}
 .review-day{width:100%;padding:0;min-height:0;border-radius:4px;text-align:left}
-.review-day:hover .review-day-track{box-shadow:0 0 0 1px var(--line-strong)}
+.review-day:hover .review-day-label,.review-day:hover .review-day-total{color:var(--action)}
 .review-day-label{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:4px}
 .review-day-label small{font-size:10px}
 .review-day.sat .review-day-label{color:var(--sat)}.review-day.sun .review-day-label{color:var(--sun)}
 .review-day.today .review-day-label{color:var(--ink);font-weight:700}
-.review-day-track{position:relative;height:24px;border-radius:4px;background:repeating-linear-gradient(to right,transparent 0 calc(25% - 1px),var(--line) calc(25% - 1px) 25%);box-shadow:inset 0 0 0 1px var(--line)}
-.review-day-track i{position:absolute;top:2px;bottom:2px;border-radius:2px;background:color-mix(in srgb,var(--action) 40%,var(--surface));box-shadow:inset 3px 0 0 var(--goal)}
+.review-day-track{position:relative;height:24px;border-radius:4px;background:var(--canvas)}
+.review-day-track i{position:absolute;top:2px;bottom:2px;border-radius:2px;background:color-mix(in srgb,var(--goal) 26%,var(--surface));box-shadow:inset 3px 0 0 var(--goal)}
 .review-day-total{font-size:12px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .review-days-hours .review-day-track{height:14px;background:none}
 .review-days-hours small{position:absolute;transform:translateX(-50%);font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
