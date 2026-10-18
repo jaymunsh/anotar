@@ -11,7 +11,7 @@ import './landing.css';
 import {Landing} from './Landing';
 import {Journal} from './journal/Journal';
 import {journalPath,journalSection,journalView} from './journal/navigation';
-try{document.documentElement.dataset.font=localStorage.getItem('anotar-planner:font')||'small';}catch{}
+try{document.documentElement.dataset.font=localStorage.getItem('anotar-planner:font')||'small';document.documentElement.dataset.theme=localStorage.getItem('anotar-planner:theme')||'system';}catch{}
 
 const initialSite:Site={legal:{operator:'문성혁',representative:'개인 운영',businessNumber:'',address:'',contact:'support@leneu.store',privacyContact:'문성혁',publishedAt:'',hostingRegion:''},legalReady:false,registration:false,termsVersion:'2026-10-11-v1'};
 function Brand({href="/"}:{href?:string}){return <a className="brand" href={href} aria-label={t("anotar 서비스 소개")}><img src="/brand/icon-192.png" alt=""/><span>anotar</span></a>;}
