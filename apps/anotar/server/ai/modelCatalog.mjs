@@ -62,7 +62,8 @@ export async function fetchOpenCodeModels({ fetchImpl = fetch } = {}) {
       data.map((m) => ({
         id: `opencode/${m.id}`,
         name: m.id,
-        pricing: known.get(`opencode/${m.id}`)?.pricing ?? 'unknown',
+        // The list API gives no prices; Zen marks free models with a -free suffix, so new ones are not dropped as unknown.
+        pricing: known.get(`opencode/${m.id}`)?.pricing ?? (m.id.endsWith('-free') ? 'free' : 'unknown'),
         enabled: false,
         available: true,
       })),

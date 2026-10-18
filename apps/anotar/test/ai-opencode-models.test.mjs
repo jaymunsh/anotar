@@ -37,7 +37,7 @@ test('OpenCode catalog is seeded without overwriting existing Hive settings and 
   const initial = service.settings();
   const profile = initial.profiles.find((p) => p.id === 'opencode');
   assert.ok(profile);
-  assert.equal(profile.catalog.length, 11);
+  assert.equal(profile.catalog.length, 9);
   assert.ok(profile.catalog.every((entry) => entry.pricing === 'free'));
   assert.ok(profile.catalog.every((entry) => !entry.id.startsWith('opencode/jev-')));
   assert.equal(profile.enabled, false);
@@ -141,13 +141,14 @@ test('official listing preview checks response size and format; never uses model
     fetchImpl: async (url) => {
       assert.equal(url, 'https://opencode.ai/zen/v1/models');
       return new Response(
-        JSON.stringify({ data: [{ id: 'space-bunny-free' }, { id: 'new-unknown-free' }] }),
+        JSON.stringify({ data: [{ id: 'space-bunny-free' }, { id: 'new-unknown-free' }, { id: 'new-unknown-paid' }] }),
         { headers: { 'Content-Type': 'application/json' } },
       );
     },
   });
   assert.equal(value.models[0].pricing, 'free');
-  assert.equal(value.models.length, 1);
+  // A new model with Zen's -free suffix is offered (off until chosen); one with no price signal is not.
+  assert.deepEqual(value.models.map((m) => m.id), ['opencode/space-bunny-free', 'opencode/new-unknown-free']);
   assert.equal(value.models[0].enabled, false);
   assert.ok(value.models.every((entry) => entry.pricing === 'free'));
   for (const body of [{ data: [] }, { data: [{ id: 'x;$(evil)' }] }])

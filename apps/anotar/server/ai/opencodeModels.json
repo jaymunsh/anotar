@@ -1,6 +1,6 @@
 {
   "source": "https://opencode.ai/zen/v1/models",
-  "checkedAt": "2026-10-05",
+  "checkedAt": "2026-10-18",
   "models": [
     {
       "id": "opencode/big-pickle",
@@ -10,43 +10,8 @@
       "available": true
     },
     {
-      "id": "opencode/fledge-alpha-free",
-      "name": "fledge-alpha-free",
-      "pricing": "free",
-      "enabled": true,
-      "available": true
-    },
-    {
-      "id": "opencode/jev-1.13-free",
-      "name": "jev-1.13-free",
-      "pricing": "free",
-      "enabled": false,
-      "available": true
-    },
-    {
-      "id": "opencode/ling-3.0-flash-fin-free",
-      "name": "ling-3.0-flash-fin-free",
-      "pricing": "free",
-      "enabled": true,
-      "available": true
-    },
-    {
-      "id": "opencode/ling-3.1-flash-free",
-      "name": "ling-3.1-flash-free",
-      "pricing": "free",
-      "enabled": true,
-      "available": true
-    },
-    {
-      "id": "opencode/longcat-2.5-preview-free",
-      "name": "longcat-2.5-preview-free",
-      "pricing": "free",
-      "enabled": true,
-      "available": true
-    },
-    {
-      "id": "opencode/mimo-v2.5-free",
-      "name": "mimo-v2.5-free",
+      "id": "opencode/beam-free",
+      "name": "beam-free",
       "pricing": "free",
       "enabled": true,
       "available": true
@@ -59,15 +24,8 @@
       "available": true
     },
     {
-      "id": "opencode/muse-spark-1.3-contributor-free",
-      "name": "muse-spark-1.3-contributor-free",
-      "pricing": "free",
-      "enabled": true,
-      "available": true
-    },
-    {
-      "id": "opencode/nemotron-3-ultra-free",
-      "name": "nemotron-3-ultra-free",
+      "id": "opencode/nemotron-3.5-super-vl-free",
+      "name": "nemotron-3.5-super-vl-free",
       "pricing": "free",
       "enabled": true,
       "available": true
@@ -75,6 +33,34 @@
     {
       "id": "opencode/nemotron-3.5-lightning-free",
       "name": "nemotron-3.5-lightning-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/jev-1.13-free",
+      "name": "jev-1.13-free",
+      "pricing": "free",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/longcat-2.5-preview-free",
+      "name": "longcat-2.5-preview-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/deepseek-v4.1-flash-free",
+      "name": "deepseek-v4.1-flash-free",
+      "pricing": "free",
+      "enabled": true,
+      "available": true
+    },
+    {
+      "id": "opencode/glm-5.3-flash-free",
+      "name": "glm-5.3-flash-free",
       "pricing": "free",
       "enabled": true,
       "available": true
@@ -94,6 +80,13 @@
       "available": true
     },
     {
+      "id": "opencode/jev-1.13",
+      "name": "jev-1.13",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
       "id": "opencode/claude-fable-5-1",
       "name": "claude-fable-5-1",
       "pricing": "paid",
@@ -104,6 +97,13 @@
       "id": "opencode/claude-haiku-4-5",
       "name": "claude-haiku-4-5",
       "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/claude-haiku-5-5",
+      "name": "claude-haiku-5-5",
+      "pricing": "unknown",
       "enabled": false,
       "available": true
     },
@@ -150,9 +150,9 @@
       "available": true
     },
     {
-      "id": "opencode/claude-sonnet-4",
-      "name": "claude-sonnet-4",
-      "pricing": "paid",
+      "id": "opencode/claude-opus-5-5-backup",
+      "name": "claude-opus-5-5-backup",
+      "pricing": "unknown",
       "enabled": false,
       "available": true
     },
@@ -192,15 +192,8 @@
       "available": true
     },
     {
-      "id": "opencode/deepseek-v4-flash-free",
-      "name": "deepseek-v4-flash-free",
-      "pricing": "unknown",
-      "enabled": false,
-      "available": true
-    },
-    {
-      "id": "opencode/deepseek-v4-flash-vision-exp",
-      "name": "deepseek-v4-flash-vision-exp",
+      "id": "opencode/deepseek-v4.1-flash",
+      "name": "deepseek-v4.1-flash",
       "pricing": "paid",
       "enabled": false,
       "available": true
@@ -208,13 +201,6 @@
     {
       "id": "opencode/deepseek-v4-pro",
       "name": "deepseek-v4-pro",
-      "pricing": "paid",
-      "enabled": false,
-      "available": true
-    },
-    {
-      "id": "opencode/deepseek-v4.1-flash",
-      "name": "deepseek-v4.1-flash",
       "pricing": "paid",
       "enabled": false,
       "available": true
@@ -265,6 +251,13 @@
       "id": "opencode/gemini-3.8-flash",
       "name": "gemini-3.8-flash",
       "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gemini-4-argon",
+      "name": "gemini-4-argon",
+      "pricing": "unknown",
       "enabled": false,
       "available": true
     },
@@ -437,22 +430,8 @@
       "available": true
     },
     {
-      "id": "opencode/gpt-5.6-terra",
-      "name": "gpt-5.6-terra",
-      "pricing": "paid",
-      "enabled": false,
-      "available": true
-    },
-    {
       "id": "opencode/gpt-6-astra",
       "name": "gpt-6-astra",
-      "pricing": "paid",
-      "enabled": false,
-      "available": true
-    },
-    {
-      "id": "opencode/gpt-6-luna",
-      "name": "gpt-6-luna",
       "pricing": "paid",
       "enabled": false,
       "available": true
@@ -467,6 +446,20 @@
     {
       "id": "opencode/gpt-6.1-sol",
       "name": "gpt-6.1-sol",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-6-luna",
+      "name": "gpt-6-luna",
+      "pricing": "paid",
+      "enabled": false,
+      "available": true
+    },
+    {
+      "id": "opencode/gpt-5.6-terra",
+      "name": "gpt-5.6-terra",
       "pricing": "paid",
       "enabled": false,
       "available": true
@@ -495,13 +488,6 @@
     {
       "id": "opencode/grok-build-0.1",
       "name": "grok-build-0.1",
-      "pricing": "paid",
-      "enabled": false,
-      "available": true
-    },
-    {
-      "id": "opencode/jev-1.13",
-      "name": "jev-1.13",
       "pricing": "paid",
       "enabled": false,
       "available": true
@@ -563,16 +549,16 @@
       "available": true
     },
     {
-      "id": "opencode/muse-spark-1.2-contributor-free",
-      "name": "muse-spark-1.2-contributor-free",
-      "pricing": "unknown",
+      "id": "opencode/muse-spark-1.3",
+      "name": "muse-spark-1.3",
+      "pricing": "paid",
       "enabled": false,
       "available": true
     },
     {
-      "id": "opencode/muse-spark-1.3",
-      "name": "muse-spark-1.3",
-      "pricing": "paid",
+      "id": "opencode/mistral-large-4",
+      "name": "mistral-large-4",
+      "pricing": "unknown",
       "enabled": false,
       "available": true
     },

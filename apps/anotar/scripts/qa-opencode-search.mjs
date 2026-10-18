@@ -40,7 +40,7 @@ const server = spawn(process.execPath, ['server/index.mjs'], {
     AI_RUNNER_KIND: 'opencode',
     AI_OPENCODE_ENABLED: 'true',
     AI_OPENCODE_BIN: bin,
-    AI_OPENCODE_MODEL: 'opencode/muse-spark-1.3-contributor-free',
+    AI_OPENCODE_MODEL: 'opencode/big-pickle',
     AI_OPENCODE_AUTH_FILE: join(root, 'missing-auth'),
     AI_DEVIN_BIN: '/missing',
     HIVE_API_KEY: '',
@@ -89,7 +89,7 @@ try {
     await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption('research-keyword');
     await page
       .getByRole('combobox', { name: 'AI 실행기와 모델' })
-      .selectOption('opencode|opencode/muse-spark-1.3-contributor-free');
+      .selectOption('opencode|opencode/big-pickle');
     await page.waitForFunction(() => !document.querySelector('.save-button').disabled);
     assert.equal(await page.getByRole('button', { name: '메모만 저장', exact: true }).count(), 0);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
@@ -97,7 +97,7 @@ try {
     await page.waitForFunction(() => document.querySelector('.save-button').disabled);
     await page
       .getByRole('combobox', { name: 'AI 실행기와 모델' })
-      .selectOption('opencode|opencode/muse-spark-1.3-contributor-free');
+      .selectOption('opencode|opencode/big-pickle');
     await page.waitForFunction(() => !document.querySelector('.save-button').disabled);
   }
   await page.getByRole('button', { name: '저장하고 AI 요청', exact: true }).click();

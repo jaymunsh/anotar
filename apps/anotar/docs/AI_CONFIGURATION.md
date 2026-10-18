@@ -29,7 +29,7 @@ npm install --prefix .local-workspace/opencode-runtime --no-save --package-lock=
 npm run dev:oracle
 ```
 
-AI worker만 켜고 OCR·예약 백업·Telegram은 꺼 둡니다. 기존 전역 CLI 버전·인증을 바꾸거나 유료 제공자 인증을 읽지 않습니다. 초기 기본 모델은 `opencode/muse-spark-1.3-contributor-free`이며 이후 설정 → AI에서 선택한 모델이 우선합니다. Hive/Devin과 자동 fallback은 연결하지 않습니다. 처음 켜기 전 복사된 대기/실행 중 요청을 확인합니다. 재시작은 현재 로컬 AI 큐를 처리합니다. 새 사본은 `aiEnabled` 미설정/false를 기본으로 사용합니다. `AI_WORKER_ENABLED=true`는 `BACKGROUND_WORKERS_ENABLED=false`에서도 AI만 시작하는 명시적인 서버 설정입니다.
+AI worker만 켜고 OCR·예약 백업·Telegram은 꺼 둡니다. 기존 전역 CLI 버전·인증을 바꾸거나 유료 제공자 인증을 읽지 않습니다. 초기 기본 모델은 `opencode/big-pickle`이며 이후 설정 → AI에서 선택한 모델이 우선합니다. Hive/Devin과 자동 fallback은 연결하지 않습니다. 처음 켜기 전 복사된 대기/실행 중 요청을 확인합니다. 재시작은 현재 로컬 AI 큐를 처리합니다. 새 사본은 `aiEnabled` 미설정/false를 기본으로 사용합니다. `AI_WORKER_ENABLED=true`는 `BACKGROUND_WORKERS_ENABLED=false`에서도 AI만 시작하는 명시적인 서버 설정입니다.
 
 ### 사용 흐름
 
@@ -139,3 +139,5 @@ OpenCode·Devin은 URL 없는 키워드 검색을 지원한다. OpenCode discove
 검색은 질의 240자·fast·후보 최대 5개·context 10,000자·1회를 지시하고 반환된 이벤트에서 검증한다. 본문은 고유 최종 URL 최대 3개·각 16,666자이며 검색/수집/요약이 120초 한도를 공유한다. 검색 횟수 검증은 호출 후 검사이며 제공자 내부 호출·과금 상한이 아니다. 검색 서비스 장애는 실패로 안내하고 자동 Hive/유료 fallback을 하지 않는다. 임시 XDG 기록은 두 CLI 실행이 닫힌 후 각각 삭제하고 앱 요청·결과 이력은 보존한다.
 
 `OPENCODE_SMOKE_RESEARCH=1 node scripts/ai-opencode-smoke.mjs`는 지정된 무료 Muse Spark 모델로 공개 SQLite 주제 작업 1개를 임시 DB에서 실행한다. 검색·요약 CLI 2회와 외부 검색/모델 호출이 발생하며 실제 사용자 기록·알림을 사용하지 않는다. 일반 검증과 분리한다. `node scripts/qa-opencode-search.mjs`는 가짜 CLI·임시 DB로 PC/모바일 검색 제출, 비공개 본문 차단, 원본 보존과 직접 요청 회귀를 확인한다.
+
+OpenCode 무료 모델 목록(`server/ai/opencodeModels.json`)은 2026-10-18 공식 목록 기준이다. 설정 → AI의 '목록 새로고침'은 공식 목록에서 `-free`로 끝나는 새 모델도 무료로 보여 주며, 처음에는 꺼진 상태로 추가된다. 목록에서 사라진 모델은 '사용 불가'로 남는다.

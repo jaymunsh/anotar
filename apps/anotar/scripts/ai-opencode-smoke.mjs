@@ -10,7 +10,7 @@ import { createAiWorker } from '../server/ai/worker.mjs';
 
 if (process.env.OPENCODE_SMOKE_RESEARCH !== '1')
   throw Error('Opt in with OPENCODE_SMOKE_RESEARCH=1; this calls a real external provider.');
-const model = 'opencode/muse-spark-1.3-contributor-free';
+const model = 'opencode/big-pickle';
 const root = await mkdtemp(join(tmpdir(), 'anotar-opencode-smoke-'));
 const before = new Set(await readdir(tmpdir()));
 const store = openStore(root);

@@ -28,7 +28,7 @@ const env = {
   COMMENT_SOCKET_PATH: resolve(ipcDir, 'comments.sock'),
   AI_RUNNER_KIND: aiEnabled ? 'opencode' : 'disabled',
   AI_WORKER_ENABLED: String(aiEnabled), AI_OPENCODE_ENABLED: String(aiEnabled),
-  AI_OPENCODE_BIN: opencodeBin, AI_OPENCODE_MODEL: 'opencode/muse-spark-1.3-contributor-free',
+  AI_OPENCODE_BIN: opencodeBin, AI_OPENCODE_MODEL: 'opencode/big-pickle',
   // No personal paid provider credentials or installed Devin are inherited.
   AI_OPENCODE_AUTH_FILE: resolve(base, 'opencode-no-auth.json'),
   AI_DEVIN_BIN: resolve(base, 'disabled-devin'),
