@@ -16,7 +16,8 @@ const normalizeEmail=value=>typeof value==='string'?value.trim().toLowerCase():'
 const emailOK=value=>value.length<=254&&/^[^\s@]{1,64}@[^\s@.]+(\.[^\s@.]+)+$/.test(value);
 // A nickname is only shown on screen: 2–20 characters, any script, no control characters.
 const normalizeNickname=value=>typeof value==='string'?value.trim().replace(/\s+/g,' '):'';
-const nicknameOK=value=>[...value].length>=2&&[...value].length<=20&&!/[\u0000-\u001f\u007f]/.test(value);
+// No control characters, and no invisible direction/zero-width marks that could disguise the name (U+200B–200F, U+202A–202E, U+2060–2069, U+FEFF).
+const nicknameOK=value=>[...value].length>=2&&[...value].length<=20&&!/[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2060-\u2069\ufeff]/.test(value);
 let activeHashes=0;
 async function hash(password,existing) {
   if(activeHashes>=4) throw Object.assign(Error('요청이 많아요. 잠시 후 다시 시도해 주세요.'),{status:503});
@@ -60,8 +61,11 @@ export function makeApp(options={}) {
   const legalReady=Boolean(legalReviewed&&legal.operator&&legal.contact&&legal.privacyContact&&legal.publishedAt&&legal.hostingRegion);
   const registration=(options.registration??process.env.REGISTRATION_ENABLED==='true')&&(!production||legalReady);
   const cookieName=production?'__Host-anotar-planner':'anotar-planner-dev';
-  const cookie=value=>`${cookieName}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${value?7*86400:0}${production?'; Secure':''}`;
+  const cookie=value=>`${cookieName}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${value?sessionDays*86400:0}${production?'; Secure':''}`;
   const termsVersion='2026-10-18';
+  // Stay signed in: a session lasts 30 days from the last visit (each app open renews it at most once a day).
+  const sessionDays=30;
+  const writeLimit=options.writeLimit??1200,storageLimit=options.storageLimit??20*1024*1024;
   const clock=options.clock??Date.now;
   const sendMail=options.mailer??makeMailer();
   const mailLife={verify:3*86400000,reset:30*60000};
@@ -110,7 +114,7 @@ export function makeApp(options={}) {
   }
   function newSession(user,res) {
     const value=token(),csrf=token();
-    db.prepare('INSERT INTO sessions VALUES(?,?,?,?)').run(digest(value),user.id,csrf,clock()+7*86400000);
+    db.prepare('INSERT INTO sessions VALUES(?,?,?,?)').run(digest(value),user.id,csrf,clock()+sessionDays*86400000);
     db.prepare('DELETE FROM sessions WHERE user_id=? AND token_hash NOT IN(SELECT token_hash FROM sessions WHERE user_id=? ORDER BY expires_at DESC LIMIT 10)').run(user.id,user.id);
     res.setHeader('Set-Cookie',cookie(value));
     return {user:publicUser(user),csrf};
@@ -144,7 +148,13 @@ export function makeApp(options={}) {
       if(write&&(req.headers.origin!==origin||req.headers['sec-fetch-site']==='cross-site')) throw apiError(403,'현재 사이트에서 다시 요청해 주세요.');
       if(path==='/api/site'&&req.method==='GET') return json(res,200,{legal,legalReady,registration,termsVersion});
       if(path==='/api/auth/session'&&req.method==='GET') {
-        const s=session(req);return json(res,200,s?{user:publicUser(s),csrf:s.csrf}:{user:null});
+        const s=session(req);
+        if(s&&s.expires_at-clock()<(sessionDays-1)*86400000){
+          db.prepare('UPDATE sessions SET expires_at=? WHERE token_hash=?').run(clock()+sessionDays*86400000,s.token_hash);
+          const raw=String(req.headers.cookie||'').split(';').map(c=>c.trim().split('=')).find(([name])=>name===cookieName)[1];
+          res.setHeader('Set-Cookie',cookie(raw));
+        }
+        return json(res,200,s?{user:publicUser(s),csrf:s.csrf}:{user:null});
       }
       const ip=production?String(req.headers['cf-connecting-ip']||req.socket.remoteAddress):req.socket.remoteAddress;
       if(path==='/api/auth/register'&&req.method==='POST') {
@@ -221,6 +231,8 @@ export function makeApp(options={}) {
       }
       const s=session(req);if(!s) throw apiError(401,'로그인이 필요해요.');
       if(write&&req.headers['x-csrf-token']!==s.csrf) throw apiError(403,'로그인 상태를 새로 확인해 주세요. 입력한 내용은 그대로 남아요.');
+      // Saving is automatic (about one write a second while typing); this only stops scripts hammering the server.
+      if(write) limit('write:'+s.user_id,writeLimit,10*60000);
       if(path==='/api/planning'&&req.method==='GET')return json(res,200,{items:listPlanning(db,s.user_id)});
       const planningMatch=path.match(/^\/api\/planning\/([a-zA-Z0-9_-]{1,80})$/);
       if(planningMatch&&req.method==='PUT')return json(res,200,savePlanning(db,s.user_id,planningMatch[1],await body(req),clock()));
@@ -280,7 +292,11 @@ export function makeApp(options={}) {
           const data=await body(req);if(!Number.isInteger(data.version)||data.version<0) throw apiError(400,'저장 버전을 확인해 주세요.');
           let document;try{document=validateDay(data.document,db,s.user_id);}catch(error){throw apiError(400,error.message);}
           const version=transaction(db,()=>{
-            const current=get();if((current?.version||0)!==data.version) throw apiError(409,'다른 기기에서 먼저 수정했어요. 내 내용을 내보낸 뒤 최신 기록을 확인해 주세요.');
+            const current=get();
+            // A cap on everything one account keeps, so one person can't fill the disk (years of normal use stay far below it).
+            const others=db.prepare('SELECT COALESCE(SUM(length(document)),0) n FROM days WHERE user_id=? AND date<>?').get(s.user_id,date).n;
+            if(others+JSON.stringify(document).length>storageLimit) throw apiError(413,'저장 공간이 가득 찼어요. 오래된 기록을 내보낸 뒤 정리해 주세요.');
+            if((current?.version||0)!==data.version) throw apiError(409,'다른 기기에서 먼저 수정했어요. 내 내용을 내보낸 뒤 최신 기록을 확인해 주세요.');
             db.prepare('INSERT INTO days VALUES(?,?,?,?,?) ON CONFLICT(user_id,date) DO UPDATE SET document=excluded.document,version=excluded.version,updated_at=excluded.updated_at').run(s.user_id,date,JSON.stringify(document),data.version+1,clock());
             return data.version+1;
           });
