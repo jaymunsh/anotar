@@ -163,7 +163,7 @@
 /* Rows past the first three start after a little air. */
 .journal-priority.top+.journal-priority:not(.top){margin-top:10px}
 /* A checked task fades its blocks on the timetable. */
-.journal-plan.task-done{opacity:.5}.journal-plan.task-done>span:first-child{text-decoration:line-through}
+.journal-plan.task-done{opacity:.5}.journal-plan.task-done>span:first-of-type{text-decoration:line-through}
 /* Plan card under a 이번 기간 chip. */
 .planning-context{position:relative}
 .planning-card{position:absolute;top:calc(100% + 6px);z-index:20;width:320px;max-width:100%;padding:14px 16px;border-radius:10px;background:var(--surface);box-shadow:0 0 0 1px var(--line),0 12px 32px rgba(32,50,45,.14);font-size:12px;color:var(--ink)}
@@ -326,3 +326,7 @@
 /* Past midnight: square corners where the block runs on into the next (or previous) day. */
 .journal-plan.to-next{border-top-right-radius:0;border-bottom-right-radius:0}
 .journal-plan.from-prev{border-top-left-radius:0;border-bottom-left-radius:0}
+.journal-plan-cont{display:inline-flex;flex-shrink:0;color:var(--tag,var(--ink));font-style:normal}
+.journal-plan-cont svg{stroke-width:3}
+.journal-plan-cont.end{margin-left:auto}
+.journal-plan-cont.end~.journal-plan-miss{margin-left:4px}
