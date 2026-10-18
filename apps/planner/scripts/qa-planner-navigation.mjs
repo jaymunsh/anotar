@@ -23,7 +23,7 @@ try{
    await page.goto(`${base}/app?date=2026-10-13&view=${view}&lang=${language}`);await page.locator(selector).first().waitFor();await page.evaluate(()=>document.fonts.ready);
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${view} ${width} overflow`);
    const expectedPath=section==='plans'?'/app/plans':section==='review'?'/app/review':'/app';assert.equal(new URL(page.url()).pathname,expectedPath);
-   assert.equal(await page.locator('.app-nav [aria-current=page]').innerText(),({ko:{schedule:'일정',plans:'계획',review:'되짚어보기'},en:{schedule:'Schedule',plans:'Plans',review:'Review'}})[language][section]);
+   assert.equal(await page.locator('.app-nav [aria-current=page]').innerText(),({ko:{schedule:'일정',plans:'계획',review:'회고'},en:{schedule:'Schedule',plans:'Plans',review:'Review'}})[language][section]);
    assert.equal(await page.locator('.app-nav a').count(),3);
    assert.deepEqual(await page.locator('.journal-period-tabs button').allTextContents(),view==='review'?[]:section==='plans'?(language==='ko'?['목표','편의']:['Goals','Tools']):(language==='ko'?['일간','주간','월간']:['Day','Week','Month']));
    if(width>=1200&&view!=='review'){

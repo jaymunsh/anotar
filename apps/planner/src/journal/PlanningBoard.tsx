@@ -43,7 +43,7 @@ export type PlanningState=ReturnType<typeof usePlanning>;
 
 const monthEnd=(month:string)=>`${month}-${String(new Date(Date.UTC(Number(month.slice(0,4)),Number(month.slice(5,7)),0)).getUTCDate()).padStart(2,'0')}`;
 type Minutes=(ids:string[],from:string,to:string)=>number;
-// 계획 > 목표: a card per goal for the year — about the plan, not time spent (that lives in 되짚어보기). 집중 (pinned) goals come first.
+// 계획 > 목표: a card per goal for the year — about the plan, not time spent (that lives in 회고). 집중 (pinned) goals come first.
 export function PlanningBoard({date,state}:{date:string;state:PlanningState}){
  const year=date.slice(0,4),from=`${year}-01`,to=`${year}-12`;
  const [error,setError]=useState(''),[palette,setPalette]=useState<string|null>(null),[focusId,setFocusId]=useState<string|null>(null);
@@ -89,7 +89,7 @@ export function PlanningBoard({date,state}:{date:string;state:PlanningState}){
  </section>;
  function noGoal(){return <article className="goal-card no-goal"><header><i className="goal-dot"/><strong className="goal-title">{pair('목표 없음','No goal')}</strong></header><ul>{stepRows(orphans)}{addRow(null)}</ul></article>;}
 }
-// 되짚어보기 > 올해 흐름: goal rows × 12 months, shaded by time the timetable gave each goal (its steps included). Nothing to fill in.
+// 회고 > 올해 흐름: goal rows × 12 months, shaded by time the timetable gave each goal (its steps included). Nothing to fill in.
 export function GoalFlow({year,items,minutes}:{year:string;items:PlanningItem[];minutes:Minutes}){
  const now=new Date().toISOString().slice(0,7),months=Array.from({length:12},(_,i)=>`${year}-${String(i+1).padStart(2,'0')}`);
  const goals=items.filter(item=>item.kind==='goal'&&overlaps(item,`${year}-01`,`${year}-12`));

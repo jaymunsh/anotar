@@ -194,7 +194,7 @@
 .journal-empty-hint{margin:0 0 8px;padding:8px 12px;border-radius:8px;background:var(--hover);color:var(--muted);font-size:12px}
 .journal-empty-hint a{color:var(--action);margin-left:4px}
 .journal-overview .journal-empty-hint{flex-shrink:0}
-/* 되짚어보기: the week first, then the unfinished list. */
+/* 회고: the week first, then the unfinished list. */
 .weekly-review{margin-bottom:40px;padding-bottom:28px;border-bottom:1px solid var(--line)}
 .weekly-review>header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .weekly-review>header h2{font-size:20px}

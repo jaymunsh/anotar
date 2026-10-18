@@ -43,10 +43,10 @@ export function Guide(){
    <li>{pair('루틴은 자주 하는 일의 이름이에요. 계획 메뉴의 ‘편의’ 탭 루틴 카드에서 만들고, 일정 화면 위 루틴을 누르면 바로 시간표에 들어가요. 같은 탭의 ‘하루 틀’에는 시간까지 정한 하루 시간표를 저장해 두고, ‘하루 시간표’ 옆 틀 아이콘으로 한 번에 깔거나(빈 날엔 시간표 위 버튼도 있어요), 그날 시간표를 틀로 저장해요.','Routines are names of things you do often. Create them on the Tools tab under Plans; tap one above the schedule to add it. Day templates in the same tab save a whole timed day; an empty day lays one down in one tap.')}</li>
   </ul>
 
-  <h2>{pair('주간 · 월간 · 되짚어보기','Week, month and review')}</h2>
+  <h2>{pair('주간 · 월간 · 회고','Week, month and review')}</h2>
   <ul>
    <li>{pair('주간·월간은 그 기간의 기록을 한눈에 보여 줘요. 날짜를 누르면 그날로 가요. 월간 칸에는 계획한 시간, 꼭 할 일 완료(✓ 2/3), 일정 3개까지가 보여요. 계획에 연결된 일정에는 그 계획 색 띠가 붙어요.','Week and Month show the period at a glance; click a date to open that day. A month cell shows time planned, priorities done (✓ 2/3) and up to three plans; plans linked to a goal carry its color.')}</li>
-   <li>{pair('되짚어보기는 한 주를 모아 보여 줘요: 계획한 시간, 꼭 할 일 완료, 목표별 시간, 그 주에 쓴 하루 돌아보기, 그리고 올해 달마다 목표별로 쓴 시간(올해 흐름). 따로 적을 건 없어요. 아래에는 미이행으로 표시한 계획이 있고 바로 다시 계획할 수 있어요.','Review gathers a week: time planned, priorities done, time per goal, that week’s daily reviews and the year’s time per goal by month, with nothing extra to fill in. Below are plans you marked unfinished, ready to plan again.')}</li>
+   <li>{pair('회고는 한 주를 모아 보여 줘요: 계획한 시간, 꼭 할 일 완료, 목표별 시간, 그 주에 쓴 하루 돌아보기, 그리고 올해 달마다 목표별로 쓴 시간(올해 흐름). 따로 적을 건 없어요. 아래에는 미이행으로 표시한 계획이 있고 바로 다시 계획할 수 있어요.','Review gathers a week: time planned, priorities done, time per goal, that week’s daily reviews and the year’s time per goal by month, with nothing extra to fill in. Below are plans you marked unfinished, ready to plan again.')}</li>
   </ul>
 
   <h2>{pair('단축키','Keyboard shortcuts')}</h2>
