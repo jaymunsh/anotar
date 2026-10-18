@@ -1,5 +1,6 @@
 import { listRecords, type LocalBlob } from '../sync/repository';
-export const OFFLINE_BUDGET = 200 * 1024 * 1024;
+// 앱이 스스로 정한 상한. 실제 한도는 브라우저 quota(checkDownloadSpace에서 함께 검사).
+export const OFFLINE_BUDGET = 10 * 1024 * 1024 * 1024;
 export async function storageStatus(workspaceId: string) {
   const [files, estimate, persisted] = await Promise.all([
     listRecords<LocalBlob>('blobs', workspaceId, 100000),

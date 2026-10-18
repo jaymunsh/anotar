@@ -38,7 +38,12 @@ export default function DeviceStorage() {
       {status.state === 'recovery' && <RecoveryPanel />}
       <div className="settings-storage-usage">
         <strong>{usage ? `${(usage.bytes / 1024 / 1024).toFixed(1)} MB` : '확인 중…'}</strong>
-        <span>/ 보관 예산 {OFFLINE_BUDGET / 1024 / 1024} MB</span>
+        <span>
+          / 보관 예산{' '}
+          {OFFLINE_BUDGET >= 1024 ** 3
+            ? `${OFFLINE_BUDGET / 1024 ** 3} GB`
+            : `${OFFLINE_BUDGET / 1024 ** 2} MB`}
+        </span>
       </div>
       <p className="settings-storage-state">
         {usage
