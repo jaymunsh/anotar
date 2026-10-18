@@ -18,3 +18,29 @@ export async function prepareShell(page){await page.evaluate(async()=>{await nav
 export async function waitForAsync(page,predicate,arg,timeout=45000){const deadline=Date.now()+timeout;while(Date.now()<deadline){if(await page.evaluate(predicate,arg))return;await new Promise(r=>setTimeout(r,100));}throw Error('비동기 상태 확인 시간 초과');}
 // 홈에는 인라인 입력이 없다(2026-10-17). 작성 메뉴 → 빠른 메모로 입력 창을 연다. 이미 보이면 그대로 쓴다.
 export async function openQuickMemo(page){const input=page.getByRole('textbox',{name:'메모 내용',exact:true});if(await input.isVisible().catch(()=>false))return input;await page.getByRole('button',{name:'작성 메뉴 열기',exact:true}).click();await page.getByRole('dialog',{name:'새로 작성'}).getByRole('button',{name:'빠른 메모',exact:true}).click();await input.waitFor({state:'visible'});return input;}
+
+// AI 실행기 연결 상태만 QA용으로 고정한다(저장·요청은 실제 서버가 처리). 서버가 AI_RUNNER_KIND=disabled여도
+// 화면의 AI 요청 저장 버튼이 켜지게 한다. qa-prompts와 같은 프로필 모양을 쓴다.
+export async function stubAiSettings(context) {
+  await context.route('**/api/ai/settings', (route) => {
+    if (route.request().method() !== 'GET') return route.continue();
+    return route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({
+        version: 0,
+        defaultProfile: 'hive',
+        profiles: [
+          {
+            id: 'hive',
+            label: '임시 QA 실행기',
+            model: 'zai-org/glm-5.3-flash',
+            enabled: true,
+            status: 'configured',
+            credentialsConfigured: true,
+            researchModes: ['url', 'keyword'],
+          },
+        ],
+      }),
+    });
+  });
+}

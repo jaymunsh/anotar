@@ -8,6 +8,14 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { clickPageTool } from './qa-page-tools.mjs';
 
+// 페이지가 많으면 목록 앞부분에 없을 수 있어, 검색창으로 찾아서 고른다. 접혀 있으면 먼저 편다.
+async function pickImportPage(dialog, title, label) {
+  const destination = dialog.locator('details.capture-import-destination');
+  if (!(await destination.evaluate((node) => node.open))) await destination.locator('summary').click();
+  await dialog.getByRole('textbox', { name: '정리할 페이지 검색' }).fill(title);
+  await dialog.getByRole('button', { name: label, exact: true }).click();
+}
+
 export async function runPageConnectionQa(browser, baseUrl) {
   const context = await browser.newContext({ viewport: { width: 1327, height: 1000 } });
   const post = async (path, value) => {
@@ -51,7 +59,7 @@ export async function runPageConnectionQa(browser, baseUrl) {
       .getByRole('button', { name: '내 페이지에 정리', exact: true })
       .click({ timeout: 3000 });
     const dialog = page.locator('.detail-panel');
-    await dialog.getByRole('button', { name: '주말 여행 정리 내 페이지', exact: true }).click();
+    await pickImportPage(dialog, '주말 여행 정리', '주말 여행 정리 내 페이지');
     await dialog.getByRole('checkbox', { name: '준비물.txt' }).uncheck();
     await dialog.locator('.capture-import-submit').click();
     await page.waitForURL('**/pages/' + parent.id + '?import=*');
@@ -83,7 +91,7 @@ export async function runPageConnectionQa(browser, baseUrl) {
     );
     await page.getByRole('button', { name: '내 페이지에 정리', exact: true }).click();
     await dialog.getByRole('button', { name: '새 페이지', exact: true }).click();
-    await dialog.getByRole('button', { name: '주말 여행 정리 내 페이지', exact: true }).click();
+    await pickImportPage(dialog, '주말 여행 정리', '주말 여행 정리 내 페이지');
     await dialog.getByRole('textbox', { name: '새 페이지 제목' }).fill('예약과 교통');
     await dialog.getByRole('checkbox', { name: '여행.png' }).uncheck();
     // 온라인 전용: 응답이 유실되면 같은 제출을 다시 확인해도 페이지가 한 번만 생긴다.
@@ -91,12 +99,15 @@ export async function runPageConnectionQa(browser, baseUrl) {
     await page.route('**/api/**',async route=>{
       const request=route.request();
       if(lost||request.method()!=='POST'||!/\/api\/(pages(\?|$)|pages\/[^/]+\/capture-imports|capture-batches)/.test(request.url()))return route.continue();
-      lost=true;await route.fetch();await route.abort('failed');
+      lost=true;await route.fetch();await route.abort('failed').catch(()=>{});
     });
     await dialog.locator('.capture-import-submit').click();
     await dialog.getByText('다시 확인해도 중복으로 담기지 않아요.',{exact:false}).waitFor();
     await page.unroute('**/api/**');
-    await dialog.locator('.capture-import-submit').click();
+    // 앱이 이어서 끝내고 새 페이지로 넘어갈 수도 있다. 버튼이 남아 있을 때만 다시 확인을 누른다.
+    // 어느 쪽이든 아래에서 '예약과 교통'이 정확히 1개인지 본다.
+    const retrySubmit=dialog.locator('.capture-import-submit');
+    if(await retrySubmit.isVisible().catch(()=>false))await retrySubmit.click().catch(()=>{});
     await page.waitForURL('**/pages/*');
     let list=[];
     for(let i=0;i<450;i++){list=(await(await fetch(baseUrl+'/api/pages')).json()).items;if(list.some(item=>item.title==='예약과 교통'))break;await new Promise(r=>setTimeout(r,100));}
@@ -151,9 +162,10 @@ export async function runPageConnectionQa(browser, baseUrl) {
           await page.evaluate((value) => localStorage.setItem('leneu:theme', value), theme);
           await page.goto(baseUrl + '/captures/' + capture.id, { waitUntil: 'domcontentloaded' });
           await page.getByRole('button', { name: '내 페이지에 정리', exact: true }).click();
-          await dialog
-            .getByRole('button', { name: '주말 여행 정리 내 페이지', exact: true })
-            .click();
+          // 두 번째부터는 직전에 고른 페이지가 선택된 채 목록이 접혀 있다. 아직 고르지 않았을 때만 고른다.
+          await page.locator('.capture-import-submit').waitFor();
+          if (await page.locator('.capture-import-submit').isDisabled())
+            await pickImportPage(dialog, '주말 여행 정리', '주말 여행 정리 내 페이지');
           assert.ok(
             await page.locator('.capture-import-submit').isVisible(),
           );

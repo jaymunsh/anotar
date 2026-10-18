@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { clickPageTool } from './qa-page-tools.mjs';
+import { stubAiSettings } from './fixtures/qa-app.mjs';
 import { chromium } from 'playwright-core';
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
@@ -15,6 +16,8 @@ export async function runAiQa(browser, baseUrl, { configured = false, smoke = fa
     viewport: { width: 1327, height: 1000 },
     permissions: ['clipboard-read', 'clipboard-write'],
   });
+  // 실행기가 꺼진 서버에서도 메모 화면의 AI 요청 저장을 검사하도록 설정 조회만 고정한다(qa-prompts와 같음).
+  if (!configured) await stubAiSettings(context);
   const page = await context.newPage();
   page.setDefaultTimeout(7000);
   const errors = [];
@@ -29,7 +32,8 @@ export async function runAiQa(browser, baseUrl, { configured = false, smoke = fa
     return (await response.json()).item;
   };
   try {
-    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    // 홈 인라인 입력이 없다. /capture는 빠른 기록 창을 연 채로 열린다(새로고침해도 유지).
+    await page.goto(baseUrl + '/capture', { waitUntil: 'domcontentloaded' });
     await page
       .getByRole('textbox', { name: '메모 내용', exact: true })
       .fill('느긋한 교토 여행을 계획하기 [SLOW]');
@@ -37,10 +41,8 @@ export async function runAiQa(browser, baseUrl, { configured = false, smoke = fa
     await page.getByRole('combobox', { name: 'AI 요청 템플릿' }).selectOption('direct');
     await page.getByRole('button', { name: '저장하고 AI 요청', exact: true }).click();
     await page.getByText('메모를 보관하고 AI 요청을 등록했어요.', { exact: true }).waitFor();
-    assert.equal(
-      await page.getByRole('textbox', { name: '메모 내용', exact: true }).inputValue(),
-      '',
-    );
+    // 저장하면 빠른 기록 창이 닫히고 입력이 비워진다.
+    await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
     let first;
     for (let attempt = 0; attempt < 100; attempt++) {
       const list = await (await fetch(baseUrl + '/api/captures?scope=ai')).json();
@@ -54,10 +56,10 @@ export async function runAiQa(browser, baseUrl, { configured = false, smoke = fa
     await panel.waitFor();
     if (!configured) {
       await panel.getByText('연결 필요', { exact: true }).waitFor();
-      assert.equal(
-        await panel.getByRole('button', { name: '현재 메모로 다시 요청' }).isEnabled(),
-        false,
-      );
+      // '현재 메모로 다시 요청' 버튼은 2026-10-07에 없어졌다. 실행기가 없으면 '보관한 요청 실행'이 꺼져 있어야 한다.
+      // (실패한 작업의 '같은 조건으로 재시도'는 실행기와 무관하게 누를 수 있게 설계돼 있다.)
+      const runCurrent = panel.locator('.ai-run-current');
+      if (await runCurrent.count()) assert.equal(await runCurrent.isEnabled(), false);
       console.log('AI unavailable QA passed: raw save, distinct failure and connection-needed UI.');
       return;
     }
@@ -223,7 +225,7 @@ export async function runAiQa(browser, baseUrl, { configured = false, smoke = fa
     await panel.locator('.ai-job-state').getByText('결과 준비됨', { exact: true }).waitFor();
 
     // A committed response is lost: preserve UUID and the exact selected prompt through reload.
-    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await page.goto(baseUrl + '/capture', { waitUntil: 'domcontentloaded' });
     await page
       .getByRole('textbox', { name: '메모 내용', exact: true })
       .fill('응답 유실 뒤 한 번만 저장하기');

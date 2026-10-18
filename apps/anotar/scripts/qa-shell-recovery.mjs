@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { selectAppTheme } from './qa-compact-pages.mjs';
+import { openQuickMemo } from './fixtures/qa-app.mjs';
 
 export async function runShellRecoveryQa(browser, baseUrl) {
   const text = '연결 복구 확인용 메모';
@@ -58,20 +59,27 @@ export async function runShellRecoveryQa(browser, baseUrl) {
       for (const message of [await memoError.textContent(), await taskError.textContent()])
         assert.equal(/Unexpected|JSON|SyntaxError/i.test(message || ''), false, 'Network parser details must not reach UI');
       assert.equal(await recent.locator('.loading-state').count(), 0, 'Failed lists must not be stuck loading');
-      await page.getByRole('textbox',{name:'메모 내용',exact:true}).fill('연결 실패 중에도 남길 초안');
+      // 홈 인라인 입력이 없어 빠른 기록 창에 쓰고 닫는다. 목록을 다시 불러와도 글은 남아야 한다.
+      await (await openQuickMemo(page)).fill('연결 실패 중에도 남길 초안');
+      await page.keyboard.press('Escape');
+      await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
       failure = '';
       const retry = memoError.getByRole('button', { name: '다시 불러오기' });
       if (mode === 'html') { await retry.focus(); await page.keyboard.press('Enter'); } else await retry.click();
       await recent.locator('.capture-card').filter({hasText:text}).waitFor();
       await taskError.getByRole('button', { name: '목록 다시 불러오기' }).click();
       await page.locator('.task-title-button').filter({hasText:task}).waitFor();
-      assert.equal(await page.getByRole('textbox',{name:'메모 내용',exact:true}).inputValue(),'연결 실패 중에도 남길 초안');
+      const keptDraft = await openQuickMemo(page);
+      assert.equal(await keptDraft.inputValue(),'연결 실패 중에도 남길 초안');
+      await keptDraft.fill('');
+      await page.keyboard.press('Escape');
+      await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
     }
     await page.reload({ waitUntil: 'networkidle' });
     await page.keyboard.press('Tab');
     assert.equal(
       await page.evaluate(() => document.activeElement?.getAttribute('aria-label')),
-      'leneu. 홈',
+      'anotar 홈',
       'the brand home link is the first keyboard navigation target',
     );
     await page.getByRole('button', { name: '설정 열기', exact: true }).focus();

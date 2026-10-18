@@ -79,7 +79,7 @@ export async function runTrashQa(browser, baseUrl) {
     assert.ok(
       await old.evaluate((id) => localStorage.getItem('leneu:page-draft:' + id), parent.id),
     );
-    await page.getByRole('link', { name: '휴지통', exact: true }).click();
+    await page.goto(baseUrl + '/trash', { waitUntil: 'networkidle' }); // 사이드바에 휴지통 링크가 없다.
     await page.locator('.trash-row').filter({ hasText: parent.title }).waitFor();
     await page.reload({ waitUntil: 'networkidle' });
     const pageRow = page.locator('.trash-row').filter({ hasText: parent.title });
@@ -129,7 +129,9 @@ export async function runTrashQa(browser, baseUrl) {
       (await (await fetch(baseUrl + '/api/pages/' + child.id)).json()).item.parentId,
       parent.id,
     );
-    await old.locator('.page-banner-error').getByRole('button', { name: '다시 시도' }).click();
+    // 복원 뒤 편집기가 스스로 다시 저장해 이미 충돌 안내로 바뀌었을 수 있다. 버튼이 남아 있을 때만 누른다.
+    const retrySave = old.locator('.page-banner-error').getByRole('button', { name: '다시 시도' });
+    if (await retrySave.isVisible().catch(() => false)) await retrySave.click();
     await old.getByText('다른 곳에서 바뀌었어요.', { exact: false }).waitFor();
     assert.equal(
       await old.getByRole('textbox', { name: '페이지 제목' }).inputValue(),

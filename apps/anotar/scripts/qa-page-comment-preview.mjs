@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { selectAppTheme } from './qa-compact-pages.mjs';
 
 export async function runCommentPreviewQa(browser, baseUrl) {
   const response = await fetch(baseUrl + '/api/pages', {
@@ -72,16 +71,11 @@ export async function runCommentPreviewQa(browser, baseUrl) {
     for (const width of [1440, 390, 320]) {
       await page.setViewportSize({ width, height: width === 1440 ? 900 : 844 });
       for (const theme of ['light', 'dark']) {
-        // 모바일에서 댓글 패널 본문이 설정 버튼을 가려, 테마 전환 동안엔 패널을 닫았다 다시 연다.
-        if (await page.getByRole('button', { name: '댓글 패널 닫기' }).isVisible().catch(() => false))
-          await page.getByRole('button', { name: '댓글 패널 닫기' }).click();
-        await selectAppTheme(page, theme);
-        if (!(await page.locator('.page-comment-panel').count())) {
-          const commentToggle = page.getByRole('button', { name: '블록 댓글', exact: true });
-          await commentToggle.waitFor({ state: 'visible' });
-          await commentToggle.click();
-          await page.locator('.page-comment-panel').waitFor();
-        }
+        // 메뉴로 테마를 바꾸는 흐름은 qa-compact-pages가 검사한다. 여기서는 열린 댓글 패널을
+        // 그대로 둔 채 화면 테마만 바꿔 배치를 본다(모바일에선 패널이 설정 버튼을 가린다).
+        await page.evaluate((value) => {
+          document.documentElement.dataset.theme = value;
+        }, theme);
         assert.equal(
           await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
           false,
@@ -96,6 +90,11 @@ export async function runCommentPreviewQa(browser, baseUrl) {
           );
         }
         assert.equal(await page.getByRole('button', { name: '댓글 패널 닫기' }).isVisible(), true);
+        // 블록 선택이 화면/설정 전환으로 풀릴 수 있어, 시트 조절·작성 영역 확인 전에 블록을 다시 고른다.
+        if ((await page.locator('.page-comment-compose').count()) === 0) {
+          await page.getByRole('combobox', { name: '댓글 달 블록' }).selectOption({ index: 1 });
+          await page.locator('.page-comment-compose').waitFor();
+        }
         if (width < 760) {
           await page.getByRole('button', { name: '본문 위치', exact: true }).click();
           const compact = (await page.locator('.page-comment-panel').boundingBox()).height;
@@ -106,11 +105,6 @@ export async function runCommentPreviewQa(browser, baseUrl) {
             'Sheet height can be adjusted without leaving the conversation',
           );
           await page.getByRole('button', { name: '댓글 패널 줄이기' }).click();
-        }
-        // 블록 선택이 화면/설정 전환으로 풀릴 수 있어, 작성 영역 확인 직전에 블록을 다시 고른다.
-        if ((await page.locator('.page-comment-compose').count()) === 0) {
-          await page.getByRole('combobox', { name: '댓글 달 블록' }).selectOption({ index: 1 });
-          await page.locator('.page-comment-compose').waitFor();
         }
         const composer = await page.locator('.page-comment-compose').boundingBox(),
           panel = await page.locator('.page-comment-panel').boundingBox();
@@ -127,6 +121,8 @@ export async function runCommentPreviewQa(browser, baseUrl) {
 
     // Visual viewport emulation follows visual captures so it cannot alter compositor evidence.
     await page.setViewportSize({ width: 390, height: 844 });
+    await page.getByRole('combobox', { name: '댓글 달 블록' }).selectOption({ index: 1 });
+    await page.locator('.page-comment-compose').waitFor();
     await page.evaluate(() => {
       Object.defineProperty(visualViewport, 'height', { configurable: true, value: 360 });
       visualViewport.dispatchEvent(new Event('resize'));

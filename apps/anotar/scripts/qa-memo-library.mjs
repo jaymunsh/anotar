@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { selectAppTheme } from './qa-compact-pages.mjs';
+import { openQuickMemo, stubAiSettings } from './fixtures/qa-app.mjs';
 import { chromium } from 'playwright-core';
 import { spawn } from 'node:child_process';
 import { execFileSync } from 'node:child_process';
@@ -13,20 +14,23 @@ export async function runAiTemplateRecoveryQa(browser, baseUrl) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   let release;
   try {
+    await stubAiSettings(context);
     const page = await context.newPage();
     let submissions = 0;
     page.on('request', (request) => {
       if (request.method() === 'POST' && new URL(request.url()).pathname === '/api/captures')
         submissions++;
     });
-    await page.goto(baseUrl, { waitUntil: 'networkidle' });
+    // 홈 인라인 입력이 없어, 새로고침해도 빠른 기록 창이 열려 있는 /capture에서 검사한다.
+    await page.goto(baseUrl + '/capture', { waitUntil: 'networkidle' });
     await page
       .getByRole('textbox', { name: '메모 내용', exact: true })
       .fill('복구된 여행 계획 요청');
     await page.getByRole('checkbox', { name: 'AI 요청', exact: true }).check();
     const select = page.getByRole('combobox', { name: 'AI 요청 템플릿' });
-    await select.locator('option[value="travel-outline"]').waitFor({ state: 'attached' });
-    await select.selectOption('travel-outline');
+    // 기본 여행 템플릿(travel-outline)은 보관 처리됐다. 남아 있는 기본 템플릿으로 검사한다.
+    await select.locator('option[value="idea-outline"]').waitFor({ state: 'attached' });
+    await select.selectOption('idea-outline');
     const gate = new Promise((resolve) => {
       release = resolve;
     });
@@ -47,7 +51,7 @@ export async function runAiTemplateRecoveryQa(browser, baseUrl) {
     release();
     await page.waitForFunction(() => {
       const select = document.querySelector('select[aria-label="AI 요청 템플릿"]');
-      return select && !select.disabled && select.value === 'travel-outline';
+      return select && !select.disabled && select.value === 'idea-outline';
     });
     assert.equal(await save.isEnabled(), true);
     await page.unroute('**/api/prompt-templates');
@@ -68,7 +72,7 @@ export async function runAiTemplateRecoveryQa(browser, baseUrl) {
       true,
       'library failure must retain the template request draft',
     );
-    assert.equal(await select.inputValue(), 'travel-outline');
+    assert.equal(await select.inputValue(), 'idea-outline');
     assert.equal(
       await page.getByRole('textbox', { name: '메모 내용', exact: true }).inputValue(),
       '복구된 여행 계획 요청',
@@ -89,9 +93,8 @@ export async function runAiTemplateRecoveryQa(browser, baseUrl) {
     assert.equal(data.items[0].aiRequest.template, null);
     assert.equal(data.items[0].aiRequest.prompt, '복구된 여행 계획 요청');
     // A fresh draft has no explicit template ID even when the select shows direct.
-    await page
-      .getByRole('textbox', { name: '메모 내용', exact: true })
-      .fill('새로운 직접 요청 초안');
+    // 저장하면 빠른 기록 창이 닫히므로 다시 연다.
+    await (await openQuickMemo(page)).fill('새로운 직접 요청 초안');
     await page.getByRole('checkbox', { name: 'AI 요청', exact: true }).check();
     await page
       .locator('.capture-ai-fields .prompt-error')
@@ -180,7 +183,7 @@ export async function runMemoLibraryQa(browser, baseUrl, dataDir) {
       .getByRole('tablist', { name: '항목 필터' })
       .getByRole('tab', { name: '메모', exact: true })
       .click();
-    await page.getByRole('link', { name: '입력함', exact: true }).click();
+    await page.locator('.brand').click(); // 사이드바에 '입력함' 링크가 없어 로고로 홈에 간다.
     const homeCard = page
       .locator('.capture-card')
       .filter({ hasText: '교토 여행 준비: 숙소 예약 확인 (메모에서 수정)' });
@@ -246,17 +249,21 @@ export async function runMemoLibraryQa(browser, baseUrl, dataDir) {
     await page.reload({ waitUntil: 'networkidle' });
     await page.getByText(request.text, { exact: true }).waitFor();
     assert.equal(new URL(page.url()).searchParams.get('view'), 'ai');
-    await page.getByRole('link', { name: '입력함', exact: true }).click();
-    await page.getByRole('textbox', { name: '메모 내용' }).fill('이동 중 유지할 다음 메모');
+    // 홈 인라인 입력은 없어졌다. 빠른 기록 창에 쓰다 닫고 다른 화면에 다녀와도 글이 남아야 한다.
+    await page.locator('.brand').click(); // 사이드바에 '입력함' 링크가 없어 로고로 홈에 간다.
+    await (await openQuickMemo(page)).fill('이동 중 유지할 다음 메모');
+    await page.keyboard.press('Escape');
+    await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
     await page
       .getByRole('navigation', { name: '주 메뉴' })
       .getByRole('link', { name: '메모', exact: true })
       .click();
-    await page.getByRole('link', { name: '입력함', exact: true }).click();
-    assert.equal(
-      await page.getByRole('textbox', { name: '메모 내용' }).inputValue(),
-      '이동 중 유지할 다음 메모',
-    );
+    await page.locator('.brand').click();
+    const keptDraft = await openQuickMemo(page);
+    assert.equal(await keptDraft.inputValue(), '이동 중 유지할 다음 메모');
+    await keptDraft.fill('');
+    await page.keyboard.press('Escape');
+    await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
     for (const alias of ['/pages', '/temp']) {
       await page.goto(baseUrl + alias, { waitUntil: 'networkidle' });
       assert.equal(new URL(page.url()).pathname, '/memo');
@@ -292,7 +299,8 @@ export async function runMemoLibraryQa(browser, baseUrl, dataDir) {
           assert.ok(badges.length);
           assert.ok(
             badges.every(
-              (badge) => Math.abs(badge.inset - (width > 760 ? 17 : 13)) < 1 && badge.aligned < 1,
+              // 카드 여백이 바뀌어도 모든 카드가 같은 오른쪽 여백을 써야 한다(PC·모바일 모두 13px).
+              (badge) => Math.abs(badge.inset - badges[0].inset) < 1 && badge.inset > 8 && badge.aligned < 1,
             ),
             'NEW stays on the timestamp row at a shared right inset, including image and AI cards',
           );

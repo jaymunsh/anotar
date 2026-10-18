@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { openQuickMemo } from './fixtures/qa-app.mjs';
 import { chromium } from 'playwright-core';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
@@ -70,8 +71,10 @@ export async function runSearchQa(browser, baseUrl) {
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(baseUrl, { waitUntil: 'networkidle' });
-    const draft = page.locator('textarea').first();
-    await draft.fill('검색을 열어도 남아야 하는 작성 중 메모');
+    // 홈 인라인 입력이 없어 빠른 기록 창에 쓰고 닫은 뒤 검색한다.
+    await (await openQuickMemo(page)).fill('검색을 열어도 남아야 하는 작성 중 메모');
+    await page.keyboard.press('Escape');
+    await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
     await page.keyboard.press('Control+k');
     const dialog = page.getByRole('dialog', { name: '통합 검색', exact: true });
     await dialog.waitFor({ timeout: 3000 });
@@ -94,11 +97,11 @@ export async function runSearchQa(browser, baseUrl) {
     );
     await input.press('Escape');
     assert.equal(await dialog.count(), 0);
-    await page.locator('.nav-item').filter({ hasText: '입력함' }).click();
-    assert.equal(
-      await page.locator('textarea').first().inputValue(),
-      '검색을 열어도 남아야 하는 작성 중 메모',
-    );
+    await page.locator('.brand').click(); // 사이드바에 '입력함' 링크가 없어 로고로 홈에 간다.
+    const keptDraft = await openQuickMemo(page);
+    assert.equal(await keptDraft.inputValue(), '검색을 열어도 남아야 하는 작성 중 메모');
+    await page.keyboard.press('Escape');
+    await page.getByRole('dialog', { name: '빠른 기록' }).waitFor({ state: 'hidden' });
 
     await page.keyboard.press('Control+k');
     await dialog.waitFor();
