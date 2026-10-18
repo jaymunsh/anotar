@@ -331,3 +331,5 @@
 .journal-plan-cont.end{margin-left:auto}
 .journal-plan-cont.end~.journal-plan-miss{margin-left:4px}
 .journal-notes label:first-child textarea{min-height:calc(8.75em + 20px)}
+.journal-page .journal-priority.top>textarea{font-size:14px}.journal-page .journal-priority:not(.top)>textarea{font-size:12.5px}.journal-preview .journal-priority>textarea{font-size:11px}
+@media(max-width:640px){.journal-page .journal-priority>textarea{font-size:16px}}
