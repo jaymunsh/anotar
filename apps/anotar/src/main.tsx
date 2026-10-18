@@ -8,7 +8,6 @@ import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore }
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {
-  CalendarDays,
   ExternalLink,
   ArrowRight,
   ArrowUpRight,
@@ -1143,11 +1142,13 @@ function App() {
                   href={HARUKAN_URL}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="하루칸 (새 탭)"
+                  onClick={(event) => event.currentTarget.blur()}
                 >
                   <span className="nav-icon">
-                    <CalendarDays size={18} />
+                    <img className="nav-harukan-logo" src="/harukan.svg" alt="" />
                   </span>
-                  <span className="nav-label">일지</span>
+                  <span className="nav-label">하루칸</span>
                   <ExternalLink size={14} aria-hidden="true" className="nav-external-icon" />
                 </a>
                 <a

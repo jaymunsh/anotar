@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="harukan">
+  <!-- harukan (하루칸): a 3×3 grid of 칸 whose filled cells spell a lowercase h; the free top-right cell is a clock. -->
+  <rect width="512" height="512" rx="112" fill="#20322d"/>
+  <g fill="#f6f5f0">
+    <rect x="92" y="92" width="96" height="96" rx="22"/>
+    <rect x="92" y="208" width="96" height="96" rx="22"/>
+    <rect x="208" y="208" width="96" height="96" rx="22"/>
+    <rect x="324" y="208" width="96" height="96" rx="22"/>
+    <rect x="92" y="324" width="96" height="96" rx="22"/>
+    <rect x="324" y="324" width="96" height="96" rx="22"/>
+  </g>
+  <g fill="#f6f5f0" fill-opacity=".14">
+    <rect x="208" y="92" width="96" height="96" rx="22"/>
+    <rect x="208" y="324" width="96" height="96" rx="22"/>
+  </g>
+  <g fill="none" stroke="#d8e6b5" stroke-linecap="round">
+    <circle cx="372" cy="140" r="40" stroke-width="14"/>
+    <path d="M372 140V116M372 140L390 150" stroke-width="12"/>
+  </g>
+</svg>

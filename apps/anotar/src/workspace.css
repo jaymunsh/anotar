@@ -176,6 +176,27 @@
 .sidebar .nav-shortcuts .nav-label {
   white-space: nowrap;
 }
+/* 하루칸 opens in a new tab: its small ↗ sits in the tile corner so icon and label stay centered like the others. The logo is drawn a little larger since its cells sit inside a padded square. */
+.sidebar .nav-shortcuts .nav-item {
+  position: relative;
+}
+.sidebar .nav-shortcuts .nav-external-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 10px;
+  height: 10px;
+  margin: 0;
+  opacity: 0.45;
+}
+.sidebar .nav-shortcuts .nav-icon {
+  height: 17px;
+}
+.nav-harukan-logo {
+  width: 21px;
+  height: 21px;
+  border-radius: 4px;
+}
 .sidebar .nav-shortcuts .nav-item:focus-visible {
   outline: 2px solid #d8e6b5;
   outline-offset: -2px;
