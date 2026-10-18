@@ -8,6 +8,7 @@ import './review.css';
 
 type Span='week'|'month'|'year';
 type Dated={date:string;plan:Plan};
+const spanKey='anotar-planner:review-span';
 const shift=(date:string,amount:number)=>{const d=new Date(date+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+amount);return d.toISOString().slice(0,10);};
 const shiftMonths=(date:string,amount:number)=>{const d=new Date(date.slice(0,7)+'-01T12:00:00Z');d.setUTCMonth(d.getUTCMonth()+amount);return d.toISOString().slice(0,10);};
 const step=(date:string,span:Span,direction:number)=>span==='week'?shift(date,direction*7):shiftMonths(date,direction*(span==='year'?12:1));
@@ -28,7 +29,9 @@ function heading(span:Span,start:string,end:string){
 // Nothing new to fill in. Every number comes from the timetable (planned time), the 오늘 꼭 할 일 checks and the goal steps.
 // ponytail: reads the days already loaded (the latest 400), so a year further back reads low; fetch the range if that matters.
 export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string;days:Record<string,Day>;items:PlanningItem[];today:string;demo?:boolean;onDate:(date:string,view:'review'|'day')=>void;onReplan:(plan:Plan)=>void}){
- const [span,setSpan]=useState<Span>('week');
+ // The last period you looked at (주·달·연) comes back next time; it lives only in this browser.
+ const [span,setSpanState]=useState<Span>(()=>{try{const v=localStorage.getItem(spanKey);return v==='month'||v==='year'?v:'week';}catch{return 'week';}});
+ const setSpan=(value:Span)=>{setSpanState(value);try{localStorage.setItem(spanKey,value);}catch{}};
  // Colours come from the items passed in, not the shared tagColor map, so this view never shows a goal grey.
  const colors=colorsFor(items),tagColor=(id:string)=>colors.get(id)||'var(--line-strong)';
  const {start,end}=periodRange(date,span),previous=periodRange(step(date,span,-1),span);
@@ -88,7 +91,7 @@ export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string
     {progress.length?<ul className="review-goals">{progress.map(({goal,done,total,value,before:then})=><li key={goal.id} style={{'--goal':tagColor(goal.id)} as React.CSSProperties}>
      <span className="review-goal-name"><i/>{goal.title}</span>
      <span className="review-goal-time"><b>{duration(value)}</b><small>{percent(value,planned)}%</small></span>
-     <small className="review-goal-delta">{!hadBefore?'':value===then?pair(`${unit}와 같아요`,`same as ${unit}`):<>{value>then?<TrendingUp size={13}/>:<TrendingDown size={13}/>}{pair(`${unit}보다 ${duration(Math.abs(value-then))} ${value>then?'더':'덜'}`,`${duration(Math.abs(value-then))} ${value>then?'more':'less'} than ${unit}`)}</>}</small>
+     {hadBefore&&<small className="review-goal-delta">{value===then?pair(`${unit}와 같아요`,`same as ${unit}`):<>{value>then?<TrendingUp size={13}/>:<TrendingDown size={13}/>}{pair(`${unit}보다 ${duration(Math.abs(value-then))} ${value>then?'더':'덜'}`,`${duration(Math.abs(value-then))} ${value>then?'more':'less'} than ${unit}`)}</>}</small>}
      <span className="review-goal-steps"><small>{pair('세부 계획','Steps')}</small><span className="review-track"><i style={{width:`${percent(done,total)}%`}}/></span><b>{done}/{total}</b></span>
     </li>)}</ul>:<p className="journal-hint">{pair('이 기간에 걸친 목표가 없어요.','No goals cover this period.')}</p>}
    </article>

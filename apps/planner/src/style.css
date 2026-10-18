@@ -55,3 +55,13 @@ body:has(.journal-page:not(.journal-preview)) .public-header{padding-inline:max(
 /* Theme: 설정 > 화면 테마 sets data-theme on <html>; 'system' (or none) follows the OS. */
 :root[data-theme=dark]{--canvas:#141a18;--surface:#1b2320;--forest:#a9d3b6;--ink:#e2e8e3;--muted:#9aab9f;--line:#2c3833;--action:#8cc09d;--on-action:#10201a;--hover:#232e2a;--lime:#34452c;--plan:#24322b;--actual:#203029;--danger:#e2836d;--focus:#8cc09d;--missed-bg:#3a2523;--missed-ink:#f0a092;--missed-line:#5a3530;--now-bg:#4a3f1c;--now-line:#a68a3c;--sun:#e8907f;--sat:#9fb3d0;--line-strong:#3e4d46;--deferred-bg:#3a3620;color-scheme:dark;scrollbar-color:#3e4d46 var(--canvas)}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]):not([data-theme=dark]){--canvas:#141a18;--surface:#1b2320;--forest:#a9d3b6;--ink:#e2e8e3;--muted:#9aab9f;--line:#2c3833;--action:#8cc09d;--on-action:#10201a;--hover:#232e2a;--lime:#34452c;--plan:#24322b;--actual:#203029;--danger:#e2836d;--focus:#8cc09d;--missed-bg:#3a2523;--missed-ink:#f0a092;--missed-line:#5a3530;--now-bg:#4a3f1c;--now-line:#a68a3c;--sun:#e8907f;--sat:#9fb3d0;--line-strong:#3e4d46;--deferred-bg:#3a3620;color-scheme:dark;scrollbar-color:#3e4d46 var(--canvas)}}
+
+/* App header, right side: save status · guide · account (avatar + name → 설정, where 로그아웃 lives). */
+.app-header .header-save{padding-right:12px;margin-right:4px;border-right:1px solid var(--line)}
+.account-avatar{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--action);color:var(--on-action);font-size:12px;font-weight:700;font-style:normal;flex:none}
+.account-actions a.account-link{color:var(--ink);text-decoration:none;border-radius:999px;padding:6px 10px 6px 6px}
+.account-actions a.account-link:hover{background:var(--hover)}
+.settings-account{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.settings-account .page-intro{margin:14px 0 0}
+.settings-account button{margin-top:14px}
+.app-header .header-save:empty{border:0;padding:0;margin:0}

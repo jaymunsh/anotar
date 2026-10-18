@@ -93,7 +93,7 @@ export function PlanningBoard({date,state}:{date:string;state:PlanningState}){
 }
 // 회고 > 올해 흐름: goal rows × 12 months, shaded by time the timetable gave each goal (its steps included). Nothing to fill in.
 export function GoalFlow({year,items,minutes}:{year:string;items:PlanningItem[];minutes:Minutes}){
- const now=new Date().toISOString().slice(0,7),months=Array.from({length:12},(_,i)=>`${year}-${String(i+1).padStart(2,'0')}`);
+ const colors=colorsFor(items),now=new Date().toISOString().slice(0,7),months=Array.from({length:12},(_,i)=>`${year}-${String(i+1).padStart(2,'0')}`);
  const goals=items.filter(item=>item.kind==='goal'&&overlaps(item,`${year}-01`,`${year}-12`));
  const flow=goals.map(goal=>{const ids=[goal.id,...items.filter(step=>step.parentId===goal.id).map(step=>step.id)];return {goal,cells:months.map(m=>minutes(ids,m+'-01',monthEnd(m)))};}),peak=Math.max(0,...flow.flatMap(row=>row.cells));
  if(!goals.length)return null;
@@ -102,7 +102,7 @@ export function GoalFlow({year,items,minutes}:{year:string;items:PlanningItem[];
   {!peak&&<p className="goal-flow-hint">{pair('시간표 일정을 열어 ‘관련 계획’에 목표나 세부 계획을 고르면, 여기에 달마다 그 목표에 쓴 시간이 색으로 쌓여요.','Link a timetable plan to a goal or step (“Related plan”) and this spot fills with the time each goal got per month.')}</p>}
 {peak>0&&<div className="goal-flow" role="table" aria-label={pair('달마다 시간표에 쓴 시간','Time on the timetable by month')}>
     <div className="goal-flow-row goal-flow-head" role="row"><span role="columnheader" className="goal-flow-caption">{pair('달마다 시간표에 쓴 시간','Timetable time by month')}</span>{months.map(m=><span role="columnheader" key={m} className={m===now?'now':undefined}>{Number(m.slice(5))}</span>)}</div>
-    {flow.map(({goal,cells})=><div className={`goal-flow-row${goal.focus?' focus':''}`} role="row" key={goal.id} style={{'--goal':tagColor(goal.id)} as React.CSSProperties}><span role="rowheader" className="goal-flow-name"><i/><span>{goal.title}</span></span>{cells.map((value,i)=>{const label=value?`${monthName(months[i])} · ${duration(value)}`:monthName(months[i]);return <span role="cell" key={months[i]} className={months[i]===now?'now':undefined} title={label} aria-label={label}>{value>0&&<i style={{opacity:.18+.82*value/peak}}/>}</span>;})}</div>)}
+    {flow.map(({goal,cells})=><div className={`goal-flow-row${goal.focus?' focus':''}`} role="row" key={goal.id} style={{'--goal':colors.get(goal.id)} as React.CSSProperties}><span role="rowheader" className="goal-flow-name"><i/><span>{goal.title}</span></span>{cells.map((value,i)=>{const label=value?`${monthName(months[i])} · ${duration(value)}`:monthName(months[i]);return <span role="cell" key={months[i]} className={months[i]===now?'now':undefined} title={label} aria-label={label}>{value>0&&<i style={{opacity:.15+.5*value/peak}}/>}</span>;})}</div>)}
    </div>}
  </>;
 }
