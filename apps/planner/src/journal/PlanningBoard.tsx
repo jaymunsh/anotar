@@ -11,7 +11,9 @@ const noGoal='#a7b0aa';
 // ponytail: module-level map refreshed by usePlanning so tagColor(id) keeps its one-argument callers; fine while one planning state is mounted.
 let colorOf=new Map<string,string>();
 export const tagColor=(id:string)=>colorOf.get(id)||noGoal;
-function paint(items:PlanningItem[]){const next=new Map<string,string>();items.filter(i=>i.kind==='goal').forEach((goal,i)=>next.set(goal.id,goalColors[goal.color??i%8]));for(const step of items)if(step.kind==='step')next.set(step.id,(step.parentId&&next.get(step.parentId))||noGoal);colorOf=next;}
+/** Each goal's colour, and each step's (its goal's), from the items themselves. */
+export function colorsFor(items:PlanningItem[]){const next=new Map<string,string>();items.filter(i=>i.kind==='goal').forEach((goal,i)=>next.set(goal.id,goalColors[goal.color??i%8]));for(const step of items)if(step.kind==='step')next.set(step.id,(step.parentId&&next.get(step.parentId))||noGoal);return next;}
+function paint(items:PlanningItem[]){colorOf=colorsFor(items);}
 export const monthName=(month:string)=>new Intl.DateTimeFormat(getLanguage()==='en'?'en-US':'ko-KR',{year:'numeric',month:'short',timeZone:'UTC'}).format(new Date(month+'-01T12:00:00Z'));
 const overlaps=(item:PlanningItem,from:string,to:string)=>item.startMonth<=to&&item.endMonth>=from;
 type Stored=PlanningItem|Routine|DayTemplate;

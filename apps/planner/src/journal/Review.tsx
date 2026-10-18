@@ -3,7 +3,7 @@ import {ArrowRight,ChevronLeft,ChevronRight,Clock,Target,CircleCheck,CircleAlert
 import {Day,Plan,PlanningItem,clock,duration} from '../api';
 import {getLanguage,pair} from '../i18n';
 import {periodRange} from './period';
-import {GoalFlow,tagColor} from './PlanningBoard';
+import {GoalFlow,colorsFor} from './PlanningBoard';
 import './review.css';
 
 type Span='week'|'month'|'year';
@@ -29,6 +29,8 @@ function heading(span:Span,start:string,end:string){
 // ponytail: reads the days already loaded (the latest 400), so a year further back reads low; fetch the range if that matters.
 export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string;days:Record<string,Day>;items:PlanningItem[];today:string;demo?:boolean;onDate:(date:string,view:'review'|'day')=>void;onReplan:(plan:Plan)=>void}){
  const [span,setSpan]=useState<Span>('week');
+ // Colours come from the items passed in, not the shared tagColor map, so this view never shows a goal grey.
+ const colors=colorsFor(items),tagColor=(id:string)=>colors.get(id)||'var(--line-strong)';
  const {start,end}=periodRange(date,span),previous=periodRange(step(date,span,-1),span);
  const within=(from:string,to:string)=>Object.entries(days).filter(([d])=>d>=from&&d<=to).sort(([a],[b])=>a.localeCompare(b));
  const plansOf=(rows:[string,Day][])=>rows.flatMap(([d,doc])=>doc.plans.filter(p=>p.status!=='cancelled').map(plan=>({date:d,plan})));
