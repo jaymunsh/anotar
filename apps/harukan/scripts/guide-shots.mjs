@@ -31,9 +31,9 @@ try{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   const open=async(path,selector)=>{await page.goto(base+path);await page.locator(selector).first().waitFor();await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(300);};
   // Crop to a box around elements (page coordinates), with a little air.
-  const shot=async(name,selectors,{pad=16,maxHeight}={})=>{
+  const shot=async(name,selectors,{pad=16,top=pad,from,maxHeight}={})=>{
     const boxes=[];for(const s of selectors){const b=await page.locator(s).first().boundingBox();assert.ok(b,`${name}: ${s}`);boxes.push(b);}
-    const scrollY=await page.evaluate(()=>scrollY),x=Math.max(0,Math.min(...boxes.map(b=>b.x))-pad),y=Math.max(0,Math.min(...boxes.map(b=>b.y))-pad+scrollY);
+    const scrollY=await page.evaluate(()=>scrollY),x=Math.max(0,Math.min(...boxes.map(b=>b.x))-pad),fromY=from?(await page.locator(from).first().boundingBox()).y:Math.min(...boxes.map(b=>b.y)),y=Math.max(0,fromY-top+scrollY);
     const right=Math.max(...boxes.map(b=>b.x+b.width))+pad,bottom=Math.max(...boxes.map(b=>b.y+b.height))+pad+scrollY;
     await page.screenshot({path:join(out,name+'.png'),fullPage:true,clip:{x,y,width:right-x,height:Math.min(bottom-y,maxHeight??Infinity)}});
   };
@@ -43,7 +43,7 @@ try{
   await shot('step-plans',['.goal-card:nth-child(1)','.goal-card:nth-child(2)']);
   // 2 · The day: priorities and notes on the left; the focus goals and routines above.
   await open(`/app?date=${date}`,'.journal-grid');
-  await shot('step-today',['.journal-left'],{maxHeight:620});
+  await shot('step-today',['.journal-left'],{from:'.journal-priorities',top:4,maxHeight:600});
   await shot('step-focus',['.planning-context'],{pad:4});
   // 3 · The timetable, morning to evening.
   const top=await page.locator('.journal-hour').nth(7).boundingBox(),bottom=await page.locator('.journal-hour').nth(23).boundingBox(),grid=await page.locator('.journal-schedule').boundingBox();
@@ -55,7 +55,7 @@ try{
   // Whole day screen, for the top of the guide.
   await open(`/app?date=${date}`,'.journal-grid');
   await page.setViewportSize({width:1280,height:820});await page.waitForTimeout(200);
-  await shot('day',['.journal-heading','.journal-sidebar','.journal-schedule'],{pad:20,maxHeight:820});
+  await shot('day',['.journal-heading','.journal-sidebar','.journal-schedule'],{pad:20,top:12,maxHeight:820});
   assert.deepEqual(errors,[]);
   console.log(`guide pictures → ${out}`);
 }finally{await browser.close();await new Promise(r=>app.server.close(r));await rm(temp,{recursive:true,force:true});}

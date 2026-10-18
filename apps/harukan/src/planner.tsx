@@ -1,6 +1,6 @@
 import {t,pair,getLanguage,LanguageSelect} from './i18n';
 import React,{useEffect,useRef,useState} from 'react';
-import {X,ArrowRight,Check,ChevronLeft,ChevronRight,Plus,Trash2,Download,Settings,Save,LogOut} from 'lucide-react';
+import {X,ArrowRight,Check,ChevronLeft,ChevronRight,Plus,Trash2,Download,Settings,Save,LogOut,CircleHelp} from 'lucide-react';
 import {ApiError,Day,Entry,Plan,PlanningItem,User,clock,download,duration,emptyDay,recorded,request,today} from './api';
 
 const copy=<T,>(value:T):T=>structuredClone(value);
@@ -32,7 +32,7 @@ export function useDay(date:string,user:User|undefined,csrf:string,demo:boolean)
     if(demo)loaded(demoDay(),0);else request<{document:Day;version:number}>(`/api/days/${date}`).then(r=>loaded(r.document,r.version)).catch(e=>{if(epoch===generation.current){setError(e.message);setLoading(false);setState('load-error');}});
     return()=>{clearTimeout(timer.current);generation.current++;};
   },[date,user?.id,demo]);
-  function change(value:Day){if(loading||state==='load-error'||pendingDraft)return;latest.current=value;setDocument(value);if(demo){setState('demo');return;}dirty.current=true;stash(value);setState('pending');clearTimeout(timer.current);if(!blocked.current)timer.current=setTimeout(()=>saveRef.current(),900);}
+  function change(value:Day){if(loading||state==='load-error'||pendingDraft)return;latest.current=value;setDocument(value);if(demo){setState('demo');return;}dirty.current=true;stash(value);if(state==='error')blocked.current=false;if(!blocked.current)setState('pending');clearTimeout(timer.current);if(!blocked.current)timer.current=setTimeout(()=>saveRef.current(),900);}
   async function save(){
     if(demo||busy.current||!dirty.current||loading)return;
     busy.current=true;setState('saving');setError('');const snapshot=copy(latest.current),v=version.current,epoch=generation.current;
@@ -43,6 +43,13 @@ export function useDay(date:string,user:User|undefined,csrf:string,demo:boolean)
     finally{busy.current=false;}
   }
   saveRef.current=save;
+  // A failed save (offline, server restart) tries again by itself: when the browser is back online and every 20 s. A conflict (409) waits for the person.
+  useEffect(()=>{
+    if(state!=='error')return;
+    const retry=()=>{if(navigator.onLine){blocked.current=false;void saveRef.current();}};
+    const every=setInterval(retry,20000);window.addEventListener('online',retry);
+    return()=>{clearInterval(every);window.removeEventListener('online',retry);};
+  },[state]);
   useEffect(()=>{
     function unload(e:BeforeUnloadEvent){if(dirty.current||busy.current){e.preventDefault();e.returnValue='';}}
     function leave(e:Event){if(busy.current||(dirty.current&&!window.confirm(t("아직 서버에 저장되지 않은 내용이 있어요. 기기 초안을 남기고 이동할까요?"))))e.preventDefault();}
@@ -113,6 +120,7 @@ export function SettingsPage({user,csrf,onLogout}:{user:User;csrf:string;onLogou
       <div className="account-row"><span className="account-key">{t("시간대")}</span><p className="account-value">{user.timezone}</p></div>
     </div></section>
     <section><h2>{pair("언어","Language")}</h2><LanguageSelect/><p className="helper">{pair("소개와 플래너에 함께 적용돼요. 작성한 기록은 그대로 유지돼요.","Applies to the website and planner. Your written records stay unchanged.")}</p></section><section><h2>{pair('화면 테마','Theme')}</h2><div className="form-actions">{[['system',pair('시스템 따라가기','Match system')],['light',pair('라이트','Light')],['dark',pair('다크','Dark')]].map(([v,label])=><button key={v} className={theme===v?'primary':'secondary'} aria-pressed={theme===v} onClick={()=>{setTheme(v);try{localStorage.setItem('anotar-planner:theme',v);}catch{}document.documentElement.dataset.theme=v;}}>{label}</button>)}</div><p className="helper">{pair('이 기기에만 적용돼요.','Applies to this device only.')}</p></section><section><h2>{t("화면 글자 크기")}</h2><div className="form-actions">{[['small',t("작게")],['normal',t("보통")],['large',t("크게")]].map(([v,label])=><button key={v} className={font===v?'primary':'secondary'} aria-pressed={font===v} onClick={()=>{setFont(v);localStorage.setItem('anotar-planner:font',v);document.documentElement.dataset.font=v;}}>{t(label)}</button>)}<button className="text-button" onClick={()=>{setFont('small');localStorage.removeItem('anotar-planner:font');document.documentElement.dataset.font='small';}}>{t("기본값으로 설정")}</button></div><p className="helper">{t("이 브라우저에 적용돼요. 기본값은 작게예요.")}</p></section>
+    <section><h2>{pair("도움말","Help")}</h2><p>{pair("화면별 쓰는 법은 사용 안내에, 그 밖의 궁금한 점은 문의로 보내 주세요.","How each screen works is in the guide; anything else, send us a message.")}</p><div className="settings-links"><a className="secondary" href="/guide"><CircleHelp size={16}/>{pair("사용 안내","Guide")}</a><a className="text-button" href="/contact">{pair("문의하기","Contact")}</a></div></section>
     <section><h2>{t("내 기록 내보내기")}</h2><p>{t("일정·메모·계획을 JSON 파일로 보관해요.")}</p><button className="secondary" disabled={busy} onClick={()=>act(async()=>download(`harukan-${user.username}.json`,await request('/api/export')))}><Download size={16}/>{t("자료 내보내기")}</button></section>
     <section><h2>{t("비밀번호 변경")}</h2><form className="settings-form" onSubmit={e=>{e.preventDefault();act(async()=>{await request('/api/account/password','POST',{currentPassword:password,password:nextPassword},csrf);location.assign('/app/settings');});}}><label>{t("현재 비밀번호")}<input type="password" autoComplete="current-password" required minLength={12} maxLength={128} value={password} onChange={e=>setPassword(e.target.value)}/></label><label>{t("새 비밀번호")}<input type="password" autoComplete="new-password" required minLength={12} maxLength={128} value={nextPassword} onChange={e=>setNextPassword(e.target.value)}/></label><p className="helper">{t("12–128자. 다른 기기의 로그인은 종료돼요.")}</p><button className="secondary" disabled={busy}><Settings size={16}/>{t("비밀번호 변경")}</button></form></section>
     <section><details><summary>{t("계정과 기록 삭제")}</summary><p>{t("탈퇴하면 서버의 계정·일정·메모·할 일을 삭제해요. 먼저 필요한 자료를 내보내 주세요. 되돌릴 수 없어요.")}</p><form className="settings-form" onSubmit={e=>{e.preventDefault();if(!confirm(t("계정과 기록을 영구 삭제할까요?")))return;act(async()=>{await request('/api/account','DELETE',{confirmation,password},csrf);for(const key of Object.keys(localStorage))if(key.startsWith(`anotar-planner:draft:${user.id}:`))localStorage.removeItem(key);location.assign('/');});}}><label>{user.email?t("이메일을 다시 입력"):t("아이디를 다시 입력")}<input autoComplete="off" required value={confirmation} onChange={e=>setConfirmation(e.target.value)}/></label><label>{t("비밀번호")}<input type="password" autoComplete="current-password" required minLength={12} maxLength={128} value={password} onChange={e=>setPassword(e.target.value)}/></label><button className="danger secondary" disabled={busy||confirmation!==user.username}><Trash2 size={16}/>{t("탈퇴하고 기록 삭제")}</button></form></details></section>

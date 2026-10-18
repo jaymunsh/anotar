@@ -100,3 +100,4 @@ body:has(.journal-page:not(.journal-preview)) .public-header{padding-inline:max(
 .guide-more>:not(summary){margin-bottom:18px}
 .guide-close{display:flex;gap:10px;flex-wrap:wrap;margin-top:40px}
 @media(max-width:760px){.guide-steps-nav ol{grid-template-columns:minmax(0,1fr)}.guide-steps-nav a{padding:8px 12px}.guide-step{margin-top:44px}.guide-step .guide-strip{overflow-x:auto}.guide-step .guide-strip img{width:auto;max-width:none;height:42px}}
+.settings-links{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px}.settings-links a{display:inline-flex;align-items:center;gap:6px}

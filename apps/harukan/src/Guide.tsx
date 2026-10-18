@@ -12,7 +12,7 @@ const steps:{id:string;where:[string,string];title:[string,string];lede:[string,
   tip:['목표 없이 바로 2단계부터 써도 돼요. 나중에 만들어도 지난 일정을 목표에 연결할 수 있어요.','You can skip this and start at step 2; past activities can be linked to a goal later.']},
  {id:'today',where:['일정 › 일간 · 왼쪽','Schedule › Day · left side'],title:['오늘 꼭 할 일을 골라요','Pick today’s priorities'],
   lede:['머릿속에 있는 걸 먼저 다 꺼내 놓고, 그중 오늘 꼭 끝낼 것만 위로 올려요.','Empty your head first, then lift out only what must get done today.'],
-  shot:{src:'/guide/step-today.png',w:840,h:1240,ko:'일간 화면 왼쪽: 오늘 꼭 할 일 세 줄과 시작 시각, 아래에 머릿속 생각·아이디어·하루 돌아보기 칸',en:'Left side of the day view: three priorities with start times, then the thoughts, ideas and daily review boxes'},
+  shot:{src:'/guide/step-today.png',w:840,h:1200,ko:'일간 화면 왼쪽: 오늘 꼭 할 일 세 줄과 시작 시각, 아래에 머릿속 생각·아이디어·하루 돌아보기 칸',en:'Left side of the day view: three priorities with start times, then the thoughts, ideas and daily review boxes'},
   todo:[['‘머릿속 생각’에 해야 할 일, 걱정, 떠오른 것을 정리하지 말고 적어요.','Write everything on your mind into On my mind, without sorting it.'],['그중 오늘 꼭 끝낼 3가지를 ‘오늘 꼭 할 일’ 1–3번에 적어요. 더 있으면 4번부터 작게 이어져요.','Put the three that must get done today in rows 1–3 of Today’s priorities; more go from row 4, smaller.'],['어제 못 한 일이 있으면 제목 옆 ‘어제 N개’를 눌러 그대로 가져와요.','Left something yesterday? The “N from yesterday” button brings it over.']]},
  {id:'timetable',where:['일정 › 일간 · 오른쪽','Schedule › Day · right side'],title:['할 일을 시간표에 놓아요','Give each task a time'],
   lede:['한 줄이 한 시간, 한 칸이 10분이에요. 꼭 할 일에 시간을 주면 하루가 실제로 들어가는지 보여요.','Each row is an hour and each cell 10 minutes. Giving priorities a time shows whether the day really fits.'],
@@ -36,7 +36,7 @@ export function Guide(){
   <a href="/">{pair('서비스 소개로','Back to home')}</a>
   <h1>{pair('사용 안내','How to use harukan')}</h1>
   <p className="guide-lede">{pair('처음 쓰는 날, 아래 다섯 단계를 차례로 따라 해 보세요. harukan이 무엇인지는 첫 화면에서, 여기서는 실제로 어떻게 쓰는지를 화면과 함께 보여 줘요.','Follow these five steps on your first day. The home page says what harukan is for; this page shows, screen by screen, how to use it.')}</p>
-  <figure className="guide-hero">{picture({src:'/guide/day.png',w:2512,h:1536,ko:'일간 화면 전체: 위에 날짜와 집중 목표, 왼쪽에 오늘 꼭 할 일과 메모, 오른쪽에 하루 24시간 시간표',en:'The whole day view: date and focus goals on top, priorities and notes on the left, the 24-hour timetable on the right'})}<figcaption>{pair('매일 쓰는 일간 화면 (예시 데이터)','The day view you use every day (sample data)')}</figcaption></figure>
+  <figure className="guide-hero">{picture({src:'/guide/day.png',w:2512,h:1520,ko:'일간 화면 전체: 위에 날짜와 집중 목표, 왼쪽에 오늘 꼭 할 일과 메모, 오른쪽에 하루 24시간 시간표',en:'The whole day view: date and focus goals on top, priorities and notes on the left, the 24-hour timetable on the right'})}<figcaption>{pair('매일 쓰는 일간 화면 (예시 데이터)','The day view you use every day (sample data)')}</figcaption></figure>
   <nav className="guide-steps-nav" aria-label={pair('단계','Steps')}><ol>{steps.map((step,i)=><li key={step.id}><a href={'#'+step.id}><span>{i+1}</span>{pair(...step.title)}</a></li>)}</ol></nav>
 
   {steps.map((step,i)=><section className="guide-step" id={step.id} key={step.id} aria-labelledby={step.id+'-title'}>
@@ -86,7 +86,6 @@ export function Guide(){
    <li>{pair('이메일과 비밀번호로 로그인해요. 화면에는 가입할 때 정한 닉네임이 보여요. 닉네임과 이메일은 설정 › 계정에서 바꿔요.','Sign in with your email and password. Screens show the nickname you chose at sign-up; change it or your email under Settings › Account.')}</li>
    <li>{pair('가입하면 확인 메일이 가요. 링크를 열면 ‘확인됨’이 되고, 안 보이면 스팸함을 확인하거나 설정에서 다시 보내요. 새 이메일로 바꿀 때도 새 주소로 간 링크를 열어야 바뀌어요.','After sign-up we send a confirmation email. Open its link to see Confirmed; if it isn’t there, check spam or resend it from Settings. A new address takes effect only after you open the link sent to it.')}</li>
    <li>{pair('비밀번호를 잊으면 로그인 화면의 ‘비밀번호를 잊었어요’에서 재설정 링크를 받아요. 링크는 30분 동안 한 번만 쓸 수 있고, 바꾸면 다른 기기의 로그인은 끝나요.','Forgot your password? Choose “Forgot password” on the sign-in screen for a reset link. It works once, for 30 minutes, and other devices are signed out after the change.')}</li>
-   <li>{pair('이메일 없이 가입한 예전 계정은 아이디로 로그인하고, 비밀번호는 가입 때 받은 복구코드로 재설정해요. 설정에서 이메일을 등록하면 이메일로도 로그인하고 재설정할 수 있어요.','Older accounts made without an email sign in with their username and reset the password with the recovery code from sign-up. Add an email in Settings to sign in and reset with it too.')}</li>
   </ul>
   </details>
   <details className="guide-more"><summary>{pair('단축키','Keyboard shortcuts')}</summary>

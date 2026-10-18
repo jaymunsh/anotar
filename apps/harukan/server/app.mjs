@@ -61,7 +61,7 @@ export function makeApp(options={}) {
   const registration=(options.registration??process.env.REGISTRATION_ENABLED==='true')&&(!production||legalReady);
   const cookieName=production?'__Host-anotar-planner':'anotar-planner-dev';
   const cookie=value=>`${cookieName}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${value?7*86400:0}${production?'; Secure':''}`;
-  const termsVersion='2026-10-18-v1';
+  const termsVersion='2026-10-18';
   const clock=options.clock??Date.now;
   const sendMail=options.mailer??makeMailer();
   const mailLife={verify:3*86400000,reset:30*60000};

@@ -17,8 +17,8 @@ test('planning persists goals and steps with owner, CSRF, version and parent pro
  };}
  const a=client(),b=client(),password='temporary-planning-password';
  assert.equal((await a('/api/planning')).status,401);
- await a('/api/auth/register','POST',{email:'planning_alice@example.test',nickname:'alice',password,termsVersion:'2026-10-18-v1',ageConfirmed:true});
- await b('/api/auth/register','POST',{email:'planning_bob@example.test',nickname:'bob',password,termsVersion:'2026-10-18-v1',ageConfirmed:true});
+ await a('/api/auth/register','POST',{email:'planning_alice@example.test',nickname:'alice',password,termsVersion:'2026-10-18',ageConfirmed:true});
+ await b('/api/auth/register','POST',{email:'planning_bob@example.test',nickname:'bob',password,termsVersion:'2026-10-18',ageConfirmed:true});
  assert.equal((await a('/api/tasks')).status,410);assert.equal((await a('/api/tasks/task','PUT',{title:'Removed task',status:'todo',version:0})).status,410);
  const goal={kind:'goal',title:'Release the service',startMonth:'2026-01',endMonth:'2026-12',note:'A useful first release',parentId:null,version:0};
  assert.equal((await a('/api/planning/goal','PUT',goal,{'X-CSRF-Token':''})).status,403);

@@ -32,7 +32,7 @@ try{
   checks.push('API down: landing and info pages render quietly; app shows a connection alert');await offline.close();
 
   // A signed-in account with one day of data.
-  const register=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{email:'smoke@example.test',nickname:'아주긴닉네임스무글자까지쓰는사람',password:'temporary-smoke-password',termsVersion:'2026-10-18-v1',ageConfirmed:true}});
+  const register=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{email:'smoke@example.test',nickname:'아주긴닉네임스무글자까지쓰는사람',password:'temporary-smoke-password',termsVersion:'2026-10-18',ageConfirmed:true}});
   assert.equal(register.status(),201);const {csrf}=await register.json(),headers={Origin:base,'X-CSRF-Token':csrf};
   const document={plans:[{id:'p1',title:'Review mobile schedule and prepare the next release',start:540,end:650,status:'done'},{id:'p2',title:'Plan the next small step',start:720,end:780,status:'pending'}],entries:[],priorities:[{id:'pr',text:'Review the schedule',done:false}],notes:{thoughts:'Make room for the work that matters.',ideas:'',review:''}};
   assert.equal((await context.request.put(base+'/api/days/2026-10-13',{headers,data:{version:0,document}})).status(),200);
@@ -53,11 +53,16 @@ try{
   await page.setViewportSize({width:1440,height:900});await page.goto(base+'/app?date=2026-10-13&lang=ko');
   const ideas=page.getByLabel('아이디어',{exact:true}).first();await ideas.fill('새로고침 뒤에도 남아요');await page.getByText('서버에 저장됨',{exact:true}).waitFor();
   await page.reload();await page.waitForFunction(()=>[...document.querySelectorAll('textarea')].some(t=>t.value==='새로고침 뒤에도 남아요'),null,{timeout:5000});
+  // A save that fails while offline goes through by itself once the connection is back.
+  await page.route('**/api/days/2026-10-13',r=>r.request().method()==='PUT'?r.abort('internetdisconnected'):r.continue());
+  await ideas.fill('연결이 끊겨도 다시 저장돼요');await page.getByText('저장 실패 · 기기 초안 보관',{exact:true}).waitFor();
+  await page.unroute('**/api/days/2026-10-13');await page.evaluate(()=>window.dispatchEvent(new Event('online')));await page.getByText('서버에 저장됨',{exact:true}).waitFor();
+  assert.equal((await (await context.request.get(base+'/api/days/2026-10-13')).json()).document.notes.ideas,'연결이 끊겨도 다시 저장돼요');
   const saved=await (await context.request.get(base+'/api/days/2026-10-13')).json();saved.document.notes.ideas='다른 기기에서 먼저 작성';
   assert.equal((await context.request.put(base+'/api/days/2026-10-13',{headers,data:{version:saved.version,document:saved.document}})).status(),200);
   await page.getByLabel('아이디어',{exact:true}).first().fill('이 기기 초안은 남아요');await page.getByText('다른 기기 변경 확인 필요',{exact:true}).waitFor();
   assert.equal(await page.getByLabel('아이디어',{exact:true}).first().inputValue(),'이 기기 초안은 남아요');
-  checks.push('notes save/reload; a conflicting save from another device keeps the local draft');
+  checks.push('notes save/reload; a failed save retries when back online; a conflicting save from another device keeps the local draft');
 
   // A failed sign-in message follows the language switch and the typed email stays.
   const guest=await browser.newPage();guest.on('pageerror',e=>errors.push(e.message));await guest.goto(base+'/login?lang=en');

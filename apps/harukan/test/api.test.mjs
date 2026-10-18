@@ -21,7 +21,7 @@ async function fixture(t,options={}){
     return {status:res.status,value,headers:res.headers};
   },get cookie(){return cookie;},get csrf(){return csrf;}};}
   const email=name=>`${name}@example.test`;
-  async function register(c,name){return c.send('/api/auth/register','POST',{email:email(name),nickname:name.slice(0,20),password,termsVersion:'2026-10-18-v1',ageConfirmed:true});}
+  async function register(c,name){return c.send('/api/auth/register','POST',{email:email(name),nickname:name.slice(0,20),password,termsVersion:'2026-10-18',ageConfirmed:true});}
   // The link in the newest mail to someone, e.g. /reset?token=…
   const linkTo=to=>mail.filter(m=>m.to===to).at(-1)?.text.match(/\/(verify|reset)\?token=([\w-]+)/);
   return{...app,client,register,email,mail,linkTo};
@@ -79,7 +79,7 @@ test('password rotation revokes other sessions and invalid credentials do not re
 test('production registration stays closed without finalized actual legal information',async t=>{
   const {client}=await fixture(t,{production:true,origin:'https://leneu.store'}),c=client();
   const site=(await c.send('/api/site')).value;assert.equal(site.registration,false);assert.equal(site.legalReady,false);
-  assert.equal((await c.send('/api/auth/register','POST',{email:'prod_test@example.test',nickname:'prod',password,termsVersion:'2026-10-18-v1',ageConfirmed:true},{Origin:'https://leneu.store'})).status,403);
+  assert.equal((await c.send('/api/auth/register','POST',{email:'prod_test@example.test',nickname:'prod',password,termsVersion:'2026-10-18',ageConfirmed:true},{Origin:'https://leneu.store'})).status,403);
 });
 
 test('journal priorities and unfinished plans persist without changing legacy records',async t=>{
@@ -149,7 +149,7 @@ test('email sign-in: check link, reset link (one use, ends other sessions), nick
   const {client,register,email,mail,linkTo}=await fixture(t),a=client(),b=client(),c=client();
   assert.equal((await register(a,'mail_user')).status,201);
   assert.equal((await register(client(),'mail_user')).status,409);
-  assert.equal((await client().send('/api/auth/register','POST',{email:'nope',nickname:'x',password,termsVersion:'2026-10-18-v1',ageConfirmed:true})).status,400);
+  assert.equal((await client().send('/api/auth/register','POST',{email:'nope',nickname:'x',password,termsVersion:'2026-10-18',ageConfirmed:true})).status,400);
   const check=linkTo(email('mail_user'));assert.equal(check[1],'verify');
   assert.equal((await client().send('/api/auth/verify','POST',{token:check[2]})).status,200);
   assert.equal((await client().send('/api/auth/verify','POST',{token:check[2]})).status,400);
