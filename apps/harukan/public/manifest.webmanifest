@@ -1,6 +1,6 @@
 {
-  "name": "Harukan · 하루를 칸으로",
-  "short_name": "Harukan",
+  "name": "harukan · 하루를 칸으로",
+  "short_name": "harukan",
   "description": "하루를 시간으로 계획하고, 기록하고, 돌아보는 일지",
   "lang": "ko",
   "start_url": "/app",
