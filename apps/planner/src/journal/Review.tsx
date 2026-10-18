@@ -28,10 +28,9 @@ function heading(span:Span,start:string,end:string){
 // 회고: a week, month or year gathered from what was already written — time planned, goals, each day's timeline, unfinished plans (요약), and everything written each day (기록).
 // Nothing new to fill in. Every number comes from the timetable (planned time), the 오늘 꼭 할 일 checks and the goal steps.
 // ponytail: reads the days already loaded (the latest 400), so a year further back reads low; fetch the range if that matters.
-export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string;days:Record<string,Day>;items:PlanningItem[];today:string;demo?:boolean;onDate:(date:string,view:'review'|'day')=>void;onReplan:(plan:Plan)=>void}){
+export function Review({tab,date,days,items,today,demo,onDate,onReplan}:{tab:'summary'|'records';date:string;days:Record<string,Day>;items:PlanningItem[];today:string;demo?:boolean;onDate:(date:string,view:'review'|'day')=>void;onReplan:(plan:Plan)=>void}){
  // The last period you looked at (주·달·연) comes back next time; it lives only in this browser.
  const [span,setSpanState]=useState<Span>(()=>{try{const v=localStorage.getItem(spanKey);return v==='month'||v==='year'?v:'week';}catch{return 'week';}});
- const [tab,setTab]=useState<'summary'|'records'>('summary');
  const setSpan=(value:Span)=>{setSpanState(value);try{localStorage.setItem(spanKey,value);}catch{}};
  // Colours come from the items passed in, not the shared tagColor map, so this view never shows a goal grey.
  const colors=colorsFor(items),tagColor=(id:string)=>colors.get(id)||'var(--line-strong)';
@@ -70,7 +69,6 @@ export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string
  const more=<T,>(list:T[],limit:number,render:(item:T)=>React.ReactNode)=>list.length>limit?<>{list.slice(0,limit).map(render)}<details className="review-more"><summary>{pair(`${list.length-limit}개 더 보기`,`${list.length-limit} more`)}</summary>{list.slice(limit).map(render)}</details></>:list.map(render);
 
  return <section className="journal-review review" aria-label={pair('회고','Review')}>
-  <nav className="review-tabs" aria-label={pair('회고 보기','Review view')}>{([['summary','요약','Summary'],['records','기록','Records']] as const).map(([value,ko,en])=><button key={value} aria-pressed={tab===value} className={tab===value?'active':''} onClick={()=>setTab(value)}>{pair(ko,en)}</button>)}</nav>
   <header className="review-head">
    <div className="segmented review-span" role="group" aria-label={pair('회고 기간','Review period')}>{([['week','주','Week'],['month','달','Month'],['year','연','Year']] as const).map(([value,ko,en])=><button key={value} aria-pressed={span===value} className={span===value?'selected':''} onClick={()=>setSpan(value)}>{pair(ko,en)}</button>)}</div>
    <h2>{heading(span,start,end)}</h2>

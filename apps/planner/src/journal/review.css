@@ -80,10 +80,11 @@
 
 @media(max-width:640px){.review-kpis{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:16px}.review-kpis>div:nth-child(3){border-left:0}.review-kpis dd{font-size:22px}.review-grid{grid-template-columns:minmax(0,1fr)}.review-headline{font-size:15px}.review-goals{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.review-goals li{padding:12px}.review-goal-time b{font-size:18px;white-space:nowrap}.review-goal-time{flex-wrap:wrap;gap:0 6px}.review-bars{height:140px;gap:3px}.review-bars em{font-size:9px}.review-days>div,.review-day{grid-template-columns:34px minmax(0,1fr) 64px;gap:8px}.review-head h2{flex-basis:100%;order:-1}}
 
-/* 요약 | 기록 tabs, underlined like the top nav. */
-.review-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:-4px}
-.review-tabs button{min-height:40px;padding:8px 14px;font-size:14px;color:var(--muted);border-radius:0;border-bottom:2px solid transparent;margin-bottom:-1px}
-.review-tabs button.active{color:var(--ink);font-weight:700;border-bottom-color:var(--action)}
+/* 요약 | 기록 tabs sit at the right of the 회고 heading. */
+.journal-page:not(.journal-preview) .journal-review-heading{grid-template-columns:minmax(0,1fr) auto;align-items:end}
+.review-tabs{display:flex;gap:4px;align-self:end}
+.review-tabs button{min-height:40px;padding:8px 14px;font-size:14px;color:var(--muted);border-radius:0;border-bottom:2px solid transparent;margin-bottom:-13px}
+.review-tabs button.active{color:var(--ink);font-weight:700;border-bottom-color:var(--action);background:none}
 
 /* 기록: kind chips and search on one line, then a day per block — date on the left, what was written on the right. */
 .review-records{display:flex;flex-direction:column;gap:14px}
