@@ -1,4 +1,4 @@
-# Edge for the personal stack only (my.*). share/host/planner stay on direct tunnel routes.
+# Edge for the personal stack only (anotar.*). share/host/planner stay on direct tunnel routes.
 # TLS ends at Cloudflare in production; locally Chrome treats *.localhost as a secure context,
 # so anotar's Secure __Host- cookies work over plain HTTP here as well.
 {
@@ -6,7 +6,7 @@
 	admin off
 }
 
-http://{$MY_HOST:my.localhost} {
+http://{$ANOTAR_HOST:anotar.localhost} {
 	encode zstd gzip
 	header -Server
 
@@ -34,7 +34,7 @@ http://{$MY_HOST:my.localhost} {
 
 # Old personal address: keep bookmarks and installed PWAs working.
 http://{$OLD_HOST:personal.localhost} {
-	redir {$MY_ORIGIN:http://my.localhost:8780}{uri} 301
+	redir {$ANOTAR_ORIGIN:http://anotar.localhost:8780}{uri} 301
 }
 
 # Anything else that reaches this port.

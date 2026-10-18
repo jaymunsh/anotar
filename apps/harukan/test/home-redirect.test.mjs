@@ -30,6 +30,8 @@ test('a former host sends every request to the same path on the current origin',
  let r=await send('old.example.test','/app?view=month');assert.equal(r.statusCode,301);assert.equal(r.headers.location,'https://harukan.example.test/app?view=month');
  r=await send('OLD.example.test','/');assert.equal(r.headers.location,'https://harukan.example.test/');
  r=await send('old.example.test','/api/auth/login','POST');assert.equal(r.statusCode,308);
+ // Old anotar bookmarks skip the extra hop and land on anotar directly.
+ r=await send('old.example.test','/pages/abc?x=1');assert.equal(r.statusCode,302);assert.equal(r.headers.location,'https://anotar.leneu.store/pages/abc?x=1');
  // The current host is never redirected, even if listed by mistake.
  r=await send('harukan.example.test','/api/health');assert.equal(r.statusCode,200);
 });

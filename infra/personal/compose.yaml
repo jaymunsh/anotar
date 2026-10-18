@@ -1,6 +1,6 @@
 # Personal stack: anotar (private app) + memory (wiki data) behind one Caddy edge.
 # Local:  cd infra/personal && cp .env.example .env && docker compose up -d --build
-#         open http://my.localhost:8780
+#         open http://anotar.localhost:8780
 # Only Caddy publishes a port, on loopback. Cloudflare tunnel points my./personal. at it.
 name: personal
 services:
@@ -14,7 +14,7 @@ services:
       AUTH_MODE: required
       AUTH_SECRET_KEY: ${AUTH_SECRET_KEY:?set AUTH_SECRET_KEY in infra/personal/.env}
       AUTH_COOKIE_SECURE: 'true'
-      PRIVATE_ALLOWED_ORIGINS: ${MY_ORIGIN:-http://my.localhost:8780}
+      PRIVATE_ALLOWED_ORIGINS: ${ANOTAR_ORIGIN:-http://anotar.localhost:8780}
       BACKUP_DIR: /backups
       HOSTED_SITES_DIR: /sites
       # Public stack (infra/public) reads these folders; the personal app is the only writer.
@@ -70,9 +70,9 @@ services:
       anotar: {condition: service_healthy}
       memory: {condition: service_healthy}
     environment:
-      MY_HOST: ${MY_HOST:-my.localhost}
+      ANOTAR_HOST: ${ANOTAR_HOST:-anotar.localhost}
       OLD_HOST: ${OLD_HOST:-personal.localhost}
-      MY_ORIGIN: ${MY_ORIGIN:-http://my.localhost:8780}
+      ANOTAR_ORIGIN: ${ANOTAR_ORIGIN:-http://anotar.localhost:8780}
     ports:
       - '127.0.0.1:${EDGE_PORT:-8780}:80'
     volumes:

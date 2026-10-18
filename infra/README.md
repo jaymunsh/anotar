@@ -4,7 +4,7 @@
 
 | 경로 | 무엇 |
 |---|---|
-| `edge/Caddyfile` | `my.` 앞단. `/` → anotar, `/memory/*` → 로그인 확인(`/api/auth/check`) 후 memory, `/internal/*` 404, `personal.` → `my.` 301 |
+| `edge/Caddyfile` | `anotar.` 앞단. `/` → anotar, `/memory/*` → 로그인 확인(`/api/auth/check`) 후 memory, `/internal/*` 404, `personal.` → `anotar.` 301 |
 | `personal/compose.yaml` | 개인 스택: anotar + memory + caddy. caddy만 `127.0.0.1:8780`에 열린다 |
 | `public/compose.yaml` | 공유 스택: share(공유 문서·댓글, 8790) + sites(정적 호스팅, 8792). 개인이 내보낸 폴더만 읽는다 |
 
@@ -33,7 +33,7 @@ cp .env.example .env            # AUTH_SECRET_KEY=$(openssl rand -hex 32) 채우
 docker compose up -d --build --wait
 docker compose exec anotar node scripts/seed-examples.mjs /data # 예시 문서 (선택)
 docker compose exec -it anotar node scripts/auth-setup.mjs      # 계정 만들기 (대화형)
-open http://my.localhost:8780
+open http://anotar.localhost:8780
 (cd ../public && docker compose up -d --build)                 # 공유 링크 http://127.0.0.1:8790/s/...
 ```
 

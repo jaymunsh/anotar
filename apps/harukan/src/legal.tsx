@@ -48,7 +48,6 @@ export function Legal({kind,site}:{kind:string;site:Site}) {
     </>:kind==='contact'?<><p>{t("계정·기록·서비스 이용에 관한 문의를 이메일로 보내 주세요.")}</p><a className="contact-address" href={`mailto:${l.contact}`}>{l.contact}</a><p>{pair("가입한 이메일과 문제가 생긴 화면을 알려 주시면 확인에 도움이 됩니다. 비밀번호는 보내지 마세요.","Your sign-up email and the screen where the issue occurred will help us investigate. Never send your password.")}</p><p>{t("운영자:")}{' '}{operator} · {t(l.representative||"개인 운영")}</p></>:<>
       <p>{pair("harukan(하루칸)은 하루를 10분 칸 시간표로 계획하는 개인 플래너입니다. 올해 목표를 세부 계획으로 나누고, 오늘 꼭 할 일을 시간표에 놓고, 주·달·연 단위로 쓴 시간을 돌아봅니다. 기능 소개는 첫 화면, 쓰는 방법은 사용 안내에 있습니다.","harukan is a personal planner that lays out your day in 10-minute cells. Break this year’s goals into steps, place today’s priorities on the timetable, and look back at where the time went by week, month and year. The home page introduces the features; the guide shows how to use them.")}{' '}<a href="/">{pair("첫 화면","Home")}</a> · <a href="/guide">{pair("사용 안내","Guide")}</a></p>
       <h2>{t("운영 정보")}</h2><dl><dt>{t("운영 형태")}</dt><dd>{t("개인 운영")}</dd><dt>{t("운영자")}</dt><dd>{operator}</dd><dt>{t("문의")}</dt><dd><a href={`mailto:${l.contact}`}>{l.contact}</a></dd>{l.businessNumber&&<><dt>{t("사업자등록번호")}</dt><dd>{l.businessNumber}</dd></>}{l.address&&<><dt>{t("사업장 주소")}</dt><dd>{l.address}</dd></>}</dl>
-      <h2>{t("기존 개인 작업 공간")}</h2><p>{t("기존 개인 Anotar는")}{' '}<a href="https://personal.leneu.store">personal.leneu.store</a>{t("에서 이용할 수 있습니다. 새 플래너의 계정과 자료는 기존 개인 서비스와 별도로 관리합니다.")}</p>
     </>}
   </article>;
 }

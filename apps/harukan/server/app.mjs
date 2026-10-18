@@ -49,6 +49,7 @@ export function makeApp(options={}) {
   const urlOrigin=new URL(origin);
   if(production&&urlOrigin.protocol!=='https:') throw Error('운영 PUBLIC_ORIGIN은 HTTPS여야 합니다.');
   // Former addresses (e.g. leneu.store after the move to harukan.leneu.store): every request is sent to the same path on PUBLIC_ORIGIN.
+  const personalOrigin=(options.personalOrigin||process.env.PERSONAL_ORIGIN||'https://anotar.leneu.store').replace(/\/$/,'');
   const redirectHosts=new Set((options.redirectHosts??(process.env.REDIRECT_FROM_HOSTS||'').split(',')).map(h=>h.trim().toLowerCase()).filter(h=>h&&h!==urlOrigin.host));
   const dataDirectory=options.dataDirectory??process.env.PLANNER_DATA_DIR??'./data';
   const db=openStore(dataDirectory);
@@ -130,14 +131,12 @@ export function makeApp(options={}) {
     res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'");
     try {
       const url=new URL(req.url,'http://localhost'),path=url.pathname,write=!['GET','HEAD'].includes(req.method);
-      if(redirectHosts.has(String(req.headers.host||'').toLowerCase())){res.writeHead(write?308:301,{Location:origin+path+url.search,'Cache-Control':'no-store'});return res.end();}
       if(path==='/api/health') return json(res,200,{ok:true,service:'anotar-planner'});
+      // Former personal-app bookmarks (this host once served anotar) go straight to anotar.
+      if(!write&&/^\/(pages(?:\/|$)|memo(?:\/|$)|tasks(?:\/|$)|ai(?:\/|$)|ai-jobs(?:\/|$)|comments(?:\/|$))/.test(path)){res.writeHead(302,{Location:personalOrigin+path+url.search,'Cache-Control':'no-store'});return res.end();}
+      if(redirectHosts.has(String(req.headers.host||'').toLowerCase())){res.writeHead(write?308:301,{Location:origin+path+url.search,'Cache-Control':'no-store'});return res.end();}
       if(!path.startsWith('/api/')) {
         if(!['GET','HEAD'].includes(req.method)) throw apiError(405,'지원하지 않는 요청이에요.');
-        // Keep former personal-app bookmarks useful after the domain cutover.
-        if(/^\/(pages(?:\/|$)|memo(?:\/|$)|tasks(?:\/|$)|ai(?:\/|$)|ai-jobs(?:\/|$)|comments(?:\/|$))/.test(path)) {
-          res.writeHead(302,{Location:'https://personal.leneu.store'+path+url.search,'Cache-Control':'no-store'});return res.end();
-        }
         // The personal app's 일지 moved here: /journal opens the schedule.
         if(/^\/journal(?:\/|$)/.test(path)){res.writeHead(302,{Location:'/app'+url.search,'Cache-Control':'no-store'});return res.end();}
         // Signed in: home and the sign-in pages go straight to the schedule.

@@ -19,7 +19,9 @@
 1. Cloudflare Zero Trust › Tunnels › 기존 tunnel › Public Hostname에 `harukan.leneu.store` → `http://127.0.0.1:8794`를 추가한다(DNS CNAME은 Cloudflare가 만든다). `leneu.store` 경로는 지우지 않는다. 두 경로 모두 HTTP Host header를 바꾸지 않는다(기본값) — 앱이 Host로 예전 주소를 알아본다.
 2. `/srv/anotar-planner/.env`에서 `PUBLIC_ORIGIN=https://harukan.leneu.store`, `REDIRECT_FROM_HOSTS=leneu.store`로 바꾸고 재시작한다. 가입·재설정 메일 링크와 쓰기 요청의 Origin 검사가 새 주소 기준이 된다. 보내는 주소(`MAIL_FROM`, `no-reply@leneu.store`)는 그대로 둔다.
 3. 확인: `curl -sI https://leneu.store/app?x=1` → `301`, `location: https://harukan.leneu.store/app?x=1`. 새 주소에서 가입·로그인·메일 링크.
-4. 쿠키는 host-only라 예전 주소의 로그인은 옮겨지지 않는다. 새 DB로 출시하면 영향 없음. 운영 anotar의 사이드바·`/journal` 기본값은 `https://harukan.leneu.store/app`이다.
+4. 쿠키는 host-only라 예전 주소의 로그인은 옮겨지지 않는다. 새 DB로 출시하면 영향 없음. 운영 anotar의 사이드바·`/journal` 기본값은 `https://harukan.leneu.store/app`이다. 예전 anotar 경로(`/pages`, `/memo`, `/tasks`…)는 `PERSONAL_ORIGIN`(기본 `https://anotar.leneu.store`)으로 302한다.
+
+2026-10-18 출시의 실제 순서·확인·되돌리기는 비공개 `private/docs/deploy/launch-20261018.md`에 있다.
 
 ## 1. SSH 접속 복구
 
