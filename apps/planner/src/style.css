@@ -65,3 +65,4 @@ body:has(.journal-page:not(.journal-preview)) .public-header{padding-inline:max(
 .settings-account .page-intro{margin:14px 0 0}
 .settings-account button{margin-top:14px}
 .app-header .header-save:empty{border:0;padding:0;margin:0}
+@media(max-width:640px){.app-header .header-save{border:0;padding-right:0}}

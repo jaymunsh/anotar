@@ -76,10 +76,36 @@
 .review-track i{display:block;height:100%;border-radius:3px;background:var(--action)}
 
 .review-missed .journal-review-row{padding:10px 0 10px 12px;min-height:0;gap:8px;border-left:3px solid var(--goal,var(--line-strong))}
-.review-notes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.review-notes li{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:baseline;font-size:13px;line-height:1.6;border-bottom:1px solid var(--line);padding-bottom:8px}
-.review-notes li button{font-size:12px;color:var(--action);padding:0;min-height:0;text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
-.review-notes p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .review-more>summary{padding:8px 0;font-size:12px;color:var(--action);cursor:pointer}
 
 @media(max-width:640px){.review-kpis{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:16px}.review-kpis>div:nth-child(3){border-left:0}.review-kpis dd{font-size:22px}.review-grid{grid-template-columns:minmax(0,1fr)}.review-headline{font-size:15px}.review-goals{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.review-goals li{padding:12px}.review-goal-time b{font-size:18px;white-space:nowrap}.review-goal-time{flex-wrap:wrap;gap:0 6px}.review-bars{height:140px;gap:3px}.review-bars em{font-size:9px}.review-days>div,.review-day{grid-template-columns:34px minmax(0,1fr) 64px;gap:8px}.review-head h2{flex-basis:100%;order:-1}}
+
+/* 요약 | 기록 tabs, underlined like the top nav. */
+.review-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:-4px}
+.review-tabs button{min-height:40px;padding:8px 14px;font-size:14px;color:var(--muted);border-radius:0;border-bottom:2px solid transparent;margin-bottom:-1px}
+.review-tabs button.active{color:var(--ink);font-weight:700;border-bottom-color:var(--action)}
+
+/* 기록: kind chips and search on one line, then a day per block — date on the left, what was written on the right. */
+.review-records{display:flex;flex-direction:column;gap:14px}
+.review-records-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.review-chips{display:flex;gap:6px;flex-wrap:wrap}
+.review-chips button{min-height:32px;padding:4px 12px;font-size:12px;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:var(--surface)}
+.review-chips button.selected{background:var(--action);border-color:var(--action);color:var(--on-action)}
+.review-search{margin-left:auto;display:flex;align-items:center;gap:6px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--muted);min-width:220px}
+.review-search input{border:0;background:transparent;min-height:34px;padding:0;font-size:13px;flex:1;min-width:0}
+.review-search input:focus-visible{outline:none}
+.review-search:focus-within{border-color:var(--focus)}
+.review-record-days{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.review-record-days>li{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;background:var(--surface);border-radius:8px;padding:16px 20px}
+.review-record-date{align-self:start;padding:0;min-height:0;text-align:left;font-size:13px;font-weight:700;color:var(--action);font-variant-numeric:tabular-nums;white-space:nowrap}
+.review-record-days dl{margin:0;display:flex;flex-direction:column;gap:10px;min-width:0}
+.review-record{display:grid;grid-template-columns:84px minmax(0,1fr);gap:12px;align-items:baseline}
+.review-record dt{font-size:11px;color:var(--muted)}
+.review-record dd{margin:0;font-size:13px;line-height:1.65;min-width:0}
+.review-record dd p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.review-record ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px}
+.review-record li{display:inline-flex;align-items:center;gap:5px}
+.review-record li svg{color:var(--action);stroke-width:3;flex:none}
+.review-record li i{width:11px;height:11px;border:1.5px solid var(--line-strong);border-radius:3px;flex:none}
+.review-records-more{align-self:center}
+@media(max-width:640px){.review-search{margin-left:0;min-width:0;width:100%}.review-record-days>li{grid-template-columns:minmax(0,1fr);gap:8px;padding:14px}.review-record{grid-template-columns:minmax(0,1fr);gap:2px}}

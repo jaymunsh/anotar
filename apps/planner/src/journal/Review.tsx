@@ -1,5 +1,5 @@
 import React,{useState} from 'react';
-import {ArrowRight,ChevronLeft,ChevronRight,Clock,Target,CircleCheck,CircleAlert,TrendingDown,TrendingUp} from 'lucide-react';
+import {ArrowRight,Check,ChevronLeft,ChevronRight,Search,Clock,Target,CircleCheck,CircleAlert,TrendingDown,TrendingUp} from 'lucide-react';
 import {Day,Plan,PlanningItem,clock,duration} from '../api';
 import {getLanguage,pair} from '../i18n';
 import {periodRange} from './period';
@@ -25,12 +25,13 @@ function heading(span:Span,start:string,end:string){
  return `${label(start,{month:'long',day:'numeric'})} – ${label(end,{month:start.slice(5,7)===end.slice(5,7)?undefined:'long',day:'numeric'})}`;
 }
 
-// 회고: a week, month or year gathered from what was already written — time planned, goals, rhythm, unfinished plans, daily reviews.
+// 회고: a week, month or year gathered from what was already written — time planned, goals, each day's timeline, unfinished plans (요약), and everything written each day (기록).
 // Nothing new to fill in. Every number comes from the timetable (planned time), the 오늘 꼭 할 일 checks and the goal steps.
 // ponytail: reads the days already loaded (the latest 400), so a year further back reads low; fetch the range if that matters.
 export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string;days:Record<string,Day>;items:PlanningItem[];today:string;demo?:boolean;onDate:(date:string,view:'review'|'day')=>void;onReplan:(plan:Plan)=>void}){
  // The last period you looked at (주·달·연) comes back next time; it lives only in this browser.
  const [span,setSpanState]=useState<Span>(()=>{try{const v=localStorage.getItem(spanKey);return v==='month'||v==='year'?v:'week';}catch{return 'week';}});
+ const [tab,setTab]=useState<'summary'|'records'>('summary');
  const setSpan=(value:Span)=>{setSpanState(value);try{localStorage.setItem(spanKey,value);}catch{}};
  // Colours come from the items passed in, not the shared tagColor map, so this view never shows a goal grey.
  const colors=colorsFor(items),tagColor=(id:string)=>colors.get(id)||'var(--line-strong)';
@@ -59,7 +60,6 @@ export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string
  const beforeGoal=new Map<string,number>();for(const p of before){const g=goalOf(p.plan.planningId);if(g)beforeGoal.set(g,(beforeGoal.get(g)||0)+p.plan.end-p.plan.start);}
  const month=(d:string)=>d.slice(0,7),progress=goals.filter(g=>perGoal.has(g.id)||g.startMonth<=month(end)&&g.endMonth>=month(start)).map(g=>{const steps=items.filter(i=>i.kind==='step'&&i.parentId===g.id);return {goal:g,done:steps.filter(s=>s.done).length,total:steps.length,value:perGoal.get(g.id)||0,before:beforeGoal.get(g.id)||0};}).sort((a,b)=>Number(!!b.goal.focus)-Number(!!a.goal.focus)||b.value-a.value),goalPeak=Math.max(1,...progress.map(p=>p.value));
 
- const reviews=rows.filter(([,doc])=>doc.notes.review.trim()).reverse();
  const missedRows=[...missed].reverse();
 
  const hadBefore=within(previous.start,previous.end).length>0;
@@ -70,12 +70,14 @@ export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string
  const more=<T,>(list:T[],limit:number,render:(item:T)=>React.ReactNode)=>list.length>limit?<>{list.slice(0,limit).map(render)}<details className="review-more"><summary>{pair(`${list.length-limit}개 더 보기`,`${list.length-limit} more`)}</summary>{list.slice(limit).map(render)}</details></>:list.map(render);
 
  return <section className="journal-review review" aria-label={pair('회고','Review')}>
+  <nav className="review-tabs" aria-label={pair('회고 보기','Review view')}>{([['summary','요약','Summary'],['records','기록','Records']] as const).map(([value,ko,en])=><button key={value} aria-pressed={tab===value} className={tab===value?'active':''} onClick={()=>setTab(value)}>{pair(ko,en)}</button>)}</nav>
   <header className="review-head">
    <div className="segmented review-span" role="group" aria-label={pair('회고 기간','Review period')}>{([['week','주','Week'],['month','달','Month'],['year','연','Year']] as const).map(([value,ko,en])=><button key={value} aria-pressed={span===value} className={span===value?'selected':''} onClick={()=>setSpan(value)}>{pair(ko,en)}</button>)}</div>
    <h2>{heading(span,start,end)}</h2>
    <nav><button aria-label={pair('이전','Previous')} onClick={()=>onDate(step(date,span,-1),'review')}><ChevronLeft size={18}/></button><button className="text-button" disabled={thisPeriod} onClick={()=>onDate(today,'review')}>{span==='week'?pair('이번 주','This week'):span==='month'?pair('이번 달','This month'):pair('올해','This year')}</button><button aria-label={pair('다음','Next')} onClick={()=>onDate(step(date,span,1),'review')}><ChevronRight size={18}/></button></nav>
   </header>
 
+  {tab==='records'?<Records rows={rows} onDate={d=>onDate(d,'day')}/>:<>
   <p className="review-headline">{headline}</p>
 
   <dl className="review-kpis">
@@ -109,17 +111,36 @@ export function Review({date,days,items,today,demo,onDate,onReplan}:{date:string
     </div>}
    </article>
 
-   <article className="review-card">
+   <article className="review-card full">
     <h3>{pair('다시 계획할 것','Plan again')}<small>{missed.length||''}</small></h3>
     {missedRows.length?<div className="review-missed">{more(missedRows,5,({date:d,plan})=><div className="journal-review-row" key={d+plan.id} style={goalOf(plan.planningId)?{'--goal':tagColor(goalOf(plan.planningId)!)} as React.CSSProperties:undefined}><button onClick={()=>onDate(d,'day')}><time>{label(d,{month:'numeric',day:'numeric',weekday:'short'})} · {clock(plan.start)}–{clock(plan.end)}</time><strong>{plan.title}</strong></button><button className="text-link" onClick={()=>onReplan(plan)}>{pair('오늘 다시 계획','Plan again today')}<ArrowRight size={14}/></button></div>)}</div>:<p className="journal-hint">{pair('미이행으로 표시한 계획이 없어요. 시간이 지났다고 자동으로 미이행 처리하지 않아요.','No plans marked unfinished. Nothing is marked unfinished automatically.')}</p>}
    </article>
 
-   <article className="review-card">
-    <h3>{pair('하루 돌아보기','Daily reviews')}<small>{reviews.length||''}</small></h3>
-    {reviews.length?<ul className="review-notes">{more(reviews,5,([d,doc])=><li key={d}><button onClick={()=>onDate(d,'day')}>{label(d,{month:'numeric',day:'numeric',weekday:'short'})}</button><p>{doc.notes.review}</p></li>)}</ul>:<p className="journal-hint">{pair('이 기간에 쓴 하루 돌아보기가 없어요. 일간 화면 ‘하루 돌아보기’에 쓰면 여기에 모여요.','No daily reviews in this period. What you write in the day view’s Daily review collects here.')}</p>}
-   </article>
 
    {span==='year'&&!demo&&<article className="review-card full"><GoalFlow year={start.slice(0,4)} items={items} minutes={(ids,from,to)=>minutes(plansOf(within(from,to)).filter(p=>p.plan.planningId&&ids.includes(p.plan.planningId)))}/></article>}
-  </div>
+  </div></>}
  </section>;
+}
+
+type Kind='priorities'|'thoughts'|'ideas'|'review';
+const kinds:[Kind,string,string][]=[['priorities','꼭 할 일','Priorities'],['thoughts','머릿속 생각','Thoughts'],['ideas','아이디어','Ideas'],['review','하루 돌아보기','Daily review']];
+const pageSize=14;
+
+// 회고 > 기록: what was written each day — 오늘 꼭 할 일, 머릿속 생각, 아이디어, 하루 돌아보기 — newest first, filtered by kind and words.
+// Reads the days already loaded, so filtering and search stay instant; only 14 days render at a time to keep long ranges light.
+function Records({rows,onDate}:{rows:[string,Day][];onDate:(date:string)=>void}){
+ const [kind,setKind]=useState<Kind|'all'>('all'),[query,setQuery]=useState(''),[shown,setShown]=useState(pageSize);
+ const words=query.trim().toLowerCase(),match=(text:string)=>!words||text.toLowerCase().includes(words);
+ const days=[...rows].reverse().map(([d,doc])=>{const parts=kinds.filter(([k])=>kind==='all'||kind===k).map(([k,ko,en])=>{if(k==='priorities'){const items=(doc.priorities||[]).filter(p=>p.text.trim()&&match(p.text));return {k,name:pair(ko,en),items,text:''};}const text=doc.notes[k].trim();return {k,name:pair(ko,en),items:[],text:match(text)?text:''};}).filter(p=>p.items.length||p.text);return {d,parts};}).filter(day=>day.parts.length);
+ return <div className="review-records">
+  <div className="review-records-tools">
+   <div className="review-chips" role="group" aria-label={pair('보여 줄 기록','Which records')}>{([['all','전체','All'],...kinds] as [Kind|'all',string,string][]).map(([k,ko,en])=><button key={k} aria-pressed={kind===k} className={kind===k?'selected':''} onClick={()=>{setKind(k);setShown(pageSize);}}>{pair(ko,en)}</button>)}</div>
+   <label className="review-search"><Search size={15}/><input type="search" value={query} placeholder={pair('이 기간에서 찾기','Search this period')} aria-label={pair('기록 검색','Search records')} onChange={e=>{setQuery(e.target.value);setShown(pageSize);}}/></label>
+  </div>
+  {days.length?<ol className="review-record-days">{days.slice(0,shown).map(({d,parts})=><li key={d}>
+   <button className="review-record-date" onClick={()=>onDate(d)}>{label(d,{month:'numeric',day:'numeric',weekday:'short'})}</button>
+   <dl>{parts.map(p=><div key={p.k} className={`review-record ${p.k}`}><dt>{p.name}</dt><dd>{p.k==='priorities'?<ul>{p.items.map(item=><li key={item.id} className={item.done?'done':undefined}>{item.done?<Check size={13} aria-label={pair('완료','Done')}/>:<i aria-hidden="true"/>}{item.text}</li>)}</ul>:<p>{p.text}</p>}</dd></div>)}</dl>
+  </li>)}</ol>:<p className="journal-hint">{words?pair('찾는 내용이 이 기간에 없어요.','Nothing in this period matches.'):pair('이 기간에 적은 기록이 없어요. 일간 화면에 쓰면 여기에 모여요.','Nothing written in this period. What you write in the day view gathers here.')}</p>}
+  {days.length>shown&&<button className="secondary review-records-more" onClick={()=>setShown(shown+pageSize)}>{pair(`${Math.min(pageSize,days.length-shown)}일 더 보기 (남은 ${days.length-shown}일)`,`Show ${Math.min(pageSize,days.length-shown)} more days (${days.length-shown} left)`)}</button>}
+ </div>;
 }
