@@ -15,6 +15,7 @@ data-backups
 .docker-share-qa-*
 docs/*
 !docs/architecture-overview.html
+!docs/oracle-server.html
 test
 examples
 !examples/seed/
