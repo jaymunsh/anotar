@@ -1,5 +1,5 @@
-# Planner (leneu.store) checks only. Not wired to any server deploy:
-# harukan releases are still applied manually (apps/harukan/docs/LAUNCH_RUNBOOK.md).
+# harukan checks. A successful run on main is what the server deploys: harukan-deploy.timer polls this
+# workflow (apps/anotar/deploy/oracle-poll.py harukan) and runs apps/harukan/deploy/harukan-deploy.sh.
 name: Verify harukan
 on:
   push:

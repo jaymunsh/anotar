@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Pull only a successful main workflow; no inbound GitHub SSH or API token."""
+"""Pull only a successful main workflow; no inbound GitHub SSH or API token.
+
+oracle-poll.py [anotar|harukan] — anotar (default) waits for oracle.yml, harukan for harukan.yml.
+"""
 import json
 import os
 import re
@@ -7,13 +10,19 @@ import subprocess
 import sys
 import time
 import urllib.request
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 REPOSITORY = "jaymunsh/anotar"
-STATE = Path("/var/lib/anotar-deploy/state.json")
-CURRENT = Path("/srv/leneu/deployed-commit")
+SERVICES = {
+    "anotar": ("oracle.yml", "/var/lib/anotar-deploy/state.json", "/srv/leneu/deployed-commit", "/usr/local/sbin/anotar-deploy"),
+    "harukan": ("harukan.yml", "/var/lib/harukan-deploy/state.json", "/srv/anotar-planner/deployed-commit", "/usr/local/sbin/harukan-deploy"),
+}
+NAME = sys.argv[1] if len(sys.argv) > 1 else "anotar"
+WORKFLOW, STATE, CURRENT, DEPLOY = SERVICES[NAME]
+STATE, CURRENT = Path(STATE), Path(CURRENT)
 ENDPOINT = (
-    f"https://api.github.com/repos/{REPOSITORY}/actions/workflows/oracle.yml/runs"
+    f"https://api.github.com/repos/{REPOSITORY}/actions/workflows/{WORKFLOW}/runs"
     "?branch=main&status=success&per_page=1"
 )
 
@@ -24,13 +33,17 @@ def eligible(run):
         and run.get("status") == "completed"
         and run.get("conclusion") == "success"
         and run.get("event") in ("push", "workflow_dispatch")
-        and run.get("path") == ".github/workflows/oracle.yml"
+        and run.get("path") == ".github/workflows/" + WORKFLOW
         and run.get("head_repository", {}).get("full_name") == REPOSITORY
         and bool(re.fullmatch(r"[a-f0-9]{40}", run.get("head_sha", "")))
     )
 
 
-def notify(text):
+def notify(kind, *lines):
+    # Same shape as the server watchers: '<icon> <kind> · <name> 배포', KST time, then the lines.
+    icon = "🟢" if kind == "복구" else "🔴"
+    when = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M KST")
+    text = f"{icon} {kind} · {NAME} 배포\n{when}\n\n" + "\n".join(lines)
     try:
         values = {}
         for line in Path("/etc/leneu-oracle-alerts/service-telegram.env").read_text().splitlines():
@@ -62,7 +75,7 @@ def main():
     state = json.loads(STATE.read_text()) if STATE.exists() else {}
     try:
         request = urllib.request.Request(ENDPOINT, headers={
-            "Accept": "application/vnd.github+json", "User-Agent": "Anotar-deploy",
+            "Accept": "application/vnd.github+json", "User-Agent": NAME + "-deploy",
             "X-GitHub-Api-Version": "2022-11-28",
         })
         with urllib.request.urlopen(request, timeout=20) as response:
@@ -73,12 +86,12 @@ def main():
     except Exception:
         state["connection_failures"] = state.get("connection_failures", 0) + 1
         if state["connection_failures"] >= 3 and not state.get("connection_alert"):
-            state["connection_alert"] = notify("[Anotar · 배포 연결 오류]\nGitHub 검증 상태를 3회 연속 확인하지 못했어요. 현재 서비스는 유지해요.")
+            state["connection_alert"] = notify("경고", "• GitHub 검사 결과를 3번 연속 확인하지 못했어요.", "", "지금 서비스는 그대로예요. 다음 확인: 2분 뒤 자동")
         save(state)
         print("GitHub verification temporarily unavailable; existing release retained.")
         return 1
     if state.get("connection_alert"):
-        if notify("[Anotar · 배포 연결 복구]\nGitHub 검증 상태 조회가 정상으로 돌아왔어요."):
+        if notify("복구", "GitHub 검사 결과 확인이 정상으로 돌아왔어요."):
             state.pop("connection_alert", None)
     state["connection_failures"] = 0
     save(state)
@@ -88,7 +101,7 @@ def main():
     commit = runs[0]["head_sha"]
     if CURRENT.exists() and CURRENT.read_text().strip() == commit:
         if state.get("failed_commit"):
-            if notify("[Anotar · 배포 복구]\n릴리스가 정상 배포됐어요.\n커밋: " + commit[:12]):
+            if notify("복구", "릴리스가 정상 배포됐어요.", "커밋: " + commit[:12]):
                 state.pop("failed_commit", None)
         for key in ("attempt_commit", "attempt_count", "retry_after"):
             state.pop(key, None)
@@ -106,7 +119,7 @@ def main():
     state["attempt_count"] += 1
     state["retry_after"] = time.time() + (300, 900, 3600)[state["attempt_count"] - 1]
     save(state)
-    result = subprocess.run(["/usr/local/sbin/anotar-deploy", "deploy " + commit], check=False)
+    result = subprocess.run([DEPLOY, "deploy " + commit], check=False)
     if result.returncode in (65, 75):
         state["attempt_count"] -= 1
         state["retry_after"] = 0
@@ -115,12 +128,12 @@ def main():
         return 0
     if result.returncode:
         if state.get("failed_commit") != commit:
-            if notify("[Anotar · 배포 오류]\n검증된 릴리스 배포가 실패했어요.\n커밋: " + commit[:12] + "\n서버 배포 로그를 확인해 주세요."):
+            if notify("경고", "• 검사를 통과한 릴리스 배포가 실패했어요. 이전 버전으로 유지돼요.", "• 커밋: " + commit[:12], "", f"확인: sudo journalctl -u {NAME}-deploy.service"):
                 state["failed_commit"] = commit
         save(state)
         return 1
     if state.get("failed_commit"):
-        if notify("[Anotar · 배포 복구]\n새 릴리스가 정상 배포됐어요.\n커밋: " + commit[:12]):
+        if notify("복구", "새 릴리스가 정상 배포됐어요.", "커밋: " + commit[:12]):
             state.pop("failed_commit", None)
     for key in ("attempt_commit", "attempt_count", "retry_after"):
         state.pop(key, None)

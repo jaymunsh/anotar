@@ -138,3 +138,7 @@ Cloudflare Email Routing에서 leneu.store 도메인을 활성화한다. 기존 
 root에만 장애가 있으면 tunnel root route를 이전 8787로 되돌린다. personal alias와 새 플래너 DB를 삭제하지 않는다. 새 코드 오류는 previous 릴리스의 Compose image/source로 되돌리고 DB를 임의 초기화하지 않는다. 정책/가입 문제가 있으면 가입 플래그를 false로 내리고 이미 가입한 자료는 유지한다.
 
 실제 변경 날짜, 릴리스 ID, 적용 키(값/비밀 제외), 네 주소 상태, 메일 인증·규칙·시험 수신, 남은 미확정 항목을 별도 실행 기록에 남긴다.
+
+## 자동 배포 (2026-10-20부터)
+
+출시 뒤 릴리스는 손으로 하지 않는다. `main`에 harukan 변경을 push하면 `harukan.yml`(build·test)이 돌고, 통과하면 서버 `harukan-deploy.timer`가 2분 안에 `oracle-poll.py harukan` → `/usr/local/sbin/harukan-deploy`를 실행한다. 이 스크립트([`deploy/harukan-deploy.sh`](../deploy/harukan-deploy.sh))는 위 3절과 같은 일(그 커밋의 `apps/harukan` → `releases/<날짜>-<sha12>`, 돌던 버전에서 백업, 빌드, `current`·`PLANNER_RELEASE` 교체, health 확인)을 하고, 실패하면 이전 릴리스로 되돌린다. 배포된 커밋은 `/srv/anotar-planner/deployed-commit`. 실패·복구는 텔레그램(서비스 알림 방)으로 온다. 기록: `journalctl -u harukan-deploy.service`. `.env`를 바꾸는 일(새 키 등)은 여전히 손으로 한다.

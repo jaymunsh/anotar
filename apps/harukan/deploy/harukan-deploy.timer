@@ -1,0 +1,11 @@
+[Unit]
+Description=Check GitHub for verified harukan releases
+
+[Timer]
+OnBootSec=3min
+OnUnitInactiveSec=2min
+RandomizedDelaySec=10s
+Unit=harukan-deploy.service
+
+[Install]
+WantedBy=timers.target

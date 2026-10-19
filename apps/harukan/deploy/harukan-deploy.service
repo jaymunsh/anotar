@@ -1,0 +1,12 @@
+[Unit]
+Description=Deploy verified harukan main release
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/anotar/oracle-poll.py harukan
+StateDirectory=harukan-deploy
+StateDirectoryMode=0700
+UMask=0022
+TimeoutStartSec=1800
