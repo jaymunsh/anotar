@@ -215,6 +215,7 @@
   display: grid;
   place-items: center;
   flex: none;
+  margin-left: auto;
   width: 28px;
   height: 32px;
   padding: 0;

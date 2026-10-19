@@ -151,7 +151,7 @@ export default function BackupWorkspace() {
               <label className="backup-enable"><input type="checkbox" checked={draft.enabled} onChange={(event) => edit({ enabled: event.target.checked })} />매일 자동으로 백업</label>
               <div className="backup-settings-row">
                 <label>실행 시각 · 한국시간<input type="time" required value={`${pad(draft.hour)}:${pad(draft.minute)}`} onChange={(event) => { if (event.target.value) { const [hour, minute] = event.target.value.split(':').map(Number); edit({ hour, minute }); } }} /></label>
-                <label>보관 개수<input type="number" required min={1} max={60} step={1} value={Number.isNaN(draft.retention) ? '' : draft.retention} onChange={(event) => edit({ retention: event.target.valueAsNumber })} /></label>
+                <label>{`남길 백업 수 · 매일 1개라 약 ${Number.isNaN(draft.retention) ? '-' : draft.retention}일치`}<input type="number" required min={1} max={60} step={1} value={Number.isNaN(draft.retention) ? '' : draft.retention} onChange={(event) => edit({ retention: event.target.valueAsNumber })} /></label>
                 <button className="backup-button" disabled={!dirty || locked} type="submit">{busy === 'settings' ? '저장 중…' : '설정 저장'}</button>
               </div>
             </fieldset>
