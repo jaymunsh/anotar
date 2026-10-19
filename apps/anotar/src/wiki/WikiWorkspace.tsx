@@ -41,7 +41,7 @@ type Load = { state: 'loading' } | { state: 'error'; message: string } | { state
 async function loadMemory(signal: AbortSignal): Promise<Prepared> {
   let response: Response;
   try {
-    response = await fetch('/memory/data.json', { cache: 'no-store', signal });
+    response = await fetch('/memory/data.json', { cache: 'no-cache', signal });
   } catch (error) {
     if (signal.aborted) throw error;
     throw Error('위키 서버에 연결하지 못했어요. 잠시 뒤 다시 불러와 주세요.');

@@ -11,6 +11,7 @@
 // No PUT/upload endpoint: uploads happen over SSH, not through the app.
 
 import { createReadStream } from 'node:fs';
+import { createGzip } from 'node:zlib';
 import { stat } from 'node:fs/promises';
 
 // 50MB guard against a runaway/corrupt build. Today ~0.33MB for 86 sessions, growing ~12KB/day (~4.5MB/year).
@@ -73,12 +74,25 @@ export async function handleMemoryDataRoute(request, response, url, { authorize,
     return true;
   }
 
-  response.writeHead(200, {
+  // The file changes at most hourly: the browser revalidates every time (no-cache) and gets a bodiless 304
+  // while it is unchanged. A changed build gets a new size or mtime, hence a new ETag.
+  const etag = `W/"${info.size}-${Math.floor(info.mtimeMs)}"`;
+  const headers = {
     'Content-Type': 'application/json; charset=utf-8',
-    'Content-Length': info.size,
-    'Cache-Control': 'no-store',
+    'Cache-Control': 'private, no-cache',
+    ETag: etag,
+    Vary: 'Accept-Encoding',
     'X-Content-Type-Options': 'nosniff',
-  });
+  };
+  if (request.headers['if-none-match'] === etag) {
+    request.resume();
+    response.writeHead(304, headers);
+    response.end();
+    return true;
+  }
+  // JSON shrinks to about a fifth with gzip.
+  const gzip = /\bgzip\b/.test(request.headers['accept-encoding'] || '');
+  response.writeHead(200, gzip ? { ...headers, 'Content-Encoding': 'gzip' } : { ...headers, 'Content-Length': info.size });
   if (request.method === 'HEAD') {
     request.resume();
     response.end();
@@ -89,8 +103,8 @@ export async function handleMemoryDataRoute(request, response, url, { authorize,
     const stream = createReadStream(dataFile);
     stream.on('error', reject);
     response.on('close', () => stream.destroy());
-    stream.pipe(response);
-    stream.on('end', resolve);
+    (gzip ? stream.pipe(createGzip()) : stream).pipe(response);
+    response.on('finish', resolve);
   });
   return true;
 }

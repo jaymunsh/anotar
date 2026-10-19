@@ -116,7 +116,7 @@ test('GET /memory/data.json returns 404 when the file is missing on disk', async
   assert.ok((await response.json()).error);
 });
 
-test('GET /memory/data.json streams the file to a signed-in owner with no-store', async (t) => {
+test('GET /memory/data.json streams the file gzipped to a signed-in owner and revalidates with ETag', async (t) => {
   const dir = await mkdtemp(join(tmpdir(), 'leneu-memory-file-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
   const file = join(dir, 'data.json');
@@ -127,8 +127,13 @@ test('GET /memory/data.json streams the file to a signed-in owner with no-store'
   const response = await fetch(f.base + '/memory/data.json', { headers: { Cookie: cookie } });
   assert.equal(response.status, 200);
   assert.match(response.headers.get('content-type') || '', /application\/json/);
-  assert.equal(response.headers.get('cache-control'), 'no-store');
+  assert.equal(response.headers.get('cache-control'), 'private, no-cache');
+  assert.equal(response.headers.get('content-encoding'), 'gzip');
   assert.deepEqual(await response.json(), payload);
+  // Unchanged file: the browser's revalidation gets a bodiless 304.
+  const again = await fetch(f.base + '/memory/data.json', { headers: { Cookie: cookie, 'If-None-Match': response.headers.get('etag') } });
+  assert.equal(again.status, 304);
+  assert.equal(await again.text(), '');
 });
 
 test('/memory/data.json is a fixed path: traversal-style siblings do not leak files', async (t) => {
