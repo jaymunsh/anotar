@@ -34,6 +34,7 @@ const env = {
   DEV_PORT: '5174', DEV_API_PORT: '8788', PUBLIC_HOST: '127.0.0.1', PUBLIC_PORT: '8791',
   PUBLIC_SHARE_ORIGIN: 'http://127.0.0.1:8791',
   HOSTED_SITES_DIR: resolve(base, 'hosted-sites'),
+  MEMORY_DATA_FILE: resolve('../../data/memory/site/data.json'),
 };
 const commands = [
   ['--watch', 'server/index.mjs'], ['--watch', 'server/public.mjs'],

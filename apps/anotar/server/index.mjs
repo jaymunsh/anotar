@@ -273,7 +273,11 @@ const server = createServer(async (request, response) => {
   const url = new URL(request.url || '/', `http://${request.headers.host || 'localhost'}`);
   try {
     if (await authHttp.handle(request, response, url)) return;
-    if (await handleMemoryDataRoute(request, response, url, { authorize: authHttp.authorize, dataFile: memoryDataFile })) return;
+    if (await handleMemoryDataRoute(request, response, url, {
+        // Same rule as /api: open only when AUTH_MODE=disabled (local dev).
+        authorize: (req) => !authHttp.enabled || authHttp.authorize(req),
+        dataFile: memoryDataFile,
+      })) return;
     if (await handleHostingRoute(request, response, url)) return;
     if (await handleSyncRequest(request, response, { store, blobDir, onAiQueued:()=>aiWorker.wake() })) return;
     if (await handleBackupRoute(request, response, url, backups)) return;

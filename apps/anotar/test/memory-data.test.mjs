@@ -22,7 +22,7 @@ async function freePort() {
 }
 
 // Boots the real server with auth required. memoryDataFile may be omitted to exercise the 404 path.
-async function fixture(t, { memoryDataFile } = {}) {
+async function fixture(t, { memoryDataFile, authMode = 'required' } = {}) {
   const dir = await mkdtemp(join(tmpdir(), 'leneu-memory-'));
   const store = openStore(dir);
   await createAuthenticator({ store, key }).provision({
@@ -37,7 +37,7 @@ async function fixture(t, { memoryDataFile } = {}) {
       DATA_DIR: dir,
       PORT: String(port),
       HOST: '127.0.0.1',
-      AUTH_MODE: 'required',
+      AUTH_MODE: authMode,
       AUTH_SECRET_KEY: key,
       AUTH_COOKIE_SECURE: 'false',
       AI_RUNNER_KIND: 'disabled',
@@ -83,6 +83,17 @@ test('GET /memory/data.json requires a session (401 when signed out)', async (t)
   assert.match(response.headers.get('content-type') || '', /application\/json/);
   assert.equal(response.headers.get('cache-control'), 'no-store');
   assert.ok((await response.json()).error);
+});
+
+test('GET /memory/data.json is open like /api only when AUTH_MODE=disabled', async (t) => {
+  const dir = await mkdtemp(join(tmpdir(), 'leneu-memory-file-'));
+  t.after(() => rm(dir, { recursive: true, force: true }));
+  const file = join(dir, 'data.json');
+  await writeFile(file, '{"wiki":[]}');
+  const f = await fixture(t, { memoryDataFile: file, authMode: 'disabled' });
+  const response = await fetch(f.base + '/memory/data.json');
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { wiki: [] });
 });
 
 test('GET /memory/data.json returns 404 when MEMORY_DATA_FILE is unset', async (t) => {

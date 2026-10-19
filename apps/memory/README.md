@@ -13,6 +13,8 @@ python3 $M/test_build.py        # frontmatter 파서 확인
 $M/daily.sh codex gpt-6.1-sol   # 가져오기 + 에이전트 요약 + 빌드 (+ push)
 ```
 
+로컬에서 화면으로 보려면 `build.py` 뒤에 `apps/anotar`에서 `npm run dev`(또는 `dev:oracle`)를 띄우고 `/wiki`를 연다. 개발 서버가 이 repo의 `site/data.json`을 운영과 같은 경로(`/memory/data.json`)로 준다. 빌드를 다시 하면 새로고침만 하면 된다.
+
 | 파일 | 역할 |
 |---|---|
 | `build.py` | frontmatter 검사 + site/data.json 생성 (화면은 anotar `apps/anotar/src/wiki/`) |
