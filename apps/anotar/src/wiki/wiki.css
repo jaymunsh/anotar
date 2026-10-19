@@ -460,6 +460,17 @@
 .wiki-system-doc, .wiki-system-rules .wiki-reader { max-width: none; }
 .wiki-system-doc pre, .wiki-system-rules pre { overflow-x: auto; }
 .wiki-system-rules summary { cursor: pointer; font-weight: 650; color: var(--theme-accent); }
-.wiki-system-doc table, .wiki-system-rules table { display: block; overflow-x: auto; }
 .wiki-system-doc pre, .wiki-system-rules pre { max-width: 100%; }
 .wiki-system-doc, .wiki-system-rules { min-width: 0; }
+
+/* 구조 tab docs: denser type than reading prose, tables that keep the stage column on one line */
+.wiki-system-doc .wiki-prose, .wiki-system-rules .wiki-prose { font-size: 14px; line-height: 1.7; }
+.wiki-system-doc .wiki-prose table, .wiki-system-rules .wiki-prose table { width: 100%; margin: 10px 0 18px; border-collapse: collapse; font-size: 13px; line-height: 1.55; }
+.wiki-system-doc .wiki-prose th, .wiki-system-rules .wiki-prose th { padding: 7px 12px; font-size: 12px; font-weight: 650; color: var(--theme-muted); text-align: left; border-bottom: 1px solid var(--theme-line); background: var(--theme-raised); }
+.wiki-system-doc .wiki-prose td, .wiki-system-rules .wiki-prose td { padding: 8px 12px; vertical-align: top; border-bottom: 1px solid var(--theme-line); }
+.wiki-system-doc .wiki-prose td:first-child, .wiki-system-rules .wiki-prose td:first-child { white-space: nowrap; font-weight: 600; }
+.wiki-system-doc .wiki-prose code, .wiki-system-rules .wiki-prose code { font-size: 12px; }
+.wiki-system-doc .wiki-prose pre, .wiki-system-rules .wiki-prose pre { font-size: 12px; line-height: 1.6; }
+@media (max-width: 760px) {
+  .wiki-system-doc .wiki-prose table, .wiki-system-rules .wiki-prose table { display: block; overflow-x: auto; }
+}
