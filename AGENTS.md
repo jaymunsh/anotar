@@ -36,4 +36,4 @@
 `main`에 push하면 GitHub Actions(`oracle.yml`)가 돌고 Oracle 서버가 그 커밋의 **anotar**를 자동 배포한다. `apps/harukan`만 바뀐 커밋은 `oracle.yml`을 건너뛰어 anotar를 재배포하지 않는다.
 harukan도 자동 배포된다(2026-10-20): `main`에서 `harukan.yml`이 통과하면 서버 `harukan-deploy.timer`가 2분 안에 그 커밋의 `apps/harukan`을 받아 백업 → 빌드 → 교체하고, 실패하면 이전 릴리스로 돌아간다(`apps/harukan/deploy/`). `restructure` push는 검사만 한다.
 
-`oracle-deploy.sh`는 `apps/anotar` 구조와 예전 루트 구조를 모두 처리하도록 고쳤지만 **서버의 `/usr/local/sbin/anotar-deploy`는 아직 옛 버전이다.** 서버 사본을 갱신하기 전에는 `main`에 merge하거나 push하지 않는다.
+`oracle-deploy.sh`는 `apps/anotar` 구조와 예전 루트 구조를 모두 처리한다. 서버 사본 `/usr/local/sbin/anotar-deploy`는 repo와 같다(2026-10-20 확인). 고치면 서버 사본도 같이 갱신한다.
