@@ -43,7 +43,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dataDir = resolve(process.env.DATA_DIR || join(root, 'data'));
 const blobDir = join(dataDir, 'blobs');
 const distDir = join(root, 'dist');
-// Wiki build served to the signed-in owner (B안); the Mac uploads it over SSH. See server/memoryData.mjs.
+// Wiki build served to the signed-in owner (B안); the server rebuilds it from memory-data. See server/memoryData.mjs.
 const memoryDataFile = process.env.MEMORY_DATA_FILE ? resolve(process.env.MEMORY_DATA_FILE) : null;
 mkdirSync(blobDir, { recursive: true });
 const store = openStore(dataDir);

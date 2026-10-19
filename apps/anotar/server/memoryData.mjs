@@ -4,8 +4,9 @@
 //   - Local dev: the edge Caddy intercepts /memory before anotar, forward_auth's /api/auth/check,
 //     and reverse_proxies to the memory container. This route never runs there.
 //   - Production (Oracle, B안): there is no edge and no memory container, so anotar serves the file
-//     directly. The Mac builds data.json daily and uploads it (SSH atomic replace) to the path in
-//     MEMORY_DATA_FILE, mounted read-only (see compose.oracle.yaml).
+//     directly. The server builds it: leneu-memory-sync.timer pulls the memory-data repo hourly with a
+//     read-only deploy key and swaps the file at MEMORY_DATA_FILE, mounted read-only (see compose.oracle.yaml
+//     and deploy/memory-sync.sh). The Mac only pushes memory-data.
 //
 // No PUT/upload endpoint: uploads happen over SSH, not through the app.
 

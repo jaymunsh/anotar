@@ -1,0 +1,18 @@
+[Unit]
+Description=Pull memory-data and build the wiki data.json for anotar
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=leneu-memory
+Group=leneu-memory
+# '+' runs as root: the deployed release is root-only; copy just what build.py reads.
+ExecStartPre=+/bin/sh -c 'r=$$(readlink -f /srv/leneu/current)/apps/memory; install -d -o leneu-memory -g leneu-memory -m 0755 /var/lib/leneu-memory/code; install -m 0644 "$$r/build.py" "$$r/README.md" "$$r/GUIDE.md" /var/lib/leneu-memory/code/'
+ExecStart=/usr/local/sbin/leneu-memory-sync
+TimeoutStartSec=300
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/srv/leneu/memory-src /srv/leneu/memory
+ProtectHome=true
+PrivateTmp=true

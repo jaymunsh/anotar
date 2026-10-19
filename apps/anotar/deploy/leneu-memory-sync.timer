@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh the wiki from memory-data every hour
+
+[Timer]
+OnBootSec=5min
+OnCalendar=hourly
+RandomizedDelaySec=5min
+Persistent=true
+Unit=leneu-memory-sync.service
+
+[Install]
+WantedBy=timers.target

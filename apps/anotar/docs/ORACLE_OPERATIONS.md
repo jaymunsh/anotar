@@ -117,3 +117,7 @@ systemd의 실제 보고 전송 `telegram_accepted`를 확인했다. 첫 실행 
 확인된 양수 비용/설정 한도 이탈 시 고정 VM OCI STOP, CPU·메모리·디스크 문제는 경고만 한다. 미집계·알림 실패 자체는 정지 기준이 아니다. 알림/상태 파일 오류는 STOP을 막지 않는다. 실제 STOP은 모의 응답으로만 검증했으며 운영 VM을 꺼보지는 않았다. [기준·권한·검사 범위](../../ops/oracle/README.md), [확인 기록](../../.omo/evidence/oracle-watch/REPORT.md).
 
 감시 설정 변경 전 root-only `/var/backups/leneu-monitoring-20261005T143431`에 기존 코드/config/요약 unit을 백업했다. 이 백업은 앱 SQLite/첨부 백업과 별개다. 앱은 아직 Oracle에 배포하지 않았으므로 SERVICE_HEALTH_PORTS는 비워 두었다. AI worker Telegram 알림 코드/환경 예시는 준비됐지만 실제 앱 배포 때 활성화해야 한다. GitHub origin은 현재 작업 폴더에 아직 없으며 첫 배포·Cloudflare 앱 주소 연결 후 Actions 자동 배포를 연결한다. 서버 접속 정보는 로컬 Git-ignored `.env.oracle-server`(0600)에만 두었다.
+
+## 위키 데이터 (memory-data → `/wiki`)
+
+서버가 만든다(2026-10-20). `leneu-memory-sync.timer`가 매시간 `leneu-memory` 사용자로 비공개 `jaymunsh/memory-data`를 읽기 전용 deploy key(`/var/lib/leneu-memory/deploy_key`, GitHub 키 이름 `oracle-leneu memory sync (read-only)`)로 `/srv/leneu/memory-src`에 pull하고, 바뀌었으면 현재 릴리스의 `apps/memory/build.py`로 `/srv/leneu/memory/data.json`을 바꾼다. anotar는 그 폴더를 읽기 전용으로 붙인다(`compose.oracle.yaml`). Mac은 memory-data를 push만 한다. 파일: [`deploy/memory-sync.sh`](../deploy/memory-sync.sh)(설치 위치 `/usr/local/sbin/leneu-memory-sync`), [`deploy/leneu-memory-sync.service`](../deploy/leneu-memory-sync.service), [`.timer`](../deploy/leneu-memory-sync.timer). 바로 다시 만들기: `sudo systemctl start leneu-memory-sync.service`, 기록: `journalctl -u leneu-memory-sync.service`.

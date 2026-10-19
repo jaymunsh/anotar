@@ -57,5 +57,5 @@
 1. **로컬 개발의 기본 로그인.** 지금 로컬 `.env`가 로그인을 켜 두어서 로컬 계정의 비밀번호와 TOTP가 있어야 한다. 기능 확인이 주 목적이면 로컬 `.env`에 `AUTH_MODE=disabled`를 두고, 로그인 화면은 `npm run qa` 안의 로그인 검사에 맡기는 쪽을 추천한다.
 2. **호스팅 개발 포트.** 개발 기본값 8792가 Docker 공유 스택과 겹친다. 개발 기본값을 8793으로 바꿀지.
 3. **Docker 개인 스택을 평소에 띄워 둘지.** 지금 띄워진 이미지는 온라인 전용 전환 전 버전이다. `infra/`를 바꿀 때만 띄우는 쪽을 추천한다.
-4. **위키 업로드(⑤)와 Drive 백업 설정을 어디에 둘지.** 둘 다 서버의 systemd timer와 root 전용 설정 파일로 두고, 키 이름만 이 문서에 추가한다.
+4. **위키 업로드(⑤)와 Drive 백업 설정을 어디에 둘지.** 위키는 정했다(2026-10-20): 서버 `leneu-memory-sync.timer`가 memory-data를 읽기 전용 deploy key로 pull해 만든다(`apps/anotar/docs/ORACLE_OPERATIONS.md` 위키 절). Drive 백업은 같은 방식(서버 systemd timer + root 전용 설정 파일)으로 두고 키 이름만 이 문서에 추가한다.
 5. **운영에서 `AUTH_MODE=disabled`를 막을지.** 지금은 서버 `.env`에 실수로 넣으면 개인 API와 위키가 열린다. 쿠키 설정처럼 production에서는 거부하는 쪽을 추천한다. 그러려면 운영 이미지로 로그인 없이 도는 `qa-docker-share`에 검사 전용 예외를 먼저 만들어야 한다.
