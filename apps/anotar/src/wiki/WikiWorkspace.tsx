@@ -147,9 +147,9 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
 
 type Link = ReturnType<typeof useLink>;
 
-function Section({ title, note, children }: { title: string; note?: ReactNode; children: ReactNode }) {
+function Section({ title, note, wide, children }: { title: string; note?: ReactNode; wide?: boolean; children: ReactNode }) {
   return (
-    <section className="wiki-block">
+    <section className={wide ? 'wiki-block is-wide' : 'wiki-block'}>
       <h2>
         {title}
         {note && <span className="wiki-note">{note}</span>}
@@ -159,13 +159,13 @@ function Section({ title, note, children }: { title: string; note?: ReactNode; c
   );
 }
 const ToolDot = ({ tool }: { tool: string }) => <span className={`wiki-dot is-${tool}`} aria-hidden />;
-function DigestCard({ digest, heading }: { digest: Digest; heading?: ReactNode }) {
+function DigestCard({ digest, heading, open }: { digest: Digest; heading?: ReactNode; open?: boolean }) {
   return (
     <div className="wiki-digest">
       {heading}
       <strong>{digest.title}</strong>
       <p>{digest.tldr}</p>
-      <details>
+      <details open={open}>
         <summary>회고 전체</summary>
         <Markdown text={digest.body} />
       </details>
@@ -213,9 +213,10 @@ function WikiHome({ data, link }: { data: Prepared; link: Link }) {
     <div className="wiki-home">
       <div className="wiki-home-grid">
         {data.digests[0] && (
-          <Section title="주간 회고" note={<a {...link('/wiki/log')}>주별로 보기</a>}>
+          <Section wide title="주간 회고" note={<a {...link('/wiki/log')}>주별로 보기</a>}>
             <DigestCard
               digest={data.digests[0]}
+              open
               heading={<span className="wiki-muted">{monthDay(data.digests[0].week)} – {monthDay(addDays(data.digests[0].week, 6))}</span>}
             />
           </Section>

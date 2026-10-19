@@ -378,3 +378,7 @@
 .wiki-digest summary { margin-top: 8px; font-size: 12.5px; color: var(--theme-accent); cursor: pointer; }
 .wiki-digest .wiki-prose h2 { margin: 14px 0 4px; font-size: 14px; }
 .wiki-digest .wiki-prose li { font-size: 13.5px; }
+.wiki-home-grid > .is-wide { grid-column: 1 / -1; }
+.wiki-block.is-wide .wiki-digest .wiki-prose { columns: 2 320px; column-gap: 40px; }
+.wiki-block.is-wide .wiki-digest .wiki-prose h2 { break-after: avoid; }
+.wiki-block.is-wide .wiki-digest .wiki-prose ul { break-inside: avoid; }
