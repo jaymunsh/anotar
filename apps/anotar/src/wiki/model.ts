@@ -14,6 +14,9 @@ export type Session = {
   tool: string;
   project: string;
   date: string;
+  /** KST "YYYY-MM-DDTHH:MM" from the session dump; older summaries may lack them. */
+  started?: string;
+  ended?: string;
   models?: string[] | string;
   tags?: string[] | string;
   next?: string[] | string;
@@ -105,11 +108,25 @@ export function builtAgo(builtAt: string | null, now: number) {
   return `${Math.floor(minutes / (24 * 60))}일 전`;
 }
 
+/**
+ * First to last message in KST: "2026-10-19 | 03:02 ~ 05:56", full dates when it crosses midnight.
+ * Without the date (lists already grouped by day): "03:02 ~ 05:56", the end date only when it differs.
+ */
+export function sessionTime(s: Session, withDate = true) {
+  if (!s.started) return '';
+  const [day, start] = s.started.split('T');
+  const from = withDate ? `${day} ${start}` : start;
+  if (!s.ended || s.ended <= s.started) return from;
+  const [endDay, end] = s.ended.split('T');
+  if (endDay !== day) return `${from} ~ ${endDay} ${end}`;
+  return withDate ? `${day} | ${start} ~ ${end}` : `${start} ~ ${end}`;
+}
+
 /** Sessions without content are hidden; sessions stay newest first. */
 export function prepare(data: MemoryData) {
   const sessions = (data.sessions ?? [])
     .filter((s) => s.title !== '(내용 없음)')
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .sort((a, b) => b.date.localeCompare(a.date) || (b.started ?? '').localeCompare(a.started ?? ''));
   const wiki = [...(data.wiki ?? [])].sort((a, b) => b.updated.localeCompare(a.updated));
   const projects = new Map<string, Session[]>();
   for (const s of sessions) projects.set(s.project, [...(projects.get(s.project) ?? []), s]);

@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import {
   parseWikiRoute,
   prepare,
+  sessionTime,
   homeSummary,
   wikiLinkSlug,
   splitResult,
@@ -116,4 +117,16 @@ test('home stats compare this month with last month and count active projects', 
   assert.equal(stats.lastMonth, 1);
   assert.equal(stats.activeProjects, 1);
   assert.equal(stats.trend.length, 12);
+});
+
+test('sessionTime shows the KST range, with the end date when it crosses midnight', () => {
+  const s = (started, ended) => ({ slug: 'x', title: 't', tldr: '', tool: 'codex', project: 'p', date: '2026-10-20', body: '', started, ended });
+  assert.equal(sessionTime(s('2026-10-20T03:02', '2026-10-20T05:40')), '2026-10-20 | 03:02 ~ 05:40');
+  assert.equal(sessionTime(s('2026-10-19T23:54', '2026-10-20T03:02')), '2026-10-19 23:54 ~ 2026-10-20 03:02');
+  assert.equal(sessionTime(s('2026-10-20T03:02', '2026-10-20T03:02')), '2026-10-20 03:02');
+  assert.equal(sessionTime(s('2026-10-20T03:02', undefined)), '2026-10-20 03:02');
+  assert.equal(sessionTime(s(undefined, undefined)), '');
+  assert.equal(sessionTime(s('2026-10-20T03:02', '2026-10-20T05:40'), false), '03:02 ~ 05:40');
+  assert.equal(sessionTime(s('2026-10-19T23:54', '2026-10-20T02:57'), false), '23:54 ~ 2026-10-20 02:57');
+  assert.equal(sessionTime(s('2026-10-20T03:02', undefined), false), '03:02');
 });

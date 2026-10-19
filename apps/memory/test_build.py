@@ -32,3 +32,19 @@ assert import_sessions.is_own([("user", '"AGENTS.md의 sessions 절차 3~5번과
 assert import_sessions.is_own([("assistant", "x"), ("user", "AGENTS.md의 weekly 절차를 따라")])
 assert not import_sessions.is_own([("user", "AGENTS.md 고쳐 줘")])
 print("ok own sessions")
+
+# import_sessions: KST 변환, 요약의 date·started·ended를 덤프 값으로
+d = pathlib.Path(tempfile.mkdtemp())
+import import_sessions as imp
+imp.DATA, imp.OUT = d, d / "raw/sessions"
+assert imp.kst("2026-10-19T18:02:11.123Z") == "2026-10-20T03:02"
+(d / "raw/sessions").mkdir(parents=True); (d / "sessions").mkdir()
+(d / "raw/sessions/a.md").write_text("---\nstarted: 2026-10-20T03:02\nended: 2026-10-20T05:40\n---\n", encoding="utf-8")
+(d / "raw/sessions/b.md").write_text("---\nstarted: 2026-10-19T18:02\n---\n", encoding="utf-8")  # 예전 형식
+for n in ("a", "b"):
+    (d / f"sessions/{n}.md").write_text("---\ntitle: t\ndate: 2026-10-19\ntags: []\n---\nbody", encoding="utf-8")
+imp.stamp(); imp.stamp()  # 두 번 돌려도 같다
+a = (d / "sessions/a.md").read_text(encoding="utf-8")
+assert "date: 2026-10-20\nstarted: 2026-10-20T03:02\nended: 2026-10-20T05:40\ntags" in a and a.count("started:") == 1, a
+assert "started" not in (d / "sessions/b.md").read_text(encoding="utf-8")
+print("ok import")

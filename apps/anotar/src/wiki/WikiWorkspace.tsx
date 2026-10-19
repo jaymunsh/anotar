@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import { ArrowLeft, Check, Plus, RefreshCw, Search } from 'lucide-react';
 import { authenticationRequired, getAuthSnapshot, subscribeAuth } from '../auth/state';
 import { WorkspaceToolbar } from '../workspace/WorkspaceToolbar';
@@ -21,6 +21,7 @@ import {
   prepare,
   relativeDay,
   builtAgo,
+  sessionTime,
   splitResult,
   toolName,
   weekday,
@@ -98,8 +99,6 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
     { path: '/wiki/guide', label: '가이드', active: route.view === 'guide' },
   ];
   const data = load.state === 'ready' ? load.data : null;
-  const today = ymd(new Date());
-  const thisWeek = data ? data.sessions.filter((s) => s.date >= monday(today)).length : 0;
   const reload = (
     <button type="button" className="toolbar-icon-mobile" onClick={() => setAttempt((n) => n + 1)} aria-label="위키 다시 불러오기" title="다시 불러오기">
       <RefreshCw size={15} aria-hidden />
@@ -148,9 +147,8 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
         meta={
           data ? (
             <span className="wiki-toolbar-stats">
-              이번 주 기록 <b>{thisWeek}</b> · 위키 <b>{data.wiki.length}</b> · AI 기록 <b>{data.sessions.length}</b>
               {data.builtAt && (
-                <span title={new Date(data.builtAt).toLocaleString('ko-KR')}> · 갱신 {builtAgo(data.builtAt, Date.now())}</span>
+                <span title={new Date(data.builtAt).toLocaleString('ko-KR')}>갱신 {builtAgo(data.builtAt, Date.now())}</span>
               )}
             </span>
           ) : undefined
@@ -165,9 +163,9 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
 
 type Link = ReturnType<typeof useLink>;
 
-function Section({ title, note, wide, children }: { title: string; note?: ReactNode; wide?: boolean; children: ReactNode }) {
+function Section({ id, title, note, wide, children }: { id?: string; title: string; note?: ReactNode; wide?: boolean; children: ReactNode }) {
   return (
-    <section className={wide ? 'wiki-block is-wide' : 'wiki-block'}>
+    <section id={id} className={wide ? 'wiki-block is-wide' : 'wiki-block'}>
       <h2>
         {title}
         {note && <span className="wiki-note">{note}</span>}
@@ -220,7 +218,7 @@ function Sparkline({ values, label }: { values: number[]; label: string }) {
 
 function StatTiles({ data, today }: { data: Prepared; today: string }) {
   const s = useMemo(() => homeStats(data, today), [data, today]);
-  const tiles: { label: string; value: number; sub: ReactNode }[] = [
+  const tiles: { label: string; value: number; sub: ReactNode; href?: string }[] = [
     {
       label: '이번 달 AI 기록',
       value: s.thisMonth,
@@ -232,18 +230,25 @@ function StatTiles({ data, today }: { data: Prepared; today: string }) {
       ),
     },
     { label: '진행 중 프로젝트', value: s.activeProjects, sub: <span>전체 {s.projects} · 2주 안에 기록</span> },
-    { label: '남은 일', value: s.openItems, sub: <span>진행 중 프로젝트의 최신 기록 기준</span> },
+    { label: '남은 일', value: s.openItems, sub: <span>프로젝트별 목록 보기</span>, href: s.openItems ? '#wiki-open' : undefined },
     { label: '위키 페이지', value: s.wiki, sub: <span>정리해 둔 지식</span> },
   ];
   return (
-    <div className="wiki-tiles is-wide">
-      {tiles.map((t) => (
-        <div className="wiki-tile" key={t.label}>
-          <span className="wiki-tile-label">{t.label}</span>
-          <strong className="wiki-tile-value">{t.value}</strong>
-          <span className="wiki-tile-sub">{t.sub}</span>
-        </div>
-      ))}
+    <div className="wiki-tiles">
+      {tiles.map((t) => {
+        const body = (
+          <>
+            <span className="wiki-tile-label">{t.label}</span>
+            <strong className="wiki-tile-value">{t.value}</strong>
+            <span className="wiki-tile-sub">{t.sub}</span>
+          </>
+        );
+        return t.href ? (
+          <a className="wiki-tile is-link" key={t.label} href={t.href}>{body}</a>
+        ) : (
+          <div className="wiki-tile" key={t.label}>{body}</div>
+        );
+      })}
     </div>
   );
 }
@@ -291,15 +296,21 @@ function ProjectTimeline({ data, today, link }: { data: Prepared; today: string;
           </div>
         ))}
       </div>
+      <p className="wiki-timeline-legend"><span className="wiki-live" aria-hidden /> 2주 안에 기록이 있는 프로젝트</p>
     </section>
   );
 }
 /** Sessions per day, one column per week. A column links to that week in the weekly log. */
-function ActivityHeatmap({ sessions, today, link }: { sessions: Session[]; today: string; link: Link }) {
-  const grid = useMemo(() => activityGrid(sessions, today), [sessions, today]);
+function ActivityHeatmap({ sessions, today, link, weeks }: { sessions: Session[]; today: string; link: Link; weeks?: number }) {
+  const grid = useMemo(() => activityGrid(sessions, today, weeks), [sessions, today, weeks]);
+  // On a narrow screen the grid scrolls; start at the latest weeks.
+  const scroll = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scroll.current) scroll.current.scrollLeft = scroll.current.scrollWidth;
+  }, [grid.length]);
   return (
-    <div className="wiki-heatmap">
-      <div className="wiki-heatmap-scroll">
+    <div className="wiki-heatmap" style={{ '--weeks': grid.length } as CSSProperties}>
+      <div className="wiki-heatmap-scroll" ref={scroll}>
         <div className="wiki-heatmap-days" aria-hidden>
           {['월', '', '수', '', '금', '', ''].map((d, i) => <span key={i}>{d}</span>)}
         </div>
@@ -371,10 +382,12 @@ function WikiHome({ data, link }: { data: Prepared; link: Link }) {
   return (
     <div className="wiki-home">
       <div className="wiki-home-grid">
-        <StatTiles data={data} today={today} />
-        <Section wide title="최근 6개월" note={`AI 기록 ${data.sessions.length}개`}>
-          <ActivityHeatmap sessions={data.sessions} today={today} link={link} />
-        </Section>
+        <div className="wiki-home-top is-wide">
+          <StatTiles data={data} today={today} />
+          <Section title="최근 6개월" note={`AI 기록 ${data.sessions.length}개`}>
+            <ActivityHeatmap sessions={data.sessions} today={today} link={link} />
+          </Section>
+        </div>
         {data.digests[0] && (
           <Section wide title="주간 회고" note={<a {...link('/wiki/log')}>주별로 보기</a>}>
             <DigestCard
@@ -400,7 +413,7 @@ function WikiHome({ data, link }: { data: Prepared; link: Link }) {
           )}
         </Section>
         {open.length > 0 && (
-          <Section title="남은 일" note="프로젝트별 최신 기록 기준">
+          <Section id="wiki-open" title="남은 일" note="프로젝트별 최신 기록 기준">
             {open.map(({ p, items }) => (
               <div className="wiki-project-next" key={p.name}>
                 <h3>
@@ -489,23 +502,33 @@ function SearchField({ value, onChange, label }: { value: string; onChange: (v: 
     </label>
   );
 }
-function Chips({ label, entries, value, onChange, total, name = (v) => v }: {
+function Chips({ label, entries, value, onChange, total, name = (v) => v, limit }: {
   label: string;
   entries: [string, number][];
   value: string;
   onChange: (v: string) => void;
   total: number;
   name?: (v: string) => string;
+  /** Show only the busiest few (plus the selected one) until 더보기. */
+  limit?: number;
 }) {
+  const [more, setMore] = useState(false);
   if (entries.length < 2) return null;
+  const hidden = limit && !more ? entries.length - limit : 0;
+  const shown = hidden > 0 ? entries.filter(([v], i) => i < limit! || v === value) : entries;
   return (
     <div className="wiki-chips" role="group" aria-label={label}>
       <button type="button" aria-pressed={!value} onClick={() => onChange('')}>전체 <span>{total}</span></button>
-      {entries.map(([v, n]) => (
+      {shown.map(([v, n]) => (
         <button key={v} type="button" aria-pressed={value === v} onClick={() => onChange(value === v ? '' : v)}>
           {name(v)} <span>{n}</span>
         </button>
       ))}
+      {limit && entries.length > limit && (
+        <button type="button" className="wiki-chips-more" aria-expanded={more} onClick={() => setMore(!more)}>
+          {more ? '접기' : `더보기 +${hidden}`}
+        </button>
+      )}
     </div>
   );
 }
@@ -550,17 +573,17 @@ function WikiList({ data, link }: { data: Prepared; link: Link }) {
   );
 }
 
-function SessionEntry({ s, link, project = true }: { s: Session; link: Link; project?: boolean }) {
-  const models = list(s.models);
+function SessionEntry({ s, link, project = true, dated = true }: { s: Session; link: Link; project?: boolean; dated?: boolean }) {
+  const time = sessionTime(s, dated);
   return (
     <a className="wiki-entry" {...link(logPath(s.slug))}>
       <span className="wiki-entry-row">
         <strong>{s.title}</strong>
         {list(s.promoted).length > 0 && <span className="wiki-badge">위키 반영</span>}
         <span className="wiki-meta">
+          {time && <time className="wiki-entry-time">{time}</time>}
           <ToolDot tool={s.tool} />
           {toolName(s.tool)}
-          {models.length > 0 && ` · ${models[0]}${models.length > 1 ? ` +${models.length - 1}` : ''}`}
           {project && ` · ${s.project}`}
         </span>
       </span>
@@ -609,7 +632,7 @@ function SessionList({ data, link }: { data: Prepared; link: Link }) {
           </div>
         </div>
         <Chips label="도구" entries={countBy(data.sessions, (s) => s.tool)} value={tool} onChange={setTool} total={data.sessions.length} name={toolName} />
-        <Chips label="프로젝트" entries={countBy(data.sessions, (s) => s.project)} value={project} onChange={setProject} total={data.sessions.length} />
+        <Chips label="프로젝트" entries={countBy(data.sessions, (s) => s.project)} value={project} onChange={setProject} total={data.sessions.length} limit={6} />
       </div>
       {!hits.length && <Empty total={data.sessions.length} empty="아직 AI 기록이 없어요. 에이전트에게 sessions를 시켜 보세요." />}
       {mode === 'day' ? (
@@ -619,7 +642,7 @@ function SessionList({ data, link }: { data: Prepared; link: Link }) {
             return (
               <div key={s.slug}>
                 {heading && <h2 className="wiki-group">{monthDay(s.date)} ({weekday(s.date)})</h2>}
-                <SessionEntry s={s} link={link} />
+                <SessionEntry s={s} link={link} dated={false} />
               </div>
             );
           })}
@@ -642,7 +665,7 @@ function SessionList({ data, link }: { data: Prepared; link: Link }) {
                     {ss.map((s) => (
                       <li key={s.slug}>
                         <a {...link(logPath(s.slug))}>{s.title}</a>
-                        <span className="wiki-muted"> {monthDay(s.date)} · {toolName(s.tool)}</span>
+                        <span className="wiki-muted"> {sessionTime(s) || monthDay(s.date)} · {toolName(s.tool)}</span>
                       </li>
                     ))}
                   </ul>
@@ -769,7 +792,7 @@ function SessionReader({ data, slug, link, navigate }: { data: Prepared; slug: s
       <p className="wiki-tldr">{s.tldr}</p>
       <p className="wiki-meta">
         <span className="wiki-badge"><ToolDot tool={s.tool} />{toolName(s.tool)}</span>
-        {list(s.models).join(', ')} · <a {...link(projectPath(s.project))}>{s.project}</a> · {s.date}
+        {list(s.models).join(', ')} · <a {...link(projectPath(s.project))}>{s.project}</a> · {sessionTime(s) || s.date}
         {s.summarized_by && <span> · 요약 {s.summarized_by}</span>}
       </p>
       {promoted.length ? (
@@ -779,17 +802,31 @@ function SessionReader({ data, slug, link, navigate }: { data: Prepared; slug: s
             <span key={w.slug}>{i > 0 && ', '}<a {...link(pagePath(w.slug))}>{w.title}</a></span>
           ))}
         </p>
-      ) : (
-        <p className="wiki-linked wiki-muted">
-          위키로 옮기려면 에이전트에게 <code>/ingest sessions/{s.slug}.md</code>
-        </p>
-      )}
+      ) : null}
       <Markdown text={result} navigate={navigate} />
       <Bullets title="남은 일" items={list(s.next)} />
       <Bullets title="정한 것" items={list(s.decisions)} />
       <Bullets title="위키 후보" items={list(s.candidates)} />
       <Markdown text={rest} navigate={navigate} />
+      {!promoted.length && <IngestHint slug={s.slug} />}
     </article>
+  );
+}
+
+/** The agent command that promotes this session into the wiki, copyable. */
+function IngestHint({ slug }: { slug: string }) {
+  const command = `/ingest sessions/${slug}.md`;
+  const [copied, setCopied] = useState(false);
+  return (
+    <p className="wiki-linked wiki-ingest">
+      <span className="wiki-muted">위키로 옮기려면 에이전트에게</span> <code>{command}</code>
+      <button
+        type="button"
+        onClick={() => navigator.clipboard.writeText(command).then(() => setCopied(true), () => setCopied(false))}
+      >
+        {copied ? '복사됨' : '복사'}
+      </button>
+    </p>
   );
 }
 

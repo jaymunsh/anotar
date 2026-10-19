@@ -33,5 +33,7 @@ case $AGENT in
     echo "알 수 없는 에이전트: $AGENT (claude | codex | opencode)" >&2; exit 1 ;;
 esac
 
+# New summaries get date/started/ended (KST) from their dumps before the build.
+python3 "$CODE/import_sessions.py" --stamp
 python3 "$CODE/build.py"
 git remote | grep -q . && git push -q || true

@@ -31,14 +31,14 @@
   color: var(--theme-ink);
   border-bottom-color: var(--theme-accent);
 }
-.wiki-tabs a:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: -2px; border-radius: 4px; }
+.wiki-tabs a:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: -2px; border-radius: 6px; }
 .wiki-toolbar-stats b { color: var(--theme-ink); font-weight: 600; }
 .wiki-workspace a:focus-visible,
 .wiki-workspace button:focus-visible,
 .wiki-workspace input:focus-visible {
   outline: 2px solid var(--theme-accent);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 .wiki-muted,
 .wiki-note,
@@ -192,6 +192,7 @@
   color: var(--theme-accent-ink);
 }
 .wiki-chips button[aria-pressed='true'] span { color: inherit; opacity: 0.8; }
+.wiki-workspace .wiki-chips .wiki-chips-more { border-style: dashed; color: var(--theme-muted); }
 .wiki-segment { display: inline-flex; }
 .wiki-workspace .wiki-segment button { border-radius: 0; font-size: 13px; }
 .wiki-workspace .wiki-segment button:first-child { border-radius: 6px 0 0 6px; }
@@ -318,7 +319,7 @@
 }
 .wiki-workspace code {
   padding: 2px 5px;
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--theme-raised);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.88em;
@@ -384,14 +385,20 @@
 .wiki-block.is-wide .wiki-digest .wiki-prose ul { break-inside: avoid; }
 
 /* activity heatmap: one sequential hue (accent) mixed toward the line color */
-.wiki-heatmap-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
-.wiki-heatmap-days { display: grid; grid-template-rows: 16px repeat(7, 13px); gap: 3px; font-size: 10.5px; color: var(--theme-muted); }
+/* Cells grow to fill a wide column (up to 16px); a narrow one scrolls and starts at the latest weeks. */
+.wiki-heatmap { container-type: inline-size; }
+.wiki-heatmap-scroll { --cell: 13px; display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+@container (min-width: 600px) {
+  .wiki-heatmap-scroll { --cell: clamp(13px, calc((100cqi - 30px) / var(--weeks) - 3px), 16px); }
+}
+.wiki-heatmap-days { position: sticky; left: 0; z-index: 1; padding-right: 4px; background: var(--theme-canvas); display: grid; grid-template-rows: 16px repeat(7, var(--cell)); gap: 3px; font-size: 10.5px; color: var(--theme-muted); }
 .wiki-heatmap-grid { display: flex; gap: 3px; }
-.wiki-heatmap-week { display: grid; grid-template-rows: 16px repeat(7, 13px); gap: 3px; border-radius: 4px; text-decoration: none; }
+.wiki-heatmap-week { display: grid; grid-template-rows: 16px repeat(7, var(--cell)); gap: 3px; border-radius: 6px; text-decoration: none; }
 .wiki-heatmap-week:hover .wiki-heatmap-cell:not(.is-empty),
 .wiki-heatmap-week:focus-visible .wiki-heatmap-cell:not(.is-empty) { outline: 1px solid var(--theme-accent); outline-offset: 0; }
 .wiki-heatmap-week:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 2px; }
-.wiki-heatmap-month { font-size: 10.5px; color: var(--theme-muted); white-space: nowrap; width: 13px; overflow: visible; }
+.wiki-heatmap-month { font-size: 10.5px; color: var(--theme-muted); white-space: nowrap; width: var(--cell); overflow: visible; }
+.wiki-heatmap-scroll .wiki-heatmap-cell { width: var(--cell); height: var(--cell); }
 .wiki-heatmap-cell { display: inline-block; width: 13px; height: 13px; border-radius: 3px; }
 .wiki-heatmap-cell.is-0 { background: var(--theme-line); }
 .wiki-heatmap-cell.is-1 { background: color-mix(in oklab, var(--theme-accent) 30%, var(--theme-line)); }
@@ -408,7 +415,7 @@
   display: inline-block;
   margin-right: 6px;
   padding: 0 6px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 11.5px;
   font-weight: 650;
   line-height: 18px;
@@ -420,16 +427,27 @@
 
 /* stat tiles */
 .wiki-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.wiki-tile { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border: 1px solid var(--theme-line); border-radius: 10px; background: var(--theme-surface); }
+/* home top row: 2×2 stat tiles (1/3) beside the activity heatmap (2/3), whose weeks stretch to fill */
+.wiki-home-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 30px 40px; align-items: start; }
+.wiki-home-top .wiki-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.wiki-home-top .wiki-heatmap-scroll { --cell: 20px; }
+.wiki-home-top .wiki-heatmap-grid, .wiki-home-top .wiki-heatmap-week { flex: 1; }
+.wiki-home-top .wiki-heatmap-scroll .wiki-heatmap-cell { width: auto; }
+@media (max-width: 860px) { .wiki-home-top { grid-template-columns: minmax(0, 1fr); } }
+.wiki-tile { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border: 1px solid var(--theme-line); border-radius: 11px; background: var(--theme-surface); }
 .wiki-tile-label { font-size: 12.5px; color: var(--theme-muted); }
 .wiki-tile-value { font-size: 28px; font-weight: 650; line-height: 1.2; }
 .wiki-tile-sub { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; font-size: 12px; color: var(--theme-muted); }
+.wiki-tile.is-link { color: inherit; text-decoration: none; transition: border-color 160ms ease-out; }
+.wiki-tile.is-link:hover { border-color: var(--theme-accent); }
+.wiki-tile.is-link:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 2px; }
+.wiki-tile.is-link .wiki-tile-sub { color: var(--theme-accent); }
 .wiki-spark polyline { fill: none; stroke: var(--theme-subtle); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .wiki-spark circle { fill: var(--theme-accent); stroke: var(--theme-surface); stroke-width: 2; }
 @media (max-width: 760px) { .wiki-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* project timeline */
-.wiki-timeline { margin: 4px 0 18px; padding: 14px 16px; border: 1px solid var(--theme-line); border-radius: 10px; background: var(--theme-surface); }
+.wiki-timeline { margin: 4px 0 18px; padding: 14px 16px; border: 1px solid var(--theme-line); border-radius: 11px; background: var(--theme-surface); }
 .wiki-timeline-scroll { overflow-x: auto; }
 .wiki-timeline-row { display: grid; grid-template-columns: 150px minmax(360px, 1fr) 64px; align-items: center; gap: 10px; min-height: 19px; }
 .wiki-timeline-row.is-head { min-height: 16px; }
@@ -491,3 +509,9 @@
 .wiki-run-total { margin: 10px 0 0; font-size: 12.5px; color: var(--theme-muted); }
 .wiki-run-total span { margin-right: 12px; }
 .wiki-pill.is-warn, .wiki-pill.is-bad { color: var(--theme-error-ink); background: var(--theme-error-surface); }
+.wiki-timeline-legend { display: flex; align-items: center; gap: 6px; margin: 10px 0 0; font-size: 12px; color: var(--theme-muted); }
+.wiki-entry-time { margin-right: 8px; color: var(--theme-muted); font-variant-numeric: tabular-nums; }
+.wiki-ingest { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 28px; }
+.wiki-ingest code { overflow-wrap: anywhere; }
+.wiki-workspace .wiki-ingest button { margin-left: auto; padding: 2px 10px; border-radius: 6px; font-size: 12px; }
+#wiki-open { scroll-margin-top: 64px; }
