@@ -14,8 +14,8 @@ test('online backup includes WAL records, verifies integrity and prunes only its
   const db=openStore(join(dir,'data'));t.after(()=>db.close());db.prepare('INSERT INTO users(id,username,password,recovery_hash,created_at,terms_version) VALUES(?,?,?,?,?,?)').run('example','example','hash','hash',0,'test');
   const backups=join(dir,'backups'),first=await backupPlanner({source:join(dir,'data','planner.sqlite'),directory:backups});
   const copy=new DatabaseSync(first,{readOnly:true});assert.equal(copy.prepare('SELECT username FROM users').get().username,'example');copy.close();assert.equal((await stat(first)).mode&0o777,0o600);
-  const old=Date.now()-8*86400000;await utimes(first,old/1000,old/1000);const unrelated=join(backups,'personal.sqlite');await writeFile(unrelated,'untouched');await utimes(unrelated,old/1000,old/1000);
-  await backupPlanner({source:join(dir,'data','planner.sqlite'),directory:backups,now:Date.now()+1000});await assert.rejects(stat(first),{code:'ENOENT'});assert.equal((await stat(unrelated)).size,9);
+  const old=Date.now()-8*86400000;await utimes(first,old/1000,old/1000);const unrelated=join(backups,'personal.sqlite');await writeFile(unrelated,'untouched');await utimes(unrelated,old/1000,old/1000);await writeFile(first+'-shm','x');await utimes(first+'-shm',old/1000,old/1000);
+  await backupPlanner({source:join(dir,'data','planner.sqlite'),directory:backups,now:Date.now()+1000});await assert.rejects(stat(first),{code:'ENOENT'});await assert.rejects(stat(first+'-shm'),{code:'ENOENT'});assert.equal((await stat(unrelated)).size,9);
 });
 test('restore reapplies account deletions, revokes sessions and refuses to overwrite a directory',async t=>{
   const dir=await mkdtemp(join(tmpdir(),'planner-restore-test-'));t.after(()=>rm(dir,{recursive:true,force:true}));

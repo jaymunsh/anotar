@@ -8,7 +8,7 @@ export async function backupPlanner({source,directory,now=Date.now()}){
   const db=new DatabaseSync(source,{readOnly:true});
   try{await backup(db,target);await chmod(target,0o600);}finally{db.close();}
   const check=new DatabaseSync(target,{readOnly:true});try{if(check.prepare('PRAGMA quick_check').get().quick_check!=='ok')throw Error('Backup integrity check failed');}finally{check.close();}
-  for(const name of await readdir(directory)){if(!/^planner-20\d\d-.*\.sqlite$/.test(name))continue;const file=join(directory,name);if((await stat(file)).mtimeMs<now-7*86400000)await unlink(file);}
+  for(const name of await readdir(directory)){if(!/^planner-20\d\d-.*\.sqlite(-wal|-shm)?$/.test(name))continue;const file=join(directory,name);if((await stat(file)).mtimeMs<now-7*86400000)await unlink(file);}
   return target;
 }
 if(process.argv[1]&&resolve(process.argv[1])===resolve(import.meta.filename)){

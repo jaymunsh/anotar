@@ -47,4 +47,7 @@ previous_image=$(docker inspect app-storage-1 --format '{{.Config.Image}}')
 # current keeps pointing at the release root; app_dir_of resolves the compose directory.
 ln -sfn "$release_dir" /srv/leneu/current
 printf '%s\n' "$release_commit" > /srv/leneu/deployed-commit
+# Keep the 10 newest pre-deploy backups made above (before-<sha12>-<UTC time>); hand-named backups stay.
+find /srv/leneu/backups -maxdepth 1 -type d -regextype posix-extended -regex '.*/before-[0-9a-f]{12}-[0-9]{8}T[0-9]{6}' -printf '%f\n' |
+  sort -t- -k3 | head -n -10 | while read -r old; do rm -rf -- "/srv/leneu/backups/$old"; done
 printf 'Deployed %s; services healthy\n' "$release_commit"
