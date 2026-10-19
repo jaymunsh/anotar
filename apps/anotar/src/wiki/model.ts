@@ -32,6 +32,17 @@ export type MemorySystem = {
   agents: string;
   projects: { hide?: string[]; alias?: Record<string, string> };
   counts: { raw: number; pending: number; summarized: number; shown: number; hidden: number };
+  runs?: MemoryRun[];
+  byModel?: [string, number][];
+};
+/** One summarize.py run (runs.jsonl), newest first. */
+export type MemoryRun = {
+  at: string;
+  mode: 'sessions' | 'weekly';
+  seconds: number;
+  models: Record<string, { ok: number; fail: number }>;
+  down: string[];
+  stopped: string | null;
 };
 export type MemoryData = { wiki: WikiPage[]; sessions: Session[]; digests?: Digest[]; system?: MemorySystem; builtAt?: string };
 

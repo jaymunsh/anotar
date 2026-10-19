@@ -856,6 +856,53 @@ function SystemView({ data }: { data: Prepared }) {
         ))}
       </div>
       <section className="wiki-block">
+        <h2>최근 실행<span className="wiki-note">summarize.py · 모델은 deepseek → glm → mimo → space-bunny 순서로, 답하지 않으면 다음으로</span></h2>
+        {sys.runs?.length ? (
+          <div className="wiki-runs">
+            <table>
+              <thead>
+                <tr><th>언제</th><th>무엇</th><th>모델별 성공/실패</th><th>걸린 시간</th><th>결과</th></tr>
+              </thead>
+              <tbody>
+                {sys.runs.map((run) => {
+                  const ok = Object.values(run.models).reduce((n, m) => n + m.ok, 0);
+                  const fail = Object.values(run.models).reduce((n, m) => n + m.fail, 0);
+                  return (
+                    <tr key={run.at + run.mode}>
+                      <td>{run.at.slice(5, 16).replace('T', ' ')}</td>
+                      <td>{run.mode === 'sessions' ? '세션 요약' : '주간 회고'}</td>
+                      <td>
+                        {Object.entries(run.models).map(([model, m]) => (
+                          <span key={model} className="wiki-run-model">{model.split('/').pop()?.replace('-free', '')} <b>{m.ok}</b>{m.fail > 0 && <em> / {m.fail}</em>}</span>
+                        ))}
+                        {run.down.length > 0 && <span className="wiki-muted"> 답 없음: {run.down.map((m) => m.split('/').pop()?.replace('-free', '')).join(', ')}</span>}
+                      </td>
+                      <td>{run.seconds >= 60 ? `${Math.round(run.seconds / 60)}분` : `${run.seconds}초`}</td>
+                      <td>
+                        {run.stopped ? (
+                          <span className="wiki-pill is-bad" title={run.stopped}>멈춤</span>
+                        ) : fail ? (
+                          <span className="wiki-pill is-warn">{ok}개 성공 · {fail}개 실패</span>
+                        ) : (
+                          <span className="wiki-pill is-live">{ok}개 성공</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="wiki-muted">아직 기록이 없어요. summarize.py를 한 번 돌리면 여기에 남아요.</p>
+        )}
+        {sys.byModel && sys.byModel.length > 0 && (
+          <p className="wiki-run-total">
+            요약을 쓴 모델: {sys.byModel.map(([model, n]) => <span key={model}><code>{model}</code> {n}</span>)}
+          </p>
+        )}
+      </section>
+      <section className="wiki-block">
         <h2>projects.json<span className="wiki-note">데이터 repo · 화면과 회고에만 적용, 요약 파일은 그대로</span></h2>
         <div className="wiki-system-config">
           <div>

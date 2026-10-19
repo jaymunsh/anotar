@@ -479,3 +479,15 @@
 .wiki-guide { max-width: 860px; }
 .wiki-guide .wiki-prose h2 { margin-top: 30px; padding-bottom: 6px; border-bottom: 1px solid var(--theme-line); font-size: 17px; }
 .wiki-guide .wiki-prose ol li { margin: 6px 0; }
+
+/* 구조 tab: recent summarize.py runs */
+.wiki-runs { overflow-x: auto; }
+.wiki-runs table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.wiki-runs th { padding: 7px 10px; font-size: 12px; font-weight: 650; color: var(--theme-muted); text-align: left; border-bottom: 1px solid var(--theme-line); background: var(--theme-raised); white-space: nowrap; }
+.wiki-runs td { padding: 8px 10px; border-bottom: 1px solid var(--theme-line); vertical-align: top; }
+.wiki-runs td:first-child, .wiki-runs td:nth-child(4) { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.wiki-run-model { display: inline-block; margin-right: 10px; white-space: nowrap; }
+.wiki-run-model em { font-style: normal; color: var(--theme-error-ink); }
+.wiki-run-total { margin: 10px 0 0; font-size: 12.5px; color: var(--theme-muted); }
+.wiki-run-total span { margin-right: 12px; }
+.wiki-pill.is-warn, .wiki-pill.is-bad { color: var(--theme-error-ink); background: var(--theme-error-surface); }

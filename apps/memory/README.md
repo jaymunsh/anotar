@@ -47,6 +47,8 @@ site/data.json                    anotar /wiki 화면이 읽는 유일한 파일
 - 에이전트 한 번에 전부 맡기면 무료 모델은 맥락이 넘쳐 멈춘다. 그래서 **덤프 하나에 한 번씩** 부른다.
 - 120KB가 넘는 덤프는 앞뒤 60KB씩만 남긴 사본(`raw/sessions/.cut/`)을 읽힌다. 요약 본문에 "긴 세션이라 앞뒤만 읽음"이 남는다.
 - `opencode run`은 stdin이 열려 있으면 입력을 기다리며 멈춘다. 스크립트는 stdin을 닫고 부른다.
+- 시작할 때 모델이 90초 안에 답하는지 보고, 도중에 답하지 않으면 다음 모델로 넘어가 같은 작업을 한 번 더 한다. 실행마다 `runs.jsonl`에 남고 구조 탭 "최근 실행"에 보인다.
+- opencode 무료 한도(`Rate limit exceeded`)는 모델별이 아니라 무료 전체에 걸린다. 그때는 모든 모델이 답하지 않으니 몇 시간 뒤 다시 돌린다.
 - opencode는 repo 밖 경로를 자동 거부한다. 그래서 잘라 낸 사본도 repo 안에 둔다.
 
 ## 설정
@@ -54,7 +56,7 @@ site/data.json                    anotar /wiki 화면이 읽는 유일한 파일
 | 무엇 | 어디 | 예 |
 |---|---|---|
 | 숨길 프로젝트, 합칠 이름 | 데이터 repo `projects.json` | `{"hide": ["test*"], "alias": {"leneu-planner": "harukan"}}` |
-| 요약 모델 | `MEMORY_MODEL` 또는 `daily.sh opencode <모델>` | 기본 `opencode/deepseek-v4.1-flash-free` |
+| 요약 모델 | `MEMORY_MODELS`(쉼표, 순서대로 대체) / `MEMORY_MODEL`(맨 앞에 둘 것) | 기본 deepseek-v4.1-flash → glm-5.3-flash → mimo-v2.6-flash → space-bunny(MiniMax), 모두 opencode 무료 |
 | 데이터 위치 | `MEMORY_DATA` | 기본은 현재 폴더 |
 
 - `hide`는 glob이다. 숨겨도 요약 파일은 그대로 있고 화면과 회고에서만 빠진다.

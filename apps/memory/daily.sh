@@ -23,7 +23,7 @@ case $AGENT in
     python3 "$CODE/import_sessions.py"
     MEMORY_MODEL="$MODEL" python3 "$CODE/summarize.py" sessions || echo "요약 일부 실패: 다음 실행 때 다시 시도"
     MEMORY_MODEL="$MODEL" python3 "$CODE/summarize.py" weekly || echo "회고 일부 실패: 다음 실행 때 다시 시도"
-    git add sessions digests && git commit -qm "sessions: $(date +%F) 요약·주간 회고" || true ;;
+    git add sessions digests runs.jsonl && git commit -qm "sessions: $(date +%F) 요약·주간 회고" || true ;;
   *)
     echo "알 수 없는 에이전트: $AGENT (claude | codex | opencode)" >&2; exit 1 ;;
 esac

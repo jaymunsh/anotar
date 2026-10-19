@@ -61,7 +61,14 @@ def system(config, shown):
     pending = sum(1 for p in raw if not (DATA / "sessions" / p.name).exists()
                   or p.stat().st_mtime > (DATA / "sessions" / p.name).stat().st_mtime)
     summarized = len(list((DATA / "sessions").glob("*.md")))
-    return {"readme": read(CODE / "README.md"), "guide": read(CODE / "GUIDE.md"), "agents": read(DATA / "AGENTS.md"), "projects": config,
+    runs_file = DATA / "runs.jsonl"
+    runs = [json.loads(line) for line in read(runs_file).splitlines() if line.strip()][-15:][::-1]
+    by_model = {}
+    for p in (DATA / "sessions").glob("*.md"):
+        m = re.search(r"^summarized_by:\s*(.+)$", p.read_text(encoding="utf-8"), re.M)
+        key = m.group(1).strip() if m else "(모름)"
+        by_model[key] = by_model.get(key, 0) + 1
+    return {"runs": runs, "byModel": sorted(by_model.items(), key=lambda kv: -kv[1]),"readme": read(CODE / "README.md"), "guide": read(CODE / "GUIDE.md"), "agents": read(DATA / "AGENTS.md"), "projects": config,
             "counts": {"raw": len(raw), "pending": pending, "summarized": summarized,
                        "shown": shown, "hidden": summarized - shown}}
 
