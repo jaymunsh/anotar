@@ -212,6 +212,14 @@ function WikiHome({ data, link }: { data: Prepared; link: Link }) {
   return (
     <div className="wiki-home">
       <div className="wiki-home-grid">
+        {data.digests[0] && (
+          <Section title="주간 회고" note={<a {...link('/wiki/log')}>주별로 보기</a>}>
+            <DigestCard
+              digest={data.digests[0]}
+              heading={<span className="wiki-muted">{monthDay(data.digests[0].week)} – {monthDay(addDays(data.digests[0].week, 6))}</span>}
+            />
+          </Section>
+        )}
         <Section title="이번 주" note={<a {...link('/wiki/log')}>전체 기록</a>}>
           {home.thisWeek.length ? (
             <ul className="wiki-items">
@@ -290,14 +298,6 @@ function WikiHome({ data, link }: { data: Prepared; link: Link }) {
                 </li>
               ))}
             </ul>
-          </Section>
-        )}
-        {data.digests[0] && (
-          <Section title="주간 회고" note={<a {...link('/wiki/log')}>주별로 보기</a>}>
-            <DigestCard
-              digest={data.digests[0]}
-              heading={<span className="wiki-muted">{monthDay(data.digests[0].week)} – {monthDay(addDays(data.digests[0].week, 6))}</span>}
-            />
           </Section>
         )}
         {home.recentWiki.length > 0 && (
