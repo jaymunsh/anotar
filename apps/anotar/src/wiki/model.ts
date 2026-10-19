@@ -25,13 +25,21 @@ export type Session = {
 };
 /** Weekly review written by apps/memory/summarize.py weekly; `week` is that week's Monday. */
 export type Digest = { slug: string; title: string; tldr: string; week: string; body: string };
-export type MemoryData = { wiki: WikiPage[]; sessions: Session[]; digests?: Digest[]; builtAt?: string };
+/** How the wiki is built (apps/memory build.py): docs, projects.json and per-stage counts. */
+export type MemorySystem = {
+  readme: string;
+  agents: string;
+  projects: { hide?: string[]; alias?: Record<string, string> };
+  counts: { raw: number; pending: number; summarized: number; shown: number; hidden: number };
+};
+export type MemoryData = { wiki: WikiPage[]; sessions: Session[]; digests?: Digest[]; system?: MemorySystem; builtAt?: string };
 
 export type WikiRoute =
   | { view: 'home' }
   | { view: 'pages'; slug: string | null }
   | { view: 'log'; slug: string | null }
-  | { view: 'projects'; name: string | null };
+  | { view: 'projects'; name: string | null }
+  | { view: 'system' };
 
 export function parseWikiRoute(pathname: string): WikiRoute {
   const [, , kind, ...rest] = pathname.replace(/\/+$/, '').split('/');
@@ -39,6 +47,7 @@ export function parseWikiRoute(pathname: string): WikiRoute {
   if (kind === 'pages') return { view: 'pages', slug: id };
   if (kind === 'log') return { view: 'log', slug: id };
   if (kind === 'projects') return { view: 'projects', name: id };
+  if (kind === 'system') return { view: 'system' };
   return { view: 'home' };
 }
 
@@ -91,7 +100,7 @@ export function prepare(data: MemoryData) {
   const projects = new Map<string, Session[]>();
   for (const s of sessions) projects.set(s.project, [...(projects.get(s.project) ?? []), s]);
   const digests = [...(data.digests ?? [])].sort((a, b) => b.week.localeCompare(a.week));
-  return { wiki, sessions, projects, digests, builtAt: data.builtAt ?? null };
+  return { wiki, sessions, projects, digests, system: data.system ?? null, builtAt: data.builtAt ?? null };
 }
 export type Prepared = ReturnType<typeof prepare>;
 

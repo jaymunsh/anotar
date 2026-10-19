@@ -448,3 +448,18 @@
 @media (max-width: 760px) { .wiki-timeline-row { grid-template-columns: 104px minmax(360px, 1fr) 58px; } }
 /* Rows must span the whole scroll width, or the sticky name is pushed out with its row. */
 .wiki-timeline-row { width: max-content; min-width: 100%; }
+
+/* 구조 tab */
+.wiki-system { display: grid; gap: 26px; }
+.wiki-tiles.is-five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 760px) { .wiki-tiles.is-five { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.wiki-system-config { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.wiki-system-config h3 { margin: 6px 0; font-size: 13px; color: var(--theme-muted); font-weight: 650; }
+.wiki-system-config code { margin-right: 6px; }
+@media (max-width: 760px) { .wiki-system-config { grid-template-columns: 1fr; } }
+.wiki-system-doc, .wiki-system-rules .wiki-reader { max-width: none; }
+.wiki-system-doc pre, .wiki-system-rules pre { overflow-x: auto; }
+.wiki-system-rules summary { cursor: pointer; font-weight: 650; color: var(--theme-accent); }
+.wiki-system-doc table, .wiki-system-rules table { display: block; overflow-x: auto; }
+.wiki-system-doc pre, .wiki-system-rules pre { max-width: 100%; }
+.wiki-system-doc, .wiki-system-rules { min-width: 0; }

@@ -94,6 +94,7 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
     { path: '/wiki/pages', label: '위키', active: route.view === 'pages' },
     { path: '/wiki/log', label: 'AI 기록', active: route.view === 'log' },
     { path: '/wiki/projects', label: '프로젝트', active: route.view === 'projects' },
+    { path: '/wiki/system', label: '구조', active: route.view === 'system' },
   ];
   const data = load.state === 'ready' ? load.data : null;
   const today = ymd(new Date());
@@ -117,6 +118,7 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
     body = route.slug ? <WikiReader data={load.data} slug={route.slug} link={link} navigate={navigate} /> : <WikiList data={load.data} link={link} />;
   else if (route.view === 'log')
     body = route.slug ? <SessionReader data={load.data} slug={route.slug} link={link} navigate={navigate} /> : <SessionList data={load.data} link={link} />;
+  else if (route.view === 'system') body = <SystemView data={load.data} />;
   else body = route.name ? <ProjectReader data={load.data} name={route.name} link={link} /> : <ProjectList data={load.data} link={link} />;
 
   return (
@@ -814,5 +816,58 @@ function ProjectReader({ data, name, link }: { data: Prepared; name: string; lin
         {ss.map((s) => <SessionEntry key={s.slug} s={s} link={link} project={false} />)}
       </div>
     </article>
+  );
+}
+
+/** 구조 tab: how the wiki is made, so the pipeline and its rules can be read and improved. */
+function SystemView({ data }: { data: Prepared }) {
+  const sys = data.system;
+  if (!sys)
+    return <p className="wiki-status">구조 정보가 없어요. apps/memory의 build.py를 새 버전으로 다시 실행해 주세요.</p>;
+  const c = sys.counts;
+  const stages: [string, number, string][] = [
+    ['① 가져온 대화', c.raw, 'raw/sessions · 이 Mac에만'],
+    ['② 요약 대기', c.pending, '다음 summarize.py sessions에서'],
+    ['② AI 기록', c.shown, `sessions · 숨김 ${c.hidden}`],
+    ['③ 주간 회고', data.digests.length, 'digests'],
+    ['④ 위키 페이지', data.wiki.length, 'wiki'],
+  ];
+  const alias = Object.entries(sys.projects.alias ?? {});
+  return (
+    <div className="wiki-system">
+      <div className="wiki-tiles is-five">
+        {stages.map(([label, value, sub]) => (
+          <div className="wiki-tile" key={label}>
+            <span className="wiki-tile-label">{label}</span>
+            <strong className="wiki-tile-value">{value}</strong>
+            <span className="wiki-tile-sub"><span>{sub}</span></span>
+          </div>
+        ))}
+      </div>
+      <section className="wiki-block">
+        <h2>projects.json<span className="wiki-note">데이터 repo · 화면과 회고에만 적용, 요약 파일은 그대로</span></h2>
+        <div className="wiki-system-config">
+          <div>
+            <h3>숨김</h3>
+            <p>{(sys.projects.hide ?? []).map((h) => <code key={h}>{h}</code>)}{!(sys.projects.hide ?? []).length && <span className="wiki-muted">없음</span>}</p>
+          </div>
+          <div>
+            <h3>이름 합치기</h3>
+            {alias.length ? (
+              <ul className="wiki-items">{alias.map(([from, to]) => <li key={from}><code>{from}</code> → <b>{to}</b></li>)}</ul>
+            ) : (
+              <p className="wiki-muted">없음</p>
+            )}
+          </div>
+        </div>
+      </section>
+      <article className="wiki-reader wiki-system-doc">
+        <Markdown text={sys.readme} />
+      </article>
+      <details className="wiki-system-rules">
+        <summary>데이터 repo 규칙 AGENTS.md (요약·회고·위키 형식)</summary>
+        <article className="wiki-reader"><Markdown text={sys.agents} /></article>
+      </details>
+    </div>
   );
 }

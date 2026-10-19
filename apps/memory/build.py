@@ -9,6 +9,7 @@ import fnmatch, json, os, pathlib, re, sys
 from datetime import datetime, timezone
 
 DATA = pathlib.Path(os.environ.get("MEMORY_DATA", os.getcwd()))
+CODE = pathlib.Path(__file__).resolve().parent
 WIKI_KEYS = ("title", "tldr", "tags", "updated")
 SESSION_KEYS = ("title", "tldr", "tool", "project", "date")
 DIGEST_KEYS = ("title", "tldr", "week")
@@ -53,6 +54,18 @@ def tidy_projects(sessions, config):
     return kept
 
 
+def system(config, shown):
+    """구조 탭 자료: 이 README, 데이터 repo 규칙, 설정, 단계별 개수."""
+    read = lambda p: p.read_text(encoding="utf-8") if p.exists() else ""
+    raw = list((DATA / "raw/sessions").glob("*.md"))
+    pending = sum(1 for p in raw if not (DATA / "sessions" / p.name).exists()
+                  or p.stat().st_mtime > (DATA / "sessions" / p.name).stat().st_mtime)
+    summarized = len(list((DATA / "sessions").glob("*.md")))
+    return {"readme": read(CODE / "README.md"), "agents": read(DATA / "AGENTS.md"), "projects": config,
+            "counts": {"raw": len(raw), "pending": pending, "summarized": summarized,
+                       "shown": shown, "hidden": summarized - shown}}
+
+
 def main():
     config_path = DATA / "projects.json"
     config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
@@ -60,6 +73,7 @@ def main():
             "sessions": tidy_projects(load("sessions", SESSION_KEYS, "date"), config),
             "digests": load("digests", DIGEST_KEYS, "week"),
             "builtAt": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+    data["system"] = system(config, len(data["sessions"]))
     wiki_slugs = {p["slug"] for p in data["wiki"]}
     for s in data["sessions"]:
         if isinstance(s.get("promoted"), str):
