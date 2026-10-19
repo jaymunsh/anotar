@@ -3,10 +3,11 @@ import react from '@vitejs/plugin-react';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-// One portable source document is served in development and emitted unchanged for deployment.
-const architectureFile = fileURLToPath(
-  new URL('./docs/architecture-overview.html', import.meta.url),
-);
+// Portable source documents, served in development and emitted unchanged for deployment.
+const documents: Record<string, string> = {
+  'architecture.html': fileURLToPath(new URL('./docs/architecture-overview.html', import.meta.url)),
+  'oracle-server.html': fileURLToPath(new URL('./docs/oracle-server.html', import.meta.url)),
+};
 
 export default defineConfig({
   plugins: [
@@ -53,9 +54,10 @@ export default defineConfig({
       name: 'anotar-architecture-document',
       configureServer(server) {
         server.middlewares.use((request, response, next) => {
-          if (request.url?.split('?')[0] !== '/architecture.html') return next();
+          const file = documents[request.url?.split('?')[0].slice(1) ?? ''];
+          if (!file) return next();
           if (request.method !== 'GET' && request.method !== 'HEAD') return next();
-          const document = readFileSync(architectureFile);
+          const document = readFileSync(file);
           response.setHeader('Content-Type', 'text/html; charset=utf-8');
           response.setHeader('Cache-Control', 'no-store');
           response.setHeader('X-Content-Type-Options', 'nosniff');
@@ -64,11 +66,9 @@ export default defineConfig({
         });
       },
       generateBundle() {
-        this.emitFile({
-          type: 'asset',
-          fileName: 'architecture.html',
-          source: readFileSync(architectureFile),
-        });
+        for (const [fileName, file] of Object.entries(documents)) {
+          this.emitFile({ type: 'asset', fileName, source: readFileSync(file) });
+        }
       },
     },
   ],

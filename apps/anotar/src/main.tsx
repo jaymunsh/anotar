@@ -1260,9 +1260,10 @@ function App() {
               <Menu size={20} />
             </button>
             <div className="page-toolbar-slot workspace-toolbar-slot" ref={setPageToolbarTarget} />
+            {/* A page's crumbs replace the fallback within a moment; a placeholder title there only flashes. */}
             <span className="toolbar-fallback">
               {isPageView
-                ? '페이지'
+                ? ''
                 : isHostingView
                   ? '웹 호스팅'
                   : isTaskView

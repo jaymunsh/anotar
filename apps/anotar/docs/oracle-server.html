@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>anotar 모노레포 · 전체 아키텍처</title>
+<title>Oracle 서버 운영 지도</title>
 <style>
 :root{--canvas:#f6f5f0;--surface:#fff;--ink:#202b29;--muted:#586c5c;--line:#e0e5dc;--accent:#315843;--soft:#e9eeda;--warn:#9c6b12;--warn-bg:#f8efd9;color-scheme:light}
 *{box-sizing:border-box}
@@ -58,15 +58,137 @@ svg .off{fill:#fff;stroke:#e0e5dc;stroke-dasharray:4 4}
 </head>
 <body>
 <main>
-<h1>anotar 모노레포 · 전체 아키텍처</h1>
-<p class="lead">한 repo에 앱 세 개가 있고, 서버 한 대(Oracle)에서 주소 네 개로 나뉘어 돌아갑니다. 이 문서는 무엇이 어디 있고 서로 어떻게 이어지는지를 한 장으로 보여 줍니다. 앱 내부 구조는 각 앱 문서를 봅니다.</p>
-<p class="meta">기준: 2026-10-19 (anotar 온라인 전용 전환 반영) · 공개 문서라 비밀값·서버 내부 경로·운영 기록은 넣지 않습니다(그런 내용은 비공개 repo).</p>
-<nav class="toc" aria-label="목차"><a href="#overview">한눈에</a><a href="#apps">앱 세 개</a><a href="#links">앱 사이 연결</a><a href="#deploy">배포</a><a href="#backup">백업</a><a href="#ai">AI 요청</a><a href="#wiki">위키</a><a href="#target">지금과 바뀔 구성</a><a href="#repos">repo 세 개</a><a href="#more">더 자세한 문서</a></nav>
+<h1>Oracle 서버 · 전체 운영 지도</h1>
+<p class="lead">한 repo에 앱 세 개가 있고, Oracle 서버 한 대에서 주소 네 개로 나뉘어 돌아갑니다. 이 문서는 서버 사양, 네트워크, 컨테이너, 폴더, 타이머, 배포, 백업, 감시, 비용, 비밀값 위치, 위키, 운영 명령까지 서버에 관한 것을 전부 한곳에 모았습니다. 앱 내부 구조는 각 앱 문서를 봅니다.</p>
+<p class="meta">기준: 2026-10-20 07:30 KST(보안 업데이트·재부팅 뒤), 서버에서 직접 읽은 값 · 원본 <code>apps/anotar/docs/oracle-server.html</code>, anotar 설정 › 서비스 정보에서 열림 · 비밀값·IP·OCID는 마스킹하고 위치만 적습니다.</p>
+<nav class="toc" aria-label="목차"><a href="#overview">한눈에</a><a href="#server">서버 사양</a><a href="#network">네트워크</a><a href="#containers">컨테이너</a><a href="#dirs">폴더 지도</a><a href="#timers">타이머</a><a href="#apps">앱 세 개</a><a href="#links">앱 사이 연결</a><a href="#deploy">배포</a><a href="#backup">백업</a><a href="#ai">AI 요청</a><a href="#wiki">위키</a><a href="#patch">보안 패치</a><a href="#watch">감시·알림</a><a href="#cost">비용</a><a href="#secrets">비밀값</a><a href="#mac">Mac</a><a href="#ops">운영 명령</a><a href="#watch-out">주의점</a><a href="#target">지금과 바뀔 구성</a><a href="#repos">repo 세 개</a><a href="#more">더 자세한 문서</a></nav>
 
 <h2 id="overview">한눈에</h2>
 <p>바깥 요청은 모두 Cloudflare tunnel로 들어와 주소마다 서버의 다른 포트로 갑니다. 서버의 포트는 밖으로 직접 열려 있지 않습니다.</p>
 <figure><div class="fig"><svg viewBox="0 0 1000 600" role="img" aria-labelledby="ov-t ov-d"><title id="ov-t">전체 구성도</title><desc id="ov-d">사용자 요청은 Cloudflare tunnel을 거쳐 Oracle 서버의 포트 네 개로 간다. harukan은 자기 SQLite만 쓰고, anotar 개인 앱은 개인 DB와 공개 폴더에 쓰며, 공유 서버와 정적 호스팅은 공개 폴더를 읽기만 한다. 손님 댓글은 소켓으로 개인 앱에 간다. 위키 데이터 파일은 서버가 매시간 GitHub에서 가져와 만들고 anotar가 로그인한 본인에게만 준다. anotar의 하루칸 칸은 harukan을 새 탭으로 연다.</desc><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#586c5c"/></marker><marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#315843"/></marker></defs><text class="h" x="20" y="30">누가 · 주소</text><text class="h" x="200" y="30">입구</text><text class="h" x="380" y="30">앱 (포트)</text><text class="h" x="720" y="30">저장</text><rect class="frame" x="350" y="42" width="630" height="508" rx="14"/><text class="s" x="366" y="538">Oracle 서버 한 대 · 포트는 밖으로 열려 있지 않음</text><rect class="who" x="20" y="60" width="160" height="56" rx="10"/><text class="t" x="34" y="84">harukan.leneu.store</text><text class="s" x="34" y="103">누구나 · 가입</text><path class="a" d="M180 88H198" marker-end="url(#ah)"/><rect class="who" x="20" y="150" width="160" height="56" rx="10"/><text class="t" x="34" y="174">anotar.leneu.store</text><text class="s" x="34" y="193">본인만 · 비번 + TOTP</text><path class="a" d="M180 178H198" marker-end="url(#ah)"/><rect class="who" x="20" y="240" width="160" height="56" rx="10"/><text class="t" x="34" y="264">share.leneu.store</text><text class="s" x="34" y="283">링크 받은 사람</text><path class="a" d="M180 268H198" marker-end="url(#ah)"/><rect class="who" x="20" y="330" width="160" height="56" rx="10"/><text class="t" x="34" y="354">host.leneu.store</text><text class="s" x="34" y="373">누구나</text><path class="a" d="M180 358H198" marker-end="url(#ah)"/><rect class="edge" x="200" y="60" width="120" height="326" rx="12"/><text class="edge-t" x="260" y="208" text-anchor="middle">Cloudflare</text><text class="edge-t" x="260" y="228" text-anchor="middle">tunnel</text><text class="edge-s" x="260" y="250" text-anchor="middle">TLS는 여기서</text><path class="a" d="M320 88H378" marker-end="url(#ah)"/><rect class="app" x="380" y="60" width="240" height="56" rx="10"/><text class="t" x="394" y="84">harukan · 8794</text><text class="s" x="394" y="103">하루 시간표 · 가입 서비스</text><path class="a" d="M320 178H378" marker-end="url(#ah)"/><rect class="app" x="380" y="150" width="240" height="56" rx="10"/><text class="t" x="394" y="174">anotar 개인 · 8787</text><text class="s" x="394" y="193">메모·페이지·할 일·AI·위키</text><path class="a" d="M320 268H378" marker-end="url(#ah)"/><rect class="app" x="380" y="240" width="240" height="56" rx="10"/><text class="t" x="394" y="264">anotar 공유 · 8790</text><text class="s" x="394" y="283">읽기 전용 문서 · 이름 댓글</text><path class="a" d="M320 358H378" marker-end="url(#ah)"/><rect class="app" x="380" y="330" width="240" height="56" rx="10"/><text class="t" x="394" y="354">정적 호스팅 · 8792</text><text class="s" x="394" y="373">HTML 사이트 파일만</text><rect class="app" x="380" y="450" width="240" height="56" rx="10"/><text class="t" x="394" y="474">위키 데이터</text><text class="s" x="394" y="493">memory 컨테이너 없이 anotar가 줌</text><rect class="db" x="720" y="60" width="240" height="56" rx="10"/><text class="t" x="734" y="84">harukan SQLite</text><text class="s" x="734" y="103">planner.sqlite · 매일 백업</text><rect class="db" x="720" y="150" width="240" height="56" rx="10"/><text class="t" x="734" y="174">개인 SQLite + 첨부</text><text class="s" x="734" y="193">서버가 원본 · 매일 04:00 백업</text><rect class="db" x="720" y="285" width="240" height="56" rx="10"/><text class="t" x="734" y="309">공개 폴더</text><text class="s" x="734" y="328">공유 스냅샷·첨부 · 사이트</text><rect class="db" x="720" y="450" width="240" height="56" rx="10"/><text class="t" x="734" y="474">data.json 파일 (읽기 전용)</text><text class="s" x="734" y="493">서버가 매시간 GitHub에서 만듦</text><path class="a" d="M620 88H718" marker-end="url(#ah)"/><path class="a" d="M620 178H718" marker-end="url(#ah)"/><path class="a" d="M620 196C668 196 672 300 718 302" marker-end="url(#ah)"/><text class="l" x="682" y="258">공유할 때 씀</text><path class="a" d="M620 268C664 268 680 300 718 306" marker-end="url(#ah)"/><path class="a" d="M620 358C664 358 680 324 718 320" marker-end="url(#ah)"/><text class="s" x="632" y="390">읽기만</text><path class="a" d="M620 478H718" marker-end="url(#ah)"/><path class="a link" d="M380 470H364V196H378" marker-end="url(#ag)"/><text class="l" x="384" y="424">↑ 로그인한 본인에게만 /memory/data.json</text><path class="a link" d="M560 150V118" marker-end="url(#ag)"/><text class="l" x="570" y="139">하루칸 칸 · 새 탭</text><path class="a link" d="M440 240V208" marker-end="url(#ag)"/><text class="l" x="450" y="229">손님 댓글 (소켓)</text><line class="a" x1="20" y1="582" x2="56" y2="582"/><text class="s" x="64" y="586">요청 · 저장</text><line class="a link" x1="160" y1="582" x2="196" y2="582"/><text class="s" x="204" y="586">앱 사이 연결 (DB는 서로 안 읽음)</text></svg></div><figcaption>주소 네 개, 앱 다섯 덩어리, 저장소 네 곳. 앱끼리는 DB를 읽지 않고 점선으로 표시한 곳으로만 이어집니다.</figcaption><p class="fig-hint meta">그림은 옆으로 밀어서 볼 수 있어요.</p></figure>
 <p>예전 주소도 계속 열립니다. <code>leneu.store</code>는 harukan 앱이 받아 <code>harukan.leneu.store</code>의 같은 경로로, <code>personal.leneu.store</code>는 Cloudflare 규칙이 <code>anotar.leneu.store</code>의 같은 경로로 301을 보냅니다. 로그인은 주소마다 따로라 새 주소에서 한 번 다시 로그인합니다.</p>
+
+<h2 id="server">서버 한 대: 사양과 기본 구성</h2>
+<p>모든 서비스가 Oracle Cloud Always Free 범위 안의 VM 한 대에서 돕니다. 아래 값은 2026-10-20 06:38 KST에 서버에서 직접 읽은 것입니다.</p>
+<div class="wrap"><table>
+ <thead><tr><th>항목</th><th>값</th><th>메모</th></tr></thead>
+ <tbody>
+  <tr><td>클라우드</td><td>Oracle Cloud, PAYG 계정, 홈 리전 Japan Central (Osaka) <code>ap-osaka-1</code>, AD-1</td><td>PAYG지만 Always Free 범위만 쓰도록 할당량·예산·자동 정지로 묶음(<a href="#cost">비용</a>)</td></tr>
+  <tr><td>인스턴스</td><td><code>leneu</code> · <code>VM.Standard.A1.Flex</code> (ARM) · <strong>2 OCPU / 12GB RAM</strong></td><td>2026-10-04 06:18 UTC 생성. 무료 한도는 월 3,000 OCPU시간·18,000 GB시간이고 2 OCPU면 한 달 약 1,488시간(약 50%)</td></tr>
+  <tr><td>OS</td><td>Ubuntu 24.04.5 LTS Minimal, 커널 7.0 (oracle), <code>aarch64</code></td><td>보안 패치 자동 설치 + 필요할 때만 <strong>03:50 KST 자동 재부팅</strong>(<a href="#patch">보안 패치</a>)</td></tr>
+  <tr><td>디스크</td><td>부트 100GB Balanced 10 VPU, <code>/</code> 96G 중 6.4G 사용 (7%, 옛 이미지 정리 뒤)</td><td>스왑 없음. 감시는 여유 10GiB 아래면 경고</td></tr>
+  <tr><td>메모리 사용</td><td>사용 약 0.9GB, 캐시 9GB, 가용 10GB</td><td>컨테이너 네 개 합쳐 약 130MB</td></tr>
+  <tr><td>설치된 도구</td><td>Docker 29.9 · Compose v5.6 · cloudflared 2026.9.3 · rclone 1.60.1(apt) · Python 3.12.3 · git 2.43</td><td>호스트에는 Node가 없음. Node 24는 컨테이너 안에만</td></tr>
+  <tr><td>IP · OCID</td><td><code>&lt;마스킹&gt;</code></td><td>로컬 <code>apps/anotar/.env.oracle-server</code>와 OCI Console에서만 확인</td></tr>
+ </tbody>
+</table></div>
+
+<h2 id="network">네트워크와 접속</h2>
+<ul>
+ <li><strong>들어오는 웹 요청은 전부 Cloudflare tunnel.</strong> 서버의 <code>anotar-tunnel.service</code>(cloudflared, systemd <code>DynamicUser</code>, 토큰은 <code>LoadCredential</code> 파일로 전달)가 Cloudflare로 <em>나가는</em> 연결을 열어 두고, 요청은 그 연결로 들어옵니다. 그래서 서버 방화벽에서 80/443을 열지 않습니다. TLS 인증서도 Cloudflare가 처리합니다.</li>
+ <li><strong>앱 포트는 모두 <code>127.0.0.1</code>에만 묶임.</strong> 8787·8790·8792는 docker-proxy가 loopback에만, harukan 8794는 <code>network_mode: host</code>로 loopback에만 엽니다.</li>
+ <li><strong>방화벽.</strong> 호스트 iptables는 established·ICMP·loopback·<strong>22번(SSH)만</strong> 받고 나머지는 거부합니다. OCI 보안 목록도 같은 원칙(22만).</li>
+ <li><strong>SSH.</strong> 키 로그인만(<code>PasswordAuthentication no</code>). 키 파일 경로·사용자·IP는 로컬 <code>.env.oracle-server</code>(0600, git 제외)에만 있습니다. root 로그인은 막음(<code>/etc/ssh/sshd_config.d/60-no-root.conf</code>, 2026-10-20).</li>
+ <li><strong>DNS.</strong> 도메인 <code>leneu.store</code>는 가비아에서 샀고 네임서버만 Cloudflare(Free 플랜)로 돌렸습니다.</li>
+</ul>
+<div class="wrap"><table>
+ <thead><tr><th>tunnel 공개 주소 (tunnel 이름 <code>anotar-oracle</code>)</th><th>→ 서버 안</th><th>받는 프로세스</th></tr></thead>
+ <tbody>
+  <tr><td><code>harukan.leneu.store</code></td><td><code>http://127.0.0.1:8794</code></td><td>harukan 컨테이너</td></tr>
+  <tr><td><code>leneu.store</code></td><td><code>http://127.0.0.1:8794</code></td><td>harukan이 <code>REDIRECT_FROM_HOSTS</code>로 받아 <code>harukan.leneu.store</code> 같은 경로로 301</td></tr>
+  <tr><td><code>anotar.leneu.store</code></td><td><code>http://127.0.0.1:8787</code></td><td>anotar <code>storage</code> 컨테이너 (개인 앱 + API + 위키 데이터)</td></tr>
+  <tr><td><code>personal.leneu.store</code> (예전)</td><td>—</td><td>tunnel route는 지움. Cloudflare Redirect Rule이 <code>anotar.leneu.store</code>로 301</td></tr>
+  <tr><td><code>share.leneu.store</code></td><td><code>http://127.0.0.1:8790</code></td><td>anotar <code>share</code> 컨테이너</td></tr>
+  <tr><td><code>host.leneu.store</code></td><td><code>http://127.0.0.1:8792</code></td><td>anotar <code>sites</code> 컨테이너</td></tr>
+ </tbody>
+</table></div>
+
+<h2 id="containers">컨테이너</h2>
+<p>Docker 컨테이너 네 개. anotar 세 개는 같은 이미지(<code>anotar:&lt;커밋 40자&gt;</code>)를 역할만 바꿔 띄우고, harukan은 따로 빌드한 이미지입니다. 모두 healthcheck가 있고 <code>restart: unless-stopped</code>입니다.</p>
+<div class="wrap"><table>
+ <thead><tr><th>컨테이너</th><th>이미지 (지금)</th><th>포트</th><th>제한</th><th>지금 사용</th><th>붙인 폴더</th></tr></thead>
+ <tbody>
+  <tr><td><code>app-storage-1</code></td><td><code>anotar:0effca1…</code></td><td>8787</td><td>메모리 3GB · CPU 1.5 · pids 192 · <code>/tmp</code> 768MB</td><td>약 49MB</td><td><code>/data</code>(쓰기), <code>/backups</code>(쓰기), <code>/sites</code>(쓰기), <code>/memory</code>(읽기 전용), 댓글 소켓 <code>/run/leneu</code></td></tr>
+  <tr><td><code>app-share-1</code></td><td>같음</td><td>8790</td><td>512MB · 0.5 · pids 64</td><td>약 42MB</td><td><code>/data</code> 읽기 전용, 댓글 소켓 읽기 전용</td></tr>
+  <tr><td><code>app-sites-1</code></td><td>같음</td><td>8792</td><td>256MB · 0.25 · pids 64</td><td>약 19MB</td><td><code>/sites</code> 읽기 전용</td></tr>
+  <tr><td><code>anotar-planner-planner-1</code> (harukan)</td><td><code>anotar-planner:&lt;날짜-sha12&gt;</code></td><td>8794 (host 네트워크)</td><td>512MB · pids 128 · 읽기 전용 루트 · <code>cap_drop: ALL</code> · <code>no-new-privileges</code> · <code>/tmp</code> 16MB noexec · 사용자 <code>node</code></td><td>약 20MB</td><td><code>/srv/anotar-planner/data</code>, <code>/backups</code>, <code>/var/lib/leneu-host</code>(읽기 전용, <code>/host</code>)</td></tr>
+ </tbody>
+</table></div>
+<p>설정 파일: anotar <code>apps/anotar/compose.yaml</code> + <code>compose.oracle.yaml</code>(자원 제한·위키 파일) + 서버 <code>/srv/leneu/app/.env</code>. harukan <code>apps/harukan/compose.oracle.yaml</code> + 서버 <code>/srv/anotar-planner/.env</code>. 두 배포 스크립트는 성공한 뒤 쓰지 않는 이미지 중 하루 넘은 것을 지웁니다(<code>docker image prune -af --filter until=24h</code>).</p>
+
+<h2 id="dirs">서버 폴더 지도</h2>
+<div class="wrap"><table>
+ <thead><tr><th>경로</th><th>소유 · 권한</th><th>크기</th><th>무엇</th></tr></thead>
+ <tbody>
+  <tr><td colspan="4"><strong>anotar</strong> <code>/srv/leneu</code></td></tr>
+  <tr><td><code>app/</code></td><td>ubuntu · 0700</td><td>6MB</td><td>compose 실행 위치. <code>.env</code>(비밀값), <code>.env.before-20261020</code>(출시 전 사본)</td></tr>
+  <tr><td><code>data-live/</code></td><td>root · 0700</td><td>1.6MB</td><td><strong>운영 원본.</strong> SQLite(<code>storage.sqlite</code>, WAL) + <code>blobs/</code> 첨부. 2026-10-20 새로 시작</td></tr>
+  <tr><td><code>backups/</code></td><td>ubuntu · 0700</td><td>277MB</td><td>자동 백업 <code>automatic-*</code>, 배포 직전 <code>before-&lt;sha12&gt;-&lt;UTC&gt;</code>, 손으로 만든 <code>before-*</code>·<code>oracle-*</code>, 자동 백업 설정 <code>automatic-backups.json</code></td></tr>
+  <tr><td><code>releases/&lt;커밋&gt;</code>, <code>current</code></td><td>root</td><td>157MB</td><td>배포한 커밋별 소스. <code>current</code>는 지금 것으로 가는 링크</td></tr>
+  <tr><td><code>source/</code></td><td>root</td><td>36MB</td><td>배포 스크립트가 GitHub에서 받는 git 작업 사본</td></tr>
+  <tr><td><code>deployed-commit</code></td><td>root · 0600</td><td>—</td><td>지금 배포된 커밋 40자</td></tr>
+  <tr><td><code>sites/</code></td><td>ubuntu</td><td>2.4MB</td><td>정적 호스팅 <code>bundles/</code> + <code>registry.json</code> (백업 안 됨)</td></tr>
+  <tr><td><code>memory-src/</code>, <code>memory/</code></td><td>leneu-memory</td><td>1.7MB / 320KB</td><td>memory-data git 사본과 그걸로 만든 <code>data.json</code></td></tr>
+  <tr><td><code>data/</code>, <code>data-initial/</code></td><td>—</td><td>0 / 15MB</td><td>초기 배포 때 흔적 (안 씀)</td></tr>
+  <tr><td><code>data-live-before-20261018/</code></td><td>root · 0700</td><td>21MB</td><td>새로 시작하기 전 DB. 2026-11-19 이후 삭제 예정</td></tr>
+  <tr><td colspan="4"><strong>harukan</strong> <code>/srv/anotar-planner</code> (예전 이름 그대로)</td></tr>
+  <tr><td><code>.env</code></td><td>root · 0600</td><td>—</td><td>harukan 비밀값·운영자 정보</td></tr>
+  <tr><td><code>data/</code></td><td>opc · 0700</td><td>136KB</td><td><strong>운영 원본</strong> <code>planner.sqlite</code></td></tr>
+  <tr><td><code>backups/</code></td><td>opc · 0700</td><td>1.1MB</td><td><code>planner-&lt;ISO시각&gt;.sqlite</code>(+<code>-wal</code>/<code>-shm</code>), 7일 보관</td></tr>
+  <tr><td><code>releases/&lt;날짜-sha12&gt;</code>, <code>current</code>, <code>source/</code>, <code>deployed-commit</code></td><td>root</td><td>35MB / 34MB</td><td>anotar와 같은 방식의 릴리스·소스</td></tr>
+  <tr><td><code>data-before-20261018/</code>, <code>data-test-20261019T160813Z/</code></td><td>opc · 0700</td><td>52KB / 64KB</td><td>출시 전 DB, 테스트 계정 DB. 2026-11-19 이후 삭제 예정</td></tr>
+  <tr><td colspan="4"><strong>시스템</strong></td></tr>
+  <tr><td><code>/usr/local/sbin/</code></td><td>root · 0755</td><td>—</td><td><code>anotar-deploy</code>, <code>harukan-deploy</code>, <code>leneu-drive-backup</code>, <code>leneu-memory-sync</code> (repo 사본과 같음) + <code>*.before-*</code> 옛 사본</td></tr>
+  <tr><td><code>/opt/leneu-oracle-alerts/</code></td><td>root · 0644</td><td>—</td><td>감시·알림 Python(<code>alerts.py</code>, <code>watch.py</code>, <code>service_watch.py</code>, <code>guard.py</code>, <code>oci_reader.py</code>) + <code>venv/</code>. 원본은 비공개 <code>private/ops-oracle</code></td></tr>
+  <tr><td><code>/etc/leneu-oracle-alerts/</code></td><td>root · 0600/0640</td><td>—</td><td><code>config.env</code>, <code>telegram.env</code>, <code>service-telegram.env</code>, <code>hc-ping-key</code></td></tr>
+  <tr><td><code>/etc/leneu-backup/rclone.conf</code></td><td>root · 0600</td><td>—</td><td>Drive 토큰 + crypt 설정</td></tr>
+  <tr><td><code>/var/lib/leneu-memory/deploy_key</code></td><td>leneu-memory</td><td>—</td><td>memory-data 읽기 전용 deploy key</td></tr>
+  <tr><td><code>/var/lib/leneu-host/status.json</code></td><td>leneu-alerts · 0755/0644</td><td>—</td><td>재부팅 대기·예약 시각. service-watch가 5분마다 쓰고 harukan이 읽기 전용으로 읽음</td></tr>
+  <tr><td><code>/etc/apt/apt.conf.d/52leneu-reboot</code></td><td>root</td><td>—</td><td>자동 재부팅 켬, 시각 <code>18:50</code>(UTC = 03:50 KST)</td></tr>
+  <tr><td><code>/usr/local/lib/anotar/oracle-poll.py</code></td><td>root</td><td>—</td><td>두 배포 타이머가 부르는 GitHub 조회기</td></tr>
+  <tr><td><code>/var/lib/leneu-oracle-alerts/</code></td><td>leneu-alerts · 0700</td><td>—</td><td>감시 상태 파일(중복 알림 억제)</td></tr>
+  <tr><td><code>/var/backups/leneu-monitoring-*</code></td><td>root</td><td>—</td><td>감시 코드 교체 전 사본</td></tr>
+ </tbody>
+</table></div>
+<h3>시스템 사용자</h3>
+<div class="wrap"><table>
+ <thead><tr><th>사용자</th><th>무엇에 씀</th></tr></thead>
+ <tbody>
+  <tr><td><code>ubuntu</code></td><td>SSH 로그인, anotar compose·백업 폴더 소유</td></tr>
+  <tr><td><code>opc</code></td><td>harukan 데이터·백업 폴더 소유(컨테이너 uid 1000)</td></tr>
+  <tr><td><code>anotar-deploy</code></td><td>배포 스크립트가 GitHub을 조회·받을 때</td></tr>
+  <tr><td><code>leneu-alerts</code></td><td>감시·알림 실행 (nologin, root 파일은 읽기만)</td></tr>
+  <tr><td><code>leneu-memory</code></td><td>위키 pull·빌드</td></tr>
+  <tr><td>(DynamicUser)</td><td>cloudflared tunnel. 실행할 때마다 임시 사용자</td></tr>
+ </tbody>
+</table></div>
+
+<h2 id="timers">systemd 타이머 (서버가 혼자 하는 일 전부)</h2>
+<div class="wrap"><table>
+ <thead><tr><th>타이머</th><th>언제</th><th>하는 일</th><th>원본 파일</th></tr></thead>
+ <tbody>
+  <tr><td><code>anotar-deploy.timer</code></td><td>끝나고 2분마다 (부팅 2분 뒤 시작)</td><td><code>oracle-poll.py anotar</code>로 Actions가 통과한 main 커밋을 조회 → 새 커밋이면 <code>anotar-deploy</code>: 소스 받기 → 마운트 검사 → 이미지 빌드 → 배포 직전 백업·검증 → 교체(<code>--wait</code>) → 실패하면 이전 이미지로 → 배포 직전 백업은 최근 10개만 남김 → 옛 이미지 정리</td><td><code>apps/anotar/deploy/oracle-deploy.sh</code>, <code>oracle-poll.py</code></td></tr>
+  <tr><td><code>harukan-deploy.timer</code></td><td>끝나고 2분마다 (부팅 3분 뒤)</td><td><code>oracle-poll.py harukan</code> → 새 커밋이면 지금 버전에서 백업 → 빌드 → 교체 → health, 실패하면 이전 릴리스로 되돌림 → 옛 이미지 정리</td><td><code>apps/harukan/deploy/harukan-deploy.{sh,service,timer}</code></td></tr>
+  <tr><td>(anotar 앱 안)</td><td>매일 04:00 KST</td><td>anotar 자동 백업. systemd가 아니라 <code>storage</code> 컨테이너 안 스케줄러. 설정은 앱 '백업' 화면</td><td><code>server/backups.mjs</code></td></tr>
+  <tr><td><code>anotar-planner-backup.timer</code></td><td>매일 04:30 KST</td><td>harukan SQLite 백업 + <code>quick_check</code>, 7일 지난 것 삭제</td><td><code>apps/harukan/deploy/anotar-planner-backup.*</code>, <code>scripts/backup.mjs</code></td></tr>
+  <tr><td><code>leneu-drive-backup.timer</code></td><td>매일 05:00 KST</td><td>두 앱 최신 백업(anotar는 정적 호스팅 <code>sites/</code>도 같이)을 tar.gz → rclone crypt → Google Drive. 성공하면 healthchecks ping</td><td><code>apps/anotar/deploy/drive-backup.sh</code></td></tr>
+  <tr><td><code>leneu-memory-sync.timer</code></td><td>매시 정각 (부팅 5분 뒤)</td><td>memory-data pull → 바뀌었으면 <code>build.py</code> → <code>/srv/leneu/memory/data.json</code></td><td><code>apps/anotar/deploy/memory-sync.sh</code></td></tr>
+  <tr><td><code>leneu-service-watch.timer</code></td><td>5분마다</td><td>CPU(90% 3번 연속)·메모리 90%·디스크 여유 10GiB·앱 health(8787·8790·8792, <code>SERVICE_HEALTH_PORTS</code>)·재부팅 대기 확인 → 문제면 텔레그램 서비스 방, <code>/var/lib/leneu-host/status.json</code> 갱신. 성공하면 healthchecks <code>oracle-watch</code> ping</td><td><code>private/ops-oracle/service_watch.py</code></td></tr>
+  <tr><td><code>leneu-cloud-watch.timer</code></td><td>30분마다</td><td>OCI 비용·컴퓨트·볼륨·백업 조회 → 이상·변화·복구만 텔레그램 클라우드 방. <strong>양수 비용·한도 이탈이면 VM STOP</strong></td><td><code>watch.py</code>, <code>guard.py</code></td></tr>
+  <tr><td><code>leneu-oracle-alerts.timer</code></td><td>09:00 · 21:00 KST</td><td>정기 보고: 이번 달 청구액, A1 사용(무료 한도 대비 %), 디스크·백업·외부 전송, 서버 여유</td><td><code>alerts.py</code>, <code>oci_reader.py</code></td></tr>
+  <tr><td><code>leneu-watch-failure@.service</code></td><td>감시가 실패할 때</td><td><code>OnFailure</code>로 첫 실패를 텔레그램에 알림, 다음 성공 때 복구 알림 한 번</td><td><code>private/ops-oracle/systemd</code></td></tr>
+  <tr><td>Ubuntu 기본</td><td>매일</td><td><code>apt-daily</code>, <code>apt-daily-upgrade</code>(약 15:00 KST, 보안 패치 설치 → 필요하면 03:50 재부팅 예약), <code>fstrim</code>(주간), <code>e2scrub_all</code>, <code>systemd-tmpfiles-clean</code></td><td>—</td></tr>
+ </tbody>
+</table></div>
+<p class="meta">새벽 순서: 04:00 anotar 백업 → 04:30 harukan 백업 → 05:00 Drive 업로드. 2026-10-20 05:04 업로드 결과: anotar 220K, harukan 4.0K.</p>
+<h3>자동 배포의 재시도 규칙 (<code>oracle-poll.py</code>, 두 앱 같음)</h3>
+<ul>
+ <li>GitHub API로 <code>main</code>의 해당 workflow(<code>oracle.yml</code> / <code>harukan.yml</code>) 최신 성공 실행을 봅니다. 서버는 GitHub을 보러 갈 뿐이라 들어오는 연결·배포 키가 없습니다.</li>
+ <li>이미 배포된 커밋이면 아무것도 안 합니다("Verified release already deployed").</li>
+ <li>새 커밋이면 최대 3번 시도하고, 시도 사이 대기는 5분 → 15분 → 1시간. 3번 다 실패하면 새 커밋이 오거나 사람이 고칠 때까지 멈춥니다. 상태 파일 <code>/var/lib/&lt;앱&gt;-deploy/state.json</code>.</li>
+ <li>종료 코드 65(그 사이 main이 바뀜)·75(다른 배포 진행 중)는 실패로 세지 않고 다음 주기에 다시 봅니다.</li>
+ <li>성공하면 텔레그램 "🟢 완료 · &lt;앱&gt; 배포"(커밋과 제목). 실패하면 "배포 실패, 이전 버전 유지" 한 번, 다음 성공에 "복구" 한 번. GitHub 조회가 3번 연속 안 되면 경고.</li>
+</ul>
 
 <h2 id="apps">앱 세 개</h2>
 <div class="cards">
@@ -103,7 +225,7 @@ svg .off{fill:#fff;stroke:#e0e5dc;stroke-dasharray:4 4}
  <thead><tr><th>무엇</th><th>언제</th><th>보관</th><th>들어가는 것</th></tr></thead>
  <tbody>
   <tr><td>anotar 자동 백업</td><td>매일 정해진 시각(한국시간, 운영은 04:00). <strong>기본값은 꺼짐</strong>이라 백업 화면에서 켭니다. 화면의 '지금 백업'도 같은 방식</td><td>최근 성공한 것 N개(1–60, 기본 7). 오래된 것은 앱이 지움</td><td rowspan="3">SQLite 온라인 스냅샷, 첨부 파일, 공유 링크가 있으면 공유 링크 키. <code>manifest.json</code>에 체크섬을 적고, 만든 뒤 바로 검증합니다(<code>server/backups.mjs</code>)</td></tr>
-  <tr><td>anotar 배포 직전 백업</td><td>자동 배포가 새 컨테이너로 바꾸기 직전, 매번</td><td><strong>지우지 않음.</strong> 배포할 때마다 하나씩 쌓임</td></tr>
+  <tr><td>anotar 배포 직전 백업</td><td>자동 배포가 새 컨테이너로 바꾸기 직전, 매번</td><td>스크립트가 만든 <code>before-&lt;sha12&gt;-&lt;UTC&gt;</code>만 <strong>최근 10개</strong> 남김. 손으로 만든 이름은 그대로</td></tr>
   <tr><td>anotar 수동 백업</td><td><code>npm run backup -- create | verify | restore</code></td><td>직접 관리</td></tr>
   <tr><td>harukan</td><td>매일 04:30 (systemd timer)</td><td>7일 지나면 지움</td><td>SQLite 파일 하나, 만든 뒤 <code>quick_check</code></td></tr>
   <tr><td>Google Drive (A)</td><td>매일 05:00, 두 앱 백업이 끝난 뒤</td><td>daily 30일 + monthly 매달 1개(계속)</td><td>두 앱의 가장 최근 백업을 <code>rclone crypt</code>로 암호화해 복사. 권한은 rclone이 만든 파일만 보는 <code>drive.file</code>. 성공하면 healthchecks 신호</td></tr>
@@ -125,7 +247,7 @@ svg .off{fill:#fff;stroke:#e0e5dc;stroke-dasharray:4 4}
  <li>앱마다 올리기가 끝나야 healthchecks(<code>anotar-backup</code>, <code>harukan-backup</code>)에 신호를 보냅니다. 백업이 멈추거나 오래됐거나 올리기가 실패하면 신호가 끊겨 텔레그램으로 알림이 옵니다.</li>
  <li>2026-10-20에 Drive에서 받아 anotar <code>verify</code>·<code>restore</code>, harukan <code>integrity_check</code>까지 확인했습니다. 복원이 안 되는 백업은 백업이 아닙니다.</li>
 </ol>
-<div class="note">아직 없는 것: 정기 복원 연습(가끔 손으로). 배포 직전 백업은 쌓이기만 하므로 가끔 디스크 여유를 확인합니다.</div>
+<div class="note">아직 없는 것: 정기 복원 연습(가끔 손으로), 정적 호스팅 사이트 백업.</div>
 
 <h2 id="ai">AI 요청: 두 군데에서 나갑니다</h2>
 <p>AI를 부르는 곳은 서버와 Mac 두 군데이고, 서로 기록을 나누지 않습니다.</p>
@@ -133,7 +255,7 @@ svg .off{fill:#fff;stroke:#e0e5dc;stroke-dasharray:4 4}
 <div class="wrap"><table>
  <thead><tr><th></th><th>서버 (anotar)</th><th>Mac (위키)</th></tr></thead>
  <tbody>
-  <tr><td>누가 시키나</td><td>anotar 화면에서 요청 → 서버 큐 → 작업기가 순서대로 실행. 브라우저를 닫아도 계속됩니다</td><td><code>daily.sh</code>를 실행할 때</td></tr>
+  <tr><td>누가 시키나</td><td>anotar 화면에서 요청 → 서버 큐 → 작업기가 순서대로 실행. 브라우저를 닫아도 계속됩니다</td><td><code>auto.sh</code>(매일 자동) 또는 <code>daily.sh</code>를 손으로</td></tr>
   <tr><td>실행기</td><td>Hive(모델 고정), OpenCode CLI(서버 이미지 안, 무료 모델 목록은 설정 › AI). 자동으로 다른 제공자로 바꾸지 않음</td><td>claude, codex, opencode 중 하나</td></tr>
   <tr><td>키·인증</td><td>서버 <code>.env</code>(백업에 없음, 다시 넣으면 됨). 브라우저로는 키를 보내지 않음</td><td>Mac의 각 CLI 로그인</td></tr>
   <tr><td>기록</td><td>개인 SQLite(<code>ai_jobs</code> 등) → 화면 <code>/ai</code>에서 보고, anotar 백업에 포함</td><td><code>sessions/</code> 요약 → GitHub</td></tr>
@@ -143,7 +265,7 @@ svg .off{fill:#fff;stroke:#e0e5dc;stroke-dasharray:4 4}
 
 <h2 id="wiki">위키 (memory)</h2>
 <p>위키는 <strong>Mac에서 요약해 GitHub에 올리고, 서버는 그걸 가져와 보여 주기만</strong> 합니다. 서버는 위키를 고치거나 AI를 부르지 않습니다.</p>
-<figure><div class="fig"><svg viewBox="0 0 1000 290" role="img" aria-labelledby="wk-t wk-d"><title id="wk-t">위키 흐름</title><desc id="wk-d">Mac에서 AI 대화 기록을 가져와(1), Mac의 AI CLI가 요약해 위키 문서를 쓰고(2), build.py가 data.json을 만든다(3). Markdown 원본은 비공개 GitHub repo로 push된다(4). 서버가 매시간 GitHub에서 pull해 build.py로 data.json을 다시 만들고(5) anotar /wiki가 보여 준다.</desc><defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#586c5c"/></marker></defs><rect class="frame" x="10" y="40" width="740" height="120" rx="14"/><text class="h" x="20" y="28">Mac · 지금은 daily.sh를 손으로 실행</text><text class="h" x="800" y="28">밖</text><rect class="who" x="24" y="58" width="160" height="70" rx="10"/><text class="t" x="36" y="82">AI 대화 기록</text><text class="s" x="36" y="101">Claude Code · Codex</text><text class="s" x="36" y="117">opencode</text><rect class="app" x="206" y="58" width="160" height="70" rx="10"/><text class="t" x="218" y="82">① 가져오기</text><text class="s" x="218" y="101">import_sessions.py</text><text class="s" x="218" y="117">→ raw/sessions (Mac만)</text><rect class="app" x="388" y="58" width="160" height="70" rx="10"/><text class="t" x="400" y="82">② AI가 요약</text><text class="s" x="400" y="101">claude/codex CLI</text><text class="s" x="400" y="117">→ sessions/ · wiki/</text><rect class="app" x="570" y="58" width="160" height="70" rx="10"/><text class="t" x="582" y="82">③ 빌드</text><text class="s" x="582" y="101">build.py</text><text class="s" x="582" y="117">→ site/data.json</text><path class="a" d="M184 93H204" marker-end="url(#ah4)"/><path class="a" d="M366 93H386" marker-end="url(#ah4)"/><path class="a" d="M548 93H568" marker-end="url(#ah4)"/><text class="l" x="400" y="150">AI 요청은 여기, Mac에서 나감</text><rect class="db" x="800" y="58" width="180" height="70" rx="10"/><text class="t" x="812" y="82">④ GitHub</text><text class="s" x="812" y="101">memory-data · 비공개</text><text class="s" x="812" y="117">md 원본 = 위키 백업</text><path class="a" d="M730 76H798" marker-end="url(#ah4)"/><text class="l" x="752" y="68">push</text><rect class="app" x="570" y="200" width="160" height="70" rx="10"/><text class="t" x="582" y="226">⑤ 서버가 가져옴</text><text class="s" x="582" y="246">매시간 pull · build.py</text><text class="s" x="582" y="262">읽기 전용 deploy key</text><rect class="app" x="800" y="200" width="180" height="70" rx="10"/><text class="t" x="812" y="226">anotar /wiki</text><text class="s" x="812" y="245">Oracle · 읽기 전용 파일</text><text class="s" x="812" y="261">로그인한 본인만</text><path class="a" d="M860 128V164H650V198" marker-end="url(#ah4)"/><path class="a" d="M730 235H798" marker-end="url(#ah4)"/></svg></div><figcaption>①–④는 Mac에서 손으로 실행합니다. push하면 ⑤ 서버가 1시간 안에 운영 <code>/wiki</code>에 반영합니다.</figcaption><p class="fig-hint meta">그림은 옆으로 밀어서 볼 수 있어요.</p></figure>
+<figure><div class="fig"><svg viewBox="0 0 1000 290" role="img" aria-labelledby="wk-t wk-d"><title id="wk-t">위키 흐름</title><desc id="wk-d">Mac에서 AI 대화 기록을 가져와(1), Mac의 AI CLI가 요약해 위키 문서를 쓰고(2), build.py가 data.json을 만든다(3). Markdown 원본은 비공개 GitHub repo로 push된다(4). 서버가 매시간 GitHub에서 pull해 build.py로 data.json을 다시 만들고(5) anotar /wiki가 보여 준다.</desc><defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#586c5c"/></marker></defs><rect class="frame" x="10" y="40" width="740" height="120" rx="14"/><text class="h" x="20" y="28">Mac · launchd가 매시간 auto.sh (하루 한 번 성공까지)</text><text class="h" x="800" y="28">밖</text><rect class="who" x="24" y="58" width="160" height="70" rx="10"/><text class="t" x="36" y="82">AI 대화 기록</text><text class="s" x="36" y="101">Claude Code · Codex</text><text class="s" x="36" y="117">opencode</text><rect class="app" x="206" y="58" width="160" height="70" rx="10"/><text class="t" x="218" y="82">① 가져오기</text><text class="s" x="218" y="101">import_sessions.py</text><text class="s" x="218" y="117">→ raw/sessions (Mac만)</text><rect class="app" x="388" y="58" width="160" height="70" rx="10"/><text class="t" x="400" y="82">② AI가 요약</text><text class="s" x="400" y="101">claude/codex CLI</text><text class="s" x="400" y="117">→ sessions/ · wiki/</text><rect class="app" x="570" y="58" width="160" height="70" rx="10"/><text class="t" x="582" y="82">③ 빌드</text><text class="s" x="582" y="101">build.py</text><text class="s" x="582" y="117">→ site/data.json</text><path class="a" d="M184 93H204" marker-end="url(#ah4)"/><path class="a" d="M366 93H386" marker-end="url(#ah4)"/><path class="a" d="M548 93H568" marker-end="url(#ah4)"/><text class="l" x="400" y="150">AI 요청은 여기, Mac에서 나감</text><rect class="db" x="800" y="58" width="180" height="70" rx="10"/><text class="t" x="812" y="82">④ GitHub</text><text class="s" x="812" y="101">memory-data · 비공개</text><text class="s" x="812" y="117">md 원본 = 위키 백업</text><path class="a" d="M730 76H798" marker-end="url(#ah4)"/><text class="l" x="752" y="68">push</text><rect class="app" x="570" y="200" width="160" height="70" rx="10"/><text class="t" x="582" y="226">⑤ 서버가 가져옴</text><text class="s" x="582" y="246">매시간 pull · build.py</text><text class="s" x="582" y="262">읽기 전용 deploy key</text><rect class="app" x="800" y="200" width="180" height="70" rx="10"/><text class="t" x="812" y="226">anotar /wiki</text><text class="s" x="812" y="245">Oracle · 읽기 전용 파일</text><text class="s" x="812" y="261">로그인한 본인만</text><path class="a" d="M860 128V164H650V198" marker-end="url(#ah4)"/><path class="a" d="M730 235H798" marker-end="url(#ah4)"/></svg></div><figcaption>①–④는 Mac에서 <code>auto.sh</code>가 매일 10시 이후 한 번(또는 손으로 <code>daily.sh</code>) 실행합니다. push하면 ⑤ 서버가 1시간 안에 운영 <code>/wiki</code>에 반영합니다.</figcaption><p class="fig-hint meta">그림은 옆으로 밀어서 볼 수 있어요.</p></figure>
 <div class="wrap"><table>
  <thead><tr><th>질문</th><th>답</th></tr></thead>
  <tbody>
@@ -152,9 +274,107 @@ svg .off{fill:#fff;stroke:#e0e5dc;stroke-dasharray:4 4}
   <tr><td>AI 요약은 어디서</td><td>Mac의 CLI(<code>claude</code>, <code>codex</code>, <code>opencode</code>)가 합니다. 모델은 <code>daily.sh</code> 인자로 고릅니다.</td></tr>
   <tr><td>백업</td><td>④ GitHub push가 곧 백업입니다. <code>raw/sessions</code> 덤프는 비밀값이 섞일 수 있어 git에 안 올리고 Mac에만 둡니다. 원래 기록(<code>~/.claude</code> 등)에서 다시 만들 수 있지만, 그 원래 기록도 도구가 오래된 것을 지울 수 있습니다.</td></tr>
   <tr><td>로컬에서 먼저 보려면</td><td>③ 뒤에 <code>apps/anotar</code>에서 <code>npm run dev</code>를 띄우고 <code>/wiki</code>를 엽니다. 개발 서버가 <code>data/memory/site/data.json</code>을 운영과 같은 경로로 줍니다. 여기서 확인하고 push합니다.</td></tr>
-  <tr><td>운영에서 보려면</td><td>⑤: 서버 <code>leneu-memory-sync.timer</code>가 매시간 memory-data를 읽기 전용 deploy key로 pull하고, 바뀌었으면 <code>build.py</code>로 <code>/srv/leneu/memory/data.json</code>을 교체합니다(<code>apps/anotar/docs/ORACLE_OPERATIONS.md</code> 위키 절). Mac 쪽 매일 자동 실행은 아직 없습니다.</td></tr>
+  <tr><td>운영에서 보려면</td><td>⑤: 서버 <code>leneu-memory-sync.timer</code>가 매시간 memory-data를 읽기 전용 deploy key로 pull하고, 바뀌었으면 <code>build.py</code>로 <code>/srv/leneu/memory/data.json</code>을 교체합니다(<code>apps/anotar/docs/ORACLE_OPERATIONS.md</code> 위키 절). Mac 쪽은 launchd <code>com.leneu.memory</code> → <code>auto.sh</code>(<a href="#mac">Mac</a>).</td></tr>
  </tbody>
 </table></div>
+
+<h2 id="patch">보안 패치와 자동 재부팅</h2>
+<ol>
+ <li><strong>설치:</strong> Ubuntu <code>unattended-upgrades</code>가 매일(<code>apt-daily-upgrade</code>, 약 15:00 KST) <code>noble-security</code> 패치를 깝니다. 대부분은 재부팅 없이 끝나고 아무 알림도 없습니다.</li>
+ <li><strong>재부팅이 필요한 패치(커널 등):</strong> <code>/run/reboot-required</code>가 생기고, 자동 재부팅 설정(<code>52leneu-reboot</code>)에 따라 <strong>다음 03:50 KST</strong> 재부팅이 예약됩니다(<code>/run/systemd/shutdown/scheduled</code>). 03:50이면 1–2분 안에 올라와 04:00 anotar 백업과 겹치지 않습니다.</li>
+ <li><strong>감지:</strong> <code>leneu-service-watch</code>가 5분마다 두 파일을 읽어 <code>/var/lib/leneu-host/status.json</code>에 적고, 텔레그램으로 바로 알립니다. AI나 외부 조회는 없습니다.</li>
+ <li><strong>사용자 안내:</strong> harukan이 그 파일을 읽기 전용으로 읽어, 재부팅 <strong>1시간 전부터</strong> 로그인한 사용자 화면에 붉은 안내 한 줄을 보여 줍니다(X로 12시간 숨김, 설정 화면은 항상). anotar는 본인만 쓰므로 안내하지 않습니다.</li>
+ <li><strong>재부팅 뒤:</strong> 컨테이너(<code>restart: unless-stopped</code>)·tunnel·타이머가 저절로 다시 뜨고, 다음 감시에서 🟢 복구 알림. 서버가 안 올라오면 healthchecks <code>oracle-watch</code>가 15분 뒤 알립니다.</li>
+ <li><strong>그 밖의 업데이트</strong>(보안 아닌 <code>noble-updates</code>, Docker 저장소)는 자동이 아닙니다. 가끔 <code>sudo apt-get update &amp;&amp; sudo apt-get upgrade</code>.</li>
+</ol>
+<p>기록: 설치 <code>/var/log/apt/history.log</code>·<code>/var/log/unattended-upgrades/</code>, 재부팅 <code>last reboot</code>, 알림은 텔레그램 자체가 기록입니다. 2026-10-20에 밀린 커널(6.17 → 7.0)과 일반 업데이트를 손으로 적용하고 재부팅했습니다.</p>
+
+<h2 id="watch">감시와 알림</h2>
+<p>감시는 세 겹입니다. 서버 안 감시(5분·30분), 정해진 시각의 정기 보고, 그리고 서버가 통째로 죽은 경우를 잡는 바깥 감시(healthchecks.io)입니다. 알림은 전부 텔레그램으로 옵니다.</p>
+<div class="wrap"><table>
+ <thead><tr><th>무엇</th><th>주기</th><th>알림 조건</th><th>어디로</th></tr></thead>
+ <tbody>
+  <tr><td>서버 자원·앱 (<code>leneu-service-watch</code>)</td><td>5분</td><td>CPU 90% 이상 3번 연속(약 15분, 첫 표본·재부팅 직후는 건너뜀), 메모리 90% 이상, 디스크 여유 10GiB 미만, 8787·8790·8792 health 실패. <strong>경고만 하고 서버는 끄지 않음</strong></td><td>텔레그램 서비스 방</td></tr>
+  <tr><td>OCI 비용·자원 (<code>leneu-cloud-watch</code>)</td><td>30분</td><td>처음 생긴 이상·상태 변화·복구만. 같은 이상을 반복해서 보내지 않음. 조회 실패만 있는 경고는 4번(2시간) 연속일 때만. 인증 실패는 "OCI 인증 실패로 조회 불가" 하나로 묶음</td><td>텔레그램 클라우드 방 (<code>leneu-oracle-alerts</code> 그룹, <code>@leneu_oracle_bot</code>)</td></tr>
+  <tr><td>정기 보고 (<code>leneu-oracle-alerts</code>)</td><td>09:00 · 21:00 KST</td><td>📊 이번 달 누적 청구액, A1 OCPU·RAM 시간(무료 한도 3,000 대비 %, 절반 넘으면 경고), 디스크·백업, 외부 전송, 서버 여유. 자료가 없으면 0원으로 쓰지 않고 "확인 불가"</td><td>클라우드 방</td></tr>
+  <tr><td>감시 자체 실패</td><td>실패 때</td><td><code>OnFailure</code> → 첫 실패 한 번, 다음 성공 때 복구 한 번</td><td>서비스 방</td></tr>
+  <tr><td>커널 보안 패치</td><td>설치 뒤 5분 안</td><td>"커널 보안 패치 설치됨 (패키지) · 03:50 KST 자동 재부팅", 재부팅으로 해소되면 🟢 복구</td><td>서비스 방</td></tr>
+  <tr><td>배포</td><td>배포 때</td><td>성공(🟢 완료)·실패·복구 모두. <a href="#timers">재시도 규칙</a> 참고</td><td>서비스 방</td></tr>
+  <tr><td>바깥 감시 <code>oracle-watch</code></td><td>5분마다 ping, 15분 여유</td><td>service-watch가 성공할 때마다 ping. 끊기면 = 서버 다운·네트워크 단절·감시 크래시</td><td>healthchecks.io → 텔레그램</td></tr>
+  <tr><td>바깥 감시 <code>anotar-backup</code>, <code>harukan-backup</code></td><td>1일, 2시간 여유</td><td>Drive 업로드가 끝나야 ping. 백업이 멈췄거나 26시간보다 오래됐거나 업로드 실패면 끊김</td><td>healthchecks.io → 텔레그램</td></tr>
+ </tbody>
+</table></div>
+<p>알림 형식: 🔴 경고 / 🟢 복구 / 📊 정기 보고 · 대상. 감시 코드는 OCI <strong>instance principal</strong>로 인증합니다(사용자 API 키를 서버에 두지 않음). dynamic group <code>leneu-oracle-alerts</code>에는 이 VM 하나만 들어 있고, 권한은 비용 보고 read + 리전·컴파트먼트·인스턴스·볼륨·백업 inspect + <strong>이 VM 하나에 대한 전원 동작</strong>뿐입니다.</p>
+
+<h2 id="cost">비용: 0원을 지키는 장치</h2>
+<p>계정은 PAYG라 실수하면 돈이 나갈 수 있습니다. 그래서 여러 겹으로 막습니다. 어느 것도 "결제를 원천 차단"하지는 않는다는 점이 중요합니다.</p>
+<ol>
+ <li><strong>할당량 정책 <code>leneu-free-compute-storage</code>.</strong> 컴퓨트·블록 스토리지·오토스케일링을 테넌시 전체 0으로 막고, 오사카 AD-1에만 A1 2 OCPU / 12GB, 블록 스토리지 200GB, 볼륨 백업 5개를 허용합니다. 지금 A1은 2/2, 12/12를 다 써서 더 만들 수 없습니다.</li>
+ <li><strong>할당량 정책 <code>leneu-unused-services-disabled</code>.</strong> Database·Load Balancer·File Storage·Object Storage를 0으로.</li>
+ <li><strong>예산 <code>leneu-zero-cost-watch</code>.</strong> 월 예산 1, 실제 지출이 1%(0.01)를 넘으면 이메일. OCI가 24시간마다 평가하므로 늦을 수 있습니다.</li>
+ <li><strong>자동 정지 (<code>AUTO_STOP_ENABLED=true</code>).</strong> cloud-watch가 양수 COST 행, 2 OCPU/12GB 초과, A1이 아닌 shape·오사카 밖 자원, 디스크 합계 200GB·10 VPU 초과·복제·자동 튜닝, 백업 5개 초과·다른 리전을 확인하면 <strong>이 VM만 OCI STOP</strong>(<code>guard.py</code>, 즉시 전원 차단). 미집계·조회 실패만으로는 끄지 않습니다. 실제 STOP은 모의 응답으로만 시험했습니다.</li>
+ <li><strong>정기 보고</strong>로 사람이 하루 두 번 봅니다.</li>
+</ol>
+<div class="note">STOP 뒤 다시 켜면 그 달의 양수 비용 행 때문에 또 꺼질 수 있습니다. 원인을 정리하고 설정을 확인한 뒤 손으로 켭니다. Hive 같은 외부 AI 요금, 도메인 요금은 OCI 비용에 안 잡힙니다. 비용 자료는 OCI 집계가 늦어 실제 발생보다 늦게 보일 수 있습니다.</div>
+<p>실제 사용(2026-10): A1 1대 × 2 OCPU × 켜진 시간. 10월은 약 1,488 OCPU시간 예상으로 무료 3,000의 절반 정도입니다.</p>
+
+<h2 id="secrets">비밀값 (값은 마스킹, 위치만)</h2>
+<p>이 문서는 공개 repo에도 있으므로 값은 적지 않습니다. 어디 있고 잃으면 어떻게 되는지만 적습니다.</p>
+<div class="wrap"><table>
+ <thead><tr><th>위치</th><th>키 이름</th><th>잃으면</th></tr></thead>
+ <tbody>
+  <tr><td>서버 <code>/srv/leneu/app/.env</code> (anotar)</td><td><code>AUTH_SECRET_KEY</code> <strong>(서버 밖 보관 필수, 로컬 <code>apps/anotar/.env</code>와 같은 값)</strong>, <code>HIVE_API_KEY</code>·<code>HIVE_BASE_URL</code>·<code>HIVE_MODEL</code>, <code>SERVICE_TELEGRAM_ENABLED</code>·<code>_BOT_TOKEN</code>·<code>_CHAT_ID</code>·<code>_PREVIEW</code>·<code>_APP_URL</code>, <code>AUTH_MODE</code>, <code>AUTH_COOKIE_SECURE</code>, <code>PRIVATE_ALLOWED_ORIGINS</code>, <code>PUBLIC_SHARE_ORIGIN</code>, <code>PUBLIC_SITES_ORIGIN</code>, <code>LENEU_IMAGE</code>, <code>LENEU_DATA_DIR</code>·<code>_BACKUP_DIR</code>·<code>_SITES_DIR</code>, <code>AI_RUNNER_KIND</code>, <code>AI_OPENCODE_ENABLED</code>·<code>_MODEL</code>, <code>AI_DEVIN_MODEL</code></td><td><code>AUTH_SECRET_KEY</code>가 없으면 백업을 복원해도 TOTP를 못 풀어 로그인 불가. 나머지는 다시 발급</td></tr>
+  <tr><td>서버 <code>/srv/anotar-planner/.env</code> (harukan)</td><td><code>RESEND_API_KEY</code>, <code>MAIL_FROM</code>, <code>PUBLIC_ORIGIN</code>, <code>REDIRECT_FROM_HOSTS</code>, <code>PERSONAL_ORIGIN</code>, <code>REGISTRATION_ENABLED</code>, <code>LEGAL_REVIEWED</code>·<code>LEGAL_PUBLISHED_AT</code>, <code>OPERATOR_NAME</code>·<code>_REPRESENTATIVE</code>, <code>CONTACT_EMAIL</code>, <code>PRIVACY_CONTACT</code>, <code>HOSTING_REGION</code>, <code>PLANNER_RELEASE</code>(배포 스크립트가 바꿈)</td><td>Resend 키는 다시 발급. 나머지는 설정값</td></tr>
+  <tr><td>서버 <code>/etc/leneu-backup/rclone.conf</code></td><td>remote <code>gdrive</code>(Drive <code>drive.file</code> 토큰), <code>backup</code>(crypt 비밀번호·salt)</td><td><strong>crypt 비밀번호를 잃으면 Drive 백업을 못 엶.</strong> 비밀번호 관리자에 따로(Mac 임시 사본 <code>~/.config/leneu/drive-crypt-password</code>)</td></tr>
+  <tr><td>서버 <code>/etc/leneu-oracle-alerts/</code></td><td><code>telegram.env</code>(클라우드 방 봇 토큰·chat id), <code>service-telegram.env</code>(서비스 방), <code>config.env</code>(테넌시·인스턴스 OCID, 한도, <code>AUTO_STOP_ENABLED</code>, <code>SERVICE_HEALTH_PORTS</code>), <code>hc-ping-key</code>(Mac 사본 <code>~/.config/leneu/hc-ping-key</code>)</td><td>다시 발급</td></tr>
+  <tr><td>서버 <code>anotar-tunnel.service</code> credential</td><td>Cloudflare tunnel 토큰</td><td>Cloudflare 대시보드에서 다시 발급</td></tr>
+  <tr><td>서버 <code>/var/lib/leneu-memory/deploy_key</code></td><td>memory-data 읽기 전용 deploy key (GitHub 키 이름 <code>oracle-leneu memory sync (read-only)</code>)</td><td>GitHub에서 새로 등록</td></tr>
+  <tr><td>Mac <code>apps/anotar/.env.oracle-server</code></td><td><code>ORACLE_SSH_HOST</code>, <code>ORACLE_SSH_USER</code>, <code>ORACLE_SSH_KEY</code>(키 파일 경로), <code>OCI_REGION</code></td><td>키 파일까지 잃으면 OCI Console에서 키 교체</td></tr>
+  <tr><td>Mac <code>apps/anotar/.env.oracle-alerts</code></td><td>텔레그램 봇 토큰·이메일·chat id 원본</td><td>BotFather에서 다시 발급</td></tr>
+ </tbody>
+</table></div>
+
+<h2 id="mac">Mac 쪽에서 도는 것</h2>
+<ul>
+ <li><strong>위키 자동 요약.</strong> launchd <code>com.leneu.memory</code>가 매시간 <code>apps/memory/auto.sh</code>를 깨웁니다. 10시 이후, 그날 아직 성공 전이면 <code>daily.sh opencode</code>(무료 모델 mimo → minimax → deepseek → glm 순서)를 돌려 가져오기 → 요약 → 빌드 → memory-data push까지 합니다. 실패하면 다음 시간에 다시, 3번째 실패에 Mac 알림. 상태·모델 선택·지금 실행은 <code>~/Applications/LeneuMemory.app</code>. 상태 <code>~/Library/Application Support/leneu-memory/</code>, 로그 <code>~/Library/Logs/leneu-memory.log</code>.</li>
+ <li><strong>손으로 받은 백업 사본</strong> <code>~/Backups/anotar/</code>, <code>~/Backups/harukan/</code> (출시 때 한 번).</li>
+ <li><strong>개발</strong>: 로컬 anotar <code>AUTH_MODE=disabled npm run dev</code> (5173/8787/8793), harukan 5175/8794. 자세한 건 <code>docs/environments.md</code>.</li>
+</ul>
+
+<h2 id="ops">자주 쓰는 운영 명령</h2>
+<p>SSH: <code>set -a; . apps/anotar/.env.oracle-server; set +a; ssh -i "$ORACLE_SSH_KEY" "$ORACLE_SSH_USER@$ORACLE_SSH_HOST"</code></p>
+<div class="wrap"><table>
+ <thead><tr><th>하려는 것</th><th>명령 (서버에서)</th></tr></thead>
+ <tbody>
+  <tr><td>전체 상태 한눈에</td><td><code>sudo docker ps</code> · <code>systemctl list-timers --all | grep -E 'leneu|anotar|harukan'</code> · <code>df -h /</code> · <code>free -h</code></td></tr>
+  <tr><td>지금 배포된 커밋</td><td><code>sudo cat /srv/leneu/deployed-commit /srv/anotar-planner/deployed-commit</code></td></tr>
+  <tr><td>배포 기록 보기</td><td><code>journalctl -u anotar-deploy.service -n 50</code> · <code>journalctl -u harukan-deploy.service -n 50</code></td></tr>
+  <tr><td>3번 실패로 멈춘 배포 다시</td><td>원인을 고친 뒤 <code>sudo rm /var/lib/&lt;앱&gt;-deploy/state.json</code> (다음 2분 주기에 재시도)</td></tr>
+  <tr><td>Actions 일시 실패 다시 돌리기 (Mac)</td><td><code>gh run rerun &lt;id&gt; --failed</code></td></tr>
+  <tr><td>anotar 앱 로그</td><td><code>sudo docker logs --tail 100 app-storage-1</code> (<code>app-share-1</code>, <code>app-sites-1</code>)</td></tr>
+  <tr><td>harukan 앱 로그</td><td><code>sudo docker logs --tail 100 anotar-planner-planner-1</code></td></tr>
+  <tr><td>anotar 손 백업</td><td><code>sudo docker exec app-storage-1 node scripts/backup-data.mjs create /data /backups/&lt;이름&gt;</code> → <code>verify /backups/&lt;이름&gt;</code></td></tr>
+  <tr><td>harukan 손 백업</td><td><code>cd /srv/anotar-planner/current &amp;&amp; sudo docker compose -f compose.oracle.yaml exec -T planner node scripts/backup.mjs</code></td></tr>
+  <tr><td>Drive 백업 바로 / 목록</td><td><code>sudo systemctl start leneu-drive-backup.service</code> · <code>sudo rclone --config /etc/leneu-backup/rclone.conf lsl backup:</code></td></tr>
+  <tr><td>Drive에서 복원</td><td><code>sudo rclone --config /etc/leneu-backup/rclone.conf copy backup:anotar/daily/anotar-YYYYMMDD.tar.gz &lt;빈 폴더&gt;</code> → <code>tar -xzf</code> → anotar <code>backup-data.mjs verify|restore</code>(새 폴더로만 풂), harukan은 서비스를 멈추고 <code>planner-*.sqlite</code>(+<code>-wal</code>/<code>-shm</code>)를 데이터 폴더에</td></tr>
+  <tr><td>위키 바로 다시 만들기</td><td><code>sudo systemctl start leneu-memory-sync.service</code></td></tr>
+  <tr><td>감시 시험 (전송 없음)</td><td><code>sudo -u leneu-alerts /opt/leneu-oracle-alerts/venv/bin/python /opt/leneu-oracle-alerts/service_watch.py --dry-run</code> (<code>watch.py</code>, <code>alerts.py</code>도 같음)</td></tr>
+  <tr><td>감시 잠시 멈추기</td><td><code>sudo systemctl disable --now leneu-cloud-watch.timer</code> (자동 정지도 같이 멈춤)</td></tr>
+  <tr><td>패치·재부팅 상태</td><td><code>cat /var/lib/leneu-host/status.json</code> · <code>cat /run/reboot-required.pkgs</code> · <code>tail /var/log/apt/history.log</code> · <code>last reboot</code></td></tr>
+  <tr><td>예약된 재부팅 취소</td><td><code>sudo shutdown -c</code> (다음 날 또 예약됨)</td></tr>
+  <tr><td>tunnel 상태</td><td><code>systemctl status anotar-tunnel</code> · <code>journalctl -u anotar-tunnel -n 50</code></td></tr>
+ </tbody>
+</table></div>
+<p>서버 스크립트를 고치면 repo 파일과 서버 사본(<code>/usr/local/sbin/*</code>, <code>/opt/leneu-oracle-alerts/*</code>)을 같이 바꾸고, 바꾸기 전 사본을 <code>*.before-&lt;날짜&gt;</code>로 남깁니다.</p>
+
+<h2 id="watch-out">지금 보이는 주의점 (2026-10-20 확인)</h2>
+<ul>
+ <li><strong>보관 폴더 삭제는 2026-11-19 이후</strong>, 사용자 확인 뒤: <code>/srv/anotar-planner/data-before-20261018</code>, <code>data-test-20261019T160813Z</code>, <code>/srv/leneu/data-live-before-20261018</code>, 감시 <code>backups/watch-20261020</code>·<code>format-20261020</code>, <code>*.before-20261020*</code> 옛 스크립트 사본, 손으로 만든 <code>before-*</code> 백업 폴더.</li>
+ <li><strong>harukan 백업 폴더의 짝 없는 <code>-wal</code>/<code>-shm</code></strong>(<code>planner-2026-10-19T18-40-46-581Z</code>): 정리 규칙을 고치기 전에 생긴 것이라 7일 뒤 지워질 것으로 봅니다.</li>
+ <li><strong>빌드 캐시는 자동 정리 안 함.</strong> 이미지는 배포마다 정리되지만 캐시는 쌓입니다. 디스크가 줄면 <code>sudo docker builder prune -f</code>.</li>
+ <li>OCI 감시는 같은 VM 안에 있어서 VM이 멈추면 비용 감시도 멈춥니다. 바깥에서는 healthchecks <code>oracle-watch</code>가 "멈췄다"만 알려 줍니다.</li>
+</ul>
+<p class="meta">2026-10-20에 정리한 것: 밀린 커널·패키지 업데이트와 재부팅, 옛 Docker 이미지·캐시 6.6GB, root SSH 차단, 정적 호스팅 사이트를 Drive 백업에 포함, 운영에서 <code>AUTH_MODE=disabled</code> 거부(앱이 시작하지 않음).</p>
 
 <h2 id="target">지금 운영 구성과 바뀔 구성</h2>
 <p>repo의 <code>infra/</code>에는 다음 구성이 이미 들어 있지만, 운영 서버는 아직 예전 구성입니다.</p>

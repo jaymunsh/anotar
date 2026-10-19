@@ -30,7 +30,8 @@ newest() { find "$1" -maxdepth 1 -type "$3" -name "$2" -mmin -1560 -printf '%T@ 
 
 status=0
 a=$(newest /srv/leneu/backups 'automatic-*' d)
-if [[ -n $a ]]; then send anotar /srv/leneu/backups "$a" || status=1
+# Static hosting sites are not in the app backup; they ride along in the same archive.
+if [[ -n $a ]]; then send anotar /srv/leneu/backups "$a" -C /srv/leneu sites || status=1
 else echo "anotar: no automatic backup in the last 26 hours" >&2; status=1; fi
 
 h=$(newest /srv/anotar-planner/backups 'planner-*.sqlite' f)

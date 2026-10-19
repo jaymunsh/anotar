@@ -71,6 +71,14 @@ export function makeApp(options={}) {
   const sessionDays=30;
   const writeLimit=options.writeLimit??1200,storageLimit=options.storageLimit??20*1024*1024;
   const clock=options.clock??Date.now;
+  // A pending security reboot, written on the host by leneu-service-watch and mounted read-only.
+  // Shown only in the last hour before it, so most people never see it.
+  const hostStatusFile=options.hostStatusFile??process.env.HOST_STATUS_FILE;
+  async function maintenance(){
+    if(!hostStatusFile) return null;
+    try{const s=JSON.parse(await readFile(hostStatusFile,'utf8')),at=Date.parse(s.rebootAt);return s.rebootRequired&&at>clock()&&at-clock()<=3600000?{at:new Date(at).toISOString()}:null;}
+    catch{return null;}
+  }
   const sendMail=options.mailer??makeMailer();
   const mailLife={verify:86400000,reset:30*60000};
   // New accounts are usable only after the email link is opened (tests of other features turn this off).
@@ -160,7 +168,7 @@ export function makeApp(options={}) {
         return res.end(req.method==='HEAD'?undefined:await readFile(file));
       }
       if(write&&(req.headers.origin!==origin||req.headers['sec-fetch-site']==='cross-site')) throw apiError(403,'현재 사이트에서 다시 요청해 주세요.');
-      if(path==='/api/site'&&req.method==='GET') return json(res,200,{legal,legalReady,registration,termsVersion});
+      if(path==='/api/site'&&req.method==='GET') return json(res,200,{legal,legalReady,registration,termsVersion,maintenance:await maintenance()});
       if(path==='/api/auth/session'&&req.method==='GET') {
         const s=session(req);
         if(s&&s.expires_at-clock()<(sessionDays-1)*86400000){

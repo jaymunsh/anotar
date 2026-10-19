@@ -33,6 +33,8 @@ use "$release" "$dir"
 if (cd "$dir" && timeout 180 "${compose[@]}" up -d --wait) && curl -fsS --max-time 5 http://127.0.0.1:8794/api/health >/dev/null; then
   printf '%s\n' "$commit" > "$root/deployed-commit"
   echo "Deployed harukan $commit as $release"
+  # Same as anotar-deploy: drop images no container uses, but not ones built in the last day.
+  docker image prune -af --filter until=24h >/dev/null || true
 else
   echo "harukan $release failed; returning to $previous_release" >&2
   use "$previous_release" "$previous"

@@ -12,6 +12,7 @@ import {
   Info,
   Moon,
   Network,
+  Server,
   Palette,
   Settings,
   ShieldCheck,
@@ -33,6 +34,11 @@ function ArchitectureResource() {
         <Network size={18} aria-hidden="true" />
         <span><strong>기술 아키텍처</strong><small>기술 스택, 파일 진입점, 저장·동기화와 운영 구조</small></span>
         {item ? <ChevronRight size={16} aria-hidden="true" /> : <ExternalLink size={16} aria-hidden="true" />}
+      </a>
+      <a href="/oracle-server.html" target="_blank" rel="noopener noreferrer">
+        <Server size={18} aria-hidden="true" />
+        <span><strong>Oracle 서버 운영</strong><small>서버 사양, 주소·컨테이너·폴더, 타이머, 배포·백업·감시, 비용, 운영 명령</small></span>
+        <ExternalLink size={16} aria-hidden="true" />
       </a>
     </nav>
     <p className="settings-save-note">{item ? '일반 페이지에서 내용을 수정하고 공유할 수 있어요.' : '문서는 새 탭에서 열립니다.'}</p>

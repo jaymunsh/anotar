@@ -35,3 +35,19 @@ test('a former host sends every request to the same path on the current origin',
  // The current host is never redirected, even if listed by mistake.
  r=await send('harukan.example.test','/api/health');assert.equal(r.statusCode,200);
 });
+
+test('a scheduled security reboot on the host shows up as maintenance in /api/site',async t=>{
+ const {writeFile}=await import('node:fs/promises');
+ const directory=await mkdtemp(join(tmpdir(),'anotar-maint-')),status=join(directory,'status.json');
+ const app=makeApp({dataDirectory:directory,origin:'http://planner.test',hostStatusFile:status,clock:()=>Date.parse('2026-10-20T22:10:00Z')});
+ await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));
+ t.after(async()=>{await app.close();await rm(directory,{recursive:true,force:true});});
+ const site=async()=>(await (await fetch(`http://127.0.0.1:${app.server.address().port}/api/site`)).json()).maintenance;
+ assert.equal(await site(),null);
+ await writeFile(status,JSON.stringify({rebootRequired:true,rebootAt:'2026-10-20T23:00:00+00:00'}));
+ assert.deepEqual(await site(),{at:'2026-10-20T23:00:00.000Z'});
+ await writeFile(status,JSON.stringify({rebootRequired:true,rebootAt:'2026-10-21T00:00:00+00:00'}));
+ assert.equal(await site(),null,'more than an hour ahead');
+ await writeFile(status,JSON.stringify({rebootRequired:true,rebootAt:'2026-10-20T11:00:00+00:00'}));
+ assert.equal(await site(),null);
+});

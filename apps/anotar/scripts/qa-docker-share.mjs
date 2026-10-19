@@ -64,7 +64,8 @@ try {
       { id: 'qa-asset', type: 'asset', props: { assetId: capture.files[0].id, display: 'file' }, content: [], children: [] },
     ] } });
   } finally { store.close(); }
-  await writeFile(override, JSON.stringify({ services: { storage: { volumes: [`${dir}:/migration`] } } }));
+  // The production image refuses AUTH_MODE=disabled; this fixture runs it as development to skip login.
+  await writeFile(override, JSON.stringify({ services: { storage: { volumes: [`${dir}:/migration`], environment: { NODE_ENV: 'development' } } } }));
   const config = JSON.parse((await compose('config', '--format', 'json')).stdout);
   for (const service of Object.values(config.services)) for (const port of service.ports) assert.equal(port.host_ip, '127.0.0.1');
   assert.equal(config.services.share.read_only, true);

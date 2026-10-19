@@ -41,7 +41,7 @@ def eligible(run):
 
 def notify(kind, *lines):
     # Same shape as the server watchers: '<icon> <kind> · <name> 배포', KST time, then the lines.
-    icon = "🟢" if kind == "복구" else "🔴"
+    icon = "🟢" if kind in ("복구", "완료") else "🔴"
     when = datetime.now(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M KST")
     text = f"{icon} {kind} · {NAME} 배포\n{when}\n\n" + "\n".join(lines)
     try:
@@ -132,9 +132,12 @@ def main():
                 state["failed_commit"] = commit
         save(state)
         return 1
+    title = "• " + runs[0].get("display_title", "")[:120]
     if state.get("failed_commit"):
-        if notify("복구", "새 릴리스가 정상 배포됐어요.", "커밋: " + commit[:12]):
+        if notify("복구", "새 릴리스가 정상 배포됐어요.", "• 커밋: " + commit[:12], title):
             state.pop("failed_commit", None)
+    else:
+        notify("완료", "새 버전이 배포됐어요.", "• 커밋: " + commit[:12], title)
     for key in ("attempt_commit", "attempt_count", "retry_after"):
         state.pop(key, None)
     save(state)

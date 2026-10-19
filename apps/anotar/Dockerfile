@@ -7,6 +7,7 @@ COPY src ./src
 COPY shared ./shared
 COPY public ./public
 COPY docs/architecture-overview.html ./docs/architecture-overview.html
+COPY docs/oracle-server.html ./docs/oracle-server.html
 COPY docs/design ./docs/design
 COPY scripts/build-offline-manifest.mjs ./scripts/build-offline-manifest.mjs
 RUN npm run build

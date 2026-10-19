@@ -1,5 +1,5 @@
 import {getLanguage} from './i18n';
-export type Site = {legal:{operator:string;representative:string;businessNumber:string;address:string;contact:string;privacyContact:string;publishedAt:string;hostingRegion:string};legalReady:boolean;registration:boolean;termsVersion:string};
+export type Site = {legal:{operator:string;representative:string;businessNumber:string;address:string;contact:string;privacyContact:string;publishedAt:string;hostingRegion:string};legalReady:boolean;registration:boolean;termsVersion:string;maintenance?:{at:string}|null};
 export type User = {id:string;nickname:string;email:string|null;emailVerified:boolean;timezone:string};
 export type Plan = {id:string;title:string;start:number;end:number;status:'pending'|'partial'|'done'|'deferred'|'cancelled'|'missed';priorityId?:string;planningId?:string};
 export type Entry = {id:string;title:string;start:number;end:number;planId?:string};

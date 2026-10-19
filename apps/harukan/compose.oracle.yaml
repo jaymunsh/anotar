@@ -11,9 +11,12 @@ services:
       HOST: 127.0.0.1
       PORT: 8794
       PLANNER_DATA_DIR: /data
+      HOST_STATUS_FILE: /host/status.json
     volumes:
       - /srv/anotar-planner/data:/data
       - /srv/anotar-planner/backups:/backups
+      # Pending security reboot, written by leneu-service-watch; shown as a maintenance notice.
+      - /var/lib/leneu-host:/host:ro
     read_only: true
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=16m

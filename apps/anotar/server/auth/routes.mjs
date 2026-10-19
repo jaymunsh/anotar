@@ -47,6 +47,9 @@ export function createAuthHttp({ store, env = process.env, clock = Date.now }) {
   const mode = env.AUTH_MODE || (env.NODE_ENV === 'production' || !local ? 'required' : 'disabled');
   if (!['required', 'disabled'].includes(mode))
     throw Error('AUTH_MODE must be required or disabled');
+  // A stray AUTH_MODE=disabled in the server .env would open the private API to the internet.
+  if (mode === 'disabled' && env.NODE_ENV === 'production')
+    throw Error('AUTH_MODE=disabled is not allowed in production');
   const secure = env.AUTH_COOKIE_SECURE !== 'false';
   if (!secure && (!local || env.NODE_ENV === 'production'))
     throw Error('Insecure auth cookies are only supported on local development');

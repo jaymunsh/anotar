@@ -271,3 +271,7 @@ test('auth check fails closed when auth is disabled for local development', asyn
   assert.equal(await http.handle(req, res, new URL('http://localhost/api/auth/check')), true);
   assert.equal(status, 401);
 });
+test('production refuses AUTH_MODE=disabled', async () => {
+  const { createAuthHttp } = await import('../server/auth/routes.mjs');
+  assert.throws(() => createAuthHttp({ store: {}, env: { AUTH_MODE: 'disabled', NODE_ENV: 'production' } }), /not allowed in production/);
+});
