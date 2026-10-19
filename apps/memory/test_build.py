@@ -25,3 +25,10 @@ for i, n in enumerate([1000, 1000, 200_000, 50_000, 20_000, 1000, 1000, 1000, 10
 groups = [[p.stem for p in g] for g in summarize.batches(files)]
 assert groups == [["00", "01"], ["02"], ["03"], ["04", "05", "06", "07", "08"], ["09"]], groups
 print("ok batches")
+
+# import_sessions.py: summarize.py가 만든 opencode 세션은 가져오지 않는다
+import import_sessions
+assert import_sessions.is_own([("user", '"AGENTS.md의 sessions 절차 3~5번과 ...')])
+assert import_sessions.is_own([("assistant", "x"), ("user", "AGENTS.md의 weekly 절차를 따라")])
+assert not import_sessions.is_own([("user", "AGENTS.md 고쳐 줘")])
+print("ok own sessions")

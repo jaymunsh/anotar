@@ -103,13 +103,25 @@ def opencode():
         yield "opencode", sid, title, cwd, started, turns, models, updated / 1000, db
 
 
+# summarize.py가 opencode를 부를 때 생기는 세션. 가져오면 요약 작업을 또 요약하게 된다.
+OWN_PROMPTS = ("AGENTS.md의 sessions 절차", "AGENTS.md의 weekly 절차")
+
+
+def is_own(turns):
+    first = next((text for role, text in turns if role == "user"), "")
+    return first.lstrip("\"' ").startswith(OWN_PROMPTS)
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    written = skipped = empty = 0
+    written = skipped = empty = own = 0
     for source in (claude_code, codex, opencode):
         for tool, sid, title, cwd, started, turns, models, mtime, src in source():
             if not any(role == "user" for role, _ in turns):
                 empty += 1
+                continue
+            if is_own(turns):
+                own += 1
                 continue
             date = started[:10] or datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
             out = OUT / f"{date}-{tool}-{sid[-8:]}.md"
@@ -123,7 +135,7 @@ def main():
                           clip(text, MAX_USER if role == "user" else MAX_AI), ""]
             out.write_text("\n".join(lines), encoding="utf-8")
             written += 1
-    print(f"raw/sessions: 새로/갱신 {written}, 변경없음 {skipped}, 빈 세션 건너뜀 {empty}")
+    print(f"raw/sessions: 새로/갱신 {written}, 변경없음 {skipped}, 빈 세션 건너뜀 {empty}, 위키 요약 작업 건너뜀 {own}")
 
 
 if __name__ == "__main__":
