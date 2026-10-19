@@ -1,5 +1,5 @@
-// Account screens end to end: sign up with email + nickname, nickname in the header and settings,
-// forgot → reset link → sign in with the new password, and the email check link. Mail is captured, not sent.
+// Account screens end to end: sign up with email + nickname → check your inbox → the link signs in (signing in before it
+// is refused, with a resend), nickname in the header and settings, forgot → reset link → sign in with the new password. Mail is captured, not sent.
 // Isolated temporary account and DB on port 8801.
 import {chromium} from 'playwright-core';
 import {makeApp} from '../server/app.mjs';
@@ -19,16 +19,21 @@ try{
   await page.getByLabel('이메일',{exact:true}).fill('qa.person@example.test');await page.getByLabel('닉네임',{exact:true}).fill('하루 사람');
   await page.getByLabel('비밀번호',{exact:true}).fill('account-qa-password');
   for(const box of await page.locator('.auth-consents input[type=checkbox]').all())await box.check();
-  await page.getByRole('button',{name:'가입하고 시작하기'}).click();await page.waitForURL('**/app**');
-  await page.locator('.account-link',{hasText:'하루 사람'}).waitFor();checks.push('sign-up with email + nickname lands on the app with the nickname in the header');
-  assert.ok(link('qa.person@example.test','verify'));checks.push('sign-up sends an email check link');
+  await page.getByRole('button',{name:'가입하고 시작하기'}).click();await page.getByText('메일함을 확인해 주세요').waitFor();
+  assert.ok(!page.url().includes('/app'));assert.ok(link('qa.person@example.test','verify'));checks.push('sign-up shows check-your-inbox and sends a link, without signing in');
+  // Signing in before the link is opened: refused, with a way to get another link.
+  await page.goto(base+'/login');await page.getByLabel('이메일',{exact:true}).fill('qa.person@example.test');
+  await page.getByLabel('비밀번호',{exact:true}).fill('account-qa-password');await page.getByRole('button',{name:'로그인',exact:true}).click();
+  await page.getByText('이메일 확인이 필요해요').waitFor();const sent=mail.length;
+  await page.getByRole('button',{name:'확인 메일 다시 받기'}).click();await page.getByText('확인 메일을 다시 보냈어요').waitFor();
+  assert.equal(mail.length,sent+1);checks.push('signing in before confirming is refused and can resend the link');
+  await page.goto(link('qa.person@example.test','verify'));await page.getByText('주소를 확인했어요').waitFor();
+  await page.getByRole('link',{name:'시간표로 이동'}).click();await page.waitForURL('**/app**');
+  await page.locator('.account-link',{hasText:'하루 사람'}).waitFor();checks.push('the link confirms the address and signs in, nickname in the header');
 
-  await page.goto(base+'/app/settings');await page.locator('.account-value .unverified').waitFor();
+  await page.goto(base+'/app/settings');await page.locator('.account-value .verified').waitFor();
   await page.getByLabel('닉네임',{exact:true}).fill('새 닉네임');await page.getByRole('button',{name:'저장',exact:true}).click();
   await page.locator('.account-link',{hasText:'새 닉네임'}).waitFor();checks.push('settings changes the nickname and the header follows');
-
-  await page.goto(link('qa.person@example.test','verify'));await page.getByText('주소를 확인했어요').waitFor();
-  await page.goto(base+'/app/settings');await page.locator('.account-value .verified').waitFor();checks.push('the check link confirms the address');
 
   await page.getByRole('button',{name:'로그아웃'}).click();await page.waitForURL(u=>!u.pathname.startsWith('/app'));
   await page.goto(base+'/forgot');await page.getByLabel('이메일',{exact:true}).fill('qa.person@example.test');

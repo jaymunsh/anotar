@@ -11,7 +11,7 @@ const password='planner-test-password-only';
 async function fixture(t,options={}){
   const dataDirectory=await mkdtemp(join(tmpdir(),'anotar-planner-test-'));
   const mail=[];
-  const app=makeApp({dataDirectory,origin:'http://planner.test',registration:true,mailer:async m=>{mail.push(m);},...options});
+  const app=makeApp({verifySignups:false,dataDirectory,origin:'http://planner.test',registration:true,mailer:async m=>{mail.push(m);},...options});
   await new Promise(r=>app.server.listen(0,'127.0.0.1',r));
   t.after(async()=>{await app.close();await rm(dataDirectory,{recursive:true,force:true});});
   const url=`http://127.0.0.1:${app.server.address().port}`;
@@ -24,7 +24,7 @@ async function fixture(t,options={}){
   async function register(c,name){return c.send('/api/auth/register','POST',{email:email(name),nickname:name.slice(0,20),password,termsVersion:'2026-10-18',ageConfirmed:true});}
   // The link in the newest mail to someone, e.g. /reset?token=…
   const linkTo=to=>mail.filter(m=>m.to===to).at(-1)?.text.match(/\/(verify|reset)\?token=([\w-]+)/);
-  return{...app,client,register,email,mail,linkTo};
+  return{...app,client,register,email,mail,linkTo,dataDirectory};
 }
 test('accounts isolate records and export; writes require Origin and CSRF; deletion cascades',async t=>{
   const {client,register,db}=await fixture(t),a=client(),b=client();
@@ -170,4 +170,27 @@ test('email sign-in: check link, reset link (one use, ends other sessions), nick
   assert.equal((await client().send('/api/auth/verify','POST',{token:linkTo('moved@example.test')[2]})).status,200);
   assert.equal((await c.send('/api/auth/session')).value.user.email,'moved@example.test');
   assert.equal((await client().send('/api/auth/login','POST',{login:'moved@example.test',password:'a-brand-new-password'})).status,200);
+});
+test('a new account is usable only after its email link; unconfirmed sign-ups are replaced or dropped after a day',async t=>{
+  let now=Date.parse('2026-10-20T00:00:00Z');
+  const {client,register,email,mail,linkTo,db,dataDirectory}=await fixture(t,{verifySignups:true,clock:()=>now}),a=client();
+  const signed=await register(a,'confirm_me');assert.equal(signed.status,201);assert.equal(signed.value.pending,true);assert.equal(a.cookie,'');
+  const login=()=>client().send('/api/auth/login','POST',{login:email('confirm_me'),password});
+  const refused=await login();assert.equal(refused.status,403);assert.equal(refused.value.code,'unverified');
+  // Wrong password still says nothing about the account.
+  assert.equal((await client().send('/api/auth/login','POST',{login:email('confirm_me'),password:'not-the-right-password'})).status,401);
+  const before=mail.length;assert.equal((await client().send('/api/auth/resend','POST',{email:email('confirm_me')})).status,200);assert.equal(mail.length,before+1);
+  assert.equal((await client().send('/api/auth/resend','POST',{email:email('nobody_here')})).status,200);assert.equal(mail.length,before+1);
+  // Only the newest link works, and opening it signs in.
+  const opener=client(),opened=await opener.send('/api/auth/verify','POST',{token:linkTo(email('confirm_me'))[2]});
+  assert.equal(opened.status,200);assert.equal(opened.value.user.emailVerified,true);assert.equal((await opener.send('/api/auth/session')).value.user.nickname,'confirm_me');
+  assert.equal((await login()).status,200);
+  assert.equal((await register(client(),'confirm_me')).status,409);
+  // Someone else's unconfirmed sign-up does not hold the address: signing up again replaces it.
+  assert.equal((await register(client(),'squat')).status,201);const first=db.prepare('SELECT id FROM users WHERE email=?').get(email('squat')).id;
+  assert.equal((await register(client(),'squat')).status,201);assert.notEqual(db.prepare('SELECT id FROM users WHERE email=?').get(email('squat')).id,first);
+  // A day later (the next cleanup) the unconfirmed one is gone; the confirmed one stays.
+  const later=makeApp({dataDirectory,origin:'http://planner.test',clock:()=>now+86400000+1,mailer:async()=>{}});t.after(()=>later.close());
+  assert.equal(later.db.prepare('SELECT 1 FROM users WHERE email=?').get(email('squat')),undefined);
+  assert.ok(later.db.prepare('SELECT 1 FROM users WHERE email=?').get(email('confirm_me')));
 });

@@ -7,7 +7,7 @@ import {makeApp} from '../server/app.mjs';
 
 test('planning persists goals and steps with owner, CSRF, version and parent protection',async t=>{
  const directory=await mkdtemp(join(tmpdir(),'anotar-planning-'));
- const app=makeApp({dataDirectory:directory,origin:'http://planner.test',registration:true});
+ const app=makeApp({verifySignups:false,dataDirectory:directory,origin:'http://planner.test',registration:true});
  await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));
  t.after(async()=>{await app.close();await rm(directory,{recursive:true,force:true});});
  const base=`http://127.0.0.1:${app.server.address().port}`;

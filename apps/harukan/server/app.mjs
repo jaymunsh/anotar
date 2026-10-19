@@ -34,7 +34,7 @@ async function matches(password,stored=dummyHash) {
   const candidate=await hash(password,stored);
   return timingSafeEqual(Buffer.from(candidate),Buffer.from(stored));
 }
-const apiError=(status,message)=>Object.assign(Error(message),{status});
+const apiError=(status,message,code)=>Object.assign(Error(message),{status,code});
 const json=(res,status,data)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));};
 async function body(req) {
   if(!String(req.headers['content-type']||'').startsWith('application/json')) throw apiError(415,'JSON 형식으로 요청해 주세요.');
@@ -72,8 +72,17 @@ export function makeApp(options={}) {
   const writeLimit=options.writeLimit??1200,storageLimit=options.storageLimit??20*1024*1024;
   const clock=options.clock??Date.now;
   const sendMail=options.mailer??makeMailer();
-  const mailLife={verify:3*86400000,reset:30*60000};
+  const mailLife={verify:86400000,reset:30*60000};
+  // New accounts are usable only after the email link is opened (tests of other features turn this off).
+  const verifySignups=options.verifySignups??true;
+  // An unconfirmed sign-up without any saved data is gone after a day, freeing the address.
+  function dropUnconfirmed(where,...args) {
+    for(const {id} of db.prepare(`SELECT id FROM users WHERE email IS NOT NULL AND email_verified_at IS NULL AND ${where} AND NOT EXISTS(SELECT 1 FROM days WHERE user_id=users.id) AND NOT EXISTS(SELECT 1 FROM planning WHERE user_id=users.id)`).all(...args)){
+      recordDeletion(dataDirectory,id,clock());db.prepare('DELETE FROM users WHERE id=?').run(id);
+    }
+  }
   function cleanup() {
+    if(verifySignups) dropUnconfirmed('created_at<=?',clock()-mailLife.verify);
     db.prepare('DELETE FROM sessions WHERE expires_at<=?').run(clock());
     db.prepare('DELETE FROM auth_limits WHERE expires_at<=?').run(clock());
     db.prepare('DELETE FROM mail_tokens WHERE expires_at<=?').run(clock());
@@ -171,10 +180,11 @@ export function makeApp(options={}) {
         limit('signup:'+ip,5,86400000);
         // People sign in with their email. username and recovery_hash are internal columns kept from the first schema (a random handle and an unused hash).
         const password=await hash(data.password),timezone=timezoneOK(data.timezone)?data.timezone:'Asia/Seoul',user={id:randomUUID(),username:'u-'+randomBytes(6).toString('hex'),nickname,email,timezone};
-        try {db.prepare('INSERT INTO users(id,username,password,recovery_hash,created_at,terms_version,email,nickname,timezone) VALUES(?,?,?,?,?,?,?,?,?)').run(user.id,user.username,password,digest(token()),clock(),termsVersion,email,nickname,timezone);}
+        // Signing up again with an address nobody confirmed replaces that sign-up.
+        try {transaction(db,()=>{if(verifySignups)dropUnconfirmed('email=?',email);db.prepare('INSERT INTO users(id,username,password,recovery_hash,created_at,terms_version,email,nickname,timezone) VALUES(?,?,?,?,?,?,?,?,?)').run(user.id,user.username,password,digest(token()),clock(),termsVersion,email,nickname,timezone);});}
         catch(error) {if(String(error.message).includes('UNIQUE')) throw apiError(409,'이미 가입한 이메일이에요. 로그인하거나 비밀번호를 재설정해 주세요.');throw error;}
         await mailLink(user,'verify',email);
-        return json(res,201,newSession(user,res));
+        return verifySignups?json(res,201,{pending:true,email}):json(res,201,newSession(user,res));
       }
       if(path==='/api/auth/login'&&req.method==='POST') {
         const data=await body(req),login=normalizeEmail(data.login);
@@ -183,6 +193,7 @@ export function makeApp(options={}) {
         const user=db.prepare('SELECT * FROM users WHERE email=?').get(login);
         if(!await matches(data.password,user?.password)||!user) throw apiError(401,'이메일 또는 비밀번호를 확인해 주세요.');
         if(db.prepare('SELECT password FROM users WHERE id=?').get(user.id)?.password!==user.password) throw apiError(401,'계정 정보가 바뀌었어요. 다시 로그인해 주세요.');
+        if(verifySignups&&!user.email_verified_at) throw apiError(403,'이메일 확인이 필요해요. 가입할 때 받은 메일의 링크를 열어 주세요.','unverified');
         return json(res,200,newSession(user,res));
       }
       if(path==='/api/auth/forgot'&&req.method==='POST') {
@@ -193,6 +204,16 @@ export function makeApp(options={}) {
         limit('forgot:'+email,3,60*60000);
         const user=db.prepare('SELECT * FROM users WHERE email=?').get(email);
         if(user) await mailLink(user,'reset',email);
+        return json(res,200,{ok:true});
+      }
+      if(path==='/api/auth/resend'&&req.method==='POST') {
+        // A new sign-up link for an unconfirmed address; same answer either way.
+        const data=await body(req),email=normalizeEmail(data.email);
+        limit('ip:'+ip,10,15*60000);
+        if(!emailOK(email)) throw apiError(400,'이메일 주소를 확인해 주세요.');
+        limit('resend:'+email,3,60*60000);
+        const user=db.prepare('SELECT * FROM users WHERE email=? AND email_verified_at IS NULL').get(email);
+        if(user) await mailLink(user,'verify',email);
         return json(res,200,{ok:true});
       }
       if(path==='/api/auth/reset'&&req.method==='POST') {
@@ -211,10 +232,11 @@ export function makeApp(options={}) {
       if(path==='/api/auth/verify'&&req.method==='POST') {
         const data=await body(req);limit('ip:'+ip,30,15*60000);
         const row=takeMailToken(data.token,'verify');
-        if(!row) throw apiError(400,'만료됐거나 이미 쓴 링크예요. 설정에서 확인 메일을 다시 보내 주세요.');
+        if(!row) throw apiError(400,'만료됐거나 이미 쓴 링크예요. 로그인 화면에서 확인 메일을 다시 받거나, 하루가 지났다면 다시 가입해 주세요.');
         try {db.prepare('UPDATE users SET email=?,email_verified_at=? WHERE id=?').run(row.email,clock(),row.user_id);}
         catch(error) {if(String(error.message).includes('UNIQUE')) throw apiError(409,'다른 계정이 이미 쓰는 이메일이에요.');throw error;}
-        return json(res,200,{ok:true,email:row.email});
+        // The link came from that mailbox, so opening it also signs in.
+        return json(res,200,{...newSession(db.prepare('SELECT * FROM users WHERE id=?').get(row.user_id),res),email:row.email});
       }
       const s=session(req);if(!s) throw apiError(401,'로그인이 필요해요.');
       if(write&&req.headers['x-csrf-token']!==s.csrf) throw apiError(403,'로그인 상태를 새로 확인해 주세요. 입력한 내용은 그대로 남아요.');
@@ -298,7 +320,7 @@ export function makeApp(options={}) {
       }
       if(path==='/api/tasks'||path.startsWith('/api/tasks/'))throw apiError(410,'할 일 기능은 종료됐어요. 일정과 계획을 이용해 주세요.');
       throw apiError(404,'요청한 내용을 찾을 수 없어요.');
-    } catch(error) {json(res,error.status||500,{message:error.status?error.message:'저장하지 못했어요. 입력 내용을 보관하고 다시 시도해 주세요.'});}
+    } catch(error) {json(res,error.status||500,{message:error.status?error.message:'저장하지 못했어요. 입력 내용을 보관하고 다시 시도해 주세요.',...(error.code?{code:error.code}:{})});}
   });
   server.requestTimeout=30000;server.headersTimeout=15000;
   return {server,db,close:()=>new Promise(resolve=>{clearInterval(cleanupTimer);server.close(()=>{db.close();resolve();});})};

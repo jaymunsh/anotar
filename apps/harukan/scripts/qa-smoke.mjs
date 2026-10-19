@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import {makeApp} from '../server/app.mjs';
 
 const temp=await mkdtemp(join(tmpdir(),'harukan-smoke-')),base='http://127.0.0.1:8802';
-const app=makeApp({dataDirectory:temp,origin:base,registration:true,legalReviewed:true,legal:{publishedAt:'2026-10-12',hostingRegion:'Osaka'},mailer:async()=>{}});
+const app=makeApp({verifySignups:false,dataDirectory:temp,origin:base,registration:true,legalReviewed:true,legal:{publishedAt:'2026-10-12',hostingRegion:'Osaka'},mailer:async()=>{}});
 await new Promise(r=>app.server.listen(8802,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||undefined});
 const checks=[],errors=[];

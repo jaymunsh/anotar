@@ -28,10 +28,10 @@ export function accountMail({kind,name,link,contact='support@leneu.store'}) {
   const subject=verify?'[harukan] 이메일 주소를 확인해 주세요':'[harukan] 비밀번호 재설정';
   const heading=verify?'이메일 주소를 확인해 주세요':'새 비밀번호를 정해 주세요';
   const lines=verify
-    ?[`${name}님, harukan에 이 주소를 등록하려면 아래 버튼을 눌러 주세요.`,'링크는 3일 동안 쓸 수 있어요.']
+    ?[`${name}님, harukan에 이 주소를 등록하려면 아래 버튼을 눌러 주세요.`,'링크는 하루 동안 쓸 수 있어요.']
     :[`${name}님, 비밀번호 재설정을 요청하셨어요. 아래 버튼에서 새 비밀번호를 정해 주세요.`,'링크는 30분 동안, 한 번만 쓸 수 있어요. 바꾸면 다른 기기의 로그인은 끝나요.'];
   const action=verify?'이메일 확인하기':'비밀번호 다시 정하기';
-  const ignore=verify?'직접 요청하지 않았다면 이 메일은 무시해 주세요. 주소는 등록되지 않아요.':'직접 요청하지 않았다면 이 메일은 무시해 주세요. 비밀번호는 바뀌지 않아요.';
+  const ignore=verify?'직접 요청하지 않았다면 이 메일은 무시해 주세요. 확인하지 않은 가입은 하루 뒤 지워져요.':'직접 요청하지 않았다면 이 메일은 무시해 주세요. 비밀번호는 바뀌지 않아요.';
   const text=`${lines.join(' ')}\n\n${action}: ${link}\n\n${ignore}\n\n— harukan · 문의 ${contact}`;
   const font="-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard','Malgun Gothic',sans-serif";
   const html=`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${escape(subject)}</title></head>

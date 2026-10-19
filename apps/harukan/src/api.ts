@@ -10,10 +10,10 @@ export type Routine={id:string;kind:'routine';title:string;version:number};
 export type TemplateBlock={title:string;start:number;end:number};
 export type DayTemplate={id:string;kind:'template';title:string;blocks:TemplateBlock[];version:number};
 export type PlanningItem={id:string;kind:'goal'|'step';title:string;startMonth:string;endMonth:string;note:string;parentId:string|null;version:number;color?:number;done?:boolean;focus?:boolean};
-export class ApiError extends Error {constructor(public status:number,message:string){super(message);}}
+export class ApiError extends Error {constructor(public status:number,message:string,public code?:string){super(message);}}
 export async function request<T>(path:string,method='GET',data?:unknown,csrf?:string):Promise<T> {
   const response=await fetch(path,{method,credentials:'same-origin',cache:'no-store',headers:{...(data===undefined?{}:{'Content-Type':'application/json'}),...(csrf?{'X-CSRF-Token':csrf}:{})},...(data===undefined?{}:{body:JSON.stringify(data)})});
-  const value=await response.json();if(!response.ok) throw new ApiError(response.status,value.message||'요청하지 못했어요. 다시 시도해 주세요.');return value;
+  const value=await response.json();if(!response.ok) throw new ApiError(response.status,value.message||'요청하지 못했어요. 다시 시도해 주세요.',value.code);return value;
 }
 export const emptyDay=():Day=>({plans:[],entries:[],notes:{thoughts:'',ideas:'',review:''}});
 export const clock=(minutes:number)=>`${String(Math.floor(minutes/60)).padStart(2,'0')}:${String(minutes%60).padStart(2,'0')}`;

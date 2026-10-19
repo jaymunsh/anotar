@@ -16,7 +16,7 @@ const project=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const check=process.argv.includes('--check');
 const temp=await mkdtemp(join(tmpdir(),'harukan-guide-')),root=check?join(temp,'shots'):resolve(project,'public/guide');
 const base='http://127.0.0.1:8803',date='2026-10-16';
-const app=makeApp({dataDirectory:temp,origin:base,registration:true,legalReviewed:true,legal:{publishedAt:'2026-10-18',hostingRegion:'Osaka'},mailer:async()=>{}});
+const app=makeApp({verifySignups:false,dataDirectory:temp,origin:base,registration:true,legalReviewed:true,legal:{publishedAt:'2026-10-18',hostingRegion:'Osaka'},mailer:async()=>{}});
 await new Promise(r=>app.server.listen(8803,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||undefined});
 try{for(const [lang,{planning,days},nickname] of [['ko',koData,'하루'],['en',enData,'Haru']]){

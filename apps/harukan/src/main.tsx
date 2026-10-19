@@ -2,7 +2,7 @@ import {t,pair,LanguageSelect,LanguageToggle,useLanguage} from './i18n';
 import React,{useCallback,useEffect,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {ArrowRight,CalendarClock,Menu,Moon,Settings,Sun} from 'lucide-react';
-import {request,Site,User} from './api';
+import {ApiError,request,Site,User} from './api';
 import {Legal} from './legal'
 import {Guide} from './Guide';
 import {SettingsPage} from './planner';
@@ -26,14 +26,16 @@ function Footer({site}:{site:Site}) {return <footer className="site-footer"><Bra
 
 // Sign-in pages: email and password; a forgotten password is reset through a link sent to that email.
 function Auth({kind,site}:{kind:string;site:Site}) {
-  const [email,setEmail]=useState(''),[nickname,setNickname]=useState(''),[login,setLogin]=useState(''),[password,setPassword]=useState(''),[agree,setAgree]=useState(false),[age,setAge]=useState(false),[error,setError]=useState(''),[busy,setBusy]=useState(false),[done,setDone]=useState('');
+  const [email,setEmail]=useState(''),[nickname,setNickname]=useState(''),[login,setLogin]=useState(''),[password,setPassword]=useState(''),[agree,setAgree]=useState(false),[age,setAge]=useState(false),[error,setError]=useState(''),[busy,setBusy]=useState(false),[done,setDone]=useState(''),[unverified,setUnverified]=useState(false),[resent,setResent]=useState(false);
   const signup=kind==='signup',forgot=kind==='forgot',reset=kind==='reset',verify=kind==='verify';
   const linkToken=new URLSearchParams(location.search).get('token')||'';
-  async function run(fn:()=>Promise<void>){setError('');setBusy(true);try{await fn();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+  async function run(fn:()=>Promise<void>){setError('');setBusy(true);try{await fn();}catch(e){setError((e as Error).message);setUnverified((e as ApiError).code==='unverified');}finally{setBusy(false);}}
+  // A new sign-up link, from the check-your-mail screen or a sign-in that still needs it.
+  const resend=(address:string)=>void run(async()=>{await request('/api/auth/resend','POST',{email:address});setResent(true);});
   // A check link works signed in or not; it runs once when the page opens.
   useEffect(()=>{if(verify)void run(async()=>{const r=await request<{email:string}>('/api/auth/verify','POST',{token:linkToken});setDone(r.email);});},[]);
   function submit(event:React.FormEvent){event.preventDefault();void run(async()=>{
-    if(signup)await request('/api/auth/register','POST',{email,nickname,password,termsVersion:agree?site.termsVersion:'',ageConfirmed:age,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone});
+    if(signup){const r=await request<{pending?:boolean}>('/api/auth/register','POST',{email,nickname,password,termsVersion:agree?site.termsVersion:'',ageConfirmed:age,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone});if(r.pending){setDone(email);return;}}
     else if(forgot){await request('/api/auth/forgot','POST',{email});setDone(email);return;}
     else if(reset)await request('/api/auth/reset','POST',{token:linkToken,password});
     else await request('/api/auth/login','POST',{login,password});
@@ -41,6 +43,7 @@ function Auth({kind,site}:{kind:string;site:Site}) {
   });}
   const title=signup?t("하루 기록 시작하기"):forgot||reset?t("비밀번호 재설정"):verify?t("이메일 확인"):t("다시 만나 반가워요.");
   if(verify)return <main className="auth-page"><h1>{title}</h1>{busy?<p role="status">{t("확인 중…")}</p>:done?<><p>{pair(`${done} 주소를 확인했어요.`,`${done} is confirmed.`)}</p><a className="primary" href="/app">{t("시간표로 이동")}<ArrowRight size={16}/></a></>:<p className="error" role="alert">{t(error)}</p>}</main>;
+  if(signup&&done)return <main className="auth-page"><h1>{pair('메일함을 확인해 주세요','Check your inbox')}</h1><p>{pair(`${done}(으)로 확인 메일을 보냈어요. 메일의 버튼을 누르면 가입이 끝나고 바로 시작할 수 있어요. 링크는 하루 동안 쓸 수 있어요.`,`We sent a link to ${done}. Open it to finish signing up and start right away. The link works for one day.`)}</p><p className="helper">{pair('메일이 안 보이면 스팸함도 확인해 주세요.','If it isn’t there, check your spam folder.')}</p>{error&&<p className="error" role="alert">{t(error)}</p>}{resent&&<p role="status">{pair('확인 메일을 다시 보냈어요.','Sent another link.')}</p>}<div className="auth-links"><button type="button" className="text-button" disabled={busy} onClick={()=>resend(done)}>{pair('메일 다시 보내기','Send the link again')}</button><a href="/login">{t("로그인으로")}</a></div></main>;
   if(forgot&&done)return <main className="auth-page"><h1>{title}</h1><p>{pair(`${done}(으)로 가입한 계정이 있으면 재설정 링크를 보냈어요. 30분 안에 메일의 링크를 열어 주세요. 메일이 안 보이면 스팸함도 확인해 주세요.`,`If an account uses ${done}, a reset link is on its way. Open it within 30 minutes, and check spam if it doesn’t show up.`)}</p><div className="auth-links"><a href="/login">{t("로그인으로")}</a></div></main>;
   return <main className="auth-page"><h1>{title}</h1>
     <p>{signup?t("이메일로 가입하고, 화면에는 닉네임이 보여요."):forgot?t("가입한 이메일로 재설정 링크를 보내요."):reset?t("새 비밀번호를 정해 주세요."):t("내 계획과 기록을 이어서 확인하세요.")}</p>
@@ -52,7 +55,7 @@ function Auth({kind,site}:{kind:string;site:Site}) {
     {kind==='login'&&<><label htmlFor="login">{t("이메일")}</label><input id="login" value={login} onChange={e=>setLogin(e.target.value)} autoComplete="username" required maxLength={254} placeholder="name@example.com"/></>}
     {!forgot&&<><label htmlFor="password">{reset?t("새 비밀번호"):t("비밀번호")}</label><input id="password" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete={kind==='login'?'current-password':'new-password'} required minLength={12} maxLength={128}/>{kind!=='login'&&<small>{t("12–128자. 다른 서비스와 다른 비밀번호를 사용해 주세요.")}</small>}</>}
     {signup&&<div className="auth-consents"><label className="checkbox"><input type="checkbox" checked={agree} onChange={e=>setAgree(e.target.checked)} required/><span>{pair("","I agree to the ")}<a href="/terms" target="_blank" rel="noreferrer">{t("이용약관")}</a>{pair("에 동의하고"," and have read the ")}{' '}<a href="/privacy" target="_blank" rel="noreferrer">{t("개인정보처리방침")}</a>{pair("을 확인했어요.",".")}</span></label><label className="checkbox"><input type="checkbox" checked={age} onChange={e=>setAge(e.target.checked)} required/><span>{t("만 14세 이상이에요.")}</span></label></div>}
-    {error&&<p className="error" role="alert">{t(error)}</p>}<button className="primary" disabled={busy||(signup&&!site.registration)||(reset&&!linkToken)}>{busy?t("확인 중…"):signup?t("가입하고 시작하기"):forgot?t("재설정 링크 보내기"):reset?t("비밀번호 재설정"):t("로그인")}<ArrowRight size={16}/></button></form>
+    {error&&<p className="error" role="alert">{t(error)}</p>}{kind==='login'&&unverified&&(resent?<p role="status">{pair('확인 메일을 다시 보냈어요. 메일의 링크를 열면 바로 로그인돼요.','Sent another link. Opening it signs you in.')}</p>:<button type="button" className="secondary" disabled={busy} onClick={()=>resend(login)}>{pair('확인 메일 다시 받기','Send the confirmation link again')}</button>)}<button className="primary" disabled={busy||(signup&&!site.registration)||(reset&&!linkToken)}>{busy?t("확인 중…"):signup?t("가입하고 시작하기"):forgot?t("재설정 링크 보내기"):reset?t("비밀번호 재설정"):t("로그인")}<ArrowRight size={16}/></button></form>
     <div className="auth-links">{kind==='login'&&<><a href="/signup">{t("처음이라면 가입하기")}</a><a href="/forgot">{t("비밀번호를 잊었어요")}</a></>}{signup&&<a href="/login">{t("이미 계정이 있어요")}</a>}{forgot&&<><a href="/login">{t("로그인으로")}</a></>}{reset&&<a href="/login">{t("로그인으로")}</a>}</div>
   </main>;
 }

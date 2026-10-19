@@ -6,7 +6,7 @@ import {join} from 'node:path';
 import assert from 'node:assert/strict';
 const directory=await mkdtemp(join(tmpdir(),'anotar-planning-ui-')),base='http://127.0.0.1:8796',out='.impeccable/review/planning-board';
 await mkdir(out,{recursive:true});
-const app=makeApp({dataDirectory:directory,origin:base,registration:true,legalReviewed:true,legal:{publishedAt:'2026-10-12',hostingRegion:'Osaka'}});
+const app=makeApp({verifySignups:false,dataDirectory:directory,origin:base,registration:true,legalReviewed:true,legal:{publishedAt:'2026-10-12',hostingRegion:'Osaka'}});
 await new Promise(resolve=>app.server.listen(8796,'127.0.0.1',resolve));
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||undefined}),checks=[],errors=[];
 try{

@@ -8,7 +8,7 @@ import {join} from 'node:path';
 import assert from 'node:assert/strict';
 
 const dir=await mkdtemp(join(tmpdir(),'anotar-routines-')),base='http://127.0.0.1:8799';
-const app=makeApp({dataDirectory:dir,origin:base,registration:true,legalReviewed:true,legal:{publishedAt:'2026-10-12',hostingRegion:'Osaka'}});
+const app=makeApp({verifySignups:false,dataDirectory:dir,origin:base,registration:true,legalReviewed:true,legal:{publishedAt:'2026-10-12',hostingRegion:'Osaka'}});
 await new Promise(r=>app.server.listen(8799,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||undefined}),checks=[],errors=[];
 try{

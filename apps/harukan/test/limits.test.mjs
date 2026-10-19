@@ -8,7 +8,7 @@ import {makeApp} from '../server/app.mjs';
 // Input and volume limits: what one person (or a script) can put on the server.
 async function setup(t,options={}){
   const dataDirectory=await mkdtemp(join(tmpdir(),'harukan-limits-'));
-  const app=makeApp({dataDirectory,origin:'http://planner.test',registration:true,mailer:async()=>{},...options});
+  const app=makeApp({verifySignups:false,dataDirectory,origin:'http://planner.test',registration:true,mailer:async()=>{},...options});
   await new Promise(r=>app.server.listen(0,'127.0.0.1',r));
   t.after(async()=>{await app.close();await rm(dataDirectory,{recursive:true,force:true});});
   const url=`http://127.0.0.1:${app.server.address().port}`;let cookie='',csrf='';
