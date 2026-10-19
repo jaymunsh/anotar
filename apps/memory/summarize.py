@@ -28,6 +28,16 @@ def run(prompt, timeout=TIMEOUT):
         pass
 
 
+def model_answers():
+    """무료 모델은 한도에 걸리면 답 없이 멈춘다. 파일마다 5분씩 버리기 전에 한 번 확인한다."""
+    try:
+        r = subprocess.run(["opencode", "run", "-m", MODEL, "ok 한 단어로만 답해"], cwd=DATA, stdin=subprocess.DEVNULL,
+                           capture_output=True, text=True, timeout=90)
+        return r.returncode == 0 and "ok" in r.stdout.lower()
+    except subprocess.TimeoutExpired:
+        return False
+
+
 def newer(src, out):
     return not out.exists() or src.stat().st_mtime > out.stat().st_mtime
 
@@ -113,6 +123,8 @@ def weekly(only=None):
 
 if __name__ == "__main__":
     mode = sys.argv[1] if len(sys.argv) > 1 else ""
+    if mode in ("sessions", "weekly") and not model_answers():
+        sys.exit(f"{MODEL}이(가) 90초 안에 답하지 않아 멈춤 (무료 한도·장애일 수 있음). 나중에 다시 실행하거나 MEMORY_MODEL을 바꿔 주세요.")
     if mode == "sessions":
         failed = sessions(int(sys.argv[2]) if len(sys.argv) > 2 else 10**6)
     elif mode == "weekly":
