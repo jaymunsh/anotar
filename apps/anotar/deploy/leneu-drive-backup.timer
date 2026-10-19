@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily off-server backup to Google Drive
+
+[Timer]
+OnCalendar=*-*-* 05:00:00 Asia/Seoul
+RandomizedDelaySec=10min
+Persistent=true
+Unit=leneu-drive-backup.service
+
+[Install]
+WantedBy=timers.target

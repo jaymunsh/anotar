@@ -1,0 +1,17 @@
+[Unit]
+Description=Copy the newest anotar and harukan backups to Google Drive (encrypted)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/leneu-drive-backup
+TimeoutStartSec=1800
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+# rclone writes refreshed Drive tokens back to its config.
+ReadWritePaths=/etc/leneu-backup
+Environment=HOME=/tmp
+ProtectHome=true
+PrivateTmp=true

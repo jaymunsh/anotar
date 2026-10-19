@@ -37,7 +37,7 @@
 | 로그인 | 끌 수 있음 | 켬. `AUTH_MODE`가 비어 있으면 production·외부 주소에서 자동으로 켜짐. 단 `AUTH_MODE=disabled`를 명시하면 운영에서도 꺼짐(아래 '정할 것' 5) |
 | 쿠키 | `AUTH_COOKIE_SECURE` 끔 가능 | Secure |
 | AI | 기본 `disabled` | Hive + OpenCode |
-| 자동 백업 | 켜짐(설정 화면에서 켜야 실행) | 같음. 출시 뒤 Google Drive 사본 추가 |
+| 자동 백업 | 켜짐(설정 화면에서 켜야 실행) | 04:00에 켬. 05:00에 Google Drive로 암호화 사본(`leneu-drive-backup.timer`) |
 | 위키 데이터 | repo의 `data/memory/site/data.json` | 서버의 읽기 전용 파일 |
 
 ## 비밀값 목록 (키 이름만)
@@ -49,7 +49,8 @@
 | `SERVICE_TELEGRAM_BOT_TOKEN` | anotar 서버 `.env` | 다시 발급 | 선택 |
 | `GOOGLE_MAPS_DEMO_KEY`, `GEOAPIFY_API_KEY` | anotar `.env` | 다시 발급 | 선택 |
 | `RESEND_API_KEY` | harukan 서버 `.env`, 로컬 `.env` | 다시 발급 | 선택 |
-| rclone Drive 토큰, crypt 비밀번호 | 서버 root 전용 파일 (계획) | 토큰은 다시 로그인. **비밀번호는 잃으면 Drive 백업을 못 엶** | 비밀번호 **필수** |
+| rclone Drive 토큰(`drive.file`), crypt 비밀번호 | 서버 `/etc/leneu-backup/rclone.conf`(root 0600) | 토큰은 다시 로그인. **비밀번호는 잃으면 Drive 백업을 못 엶** | 비밀번호 **필수** |
+| healthchecks Ping key | 서버 `/etc/leneu-oracle-alerts/hc-ping-key`(root 0600) | 다시 발급 | 선택 |
 | 서버 접속 정보 | 로컬 `.env.oracle-server` | 서버 접속 불가 | 필수 |
 
 ## 정할 것
@@ -57,5 +58,5 @@
 1. **로컬 개발의 기본 로그인.** 지금 로컬 `.env`가 로그인을 켜 두어서 로컬 계정의 비밀번호와 TOTP가 있어야 한다. 기능 확인이 주 목적이면 로컬 `.env`에 `AUTH_MODE=disabled`를 두고, 로그인 화면은 `npm run qa` 안의 로그인 검사에 맡기는 쪽을 추천한다.
 2. **호스팅 개발 포트.** 개발 기본값 8792가 Docker 공유 스택과 겹친다. 개발 기본값을 8793으로 바꿀지.
 3. **Docker 개인 스택을 평소에 띄워 둘지.** 지금 띄워진 이미지는 온라인 전용 전환 전 버전이다. `infra/`를 바꿀 때만 띄우는 쪽을 추천한다.
-4. **위키 업로드(⑤)와 Drive 백업 설정을 어디에 둘지.** 위키는 정했다(2026-10-20): 서버 `leneu-memory-sync.timer`가 memory-data를 읽기 전용 deploy key로 pull해 만든다(`apps/anotar/docs/ORACLE_OPERATIONS.md` 위키 절). Drive 백업은 같은 방식(서버 systemd timer + root 전용 설정 파일)으로 두고 키 이름만 이 문서에 추가한다.
+4. **위키 업로드(⑤)와 Drive 백업 설정을 어디에 둘지.** 위키는 정했다(2026-10-20): 서버 `leneu-memory-sync.timer`가 memory-data를 읽기 전용 deploy key로 pull해 만든다(`apps/anotar/docs/ORACLE_OPERATIONS.md` 위키 절). Drive 백업도 정했다(2026-10-20): 서버 `leneu-drive-backup.timer` + root 전용 `/etc/leneu-backup/rclone.conf`(`apps/anotar/docs/ORACLE_OPERATIONS.md` Drive 절).
 5. **운영에서 `AUTH_MODE=disabled`를 막을지.** 지금은 서버 `.env`에 실수로 넣으면 개인 API와 위키가 열린다. 쿠키 설정처럼 production에서는 거부하는 쪽을 추천한다. 그러려면 운영 이미지로 로그인 없이 도는 `qa-docker-share`에 검사 전용 예외를 먼저 만들어야 한다.
