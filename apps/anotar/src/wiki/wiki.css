@@ -417,3 +417,34 @@
 .wiki-digest li.is-blocked > strong:first-child { color: var(--theme-error-ink); background: var(--theme-error-surface); }
 .wiki-digest li.is-decided > strong:first-child::before { content: '✓ '; }
 .wiki-digest li.is-blocked > strong:first-child::before { content: '! '; }
+
+/* stat tiles */
+.wiki-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.wiki-tile { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border: 1px solid var(--theme-line); border-radius: 10px; background: var(--theme-surface); }
+.wiki-tile-label { font-size: 12.5px; color: var(--theme-muted); }
+.wiki-tile-value { font-size: 28px; font-weight: 650; line-height: 1.2; }
+.wiki-tile-sub { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 28px; font-size: 12px; color: var(--theme-muted); }
+.wiki-spark polyline { fill: none; stroke: var(--theme-subtle); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.wiki-spark circle { fill: var(--theme-accent); stroke: var(--theme-surface); stroke-width: 2; }
+@media (max-width: 760px) { .wiki-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* project timeline */
+.wiki-timeline { margin: 4px 0 18px; padding: 14px 16px; border: 1px solid var(--theme-line); border-radius: 10px; background: var(--theme-surface); }
+.wiki-timeline-scroll { overflow-x: auto; }
+.wiki-timeline-row { display: grid; grid-template-columns: 150px minmax(360px, 1fr) 64px; align-items: center; gap: 10px; min-height: 19px; }
+.wiki-timeline-row.is-head { min-height: 16px; }
+.wiki-timeline-cells { display: grid; grid-template-columns: repeat(26, minmax(10px, 1fr)); gap: 3px; }
+.wiki-timeline-cells .wiki-heatmap-cell { width: auto; }
+.wiki-timeline-month { width: 0; font-size: 10.5px; color: var(--theme-muted); white-space: nowrap; }
+.wiki-timeline-name { display: flex; align-items: center; gap: 6px; overflow: hidden; font-size: 13px; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.wiki-timeline-name:hover { text-decoration: underline; }
+.wiki-timeline-last { font-size: 11.5px; color: var(--theme-muted); white-space: nowrap; }
+.wiki-live { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--theme-success-ink); }
+
+/* project status pill */
+.wiki-pill { flex: none; padding: 0 7px; border-radius: 999px; font-size: 11.5px; line-height: 19px; color: var(--theme-muted); background: var(--theme-soft); }
+.wiki-pill.is-live { color: var(--theme-success-ink); background: var(--theme-success-surface); }
+.wiki-timeline-row > :first-child { position: sticky; left: 0; z-index: 1; align-self: stretch; background: var(--theme-surface); }
+@media (max-width: 760px) { .wiki-timeline-row { grid-template-columns: 104px minmax(360px, 1fr) 58px; } }
+/* Rows must span the whole scroll width, or the sticky name is pushed out with its row. */
+.wiki-timeline-row { width: max-content; min-width: 100%; }

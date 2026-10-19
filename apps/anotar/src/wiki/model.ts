@@ -148,6 +148,47 @@ export function activityGrid(sessions: Session[], today: string, weeks = 26) {
   });
 }
 
+/** Projects × weeks: sessions per week for each project active in the window, latest first. */
+export function projectTimeline(projects: Map<string, Session[]>, today: string, weeks = 26) {
+  const first = addDays(monday(today), -7 * (weeks - 1));
+  const columns = Array.from({ length: weeks }, (_, w) => addDays(first, 7 * w));
+  return [...projects]
+    .map(([name, ss]) => {
+      const counts = columns.map(() => 0);
+      for (const s of ss) {
+        const w = Math.floor((new Date(monday(s.date) + 'T00:00').getTime() - new Date(first + 'T00:00').getTime()) / (7 * 864e5));
+        if (w >= 0 && w < weeks) counts[w]++;
+      }
+      return { name, counts, total: counts.reduce((a, b) => a + b, 0), last: ss[0].date };
+    })
+    .filter((row) => row.total > 0)
+    .sort((a, b) => b.last.localeCompare(a.last));
+}
+export const timelineColumns = (today: string, weeks = 26) =>
+  Array.from({ length: weeks }, (_, w) => addDays(addDays(monday(today), -7 * (weeks - 1)), 7 * w));
+
+/** Active = a session within the last 14 days. */
+export const isActive = (last: string, today: string) => last >= addDays(today, -14);
+
+/** Home stat tiles. `trend` is sessions per week for the last 12 weeks (oldest first). */
+export function homeStats(data: Prepared, today: string) {
+  const month = today.slice(0, 7);
+  const prev = ymd(new Date(+month.slice(0, 4), +month.slice(5, 7) - 2, 1)).slice(0, 7);
+  const thisMonth = data.sessions.filter((s) => s.date.startsWith(month)).length;
+  const lastMonth = data.sessions.filter((s) => s.date.startsWith(prev)).length;
+  const trend = activityGrid(data.sessions, today, 12).map((w) => w.total);
+  const latest = [...data.projects.values()].map((ss) => ss[0]);
+  return {
+    thisMonth,
+    lastMonth,
+    trend,
+    activeProjects: latest.filter((s) => isActive(s.date, today)).length,
+    projects: latest.length,
+    openItems: latest.filter((s) => isActive(s.date, today)).reduce((n, s) => n + list(s.next).length, 0),
+    wiki: data.wiki.length,
+  };
+}
+
 /** `./x.md`, `../wiki/x.md`, `x.md#part` → wiki slug. */
 export function wikiLinkSlug(href: string) {
   return href.match(/^(?:\.\.\/wiki\/|\.\/)?([\w-]+)\.md(?:#.*)?$/)?.[1] ?? null;

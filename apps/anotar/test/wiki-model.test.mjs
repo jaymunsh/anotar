@@ -12,6 +12,8 @@ import {
   monday,
   builtAgo,
   activityGrid,
+  projectTimeline,
+  homeStats,
 } from '../src/wiki/model.ts';
 import { renderReadMarkdown } from '../src/ai/markdownReading.ts';
 
@@ -97,4 +99,21 @@ test('activity grid counts sessions per day in Monday-first weeks and stops at t
   assert.equal(grid[2].days[2].level, 3);
   assert.equal(grid[2].total, 4);
   assert.equal(grid[2].days[3], null, 'days after today are empty');
+});
+
+test('project timeline buckets sessions by week per project and drops idle ones', () => {
+  const projects = new Map([
+    ['a', [{ date: '2026-10-14' }, { date: '2026-10-13' }, { date: '2026-09-30' }]],
+    ['b', [{ date: '2026-01-01' }]],
+  ]);
+  const rows = projectTimeline(projects, '2026-10-14', 3);
+  assert.deepEqual(rows, [{ name: 'a', counts: [1, 0, 2], total: 3, last: '2026-10-14' }]);
+});
+
+test('home stats compare this month with last month and count active projects', () => {
+  const stats = homeStats(prepare(data), '2026-10-16');
+  assert.equal(stats.thisMonth, 1);
+  assert.equal(stats.lastMonth, 1);
+  assert.equal(stats.activeProjects, 1);
+  assert.equal(stats.trend.length, 12);
 });

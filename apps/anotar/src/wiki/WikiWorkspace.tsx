@@ -8,7 +8,11 @@ import {
   activityGrid,
   addDays,
   countBy,
+  homeStats,
   homeSummary,
+  isActive,
+  projectTimeline,
+  timelineColumns,
   list,
   matches,
   monday,
@@ -185,6 +189,98 @@ function DigestCard({ digest, heading, open }: { digest: Digest; heading?: React
 }
 
 const LEVEL_TEXT = ['없음', '1개', '2개', '3–4개', '5개 이상'];
+const level = (count: number) => (count >= 5 ? 4 : count >= 3 ? 3 : count);
+
+/** 12-week sparkline: de-emphasised line, current week as an accent dot. */
+function Sparkline({ values, label }: { values: number[]; label: string }) {
+  const max = Math.max(1, ...values), w = 96, h = 28;
+  const points = values.map((v, i) => [(i / (values.length - 1)) * (w - 4) + 2, h - 3 - (v / max) * (h - 6)]);
+  const [x, y] = points[points.length - 1];
+  return (
+    <svg className="wiki-spark" width={w} height={h} viewBox={`0 0 ${w} ${h}`} role="img" aria-label={label}>
+      <title>{label}</title>
+      <polyline points={points.map((p) => p.join(',')).join(' ')} />
+      <circle cx={x} cy={y} r="3" />
+    </svg>
+  );
+}
+
+function StatTiles({ data, today }: { data: Prepared; today: string }) {
+  const s = useMemo(() => homeStats(data, today), [data, today]);
+  const tiles: { label: string; value: number; sub: ReactNode }[] = [
+    {
+      label: '이번 달 AI 기록',
+      value: s.thisMonth,
+      sub: (
+        <>
+          <span>지난달 {s.lastMonth}</span>
+          <Sparkline values={s.trend} label={`최근 12주 주별 기록: ${s.trend.join(', ')}`} />
+        </>
+      ),
+    },
+    { label: '진행 중 프로젝트', value: s.activeProjects, sub: <span>전체 {s.projects} · 2주 안에 기록</span> },
+    { label: '남은 일', value: s.openItems, sub: <span>진행 중 프로젝트의 최신 기록 기준</span> },
+    { label: '위키 페이지', value: s.wiki, sub: <span>정리해 둔 지식</span> },
+  ];
+  return (
+    <div className="wiki-tiles is-wide">
+      {tiles.map((t) => (
+        <div className="wiki-tile" key={t.label}>
+          <span className="wiki-tile-label">{t.label}</span>
+          <strong className="wiki-tile-value">{t.value}</strong>
+          <span className="wiki-tile-sub">{t.sub}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Projects × weeks. The name labels each row, so identity never rests on color. */
+function ProjectTimeline({ data, today, link }: { data: Prepared; today: string; link: Link }) {
+  const rows = useMemo(() => projectTimeline(data.projects, today), [data, today]);
+  const columns = timelineColumns(today);
+  // On a narrow screen the grid scrolls; start at the latest weeks.
+  const scroll = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scroll.current) scroll.current.scrollLeft = scroll.current.scrollWidth;
+  }, [rows.length]);
+  if (!rows.length) return null;
+  return (
+    <section className="wiki-timeline" aria-label="프로젝트 타임라인, 최근 6개월">
+      <div className="wiki-timeline-scroll" ref={scroll}>
+        <div className="wiki-timeline-row is-head" aria-hidden>
+          <span />
+          <div className="wiki-timeline-cells">
+            {columns.map((c, i) => (
+              <span key={c} className="wiki-timeline-month">
+                {(i === 0 ? +c.slice(8, 10) <= 17 : c.slice(5, 7) !== columns[i - 1].slice(5, 7)) ? `${+c.slice(5, 7)}월` : ''}
+              </span>
+            ))}
+          </div>
+          <span />
+        </div>
+        {rows.map((row) => (
+          <div className="wiki-timeline-row" key={row.name}>
+            <a className="wiki-timeline-name" {...link(projectPath(row.name))} title={row.name}>
+              {isActive(row.last, today) && <span className="wiki-live" aria-label="진행 중" />}
+              {row.name}
+            </a>
+            <div className="wiki-timeline-cells">
+              {row.counts.map((n, i) => (
+                <span
+                  key={columns[i]}
+                  className={`wiki-heatmap-cell is-${level(n)}`}
+                  title={`${row.name} · ${monthDay(columns[i])} 주 · 기록 ${n}개`}
+                />
+              ))}
+            </div>
+            <span className="wiki-timeline-last">{relativeDay(row.last, today)}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 /** Sessions per day, one column per week. A column links to that week in the weekly log. */
 function ActivityHeatmap({ sessions, today, link }: { sessions: Session[]; today: string; link: Link }) {
   const grid = useMemo(() => activityGrid(sessions, today), [sessions, today]);
@@ -262,6 +358,7 @@ function WikiHome({ data, link }: { data: Prepared; link: Link }) {
   return (
     <div className="wiki-home">
       <div className="wiki-home-grid">
+        <StatTiles data={data} today={today} />
         <Section wide title="최근 6개월" note={`AI 기록 ${data.sessions.length}개`}>
           <ActivityHeatmap sessions={data.sessions} today={today} link={link} />
         </Section>
@@ -554,12 +651,16 @@ function ProjectList({ data, link }: { data: Prepared; link: Link }) {
       <div className="wiki-filters">
         <SearchField value={query} onChange={setQuery} label="프로젝트 검색" />
       </div>
+      {!query && <ProjectTimeline data={data} today={ymd(new Date())} link={link} />}
       {!names.length && <Empty total={data.projects.size} empty="아직 기록된 프로젝트가 없어요." />}
       <div className="wiki-list">
         {names.map(([name, ss]) => (
           <a key={name} className="wiki-entry" {...link(projectPath(name))}>
             <span className="wiki-entry-row">
               <strong>{name}</strong>
+              <span className={isActive(ss[0].date, ymd(new Date())) ? 'wiki-pill is-live' : 'wiki-pill'}>
+                {isActive(ss[0].date, ymd(new Date())) ? '진행 중' : '멈춤'}
+              </span>
               <span className="wiki-tags">
                 기록 {ss.length}개{list(ss[0].next).length ? ` · 남은 일 ${list(ss[0].next).length}` : ''}
               </span>
