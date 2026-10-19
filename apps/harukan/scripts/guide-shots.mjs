@@ -1,5 +1,6 @@
 // Pictures for the guide (/guide): a throwaway account filled with the sample season (scripts/sample-data.mjs),
-// photographed step by step into public/guide/. Run after `npm run build`: node scripts/guide-shots.mjs [--check]
+// photographed step by step into public/guide/ (Korean) and public/guide/en/ (English, scripts/sample-data-en.mjs).
+// Run after `npm run build`: node scripts/guide-shots.mjs [--check]
 // --check writes to a temp folder instead, so it can run without touching the committed pictures.
 import {chromium} from 'playwright-core';
 import {mkdtemp,rm,mkdir} from 'node:fs/promises';
@@ -8,21 +9,22 @@ import {join,resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 import {makeApp} from '../server/app.mjs';
-import {planning,days} from './sample-data.mjs';
+import * as koData from './sample-data.mjs';
+import * as enData from './sample-data-en.mjs';
 
 const project=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const check=process.argv.includes('--check');
-const temp=await mkdtemp(join(tmpdir(),'harukan-guide-')),out=check?join(temp,'shots'):resolve(project,'public/guide');
-await mkdir(out,{recursive:true});
+const temp=await mkdtemp(join(tmpdir(),'harukan-guide-')),root=check?join(temp,'shots'):resolve(project,'public/guide');
 const base='http://127.0.0.1:8803',date='2026-10-16';
 const app=makeApp({dataDirectory:temp,origin:base,registration:true,legalReviewed:true,legal:{publishedAt:'2026-10-18',hostingRegion:'Osaka'},mailer:async()=>{}});
 await new Promise(r=>app.server.listen(8803,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH||undefined});
-try{
-  const context=await browser.newContext({viewport:{width:1200,height:900},deviceScaleFactor:2,locale:'ko-KR',timezoneId:'Asia/Seoul'});
-  await context.addInitScript(()=>{localStorage.setItem('anotar-planner:schedule','grid');localStorage.setItem('anotar-planner:lang','ko');});
+try{for(const [lang,{planning,days},nickname] of [['ko',koData,'하루'],['en',enData,'Haru']]){
+  const out=lang==='ko'?root:join(root,'en');await mkdir(out,{recursive:true});
+  const context=await browser.newContext({viewport:{width:1200,height:900},deviceScaleFactor:2,locale:lang==='ko'?'ko-KR':'en-US',timezoneId:'Asia/Seoul'});
+  await context.addInitScript(lang=>{localStorage.setItem('anotar-planner:schedule','grid');localStorage.setItem('anotar-planner:language',lang);},lang);
   const site=await (await context.request.get(base+'/api/site')).json();
-  const registered=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{email:'guide@example.test',nickname:'하루',password:'guide-pictures-password',termsVersion:site.termsVersion,ageConfirmed:true}});
+  const registered=await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{email:`guide-${lang}@example.test`,nickname,password:'guide-pictures-password',termsVersion:site.termsVersion,ageConfirmed:true}});
   assert.equal(registered.status(),201);const headers={Origin:base,'X-CSRF-Token':(await registered.json()).csrf};
   for(const {id,...item} of planning)assert.equal((await context.request.put(`${base}/api/planning/${id}`,{headers,data:{...item,id,version:0}})).status(),200,id);
   for(const day of days)assert.equal((await context.request.put(`${base}/api/days/${day.date}`,{headers,data:{version:0,document:day.document}})).status(),200,day.date);
@@ -57,5 +59,5 @@ try{
   await page.setViewportSize({width:1280,height:820});await page.waitForTimeout(200);
   await shot('day',['.journal-heading','.journal-sidebar','.journal-schedule'],{pad:20,top:12,maxHeight:820});
   assert.deepEqual(errors,[]);
-  console.log(`guide pictures → ${out}`);
-}finally{await browser.close();await new Promise(r=>app.server.close(r));await rm(temp,{recursive:true,force:true});}
+  console.log(`guide pictures → ${out}`);await context.close();
+}}finally{await browser.close();await new Promise(r=>app.server.close(r));await rm(temp,{recursive:true,force:true});}

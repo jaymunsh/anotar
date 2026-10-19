@@ -28,13 +28,13 @@ const steps:{id:string;where:[string,string];title:[string,string];lede:[string,
   shot:{src:'/guide/step-review.png',w:2336,h:756,ko:'주간 회고: 한 문장 요약, 계획한 시간·목표에 쓴 비율·꼭 할 일 완료·미이행, 목표마다 시간과 세부 계획 진행',en:'Weekly review: a one-line summary, planned time, share on goals, priorities done and unfinished, then each goal’s time and step progress'},
   todo:[['위의 주 · 달 · 연을 바꿔 가며 지난 기간과 비교해요.','Switch between week, month and year to compare with the period before.'],['‘다시 계획할 것’에서 못 한 일을 골라 다른 날에 다시 놓아요.','Pick items from Plan again and put them on another day.'],['‘기록’ 탭에서 그 기간의 꼭 할 일·생각·하루 돌아보기를 날짜별로 다시 읽어요.','The Records tab gathers that period’s priorities, thoughts and daily reviews by date.']]},
 ];
-const picture=(shot:Shot)=><img src={shot.src} alt={pair(shot.ko,shot.en)} width={shot.w/2} height={shot.h/2} loading="lazy"/>;
+const picture=(shot:Shot)=><img src={pair(shot.src,shot.src.replace('/guide/','/guide/en/'))} alt={pair(shot.ko,shot.en)} width={shot.w/2} height={shot.h/2} loading="lazy"/>;
 
 export function Guide(){
  const keys:[string,string,string][]=[['← / →','이전 · 다음 날 (주간·월간은 이전 · 다음 주·달)','Previous / next day (week or month in those views)'],['T','오늘로 이동','Go to today'],['N','새 일정 (오늘이면 지금 이후 첫 빈 30분)','New plan (today: the next free 30 minutes)'],['Enter','할 일 칸에서 다음 줄로','Next row in today’s priorities']];
  return <article className="legal-page guide-page">
   <a href="/">{pair('서비스 소개로','Back to home')}</a>
-  <h1>{pair('사용 안내','How to use harukan')}</h1>
+  <h1>{pair('쓰는 법','How to use harukan')}</h1>
   <p className="guide-lede">{pair('처음 쓰는 날, 아래 다섯 단계를 차례로 따라 해 보세요. harukan이 무엇인지는 첫 화면에서, 여기서는 실제로 어떻게 쓰는지를 화면과 함께 보여 줘요.','Follow these five steps on your first day. The home page says what harukan is for; this page shows, screen by screen, how to use it.')}</p>
   <figure className="guide-hero">{picture({src:'/guide/day.png',w:2512,h:1520,ko:'일간 화면 전체: 위에 날짜와 집중 목표, 왼쪽에 오늘 꼭 할 일과 메모, 오른쪽에 하루 24시간 시간표',en:'The whole day view: date and focus goals on top, priorities and notes on the left, the 24-hour timetable on the right'})}<figcaption>{pair('매일 쓰는 일간 화면 (예시 데이터)','The day view you use every day (sample data)')}</figcaption></figure>
   <nav className="guide-steps-nav" aria-label={pair('단계','Steps')}><ol>{steps.map((step,i)=><li key={step.id}><a href={'#'+step.id}><span>{i+1}</span>{pair(...step.title)}</a></li>)}</ol></nav>
@@ -97,6 +97,6 @@ export function Guide(){
   <details className="guide-more"><summary>{pair('기록 보관','Your records')}</summary>
   <p>{pair('설정에서 일정·메모·계획을 JSON 파일로 내보낼 수 있어요. 계정과 기록 삭제도 설정에서 해요.','Export your schedule, notes and plans as a JSON file from Settings. You can also delete your account and records there.')}</p>
   </details>
-  <div className="guide-close"><a className="primary" href="/signup">{pair('시작하기','Get started')}</a><a className="secondary" href="/demo">{pair('먼저 체험하기','Try it first')}</a></div>
+  <div className="guide-close"><a className="primary" href="/signup">{pair('무료로 시작','Start free')}</a><a className="secondary" href="/demo">{pair('가입 없이 둘러보기','Try it without an account')}</a></div>
  </article>;
 }

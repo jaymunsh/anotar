@@ -17,8 +17,8 @@ export function t(korean:string){return language==='en'?(english[korean]??korean
 export function pair(korean:string,englishText:string){return language==='en'?englishText:korean;}
 function applyLanguage(){
   document.documentElement.lang=language;
-  document.title=pair('harukan · 하루 144칸 시간표','harukan · 144 boxes a day');
-  document.querySelector('meta[name=description]')?.setAttribute('content',pair('하루를 시간으로 계획하고 실제로 한 일을 기록하세요. 시간표, 할 일, 하루 메모를 함께 관리하는 개인 플래너.','Plan your day and see how you spent your time. A personal planner for your schedule, tasks, and daily notes.'));
+  document.title=pair('harukan · 10분 단위 하루 플래너','harukan · Plan your day in 10-minute blocks');
+  document.querySelector('meta[name=description]')?.setAttribute('content',pair('하루를 10분 단위로 계획하고, 쓴 시간을 목표별로 돌아보는 플래너.','Plan your day and see how you spent your time. A personal planner for your schedule, tasks, and daily notes.'));
 }
 export function setLanguage(next:Language){
   language=next;
@@ -31,5 +31,10 @@ export function useLanguage(){return useSyncExternalStore(fn=>{listeners.add(fn)
 export function LanguageSelect({className=''}:{className?:string}){
   const language=useLanguage();
   return <label className={`language-select ${className}`}><Globe size={16} aria-hidden="true"/><span className="sr-only">{pair('언어','Language')}</span><select aria-label={pair('언어','Language')} value={language} onChange={e=>setLanguage(e.target.value as Language)}><option value="ko">한국어</option><option value="en">English</option></select></label>;
+}
+// Header: two languages, so one button switches to the other.
+export function LanguageToggle(){
+  const language=useLanguage(),next=language==='ko'?'en':'ko',label=next==='en'?'English':'한국어';
+  return <button type="button" className="icon-toggle" onClick={()=>setLanguage(next)} aria-label={label} title={label}><Globe size={18} aria-hidden="true"/></button>;
 }
 applyLanguage();
