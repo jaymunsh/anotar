@@ -13,7 +13,8 @@
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 
-const MAX_BYTES = 20 * 1024 * 1024; // 20MB guard against a runaway/corrupt build.
+// 50MB guard against a runaway/corrupt build. Today ~0.33MB for 86 sessions, growing ~12KB/day (~4.5MB/year).
+const MAX_BYTES = 50 * 1024 * 1024;
 
 function fail(response, status, error) {
   response.writeHead(status, {
