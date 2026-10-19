@@ -15,6 +15,8 @@ try{
   const context=await browser.newContext({viewport:{width:1280,height:900}}),page=await context.newPage();
   page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
   assert.equal((await context.request.post(base+'/api/auth/register',{headers:{Origin:base},data:{email:'routine_qa'+'@example.test',nickname:('routine_qa').slice(0,20),password:'temporary-test-password',termsVersion:'2026-10-18',ageConfirmed:true}})).status(),201);
+  // 2026-10-19 must not be today: a routine on today goes to the next free slot after now, not 09:00.
+  await page.clock.setFixedTime(new Date('2026-10-18T03:00:00Z'));
   // Empty state on the day view points to 계획.
   await page.goto(base+'/app?date=2026-10-19&view=day');
   await page.getByRole('link',{name:'만들기'}).click();
