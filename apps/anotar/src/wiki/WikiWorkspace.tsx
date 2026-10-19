@@ -21,6 +21,7 @@ import {
   weekday,
   wikiLinkSlug,
   ymd,
+  type Digest,
   type MemoryData,
   type Prepared,
   type Session,
@@ -158,6 +159,19 @@ function Section({ title, note, children }: { title: string; note?: ReactNode; c
   );
 }
 const ToolDot = ({ tool }: { tool: string }) => <span className={`wiki-dot is-${tool}`} aria-hidden />;
+function DigestCard({ digest, heading }: { digest: Digest; heading?: ReactNode }) {
+  return (
+    <div className="wiki-digest">
+      {heading}
+      <strong>{digest.title}</strong>
+      <p>{digest.tldr}</p>
+      <details>
+        <summary>회고 전체</summary>
+        <Markdown text={digest.body} />
+      </details>
+    </div>
+  );
+}
 
 type WikiTask = { id: string; status: 'open' | 'done'; source: string };
 /** A 남은 일 line's task key. anotar's task is the source of truth for whether it is done. */
@@ -276,6 +290,14 @@ function WikiHome({ data, link }: { data: Prepared; link: Link }) {
                 </li>
               ))}
             </ul>
+          </Section>
+        )}
+        {data.digests[0] && (
+          <Section title="주간 회고" note={<a {...link('/wiki/log')}>주별로 보기</a>}>
+            <DigestCard
+              digest={data.digests[0]}
+              heading={<span className="wiki-muted">{monthDay(data.digests[0].week)} – {monthDay(addDays(data.digests[0].week, 6))}</span>}
+            />
           </Section>
         )}
         {home.recentWiki.length > 0 && (
@@ -440,6 +462,9 @@ function SessionList({ data, link }: { data: Prepared; link: Link }) {
                 {monthDay(wk)} – {monthDay(addDays(wk, 6))}
                 <span className="wiki-muted"> {[...projects.values()].flat().length}개 기록</span>
               </h2>
+              {!query && !tool && !project && data.digests.find((d) => d.week === wk) && (
+                <DigestCard digest={data.digests.find((d) => d.week === wk)!} />
+              )}
               {[...projects].map(([name, ss]) => (
                 <div key={name} className="wiki-project-next">
                   <h3><a {...link(projectPath(name))}>{name}</a></h3>

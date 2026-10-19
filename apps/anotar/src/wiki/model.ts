@@ -23,7 +23,9 @@ export type Session = {
   summarized_by?: string;
   body: string;
 };
-export type MemoryData = { wiki: WikiPage[]; sessions: Session[]; builtAt?: string };
+/** Weekly review written by apps/memory/summarize.py weekly; `week` is that week's Monday. */
+export type Digest = { slug: string; title: string; tldr: string; week: string; body: string };
+export type MemoryData = { wiki: WikiPage[]; sessions: Session[]; digests?: Digest[]; builtAt?: string };
 
 export type WikiRoute =
   | { view: 'home' }
@@ -88,7 +90,8 @@ export function prepare(data: MemoryData) {
   const wiki = [...(data.wiki ?? [])].sort((a, b) => b.updated.localeCompare(a.updated));
   const projects = new Map<string, Session[]>();
   for (const s of sessions) projects.set(s.project, [...(projects.get(s.project) ?? []), s]);
-  return { wiki, sessions, projects, builtAt: data.builtAt ?? null };
+  const digests = [...(data.digests ?? [])].sort((a, b) => b.week.localeCompare(a.week));
+  return { wiki, sessions, projects, digests, builtAt: data.builtAt ?? null };
 }
 export type Prepared = ReturnType<typeof prepare>;
 

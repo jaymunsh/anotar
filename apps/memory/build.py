@@ -1,13 +1,17 @@
 """wiki/*.md, sessions/*.md -> site/data.json (anotar /wiki 화면이 읽음).
 
 데이터 폴더는 MEMORY_DATA 환경변수, 없으면 현재 폴더. 결과는 <데이터>/site/data.json.
+<데이터>/projects.json(선택)으로 세션의 project를 정리한다:
+  {"hide": ["test-*"], "alias": {"leneu-planner": "harukan"}}
+hide(glob)에 걸리는 프로젝트의 세션은 화면에서 빼고, alias는 이름을 합친다. 요약 파일은 그대로 둔다.
 """
-import json, os, pathlib, re, sys
+import fnmatch, json, os, pathlib, re, sys
 from datetime import datetime, timezone
 
 DATA = pathlib.Path(os.environ.get("MEMORY_DATA", os.getcwd()))
 WIKI_KEYS = ("title", "tldr", "tags", "updated")
 SESSION_KEYS = ("title", "tldr", "tool", "project", "date")
+DIGEST_KEYS = ("title", "tldr", "week")
 
 
 def parse(path, required):
@@ -39,9 +43,22 @@ def load(folder, required, sort_key):
     return sorted(items, key=lambda p: p[sort_key], reverse=True)
 
 
+def tidy_projects(sessions, config):
+    alias, hide = config.get("alias", {}), config.get("hide", [])
+    kept = []
+    for s in sessions:
+        s["project"] = alias.get(s["project"], s["project"])
+        if not any(fnmatch.fnmatch(s["project"], pattern) for pattern in hide):
+            kept.append(s)
+    return kept
+
+
 def main():
+    config_path = DATA / "projects.json"
+    config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
     data = {"wiki": load("wiki", WIKI_KEYS, "updated"),
-            "sessions": load("sessions", SESSION_KEYS, "date"),
+            "sessions": tidy_projects(load("sessions", SESSION_KEYS, "date"), config),
+            "digests": load("digests", DIGEST_KEYS, "week"),
             "builtAt": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     wiki_slugs = {p["slug"] for p in data["wiki"]}
     for s in data["sessions"]:
@@ -53,7 +70,7 @@ def main():
     out = DATA / "site"
     out.mkdir(exist_ok=True)
     (out / "data.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-    print(f"site/data.json: wiki {len(data['wiki'])}, sessions {len(data['sessions'])}")
+    print(f"site/data.json: wiki {len(data['wiki'])}, sessions {len(data['sessions'])}, digests {len(data['digests'])}")
 
 
 if __name__ == "__main__":

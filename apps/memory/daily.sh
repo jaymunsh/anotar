@@ -1,7 +1,8 @@
 #!/bin/zsh
-# 세션 가져오기 + 요약 + 빌드 + (remote 있으면) push.
+# 세션 가져오기 + 요약 + 주간 회고 + 빌드 + (remote 있으면) push.
 # 사용: ./daily.sh [claude|codex|opencode] [모델]
-#   예: ./daily.sh codex gpt-6.1-sol      ./daily.sh opencode omlx-local/qwen3.6-optiq
+#   예: ./daily.sh opencode               (무료 deepseek, summarize.py로 파일마다 한 번씩)
+#       ./daily.sh codex gpt-6.1-sol
 # 인자 없으면 MEMORY_AGENT / MEMORY_MODEL 환경변수, 그것도 없으면 claude 기본 모델.
 set -euo pipefail
 CODE="${0:A:h}"
@@ -18,7 +19,11 @@ case $AGENT in
   codex)
     codex exec --full-auto ${MODEL:+-m "$MODEL"} "$PROMPT" ;;
   opencode)
-    opencode run ${MODEL:+-m "$MODEL"} "$PROMPT" ;;
+    # 에이전트 한 번에 전부 맡기면 무료 모델은 맥락이 넘쳐 멈춘다. summarize.py가 파일·주마다 부른다.
+    python3 "$CODE/import_sessions.py"
+    MEMORY_MODEL="$MODEL" python3 "$CODE/summarize.py" sessions || echo "요약 일부 실패: 다음 실행 때 다시 시도"
+    MEMORY_MODEL="$MODEL" python3 "$CODE/summarize.py" weekly || echo "회고 일부 실패: 다음 실행 때 다시 시도"
+    git add sessions digests && git commit -qm "sessions: $(date +%F) 요약·주간 회고" || true ;;
   *)
     echo "알 수 없는 에이전트: $AGENT (claude | codex | opencode)" >&2; exit 1 ;;
 esac

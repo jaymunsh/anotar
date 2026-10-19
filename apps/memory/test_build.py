@@ -9,4 +9,8 @@ m = build.parse(t, build.SESSION_KEYS)
 assert m["tags"] == ["x", "y"], m["tags"]
 assert m["next"] == ["인증키 발급, 연결 테스트", "HTTPS 해결"], m["next"]
 assert m["promoted"] == [] and m["body"] == "body"
+ss = [{"project": p} for p in ("test-qwen", "leneu-planner", "career")]
+kept = build.tidy_projects(ss, {"hide": ["test-*"], "alias": {"leneu-planner": "harukan"}})
+assert [s["project"] for s in kept] == ["harukan", "career"], kept
+assert build.tidy_projects([{"project": "a"}], {}) == [{"project": "a"}]
 print("ok")

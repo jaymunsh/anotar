@@ -363,3 +363,18 @@
   .wiki-workspace .wiki-chips button,
   .wiki-workspace .wiki-segment button { min-height: 36px; }
 }
+
+/* weekly review (digests/<monday>.md) */
+.wiki-digest {
+  margin: 6px 0 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--theme-line);
+  border-radius: 8px;
+  background: var(--theme-raised);
+}
+.wiki-digest > .wiki-muted { display: block; font-size: 12px; margin-bottom: 2px; }
+.wiki-digest strong { font-size: 14px; }
+.wiki-digest p { margin: 4px 0 0; font-size: 13.5px; }
+.wiki-digest summary { margin-top: 8px; font-size: 12.5px; color: var(--theme-accent); cursor: pointer; }
+.wiki-digest .wiki-prose h2 { margin: 14px 0 4px; font-size: 14px; }
+.wiki-digest .wiki-prose li { font-size: 13.5px; }
