@@ -56,7 +56,7 @@ site/data.json                    anotar /wiki 화면이 읽는 유일한 파일
 | 무엇 | 어디 | 예 |
 |---|---|---|
 | 숨길 프로젝트, 합칠 이름 | 데이터 repo `projects.json` | `{"hide": ["test*"], "alias": {"leneu-planner": "harukan"}}` |
-| 요약 모델 | `MEMORY_MODELS`(쉼표, 순서대로 대체) / `MEMORY_MODEL`(맨 앞에 둘 것) | 기본 deepseek-v4.1-flash → glm-5.3-flash → mimo-v2.6-flash → space-bunny(MiniMax), 모두 opencode 무료 |
+| 요약 모델 | `MEMORY_MODELS`(쉼표, 순서대로 대체) / `MEMORY_MODEL`(맨 앞에 둘 것) | 기본 deepseek-v4.1-flash → glm-5.3-flash → mimo-v2.6-flash → minimax-m3.1-flash → longcat-2.5-preview → nemotron-3-ultra → beam, 모두 opencode 무료(목록은 `opencode models \| grep free`, 2026-10-20 space-bunny 없어짐) |
 | 데이터 위치 | `MEMORY_DATA` | 기본은 현재 폴더 |
 
 - `hide`는 glob이다. 숨겨도 요약 파일은 그대로 있고 화면과 회고에서만 빠진다.

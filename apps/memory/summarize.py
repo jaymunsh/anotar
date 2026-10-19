@@ -17,7 +17,8 @@ import build
 
 DATA = build.DATA
 DEFAULT_MODELS = ["opencode/deepseek-v4.1-flash-free", "opencode/glm-5.3-flash-free",
-                  "opencode/mimo-v2.6-flash-free", "opencode/space-bunny-free"]
+                  "opencode/mimo-v2.6-flash-free", "opencode/minimax-m3.1-flash-free",
+                  "opencode/longcat-2.5-preview-free", "opencode/nemotron-3-ultra-free", "opencode/beam-free"]
 MODELS = [m.strip() for m in (os.environ.get("MEMORY_MODELS") or ",".join(DEFAULT_MODELS)).split(",") if m.strip()]
 if os.environ.get("MEMORY_MODEL"):
     MODELS = [os.environ["MEMORY_MODEL"]] + [m for m in MODELS if m != os.environ["MEMORY_MODEL"]]
