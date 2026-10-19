@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState, useSyncExternalStore, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent, type ReactNode } from 'react';
 import { ArrowLeft, Check, Plus, RefreshCw, Search } from 'lucide-react';
 import { authenticationRequired, getAuthSnapshot, subscribeAuth } from '../auth/state';
 import { WorkspaceToolbar } from '../workspace/WorkspaceToolbar';
 import { publishRecordChange, subscribeRecordChanges } from '../trash/events';
 import { renderReadMarkdown } from '../ai/markdownReading';
 import {
+  activityGrid,
   addDays,
   countBy,
   homeSummary,
@@ -159,16 +160,65 @@ function Section({ title, note, wide, children }: { title: string; note?: ReactN
   );
 }
 const ToolDot = ({ tool }: { tool: string }) => <span className={`wiki-dot is-${tool}`} aria-hidden />;
+/** "- 정함:" / "- 막힘:" lines in a weekly review: the word becomes a badge (bold, then styled by class). */
+const DIGEST_MARKS: Record<string, string> = { 정함: 'is-decided', 막힘: 'is-blocked' };
 function DigestCard({ digest, heading, open }: { digest: Digest; heading?: ReactNode; open?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const body = useMemo(() => digest.body.replace(/^- (정함|막힘):\s*/gm, '- **$1** '), [digest.body]);
+  useEffect(() => {
+    ref.current?.querySelectorAll('li > strong:first-child').forEach((label) => {
+      const mark = DIGEST_MARKS[label.textContent ?? ''];
+      if (mark) label.parentElement?.classList.add('wiki-mark', mark);
+    });
+  }, [body]);
   return (
-    <div className="wiki-digest">
+    <div className="wiki-digest" ref={ref}>
       {heading}
       <strong>{digest.title}</strong>
       <p>{digest.tldr}</p>
       <details open={open}>
         <summary>회고 전체</summary>
-        <Markdown text={digest.body} />
+        <Markdown text={body} />
       </details>
+    </div>
+  );
+}
+
+const LEVEL_TEXT = ['없음', '1개', '2개', '3–4개', '5개 이상'];
+/** Sessions per day, one column per week. A column links to that week in the weekly log. */
+function ActivityHeatmap({ sessions, today, link }: { sessions: Session[]; today: string; link: Link }) {
+  const grid = useMemo(() => activityGrid(sessions, today), [sessions, today]);
+  return (
+    <div className="wiki-heatmap">
+      <div className="wiki-heatmap-scroll">
+        <div className="wiki-heatmap-days" aria-hidden>
+          {['월', '', '수', '', '금', '', ''].map((d, i) => <span key={i}>{d}</span>)}
+        </div>
+        <div className="wiki-heatmap-grid">
+          {grid.map((week, i) => {
+            const month = +week.monday.slice(5, 7);
+            // The first column is labelled only if its month has room (else it collides with the next label).
+            const newMonth = i === 0 ? +week.monday.slice(8, 10) <= 17 : month !== +grid[i - 1].monday.slice(5, 7);
+            const label = `${monthDay(week.monday)} 주 · 기록 ${week.total}개`;
+            return (
+              <a key={week.monday} className="wiki-heatmap-week" {...link('/wiki/log#week-' + week.monday)} aria-label={label} title={label}>
+                <span className="wiki-heatmap-month" aria-hidden>{newMonth ? `${month}월` : ''}</span>
+                {week.days.map((day, d) =>
+                  day ? (
+                    <span key={d} className={`wiki-heatmap-cell is-${day.level}`} title={`${monthDay(day.date)} (${weekday(day.date)}) · 기록 ${day.count}개`} />
+                  ) : (
+                    <span key={d} className="wiki-heatmap-cell is-empty" />
+                  ),
+                )}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+      <p className="wiki-heatmap-legend" aria-hidden>
+        적음 {[0, 1, 2, 3, 4].map((l) => <span key={l} className={`wiki-heatmap-cell is-${l}`} title={LEVEL_TEXT[l]} />)} 많음
+        <span className="wiki-muted"> · 하루 AI 기록 수, 주를 누르면 그 주 기록으로</span>
+      </p>
     </div>
   );
 }
@@ -212,6 +262,9 @@ function WikiHome({ data, link }: { data: Prepared; link: Link }) {
   return (
     <div className="wiki-home">
       <div className="wiki-home-grid">
+        <Section wide title="최근 6개월" note={`AI 기록 ${data.sessions.length}개`}>
+          <ActivityHeatmap sessions={data.sessions} today={today} link={link} />
+        </Section>
         {data.digests[0] && (
           <Section wide title="주간 회고" note={<a {...link('/wiki/log')}>주별로 보기</a>}>
             <DigestCard
@@ -410,7 +463,13 @@ function SessionList({ data, link }: { data: Prepared; link: Link }) {
   const [query, setQuery] = useState('');
   const [tool, setTool] = useState('');
   const [project, setProject] = useState('');
-  const [mode, setMode] = useState<'day' | 'week'>(() => (localStorage.getItem('anotar:wiki-log-mode') === 'week' ? 'week' : 'day'));
+  const [mode, setMode] = useState<'day' | 'week'>(() =>
+    location.hash.startsWith('#week-') || localStorage.getItem('anotar:wiki-log-mode') === 'week' ? 'week' : 'day',
+  );
+  // Heatmap links land on #week-<monday>; scroll there once the weeks render.
+  useEffect(() => {
+    if (location.hash.startsWith('#week-')) document.getElementById(location.hash.slice(1))?.scrollIntoView({ block: 'start' });
+  }, []);
   const hits = data.sessions.filter(
     (s) =>
       (!tool || s.tool === tool) &&
@@ -458,7 +517,7 @@ function SessionList({ data, link }: { data: Prepared; link: Link }) {
       ) : (
         <div className="wiki-list">
           {[...weeks].map(([wk, projects]) => (
-            <section key={wk} className="wiki-week">
+            <section key={wk} id={'week-' + wk} className="wiki-week">
               <h2 className="wiki-group">
                 {monthDay(wk)} – {monthDay(addDays(wk, 6))}
                 <span className="wiki-muted"> {[...projects.values()].flat().length}개 기록</span>

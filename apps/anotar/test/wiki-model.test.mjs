@@ -11,6 +11,7 @@ import {
   matches,
   monday,
   builtAgo,
+  activityGrid,
 } from '../src/wiki/model.ts';
 import { renderReadMarkdown } from '../src/ai/markdownReading.ts';
 
@@ -86,4 +87,14 @@ test('builtAgo says how old the Mac build is', () => {
   assert.equal(builtAgo('2026-10-17T11:15:00Z', now), '45분 전');
   assert.equal(builtAgo('2026-10-17T09:00:00Z', now), '3시간 전');
   assert.equal(builtAgo('2026-10-15T12:00:00Z', now), '2일 전');
+});
+
+test('activity grid counts sessions per day in Monday-first weeks and stops at today', () => {
+  const ss = ['2026-10-12', '2026-10-14', '2026-10-14', '2026-10-14', '2026-09-30'].map((date) => ({ date }));
+  const grid = activityGrid(ss, '2026-10-14', 3);
+  assert.deepEqual(grid.map((w) => w.monday), ['2026-09-28', '2026-10-05', '2026-10-12']);
+  assert.equal(grid[0].days[2].count, 1);
+  assert.equal(grid[2].days[2].level, 3);
+  assert.equal(grid[2].total, 4);
+  assert.equal(grid[2].days[3], null, 'days after today are empty');
 });

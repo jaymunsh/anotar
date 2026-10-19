@@ -129,6 +129,25 @@ export function homeSummary(data: Prepared, today: string) {
   };
 }
 
+export type ActivityDay = { date: string; count: number; level: 0 | 1 | 2 | 3 | 4 } | null;
+/** Contribution grid: one column per week (Mon–Sun) up to this week; days after today are null. */
+export function activityGrid(sessions: Session[], today: string, weeks = 26) {
+  const counts = new Map<string, number>();
+  for (const s of sessions) counts.set(s.date, (counts.get(s.date) ?? 0) + 1);
+  const first = addDays(monday(today), -7 * (weeks - 1));
+  return Array.from({ length: weeks }, (_, w) => {
+    const start = addDays(first, 7 * w);
+    const days: ActivityDay[] = Array.from({ length: 7 }, (_, d) => {
+      const date = addDays(start, d);
+      if (date > today) return null;
+      const count = counts.get(date) ?? 0;
+      return { date, count, level: count >= 5 ? 4 : count >= 3 ? 3 : (count as 0 | 1 | 2) };
+    });
+    const total = days.reduce((n, day) => n + (day?.count ?? 0), 0);
+    return { monday: start, days, total };
+  });
+}
+
 /** `./x.md`, `../wiki/x.md`, `x.md#part` → wiki slug. */
 export function wikiLinkSlug(href: string) {
   return href.match(/^(?:\.\.\/wiki\/|\.\/)?([\w-]+)\.md(?:#.*)?$/)?.[1] ?? null;

@@ -382,3 +382,38 @@
 .wiki-block.is-wide .wiki-digest .wiki-prose { columns: 2 320px; column-gap: 40px; }
 .wiki-block.is-wide .wiki-digest .wiki-prose h2 { break-after: avoid; }
 .wiki-block.is-wide .wiki-digest .wiki-prose ul { break-inside: avoid; }
+
+/* activity heatmap: one sequential hue (accent) mixed toward the line color */
+.wiki-heatmap-scroll { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+.wiki-heatmap-days { display: grid; grid-template-rows: 16px repeat(7, 13px); gap: 3px; font-size: 10.5px; color: var(--theme-muted); }
+.wiki-heatmap-grid { display: flex; gap: 3px; }
+.wiki-heatmap-week { display: grid; grid-template-rows: 16px repeat(7, 13px); gap: 3px; border-radius: 4px; text-decoration: none; }
+.wiki-heatmap-week:hover .wiki-heatmap-cell:not(.is-empty),
+.wiki-heatmap-week:focus-visible .wiki-heatmap-cell:not(.is-empty) { outline: 1px solid var(--theme-accent); outline-offset: 0; }
+.wiki-heatmap-week:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 2px; }
+.wiki-heatmap-month { font-size: 10.5px; color: var(--theme-muted); white-space: nowrap; width: 13px; overflow: visible; }
+.wiki-heatmap-cell { display: inline-block; width: 13px; height: 13px; border-radius: 3px; }
+.wiki-heatmap-cell.is-0 { background: var(--theme-line); }
+.wiki-heatmap-cell.is-1 { background: color-mix(in oklab, var(--theme-accent) 30%, var(--theme-line)); }
+.wiki-heatmap-cell.is-2 { background: color-mix(in oklab, var(--theme-accent) 55%, var(--theme-line)); }
+.wiki-heatmap-cell.is-3 { background: color-mix(in oklab, var(--theme-accent) 78%, var(--theme-line)); }
+.wiki-heatmap-cell.is-4 { background: var(--theme-accent); }
+.wiki-heatmap-cell.is-empty { background: transparent; }
+.wiki-heatmap-legend { display: flex; align-items: center; gap: 3px; margin: 8px 0 0; font-size: 12px; color: var(--theme-muted); }
+.wiki-heatmap-legend .wiki-muted { margin-left: 4px; }
+.wiki-week { scroll-margin-top: 70px; }
+
+/* 정함 / 막힘 badges inside a weekly review: the word itself is the badge */
+.wiki-digest li.wiki-mark > strong:first-child {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 650;
+  line-height: 18px;
+}
+.wiki-digest li.is-decided > strong:first-child { color: var(--theme-success-ink); background: var(--theme-success-surface); }
+.wiki-digest li.is-blocked > strong:first-child { color: var(--theme-error-ink); background: var(--theme-error-surface); }
+.wiki-digest li.is-decided > strong:first-child::before { content: '✓ '; }
+.wiki-digest li.is-blocked > strong:first-child::before { content: '! '; }
