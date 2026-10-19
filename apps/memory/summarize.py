@@ -14,15 +14,16 @@ import build
 DATA = build.DATA
 MODEL = os.environ.get("MEMORY_MODEL") or "opencode/deepseek-v4.1-flash-free"
 LABEL = "opencode/" + MODEL.split("/")[-1]
-LIMIT = 120_000  # 이보다 긴 덤프는 앞뒤 절반씩만 (무료 모델 맥락 한도)
-TIMEOUT = 300
+LIMIT = 120_000  # 이보다 긴 덤프는 혼자, 앞뒤 절반씩만 (무료 모델 맥락 한도)
+BATCH_BYTES, BATCH_MAX = 60_000, 5  # 짧은 덤프는 합쳐 이만큼까지 한 번에 (AI 시작 비용을 나눔)
+TIMEOUT = 300  # 한 번 부를 때 기본, 묶음은 파일마다 2분 더
 
 
-def run(prompt):
+def run(prompt, timeout=TIMEOUT):
     # stdin을 닫지 않으면 opencode run이 입력을 기다리며 멈춘다.
     try:
         subprocess.run(["opencode", "run", "-m", MODEL, prompt], cwd=DATA, stdin=subprocess.DEVNULL,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=TIMEOUT)
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout)
     except subprocess.TimeoutExpired:
         pass
 
@@ -31,26 +32,50 @@ def newer(src, out):
     return not out.exists() or src.stat().st_mtime > out.stat().st_mtime
 
 
+def batches(todo):
+    """날짜순을 지키며 짧은 덤프를 묶는다. 긴 덤프는 혼자."""
+    group, size = [], 0
+    for src in todo:
+        n = src.stat().st_size
+        if group and (n > LIMIT or size + n > BATCH_BYTES or len(group) == BATCH_MAX):
+            yield group
+            group, size = [], 0
+        group.append(src)
+        size += n
+        if n > LIMIT:
+            yield group
+            group, size = [], 0
+    if group:
+        yield group
+
+
 def sessions(limit):
     raw = DATA / "raw/sessions"
     todo = [p for p in sorted(raw.glob("*.md")) if newer(p, DATA / "sessions" / p.name)][:limit]
-    failed = 0
-    for i, src in enumerate(todo, 1):
-        rel, note = f"raw/sessions/{src.name}", ""
-        if src.stat().st_size > LIMIT:
-            text = src.read_text(encoding="utf-8", errors="replace")
-            cut = raw / ".cut" / src.name  # repo 안이어야 opencode가 읽는다. raw/sessions는 git 제외
-            cut.parent.mkdir(exist_ok=True)
-            cut.write_text(text[: LIMIT // 2] + "\n\n[... 중간 생략: 원본이 길어 앞뒤만 남김 ...]\n\n" + text[-LIMIT // 2:], encoding="utf-8")
-            rel = f"raw/sessions/.cut/{src.name}"
-            note = ' 원본이 길어 앞뒤만 남긴 사본이다. 본문 "한 일" 첫 줄에 "긴 세션이라 앞뒤만 읽음"이라고 쓴다.'
+    failed = done = 0
+    for group in batches(todo):
+        pairs, note = [], ""
+        for src in group:
+            rel = f"raw/sessions/{src.name}"
+            if src.stat().st_size > LIMIT:
+                text = src.read_text(encoding="utf-8", errors="replace")
+                cut = raw / ".cut" / src.name  # repo 안이어야 opencode가 읽는다. raw/sessions는 git 제외
+                cut.parent.mkdir(exist_ok=True)
+                cut.write_text(text[: LIMIT // 2] + "\n\n[... 중간 생략: 원본이 길어 앞뒤만 남김 ...]\n\n" + text[-LIMIT // 2:], encoding="utf-8")
+                rel = f"raw/sessions/.cut/{src.name}"
+                note = ' 덤프는 원본이 길어 앞뒤만 남긴 사본이다. 본문 "한 일" 첫 줄에 "긴 세션이라 앞뒤만 읽음"이라고 쓴다.'
+            pairs.append(f"{rel} → sessions/{src.name}")
         start = time.time()
-        run(f"AGENTS.md의 sessions 절차 3~5번과 세션 요약 형식을 따라 덤프 하나만 요약한다. 덤프: {rel}.{note} "
-            f"출력: sessions/{src.name} (기존 파일이 있으면 promoted 보존). summarized_by: {LABEL}. "
-            "다른 파일은 만들거나 고치지 않고, build.py·git은 실행하지 않는다. 확인 질문 없이 끝낸다.")
-        ok = not newer(src, DATA / "sessions" / src.name)
-        failed += not ok
-        print(f"[{i}/{len(todo)}] {'ok  ' if ok else 'FAIL'} {src.name} {int(time.time() - start)}s", flush=True)
+        run(f"AGENTS.md의 sessions 절차 3~5번과 세션 요약 형식을 따라 아래 덤프 {len(group)}개를 순서대로 하나씩 요약한다. "
+            f"덤프마다 요약 파일 하나 (덤프 → 출력): {'; '.join(pairs)}.{note} 기존 파일이 있으면 promoted 보존. "
+            f"summarized_by: {LABEL}. 다른 파일은 만들거나 고치지 않고, build.py·git은 실행하지 않는다. 확인 질문 없이 끝낸다.",
+            TIMEOUT + 120 * (len(group) - 1))
+        took = int(time.time() - start)
+        for src in group:
+            done += 1
+            ok = not newer(src, DATA / "sessions" / src.name)
+            failed += not ok
+            print(f"[{done}/{len(todo)}] {'ok  ' if ok else 'FAIL'} {src.name} ({len(group)}개 묶음 {took}s)", flush=True)
     return failed
 
 
