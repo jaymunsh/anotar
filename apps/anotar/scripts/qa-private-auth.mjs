@@ -95,6 +95,19 @@ try {
   }
   report.push('locked login screen at 1440/390/320 in light/dark hides the workspace without overflow');
 
+  // 1-b) 잠금 없이 로그아웃된 첫 방문도 작업 화면(오류 칸들) 대신 로그인 화면을 보여 준다.
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await ctx.newPage();
+    page.setDefaultTimeout(8000);
+    page.on('pageerror', (e) => failures.push(e.message));
+    await page.goto(base);
+    await page.getByLabel('비밀번호', { exact: true }).waitFor();
+    assert.equal(await page.locator('.app-shell').count(), 0, 'signed-out first visit must not mount the workspace');
+    await ctx.close();
+  }
+  report.push('signed-out first visit shows the login screen, not the workspace');
+
   // 2) 비밀번호+TOTP 로그인(이 브라우저 기억)으로 앱에 들어간다.
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await ctx.newPage();

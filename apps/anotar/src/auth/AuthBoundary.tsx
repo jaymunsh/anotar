@@ -65,10 +65,9 @@ export default function AuthBoundary({ children }: { children: ReactNode }) {
       window.removeEventListener('online', online);
     };
   }, []);
-  const canStart =
-    auth.state === 'disabled' ||
-    auth.state === 'authenticated' ||
-    (auth.state !== 'loading' && !auth.locked);
+  // Online-only: nothing loads without a session, so a signed-out first visit gets the login
+  // screen. Once started, an expired session keeps the workspace (and its inputs) mounted.
+  const canStart = auth.state === 'disabled' || auth.state === 'authenticated';
   useEffect(() => {
     if (canStart) setStarted(true);
   }, [canStart]);
