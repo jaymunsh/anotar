@@ -28,6 +28,7 @@ export type Digest = { slug: string; title: string; tldr: string; week: string; 
 /** How the wiki is built (apps/memory build.py): docs, projects.json and per-stage counts. */
 export type MemorySystem = {
   readme: string;
+  guide?: string;
   agents: string;
   projects: { hide?: string[]; alias?: Record<string, string> };
   counts: { raw: number; pending: number; summarized: number; shown: number; hidden: number };
@@ -39,7 +40,8 @@ export type WikiRoute =
   | { view: 'pages'; slug: string | null }
   | { view: 'log'; slug: string | null }
   | { view: 'projects'; name: string | null }
-  | { view: 'system' };
+  | { view: 'system' }
+  | { view: 'guide' };
 
 export function parseWikiRoute(pathname: string): WikiRoute {
   const [, , kind, ...rest] = pathname.replace(/\/+$/, '').split('/');
@@ -48,6 +50,7 @@ export function parseWikiRoute(pathname: string): WikiRoute {
   if (kind === 'log') return { view: 'log', slug: id };
   if (kind === 'projects') return { view: 'projects', name: id };
   if (kind === 'system') return { view: 'system' };
+  if (kind === 'guide') return { view: 'guide' };
   return { view: 'home' };
 }
 

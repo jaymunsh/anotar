@@ -95,6 +95,7 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
     { path: '/wiki/log', label: 'AI 기록', active: route.view === 'log' },
     { path: '/wiki/projects', label: '프로젝트', active: route.view === 'projects' },
     { path: '/wiki/system', label: '구조', active: route.view === 'system' },
+    { path: '/wiki/guide', label: '가이드', active: route.view === 'guide' },
   ];
   const data = load.state === 'ready' ? load.data : null;
   const today = ymd(new Date());
@@ -119,6 +120,16 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
   else if (route.view === 'log')
     body = route.slug ? <SessionReader data={load.data} slug={route.slug} link={link} navigate={navigate} /> : <SessionList data={load.data} link={link} />;
   else if (route.view === 'system') body = <SystemView data={load.data} />;
+  else if (route.view === 'guide')
+    body = load.data.system?.guide ? (
+      <article className="wiki-reader wiki-system-doc wiki-guide">
+        <h1>가이드</h1>
+        <p className="wiki-tldr">무엇을 해야 하고, 로컬에서 어떻게 돌리고, 안에서 무엇이 일어나는지.</p>
+        <Markdown text={load.data.system.guide} navigate={navigate} />
+      </article>
+    ) : (
+      <p className="wiki-status">가이드가 없어요. apps/memory의 build.py를 새 버전으로 다시 실행해 주세요.</p>
+    );
   else body = route.name ? <ProjectReader data={load.data} name={route.name} link={link} /> : <ProjectList data={load.data} link={link} />;
 
   return (

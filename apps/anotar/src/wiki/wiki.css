@@ -474,3 +474,8 @@
 @media (max-width: 760px) {
   .wiki-system-doc .wiki-prose table, .wiki-system-rules .wiki-prose table { display: block; overflow-x: auto; }
 }
+
+/* 가이드 tab */
+.wiki-guide { max-width: 860px; }
+.wiki-guide .wiki-prose h2 { margin-top: 30px; padding-bottom: 6px; border-bottom: 1px solid var(--theme-line); font-size: 17px; }
+.wiki-guide .wiki-prose ol li { margin: 6px 0; }

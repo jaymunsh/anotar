@@ -55,13 +55,13 @@ def tidy_projects(sessions, config):
 
 
 def system(config, shown):
-    """구조 탭 자료: 이 README, 데이터 repo 규칙, 설정, 단계별 개수."""
+    """구조·가이드 탭 자료: README, GUIDE, 데이터 repo 규칙, 설정, 단계별 개수."""
     read = lambda p: p.read_text(encoding="utf-8") if p.exists() else ""
     raw = list((DATA / "raw/sessions").glob("*.md"))
     pending = sum(1 for p in raw if not (DATA / "sessions" / p.name).exists()
                   or p.stat().st_mtime > (DATA / "sessions" / p.name).stat().st_mtime)
     summarized = len(list((DATA / "sessions").glob("*.md")))
-    return {"readme": read(CODE / "README.md"), "agents": read(DATA / "AGENTS.md"), "projects": config,
+    return {"readme": read(CODE / "README.md"), "guide": read(CODE / "GUIDE.md"), "agents": read(DATA / "AGENTS.md"), "projects": config,
             "counts": {"raw": len(raw), "pending": pending, "summarized": summarized,
                        "shown": shown, "hidden": summarized - shown}}
 

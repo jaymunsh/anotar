@@ -96,6 +96,7 @@ python3 $M/test_build.py                        # 파서·projects.json 확인
 | `build.py` | frontmatter 검사, projects.json 적용, `site/data.json` 생성(구조 탭 자료 포함) |
 | `daily.sh` | 하루 한 번 돌릴 묶음. opencode는 summarize.py, claude·codex는 에이전트 한 번에 |
 | `server.py` | `infra/personal` Docker 스택용 `/memory/data.json` 서버. 운영과 `npm run dev`에서는 쓰지 않음 |
+| `GUIDE.md` | 쓰는 사람용 안내. anotar 위키 **가이드** 탭에 그대로 보인다 |
 | `test_build.py`, `test_server.py` | 확인용 |
 
 ## 아직 없는 것
