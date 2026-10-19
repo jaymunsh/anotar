@@ -3,6 +3,7 @@
 # 사용: ./daily.sh [claude|codex|opencode] [모델]
 #   예: ./daily.sh opencode               (무료 deepseek, summarize.py로 파일마다 한 번씩)
 #       ./daily.sh codex gpt-6.1-sol
+#       MEMORY_EFFORT=medium ./daily.sh codex gpt-6-luna   (codex 추론 강도)
 # 인자 없으면 MEMORY_AGENT / MEMORY_MODEL 환경변수, 그것도 없으면 claude 기본 모델.
 set -euo pipefail
 CODE="${0:A:h}"
@@ -17,7 +18,7 @@ case $AGENT in
     claude -p "$PROMPT" ${MODEL:+--model "$MODEL"} \
       --allowedTools "Bash(python3:*) Bash(git:*) Bash(ls:*) Read Write Edit Glob Grep" ;;
   codex)
-    codex exec --full-auto ${MODEL:+-m "$MODEL"} "$PROMPT" ;;
+    codex exec --full-auto ${MODEL:+-m "$MODEL"} ${MEMORY_EFFORT:+-c model_reasoning_effort="$MEMORY_EFFORT"} "$PROMPT" ;;
   opencode)
     # 에이전트 한 번에 전부 맡기면 무료 모델은 맥락이 넘쳐 멈춘다. summarize.py가 파일·주마다 부른다.
     python3 "$CODE/import_sessions.py"
