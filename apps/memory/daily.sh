@@ -5,6 +5,7 @@
 #       ./daily.sh codex gpt-6.1-sol
 #       MEMORY_EFFORT=medium ./daily.sh codex gpt-6-luna   (codex 추론 강도)
 # 인자 없으면 MEMORY_AGENT / MEMORY_MODEL 환경변수, 그것도 없으면 claude 기본 모델.
+# zsh는 ${X:+-m "$X"}를 한 단어('-m 값')로 넘긴다. 옵션과 값은 따로 쓴다(빈 값은 사라짐).
 set -euo pipefail
 CODE="${0:A:h}"
 cd "${MEMORY_DATA:-$CODE/../../data/memory}"
@@ -15,10 +16,11 @@ PROMPT="AGENTS.md의 sessions 절차를 그대로 따른다. 확인 질문 없�
 
 case $AGENT in
   claude)
-    claude -p "$PROMPT" ${MODEL:+--model "$MODEL"} \
+    claude -p "$PROMPT" ${MODEL:+--model} $MODEL \
       --allowedTools "Bash(python3:*) Bash(git:*) Bash(ls:*) Read Write Edit Glob Grep" ;;
   codex)
-    codex exec --full-auto ${MODEL:+-m "$MODEL"} ${MEMORY_EFFORT:+-c model_reasoning_effort="$MEMORY_EFFORT"} "$PROMPT" ;;
+    # --full-auto was removed in codex 0.16x; workspace-write is the same sandbox (push happens below, outside codex).
+    codex exec -s workspace-write ${MODEL:+-m} $MODEL ${MEMORY_EFFORT:+-c} ${MEMORY_EFFORT:+model_reasoning_effort=$MEMORY_EFFORT} "$PROMPT" < /dev/null ;;
   opencode)
     # 에이전트 한 번에 전부 맡기면 무료 모델은 맥락이 넘쳐 멈춘다. summarize.py가 파일·주마다 부른다.
     python3 "$CODE/import_sessions.py"
