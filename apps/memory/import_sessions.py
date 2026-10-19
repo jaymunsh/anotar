@@ -120,7 +120,8 @@ def main():
             if not any(role == "user" for role, _ in turns):
                 empty += 1
                 continue
-            if is_own(turns):
+            # opencode in the data folder is always the wiki tooling itself (summaries, model probes, tests).
+            if is_own(turns) or (tool == "opencode" and cwd and pathlib.Path(cwd).resolve() == DATA.resolve()):
                 own += 1
                 continue
             date = started[:10] or datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")

@@ -12,7 +12,7 @@ cd "${MEMORY_DATA:-$CODE/../../data/memory}"
 
 AGENT=${1:-${MEMORY_AGENT:-claude}}
 MODEL=${2:-${MEMORY_MODEL:-}}
-PROMPT="AGENTS.md의 sessions 절차를 그대로 따른다. 확인 질문 없이 끝까지 진행하고, summarized_by에는 너의 하네스와 모델을 적는다."
+PROMPT="AGENTS.md의 sessions 절차를 그대로 따르고, 이어서 weekly 절차도 따른다. 확인 질문 없이 끝까지 진행하고, summarized_by에는 $AGENT/${MODEL:-기본 모델}을 적는다."
 
 case $AGENT in
   claude)
@@ -20,7 +20,9 @@ case $AGENT in
       --allowedTools "Bash(python3:*) Bash(git:*) Bash(ls:*) Read Write Edit Glob Grep" ;;
   codex)
     # --full-auto was removed in codex 0.16x; workspace-write is the same sandbox (push happens below, outside codex).
-    codex exec -s workspace-write ${MODEL:+-m} $MODEL ${MEMORY_EFFORT:+-c} ${MEMORY_EFFORT:+model_reasoning_effort=$MEMORY_EFFORT} "$PROMPT" < /dev/null ;;
+    codex exec -s workspace-write ${MODEL:+-m} $MODEL ${MEMORY_EFFORT:+-c} ${MEMORY_EFFORT:+model_reasoning_effort=$MEMORY_EFFORT} "$PROMPT" < /dev/null
+    # The sandbox cannot write .git, so commit here.
+    git add sessions digests runs.jsonl && git commit -qm "sessions: $(date +%F) 요약·주간 회고 (codex${MODEL:+ $MODEL})" || true ;;
   opencode)
     # 에이전트 한 번에 전부 맡기면 무료 모델은 맥락이 넘쳐 멈춘다. summarize.py가 파일·주마다 부른다.
     python3 "$CODE/import_sessions.py"
