@@ -22,19 +22,20 @@ ln -sfn "$root/.env" "$dir/.env"
 
 previous=$(readlink -f "$root/current")
 previous_release=$(sed -n 's/^PLANNER_RELEASE=//p' "$root/.env")
-compose() { docker compose -f compose.oracle.yaml "$@"; }
+# An array, not a function: timeout runs a program and cannot see shell functions.
+compose=(docker compose -f compose.oracle.yaml)
 use() { sed -i "s/^PLANNER_RELEASE=.*/PLANNER_RELEASE=$1/" "$root/.env"; ln -sfn "$2" "$root/current"; }
 
 # Back up from the running version before anything changes.
-(cd "$previous" && timeout 120 compose exec -T planner node scripts/backup.mjs)
-(cd "$dir" && PLANNER_RELEASE=$release timeout 900 compose build --quiet)
+(cd "$previous" && timeout 120 "${compose[@]}" exec -T planner node scripts/backup.mjs)
+(cd "$dir" && PLANNER_RELEASE=$release timeout 900 "${compose[@]}" build --quiet)
 use "$release" "$dir"
-if (cd "$dir" && timeout 180 compose up -d --wait) && curl -fsS --max-time 5 http://127.0.0.1:8794/api/health >/dev/null; then
+if (cd "$dir" && timeout 180 "${compose[@]}" up -d --wait) && curl -fsS --max-time 5 http://127.0.0.1:8794/api/health >/dev/null; then
   printf '%s\n' "$commit" > "$root/deployed-commit"
   echo "Deployed harukan $commit as $release"
 else
   echo "harukan $release failed; returning to $previous_release" >&2
   use "$previous_release" "$previous"
-  (cd "$previous" && timeout 180 compose up -d --wait)
+  (cd "$previous" && timeout 180 "${compose[@]}" up -d --wait)
   exit 1
 fi
