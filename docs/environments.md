@@ -27,8 +27,8 @@
 | 서비스 | 구성 | 설정이 정해지는 순서 (뒤가 이김) |
 |---|---|---|
 | anotar 개인·공유·호스팅 | `apps/anotar/compose.yaml` + `compose.oracle.yaml`, main push로 자동 배포 | 코드 기본값 → `compose.yaml` 기본값 → `compose.oracle.yaml`(자원 제한, 위키 파일) → 서버 `.env` |
-| harukan | `apps/harukan/compose.oracle.yaml`, 런북으로 직접 배포 | 코드 기본값 → 서버 `.env` |
-| 위키 | 서버에는 `data.json` 파일만 읽기 전용으로 붙임 | Mac이 만들어 올림(⑤, 아직 없음) |
+| harukan | `apps/harukan/compose.oracle.yaml`, main 검사 통과 뒤 서버 `harukan-deploy.timer`가 자동 배포 | 코드 기본값 → 서버 `.env` |
+| 위키 | 서버에는 `data.json` 파일만 읽기 전용으로 붙임 | 서버 `leneu-memory-sync.timer`가 매시간 GitHub에서 pull해 만듦 |
 
 운영과 로컬이 일부러 다른 것:
 
