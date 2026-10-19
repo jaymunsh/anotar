@@ -139,7 +139,7 @@ export function createAuthHttp({ store, env = process.env, clock = Date.now }) {
           throw authError(
             401,
             'authentication_required',
-            '다시 로그인해 주세요. 기기에 저장한 글은 유지돼요.',
+            '다시 로그인해 주세요. 작성 중인 내용은 지우지 않아요.',
           );
         if (url.pathname === '/api/auth/devices' && req.method === 'GET') {
           send(res, 200, {

@@ -127,7 +127,7 @@ try {
   await ctx.clearCookies();
   await page.getByRole('button', { name: '저장', exact: true }).first().click();
   // 저장이 401로 실패하면 다시 로그인하라는 안내를 보여주고 입력은 그대로 둔다.
-  await page.getByText('다시 로그인해 주세요. 기기에 저장한 글은 유지돼요.', { exact: false }).waitFor();
+  await page.getByText('다시 로그인해 주세요. 작성 중인 내용은 지우지 않아요.', { exact: false }).waitFor();
   assert.equal(await memo.inputValue(), '인증이 만료되어도 남아야 하는 입력', 'the input survives the 401');
   // 앱은 연결 복구 시 인증을 다시 확인한다. 그때 재로그인 안내가 사이드바에 뜬다.
   await page.evaluate(() => window.dispatchEvent(new Event('online')));
