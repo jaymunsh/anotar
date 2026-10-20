@@ -1,7 +1,7 @@
 import React,{useCallback,useEffect,useId,useRef,useState} from 'react';
 import {createPortal} from 'react-dom';
 import {Plus,X,ArrowRight,Ellipsis,Pencil,Pin} from 'lucide-react';
-import {ApiError,DayTemplate,PlanningItem,Routine,duration,request} from '../api';
+import {ApiError,DayTemplate,PlanningItem,Routine,duration,request,sync} from '../api';
 import {getLanguage,pair,t} from '../i18n';
 import './planning.css';
 
@@ -29,22 +29,23 @@ export function usePlanning(demo:boolean,csrf:string){
   catch(e){setError((e as Error).message);throw e;}finally{setLoading(false);}
  },[demo,items]);
  useEffect(()=>{if(demo)return;let alive=true;request<{items:Stored[]}>('/api/planning').then(result=>{if(alive)setItems(result.items);}).catch(e=>{if(alive)setError(e.message);}).finally(()=>{if(alive)setLoading(false);});return()=>{alive=false;};},[demo]);
- // Changes from another tab or device show up when this tab comes back into view.
+ // Changes from another tab or device show up on coming back to the tab, on a save in another tab, and every 30 s while shown.
  useEffect(()=>{
   if(demo)return;
   const refresh=()=>{if(document.visibilityState==='visible')request<{items:Stored[]}>('/api/planning').then(result=>setItems(result.items)).catch(()=>{});};
-  window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);
-  return()=>{window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};
+  const heard=(e:MessageEvent)=>{if(e.data?.planning)refresh();},every=setInterval(refresh,30000);
+  window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);sync?.addEventListener('message',heard);
+  return()=>{clearInterval(every);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);sync?.removeEventListener('message',heard);};
  },[demo]);
  async function save<T extends Stored>(item:T){
   // Show an edit to an existing item at once; the server's answer (new version) replaces it, a failure reloads.
   setItems(old=>old.map(value=>value.id===item.id?item:value));
   let result:T;try{result=demo?{...item,version:item.version+1}:await request<T>('/api/planning/'+item.id,'PUT',item,csrf);}catch(e){if(!demo)request<{items:Stored[]}>('/api/planning').then(r=>setItems(r.items)).catch(()=>{});throw e;}
-  setItems(old=>old.some(value=>value.id===result.id)?old.map(value=>value.id===result.id?result:value):[...old,result]);return result;
+  setItems(old=>old.some(value=>value.id===result.id)?old.map(value=>value.id===result.id?result:value):[...old,result]);if(!demo)sync?.postMessage({planning:true});return result;
  }
  async function remove(item:Stored){
   if(demo){setItems(old=>old.filter(value=>value.id!==item.id).map(value=>isPlan(value)&&value.parentId===item.id?{...value,parentId:null,version:value.version+1}:value));return;}
-  await request('/api/planning/'+item.id,'DELETE',{version:item.version},csrf);await reload();
+  await request('/api/planning/'+item.id,'DELETE',{version:item.version},csrf);await reload();sync?.postMessage({planning:true});
  }
  return {items,routines,templates,loading,error,reload,save,remove};
 }

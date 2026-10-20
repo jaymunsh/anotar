@@ -1,7 +1,7 @@
 import {t,pair,getLanguage,LanguageSelect} from './i18n';
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {X,ArrowRight,Check,ChevronLeft,ChevronRight,Plus,Trash2,Download,Settings,Save,LogOut,CircleHelp} from 'lucide-react';
-import {ApiError,Day,Entry,Plan,PlanningItem,User,clock,download,duration,emptyDay,recorded,request,today} from './api';
+import {ApiError,Day,Entry,Plan,PlanningItem,User,clock,download,duration,emptyDay,recorded,request,sync,today} from './api';
 
 const copy=<T,>(value:T):T=>structuredClone(value);
 const recentKey='anotar-planner:recent-planning';
@@ -36,14 +36,14 @@ export function useDay(date:string,user:User|undefined,csrf:string,demo:boolean)
   async function save(){
     if(demo||busy.current||!dirty.current||loading)return;
     busy.current=true;setState('saving');setError('');const snapshot=copy(latest.current),v=version.current,epoch=generation.current;
-    try{const r=await request<{version:number}>(`/api/days/${date}`,'PUT',{document:snapshot,version:v},csrf);if(epoch!==generation.current)return;version.current=r.version;blocked.current=false;
+    try{const r=await request<{version:number}>(`/api/days/${date}`,'PUT',{document:snapshot,version:v},csrf);if(epoch!==generation.current)return;version.current=r.version;blocked.current=false;sync?.postMessage({day:date});
       if(JSON.stringify(latest.current)===JSON.stringify(snapshot)){dirty.current=false;setState('saved');if(user)localStorage.removeItem(draftKey(user,date));}
       else{stash(latest.current);setState('pending');timer.current=setTimeout(()=>saveRef.current(),900);}
     }catch(e){if(epoch!==generation.current)return;blocked.current=true;setState(e instanceof ApiError&&e.status===409?'conflict':'error');setError((e as Error).message);stash(latest.current);}
     finally{busy.current=false;}
   }
   saveRef.current=save;
-  // Another tab or device may have saved since this one loaded. Coming back to the tab picks that up, unless there are edits here (those go through the version check).
+  // Another tab or device may have saved since this one loaded: picked up on coming back to the tab, on a save in another tab, and every 30 s while shown — unless there are edits here (those go through the version check).
   useEffect(()=>{
     if(demo||!user)return;
     function refresh(){
@@ -51,8 +51,9 @@ export function useDay(date:string,user:User|undefined,csrf:string,demo:boolean)
       const epoch=generation.current;
       request<{document:Day;version:number}>(`/api/days/${date}`).then(r=>{if(epoch!==generation.current||dirty.current||busy.current||r.version===version.current)return;latest.current=r.document;version.current=r.version;setDocument(r.document);}).catch(()=>{});
     }
-    window.addEventListener('focus',refresh);window.document.addEventListener('visibilitychange',refresh);
-    return()=>{window.removeEventListener('focus',refresh);window.document.removeEventListener('visibilitychange',refresh);};
+    const heard=(e:MessageEvent)=>{if(e.data?.day===date)refresh();},every=setInterval(refresh,30000);
+    window.addEventListener('focus',refresh);window.document.addEventListener('visibilitychange',refresh);sync?.addEventListener('message',heard);
+    return()=>{clearInterval(every);window.removeEventListener('focus',refresh);window.document.removeEventListener('visibilitychange',refresh);sync?.removeEventListener('message',heard);};
   },[date,user?.id,demo]);
   // A failed save (offline, server restart) tries again by itself: when the browser is back online and every 20 s. A conflict (409) waits for the person.
   useEffect(()=>{

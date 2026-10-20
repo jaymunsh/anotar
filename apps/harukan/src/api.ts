@@ -21,3 +21,6 @@ export const duration=(minutes:number)=>getLanguage()==='en'?`${Math.floor(minut
 export function recorded(entries:Entry[]) {let total=0,end=-1;for(const e of [...entries].sort((a,b)=>a.start-b.start)){total+=Math.max(0,e.end-Math.max(end,e.start));end=Math.max(end,e.end);}return total;}
 export const today=(timezone='Asia/Seoul')=>new Intl.DateTimeFormat('sv-SE',{timeZone:timezone}).format(new Date());
 export function download(name:string,value:unknown) {const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+
+// Tabs of this browser tell each other when they saved, so an open tab refreshes right away.
+export const sync=typeof BroadcastChannel==='undefined'?null:new BroadcastChannel('harukan-sync');
