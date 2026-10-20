@@ -35,5 +35,7 @@ esac
 
 # New summaries get date/started/ended (KST) from their dumps before the build.
 python3 "$CODE/import_sessions.py" --stamp
+git add sessions && git commit -qm "sessions: KST 시각 맞춤" 2>/dev/null || true
 python3 "$CODE/build.py"
-git remote | grep -q . && git push -q || true
+# "일부 실패" makes auto.sh try again next hour (e.g. the keychain prompt for GitHub was declined).
+git remote | grep -q . && { git push -q || echo "push 일부 실패: 다음 실행 때 다시 시도"; }
