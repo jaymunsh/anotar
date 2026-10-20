@@ -69,7 +69,7 @@ export function makeApp(options={}) {
   const termsVersion='2026-10-18';
   // Stay signed in: a session lasts 30 days from the last visit (each app open renews it at most once a day).
   const sessionDays=30;
-  const writeLimit=options.writeLimit??1200,storageLimit=options.storageLimit??20*1024*1024;
+  const writeLimit=options.writeLimit??1200,storageLimit=options.storageLimit??50*1024*1024;
   const clock=options.clock??Date.now;
   // A pending security reboot, written on the host by leneu-service-watch and mounted read-only.
   // Shown only in the last hour before it, so most people never see it.
