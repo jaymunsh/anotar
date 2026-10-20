@@ -29,6 +29,13 @@ export function usePlanning(demo:boolean,csrf:string){
   catch(e){setError((e as Error).message);throw e;}finally{setLoading(false);}
  },[demo,items]);
  useEffect(()=>{if(demo)return;let alive=true;request<{items:Stored[]}>('/api/planning').then(result=>{if(alive)setItems(result.items);}).catch(e=>{if(alive)setError(e.message);}).finally(()=>{if(alive)setLoading(false);});return()=>{alive=false;};},[demo]);
+ // Changes from another tab or device show up when this tab comes back into view.
+ useEffect(()=>{
+  if(demo)return;
+  const refresh=()=>{if(document.visibilityState==='visible')request<{items:Stored[]}>('/api/planning').then(result=>setItems(result.items)).catch(()=>{});};
+  window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',refresh);
+  return()=>{window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};
+ },[demo]);
  async function save<T extends Stored>(item:T){
   // Show an edit to an existing item at once; the server's answer (new version) replaces it, a failure reloads.
   setItems(old=>old.map(value=>value.id===item.id?item:value));

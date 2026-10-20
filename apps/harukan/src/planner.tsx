@@ -43,6 +43,17 @@ export function useDay(date:string,user:User|undefined,csrf:string,demo:boolean)
     finally{busy.current=false;}
   }
   saveRef.current=save;
+  // Another tab or device may have saved since this one loaded. Coming back to the tab picks that up, unless there are edits here (those go through the version check).
+  useEffect(()=>{
+    if(demo||!user)return;
+    function refresh(){
+      if(window.document.visibilityState!=='visible'||dirty.current||busy.current||blocked.current)return;
+      const epoch=generation.current;
+      request<{document:Day;version:number}>(`/api/days/${date}`).then(r=>{if(epoch!==generation.current||dirty.current||busy.current||r.version===version.current)return;latest.current=r.document;version.current=r.version;setDocument(r.document);}).catch(()=>{});
+    }
+    window.addEventListener('focus',refresh);window.document.addEventListener('visibilitychange',refresh);
+    return()=>{window.removeEventListener('focus',refresh);window.document.removeEventListener('visibilitychange',refresh);};
+  },[date,user?.id,demo]);
   // A failed save (offline, server restart) tries again by itself: when the browser is back online and every 20 s. A conflict (409) waits for the person.
   useEffect(()=>{
     if(state!=='error')return;
