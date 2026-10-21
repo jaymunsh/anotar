@@ -332,7 +332,8 @@
  .journal-workspace .journal-schedule{order:2}
  .journal-workspace .journal-notes{order:3;display:flex;flex-direction:column;gap:16px}
  .journal-heading .journal-date{display:grid;grid-template-columns:36px minmax(0,1fr) 36px auto;gap:4px}
- .journal-heading .journal-date>input{width:100%}
+ /* iOS Safari gives a date input a native minimum width that spills over the › button; appearance:none drops it. */
+ .journal-heading .journal-date>input{width:100%;min-width:0;-webkit-appearance:none;appearance:none}
  .journal-heading .journal-date>button:nth-of-type(3),.journal-heading .journal-date:has(>input[type=month])>button:nth-of-type(3),.journal-heading .journal-date:has(.journal-broad-picker)>button:nth-of-type(3){grid-column:auto;justify-self:stretch;width:auto;padding:0 10px}
 }
 /* Phones: date and 일간·주간·월간 right under the title; focus goals and routines follow, just above the day itself. */

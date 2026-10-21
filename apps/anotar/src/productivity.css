@@ -113,7 +113,8 @@
   .memo-detail-frame .detail-panel.ai-capture-detail { width: 100%; padding: 20px; }
 }
 @media (max-width: 760px) {
-  .detail-panel.ai-capture-detail:not(.capture-import-panel) { padding: 18px; }
+  .detail-panel.ai-capture-detail:not(.capture-import-panel) { --detail-pad-y: 18px; --detail-pad-x: 18px; }
+  .ai-capture-detail > .detail-top { margin-bottom: 14px; }
 }
 .command-error {
   margin: 12px 24px;

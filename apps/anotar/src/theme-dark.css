@@ -230,6 +230,7 @@
   border-color: #526154;
 }
 :root[data-theme='dark'] .detail-panel {
+  --detail-bg: var(--theme-surface);
   background: var(--theme-surface);
   color: var(--theme-ink);
   box-shadow: -14px 0 35px #07090866;

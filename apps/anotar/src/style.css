@@ -1673,7 +1673,21 @@ kbd {
     display: none;
   }
   .detail-panel {
-    padding: 26px 22px;
+    --detail-pad-y: 26px;
+    --detail-pad-x: 22px;
+    padding: var(--detail-pad-y) var(--detail-pad-x);
+  }
+  /* The close/edit row stays on top while the memo scrolls, with a line so content passes under it. */
+  .detail-panel > .detail-top {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    margin: 0 calc(-1 * var(--detail-pad-x)) 24px;
+    padding: 12px var(--detail-pad-x);
+    border-bottom: 1px solid var(--theme-line);
+    background: inherit;
+    /* Sticky stops at the panel's padding edge; paint that strip too so content never shows above the row. */
+    box-shadow: 0 calc(-1 * var(--detail-pad-y)) 0 0 var(--detail-bg, #fbfcf9);
   }
 }
 @media (min-width: 761px) {
