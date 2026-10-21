@@ -11,8 +11,10 @@ import {
   splitResult,
   matches,
   monday,
-  builtAgo,
+  kstStamp,
+  isStale,
   activityGrid,
+  wikiOrigins,
   projectTimeline,
   homeStats,
 } from '../src/wiki/model.ts';
@@ -82,14 +84,19 @@ test('markdown link option routes wiki links in-app and keeps external links saf
   assert.doesNotMatch(plain, /href/);
 });
 
-test('builtAgo says how old the Mac build is', () => {
-  const now = Date.parse('2026-10-17T12:00:00Z');
-  assert.equal(builtAgo(null, now), null);
-  assert.equal(builtAgo('nope', now), null);
-  assert.equal(builtAgo('2026-10-17T11:59:40Z', now), '방금');
-  assert.equal(builtAgo('2026-10-17T11:15:00Z', now), '45분 전');
-  assert.equal(builtAgo('2026-10-17T09:00:00Z', now), '3시간 전');
-  assert.equal(builtAgo('2026-10-15T12:00:00Z', now), '2일 전');
+test('kstStamp shows a build time as KST to the second', () => {
+  assert.equal(kstStamp(null), null);
+  assert.equal(kstStamp('nope'), null);
+  assert.equal(kstStamp('2026-10-21T10:30:05Z'), '2026-10-21 19:30:05');
+  assert.equal(kstStamp('2026-10-21T19:30:05+09:00'), '2026-10-21 19:30:05');
+  assert.equal(kstStamp('2026-10-21T16:00:00Z'), '2026-10-22 01:00:00');
+});
+
+test('isStale flags a wiki not rebuilt for over 30 hours', () => {
+  const now = Date.parse('2026-10-22T12:00:00Z');
+  assert.equal(isStale(null, now), false);
+  assert.equal(isStale('2026-10-21T08:00:00Z', now), false);
+  assert.equal(isStale('2026-10-21T05:00:00Z', now), true);
 });
 
 test('activity grid counts sessions per day in Monday-first weeks and stops at today', () => {
@@ -100,6 +107,17 @@ test('activity grid counts sessions per day in Monday-first weeks and stops at t
   assert.equal(grid[2].days[2].level, 3);
   assert.equal(grid[2].total, 4);
   assert.equal(grid[2].days[3], null, 'days after today are empty');
+});
+
+test('server AI records add to the day count but stay countable apart, and mark wiki origins', () => {
+  const grid = activityGrid([{ date: '2026-10-14' }], '2026-10-14', 1, [{ date: '2026-10-14' }, { date: '2026-10-14' }]);
+  assert.equal(grid[0].days[2].count, 3);
+  assert.equal(grid[0].days[2].server, 2);
+  assert.equal(grid[0].days[2].level, 3);
+  const origins = wikiOrigins({ sessions: [{ promoted: ['a', 'b'] }], server: [{ promoted: ['b', 'c'] }] });
+  assert.deepEqual([...origins.get('a')], ['mac']);
+  assert.deepEqual([...origins.get('b')], ['mac', 'anotar']);
+  assert.deepEqual([...origins.get('c')], ['anotar']);
 });
 
 test('project timeline buckets sessions by week per project and drops idle ones', () => {

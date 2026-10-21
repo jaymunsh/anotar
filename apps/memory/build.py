@@ -1,4 +1,4 @@
-"""wiki/*.md, sessions/*.md -> site/data.json (anotar /wiki 화면이 읽음).
+"""wiki/*.md, sessions/*.md(Mac), anotar/*.md(서버 AI 요청) -> site/data.json (anotar /wiki 화면이 읽음).
 
 데이터 폴더는 MEMORY_DATA 환경변수, 없으면 현재 폴더. 결과는 <데이터>/site/data.json.
 <데이터>/projects.json(선택)으로 세션의 project를 정리한다:
@@ -13,6 +13,7 @@ CODE = pathlib.Path(__file__).resolve().parent
 WIKI_KEYS = ("title", "tldr", "tags", "updated")
 SESSION_KEYS = ("title", "tldr", "tool", "project", "date")
 DIGEST_KEYS = ("title", "tldr", "week")
+ANOTAR_KEYS = ("title", "tldr", "template", "date")
 
 
 def parse(path, required):
@@ -73,25 +74,28 @@ def system(config, shown):
                        "shown": shown, "hidden": summarized - shown}}
 
 
+
 def main():
     config_path = DATA / "projects.json"
     config = json.loads(config_path.read_text(encoding="utf-8")) if config_path.exists() else {}
     data = {"wiki": load("wiki", WIKI_KEYS, "updated"),
             "sessions": tidy_projects(load("sessions", SESSION_KEYS, "date"), config),
+            "anotar": load("anotar", ANOTAR_KEYS, "date"),
             "digests": load("digests", DIGEST_KEYS, "week"),
             "builtAt": datetime.now(timezone.utc).isoformat(timespec="seconds")}
     data["system"] = system(config, len(data["sessions"]))
     wiki_slugs = {p["slug"] for p in data["wiki"]}
-    for s in data["sessions"]:
-        if isinstance(s.get("promoted"), str):
-            s["promoted"] = [s["promoted"]] if s["promoted"] else []
-        for slug in s.get("promoted") or []:
-            if slug not in wiki_slugs:
-                sys.exit(f"sessions/{s['slug']}.md: promoted의 '{slug}' 위키 페이지가 없음")
+    for folder in ("sessions", "anotar"):
+        for s in data[folder]:
+            if isinstance(s.get("promoted"), str):
+                s["promoted"] = [s["promoted"]] if s["promoted"] else []
+            for slug in s.get("promoted") or []:
+                if slug not in wiki_slugs:
+                    sys.exit(f"{folder}/{s['slug']}.md: promoted의 '{slug}' 위키 페이지가 없음")
     out = DATA / "site"
     out.mkdir(exist_ok=True)
     (out / "data.json").write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-    print(f"site/data.json: wiki {len(data['wiki'])}, sessions {len(data['sessions'])}, digests {len(data['digests'])}")
+    print(f"site/data.json: wiki {len(data['wiki'])}, sessions {len(data['sessions'])}, anotar {len(data['anotar'])}, digests {len(data['digests'])}")
 
 
 if __name__ == "__main__":

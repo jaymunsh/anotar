@@ -98,10 +98,10 @@ python3 $M/test_build.py                        # 파서·projects.json 확인
 | `build.py` | frontmatter 검사, projects.json 적용, `site/data.json` 생성(구조 탭 자료 포함) |
 | `daily.sh` | 하루 한 번 돌릴 묶음. opencode는 summarize.py, claude·codex는 에이전트 한 번에 |
 | `server.py` | `infra/personal` Docker 스택용 `/memory/data.json` 서버. 운영과 `npm run dev`에서는 쓰지 않음 |
+| `import_anotar.py` | anotar 서버의 AI 요청 결과 → `anotar/*.md`. SSH로 서버 DB를 읽기만 함. Mac 세션과 섞지 않고, 요약 없이 결과 그대로, 요청한 메모 본문은 안 옮김. `daily.sh`가 맨 앞에 부름 |
 | `GUIDE.md` | 쓰는 사람용 안내. anotar 위키 **가이드** 탭에 그대로 보인다 |
 | `test_build.py`, `test_server.py` | 확인용 |
 
 ## 아직 없는 것
 
 - ⑥ 운영 서버로 올리기, 매일 자동 실행(Mac 예약)
-- anotar 서버의 AI 요청 기록은 위키에 들어가지 않는다

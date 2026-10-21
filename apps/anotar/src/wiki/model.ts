@@ -26,6 +26,20 @@ export type Session = {
   summarized_by?: string;
   body: string;
 };
+/** A server AI request's result (apps/memory/import_anotar.py, anotar/*.md): kept apart from Mac sessions. */
+export type ServerAi = {
+  slug: string;
+  title: string;
+  tldr: string;
+  template: string;
+  source?: 'memo' | 'page';
+  date: string;
+  started?: string;
+  ended?: string;
+  models?: string[] | string;
+  promoted?: string[] | string;
+  body: string;
+};
 /** Weekly review written by apps/memory/summarize.py weekly; `week` is that week's Monday. */
 export type Digest = { slug: string; title: string; tldr: string; week: string; body: string };
 /** How the wiki is built (apps/memory build.py): docs, projects.json and per-stage counts. */
@@ -47,12 +61,13 @@ export type MemoryRun = {
   down: string[];
   stopped: string | null;
 };
-export type MemoryData = { wiki: WikiPage[]; sessions: Session[]; digests?: Digest[]; system?: MemorySystem; builtAt?: string };
+export type MemoryData = { wiki: WikiPage[]; sessions: Session[]; anotar?: ServerAi[]; digests?: Digest[]; system?: MemorySystem; builtAt?: string };
 
 export type WikiRoute =
   | { view: 'home' }
   | { view: 'pages'; slug: string | null }
   | { view: 'log'; slug: string | null }
+  | { view: 'server'; slug: string | null }
   | { view: 'projects'; name: string | null }
   | { view: 'system' }
   | { view: 'guide' };
@@ -62,6 +77,7 @@ export function parseWikiRoute(pathname: string): WikiRoute {
   const id = rest.length ? decodeURIComponent(rest.join('/')) : null;
   if (kind === 'pages') return { view: 'pages', slug: id };
   if (kind === 'log') return { view: 'log', slug: id };
+  if (kind === 'server') return { view: 'server', slug: id };
   if (kind === 'projects') return { view: 'projects', name: id };
   if (kind === 'system') return { view: 'system' };
   if (kind === 'guide') return { view: 'guide' };
@@ -97,22 +113,21 @@ export function relativeDay(day: string, today: string) {
   return n <= 0 ? '오늘' : n === 1 ? '어제' : n < 31 ? `${n}일 전` : monthDay(day);
 }
 
-/** How long ago build.py ran on the Mac: the wiki is only as fresh as its last build. */
-export function builtAgo(builtAt: string | null, now: number) {
-  const at = builtAt ? Date.parse(builtAt) : NaN;
+/** An ISO time as KST to the second, e.g. '2026-10-21 19:30:05'; null when missing or unreadable. */
+export function kstStamp(iso: string | null) {
+  const at = iso ? Date.parse(iso) : NaN;
   if (!Number.isFinite(at)) return null;
-  const minutes = Math.max(0, Math.floor((now - at) / 60000));
-  if (minutes < 1) return '방금';
-  if (minutes < 60) return `${minutes}분 전`;
-  if (minutes < 24 * 60) return `${Math.floor(minutes / 60)}시간 전`;
-  return `${Math.floor(minutes / (24 * 60))}일 전`;
+  return new Date(at + 9 * 3600000).toISOString().slice(0, 19).replace('T', ' ');
 }
+
+/** The Mac pushes once a day (runs.jsonl changes every run), so no rebuild for 30 hours means it stopped. */
+export const isStale = (iso: string | null, now = Date.now()) => !!iso && now - Date.parse(iso) > 30 * 3600000;
 
 /**
  * First to last message in KST: "2026-10-19 | 03:02 ~ 05:56", full dates when it crosses midnight.
  * Without the date (lists already grouped by day): "03:02 ~ 05:56", the end date only when it differs.
  */
-export function sessionTime(s: Session, withDate = true) {
+export function sessionTime(s: { started?: string; ended?: string }, withDate = true) {
   if (!s.started) return '';
   const [day, start] = s.started.split('T');
   const from = withDate ? `${day} ${start}` : start;
@@ -131,7 +146,10 @@ export function prepare(data: MemoryData) {
   const projects = new Map<string, Session[]>();
   for (const s of sessions) projects.set(s.project, [...(projects.get(s.project) ?? []), s]);
   const digests = [...(data.digests ?? [])].sort((a, b) => b.week.localeCompare(a.week));
-  return { wiki, sessions, projects, digests, system: data.system ?? null, builtAt: data.builtAt ?? null };
+  const server = [...(data.anotar ?? [])].sort(
+    (a, b) => b.date.localeCompare(a.date) || (b.started ?? '').localeCompare(a.started ?? ''),
+  );
+  return { wiki, sessions, server, projects, digests, system: data.system ?? null, builtAt: data.builtAt ?? null };
 }
 export type Prepared = ReturnType<typeof prepare>;
 
@@ -169,11 +187,17 @@ export function homeSummary(data: Prepared, today: string) {
   };
 }
 
-export type ActivityDay = { date: string; count: number; level: 0 | 1 | 2 | 3 | 4 } | null;
+/** `count` is Mac sessions plus server AI records; `server` is the server part of it. */
+export type ActivityDay = { date: string; count: number; server: number; level: 0 | 1 | 2 | 3 | 4 } | null;
 /** Contribution grid: one column per week (Mon–Sun) up to this week; days after today are null. */
-export function activityGrid(sessions: Session[], today: string, weeks = 26) {
+export function activityGrid(sessions: Session[], today: string, weeks = 26, server: { date: string }[] = []) {
   const counts = new Map<string, number>();
+  const servers = new Map<string, number>();
   for (const s of sessions) counts.set(s.date, (counts.get(s.date) ?? 0) + 1);
+  for (const s of server) {
+    counts.set(s.date, (counts.get(s.date) ?? 0) + 1);
+    servers.set(s.date, (servers.get(s.date) ?? 0) + 1);
+  }
   const first = addDays(monday(today), -7 * (weeks - 1));
   return Array.from({ length: weeks }, (_, w) => {
     const start = addDays(first, 7 * w);
@@ -181,7 +205,7 @@ export function activityGrid(sessions: Session[], today: string, weeks = 26) {
       const date = addDays(start, d);
       if (date > today) return null;
       const count = counts.get(date) ?? 0;
-      return { date, count, level: count >= 5 ? 4 : count >= 3 ? 3 : (count as 0 | 1 | 2) };
+      return { date, count, server: servers.get(date) ?? 0, level: count >= 5 ? 4 : count >= 3 ? 3 : (count as 0 | 1 | 2) };
     });
     const total = days.reduce((n, day) => n + (day?.count ?? 0), 0);
     return { monday: start, days, total };
@@ -227,6 +251,15 @@ export function homeStats(data: Prepared, today: string) {
     openItems: latest.filter((s) => isActive(s.date, today)).reduce((n, s) => n + list(s.next).length, 0),
     wiki: data.wiki.length,
   };
+}
+
+/** Where each wiki page came from: `mac` if a session promoted it, `anotar` if a server AI record did. */
+export function wikiOrigins(data: Pick<Prepared, 'sessions' | 'server'>) {
+  const origins = new Map<string, Set<'mac' | 'anotar'>>();
+  const add = (slug: string, origin: 'mac' | 'anotar') => origins.set(slug, (origins.get(slug) ?? new Set()).add(origin));
+  for (const s of data.sessions) for (const slug of list(s.promoted)) add(slug, 'mac');
+  for (const s of data.server) for (const slug of list(s.promoted)) add(slug, 'anotar');
+  return origins;
 }
 
 /** `./x.md`, `../wiki/x.md`, `x.md#part` → wiki slug. */

@@ -40,6 +40,19 @@ AUTH_MODE=disabled npm run dev          # 로그인 없이 로컬에서만
 
 AI를 부르는 것은 2·3·4뿐이고 모두 이 Mac에서 한다. 요약과 회고, 위키 페이지는 비공개 GitHub repo(`memory-data`)에 올라가서 그게 곧 백업이다.
 
+### 운영 화면에 오기까지
+
+```
+Mac auto.sh (매일 10시 이후 한 번, 실패하면 다음 시간에 다시)  → 모으기·요약·회고·묶기
+  → git push memory-data
+  → 서버가 매시 정각에 pull 하고 data.json을 다시 묶음              ← 화면의 "갱신 <시각>" (바뀐 게 없으면 다시 묶지 않아 그대로)
+  → anotar /wiki
+```
+
+- 위키는 지금 **Mac → GitHub → 서버 한 방향**이다. anotar 서버의 AI 요청 결과는 Mac 자동 요약이 돌 때 `import_anotar.py`가 SSH로 **읽기만** 해서 `anotar/`에 가져온다. Mac 세션(`sessions/`)과 폴더·탭(**서버 AI 기록**)이 따로이고, 요약 AI를 거치지 않는다. 홈 히트맵은 둘을 합쳐 세되 칸에 올리면 나눠 보이고, 주간 회고에는 `## 서버 AI` 단락으로 따로 들어간다. 위키 글에 반영되면 **출처** 필터(Mac·서버 AI)로 나눠 본다. 홈의 **남은 일 → 할 일 추가**는 anotar의 할 일로 저장되고 위키 파일은 건드리지 않는다.
+- 툴바의 **새로고침 버튼**은 서버에 이미 있는 data.json을 화면에 다시 받아 올 뿐이다. Mac에서 가져오지도, 서버가 GitHub에서 새로 받게 하지도 않는다. 바뀐 게 없으면 서버가 304로 답해 금방 끝난다.
+- **지금 바로 반영하려면**: Mac에서 `apps/memory/auto.sh now`(push까지) → 서버에서 `sudo systemctl start leneu-memory-sync`(아니면 다음 정각까지 기다림) → 새로고침 버튼.
+
 ## 화면 읽는 법
 
 | 탭 | 무엇을 보나 |

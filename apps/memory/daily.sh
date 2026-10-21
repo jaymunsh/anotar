@@ -1,5 +1,5 @@
 #!/bin/zsh
-# 세션 가져오기 + 요약 + 주간 회고 + 빌드 + (remote 있으면) push.
+# 세션 가져오기 + 서버 AI 기록 가져오기 + 요약 + 주간 회고 + 빌드 + (remote 있으면) push.
 # 사용: ./daily.sh [claude|codex|opencode] [모델]
 #   예: ./daily.sh opencode               (무료 deepseek, summarize.py로 파일마다 한 번씩)
 #       ./daily.sh codex gpt-6.1-sol
@@ -13,6 +13,10 @@ cd "${MEMORY_DATA:-$CODE/../../data/memory}"
 AGENT=${1:-${MEMORY_AGENT:-claude}}
 MODEL=${2:-${MEMORY_MODEL:-}}
 PROMPT="AGENTS.md의 sessions 절차를 그대로 따르고, 이어서 weekly 절차도 따른다. 확인 질문 없이 끝까지 진행하고, summarized_by에는 $AGENT/${MODEL:-기본 모델}을 적는다."
+
+# Server AI requests go to anotar/ (apart from sessions/) before the weekly review reads them.
+python3 "$CODE/import_anotar.py" || echo "서버 AI 기록 일부 실패: 다음 실행 때 다시 시도"
+git add anotar 2>/dev/null && git commit -qm "anotar: 서버 AI 기록 가져옴" 2>/dev/null || true
 
 case $AGENT in
   claude)

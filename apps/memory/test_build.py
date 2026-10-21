@@ -48,3 +48,17 @@ a = (d / "sessions/a.md").read_text(encoding="utf-8")
 assert "date: 2026-10-20\nstarted: 2026-10-20T03:02\nended: 2026-10-20T05:40\ntags" in a and a.count("started:") == 1, a
 assert "started" not in (d / "sessions/b.md").read_text(encoding="utf-8")
 print("ok import")
+
+# import_anotar: 끝난 요청 하나 → 기록 파일, build.py가 다시 읽을 수 있게
+import import_anotar, json as _json
+job = {"id": "4419d11b-x", "memo": 1, "title": "", "memo_text": "\n[GPT] dev, day\n둘째 줄",
+       "request": _json.dumps({"template": {"name": "키워드 리서치"}, "execution": {"model": "a,b"}}),
+       "runner": None, "result": _json.dumps({"markdown": "> 안내\n# 제목\n- **첫** 문장 [링크](https://x.test)\n", "sources": [{"url": "https://x.test", "title": "X"}]}),
+       "started": "2026-09-29T13:08:28.100Z", "finished": "2026-09-29T13:09:00.000Z"}
+t = pathlib.Path(tempfile.mkdtemp()) / "r.md"
+t.write_text(import_anotar.record(job), encoding="utf-8")
+r = build.parse(t, build.ANOTAR_KEYS)
+assert r["title"] == "GPT dev, day" and r["tldr"] == "첫 문장 링크", r
+assert r["template"] == "키워드 리서치" and r["source"] == "memo" and r["date"] == "2026-09-29" and r["started"] == "2026-09-29T22:08", r
+assert r["models"] == ["a b"] and r["promoted"] == [] and "## 출처\n\n- [X](https://x.test)" in r["body"], r
+print("ok anotar record")

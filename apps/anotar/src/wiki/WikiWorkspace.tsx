@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
-import { ArrowLeft, Check, Plus, RefreshCw, Search } from 'lucide-react';
+import { ArrowLeft, Check, FilePlus, Plus, RefreshCw, Search } from 'lucide-react';
 import { authenticationRequired, getAuthSnapshot, subscribeAuth } from '../auth/state';
 import { WorkspaceToolbar } from '../workspace/WorkspaceToolbar';
 import { publishRecordChange, subscribeRecordChanges } from '../trash/events';
@@ -20,16 +20,19 @@ import {
   parseWikiRoute,
   prepare,
   relativeDay,
-  builtAgo,
+  kstStamp,
+  isStale,
   sessionTime,
   splitResult,
   toolName,
   weekday,
   wikiLinkSlug,
+  wikiOrigins,
   ymd,
   type Digest,
   type MemoryData,
   type Prepared,
+  type ServerAi,
   type Session,
   type WikiPage,
 } from './model';
@@ -71,6 +74,7 @@ function useLink(navigate: Navigate) {
 }
 const pagePath = (slug: string) => '/wiki/pages/' + encodeURIComponent(slug);
 const logPath = (slug: string) => '/wiki/log/' + encodeURIComponent(slug);
+const serverPath = (slug: string) => '/wiki/server/' + encodeURIComponent(slug);
 const projectPath = (name: string) => '/wiki/projects/' + encodeURIComponent(name);
 
 export default function WikiWorkspace({ navigate, pathname }: { navigate: Navigate; pathname: string }) {
@@ -93,7 +97,8 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
   const tabs: { path: string; label: string; active: boolean }[] = [
     { path: '/wiki', label: '홈', active: route.view === 'home' },
     { path: '/wiki/pages', label: '위키', active: route.view === 'pages' },
-    { path: '/wiki/log', label: 'AI 기록', active: route.view === 'log' },
+    { path: '/wiki/log', label: 'AI 기록 (Mac)', active: route.view === 'log' },
+    { path: '/wiki/server', label: '서버 AI 기록', active: route.view === 'server' },
     { path: '/wiki/projects', label: '프로젝트', active: route.view === 'projects' },
     { path: '/wiki/system', label: '구조', active: route.view === 'system' },
     { path: '/wiki/guide', label: '가이드', active: route.view === 'guide' },
@@ -118,6 +123,8 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
     body = route.slug ? <WikiReader data={load.data} slug={route.slug} link={link} navigate={navigate} /> : <WikiList data={load.data} link={link} />;
   else if (route.view === 'log')
     body = route.slug ? <SessionReader data={load.data} slug={route.slug} link={link} navigate={navigate} /> : <SessionList data={load.data} link={link} />;
+  else if (route.view === 'server')
+    body = route.slug ? <ServerReader data={load.data} slug={route.slug} link={link} navigate={navigate} /> : <ServerList data={load.data} link={link} />;
   else if (route.view === 'system') body = <SystemView data={load.data} />;
   else if (route.view === 'guide')
     body = load.data.system?.guide ? (
@@ -148,7 +155,13 @@ export default function WikiWorkspace({ navigate, pathname }: { navigate: Naviga
           data ? (
             <span className="wiki-toolbar-stats">
               {data.builtAt && (
-                <span title={new Date(data.builtAt).toLocaleString('ko-KR')}>갱신 {builtAgo(data.builtAt, Date.now())}</span>
+                isStale(data.builtAt) ? (
+                  <span className="is-stale" title="30시간 넘게 새 데이터가 없어요. Mac 자동 요약이 안 돌았거나 실패했을 수 있어요. Mac에서 apps/memory/auto.sh status로 확인해 주세요.">
+                    갱신 {kstStamp(data.builtAt)} · 멈춤?
+                  </span>
+                ) : (
+                  <span title="서버가 새 데이터를 받아 위키를 마지막으로 다시 만든 시각 (KST)">갱신 {kstStamp(data.builtAt)}</span>
+                )
               )}
             </span>
           ) : undefined
@@ -301,16 +314,11 @@ function ProjectTimeline({ data, today, link }: { data: Prepared; today: string;
   );
 }
 /** Sessions per day, one column per week. A column links to that week in the weekly log. */
-function ActivityHeatmap({ sessions, today, link, weeks }: { sessions: Session[]; today: string; link: Link; weeks?: number }) {
-  const grid = useMemo(() => activityGrid(sessions, today, weeks), [sessions, today, weeks]);
-  // On a narrow screen the grid scrolls; start at the latest weeks.
-  const scroll = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (scroll.current) scroll.current.scrollLeft = scroll.current.scrollWidth;
-  }, [grid.length]);
+function ActivityHeatmap({ sessions, server = [], today, link, weeks }: { sessions: Session[]; server?: ServerAi[]; today: string; link: Link; weeks?: number }) {
+  const grid = useMemo(() => activityGrid(sessions, today, weeks, server), [sessions, server, today, weeks]);
   return (
     <div className="wiki-heatmap" style={{ '--weeks': grid.length } as CSSProperties}>
-      <div className="wiki-heatmap-scroll" ref={scroll}>
+      <div className="wiki-heatmap-scroll">
         <div className="wiki-heatmap-days" aria-hidden>
           {['월', '', '수', '', '금', '', ''].map((d, i) => <span key={i}>{d}</span>)}
         </div>
@@ -325,7 +333,11 @@ function ActivityHeatmap({ sessions, today, link, weeks }: { sessions: Session[]
                 <span className="wiki-heatmap-month" aria-hidden>{newMonth ? `${month}월` : ''}</span>
                 {week.days.map((day, d) =>
                   day ? (
-                    <span key={d} className={`wiki-heatmap-cell is-${day.level}`} title={`${monthDay(day.date)} (${weekday(day.date)}) · 기록 ${day.count}개`} />
+                    <span
+                      key={d}
+                      className={`wiki-heatmap-cell is-${day.level}`}
+                      title={`${monthDay(day.date)} (${weekday(day.date)}) · 기록 ${day.count}개${day.server ? ` (Mac ${day.count - day.server} · 서버 AI ${day.server})` : ''}`}
+                    />
                   ) : (
                     <span key={d} className="wiki-heatmap-cell is-empty" />
                   ),
@@ -337,7 +349,7 @@ function ActivityHeatmap({ sessions, today, link, weeks }: { sessions: Session[]
       </div>
       <p className="wiki-heatmap-legend" aria-hidden>
         적음 {[0, 1, 2, 3, 4].map((l) => <span key={l} className={`wiki-heatmap-cell is-${l}`} title={LEVEL_TEXT[l]} />)} 많음
-        <span className="wiki-muted"> · 하루 AI 기록 수, 주를 누르면 그 주 기록으로</span>
+        <span className="wiki-muted"> · 하루 AI 기록 수(Mac + 서버 AI), 칸에 올리면 나눠 보여요. 주를 누르면 그 주 Mac 기록으로</span>
       </p>
     </div>
   );
@@ -384,8 +396,8 @@ function WikiHome({ data, link }: { data: Prepared; link: Link }) {
       <div className="wiki-home-grid">
         <div className="wiki-home-top is-wide">
           <StatTiles data={data} today={today} />
-          <Section title="최근 6개월" note={`AI 기록 ${data.sessions.length}개`}>
-            <ActivityHeatmap sessions={data.sessions} today={today} link={link} />
+          <Section title="최근 6개월" note={`Mac ${data.sessions.length}개 · 서버 AI ${data.server.length}개`}>
+            <ActivityHeatmap sessions={data.sessions} server={data.server} today={today} link={link} />
           </Section>
         </div>
         {data.digests[0] && (
@@ -536,17 +548,25 @@ const Empty = ({ total, empty }: { total: number; empty: string }) => (
   <p className="wiki-status">{total ? '검색 결과가 없어요. 검색어나 필터를 바꿔 보세요.' : empty}</p>
 );
 
+const ORIGIN_NAME = (origin: string) => (origin === 'anotar' ? '서버 AI' : 'Mac');
+
 function WikiList({ data, link }: { data: Prepared; link: Link }) {
   const [query, setQuery] = useState('');
   const [tag, setTag] = useState(() => new URLSearchParams(window.location.search).get('tag') ?? '');
+  const [origin, setOrigin] = useState('');
+  const origins = useMemo(() => wikiOrigins(data), [data]);
   const hits = data.wiki.filter(
-    (p) => (!tag || list(p.tags).includes(tag)) && matches([p.title, p.tldr, p.tags, p.body], query),
+    (p) =>
+      (!tag || list(p.tags).includes(tag)) &&
+      (!origin || origins.get(p.slug)?.has(origin as 'mac' | 'anotar')) &&
+      matches([p.title, p.tldr, p.tags, p.body], query),
   );
   let month = '';
   return (
     <div className="wiki-list-view">
       <div className="wiki-filters">
         <SearchField value={query} onChange={setQuery} label="제목, 요약, 본문 검색" />
+        <Chips label="출처" entries={countBy(data.wiki, (p) => [...(origins.get(p.slug) ?? [])])} value={origin} onChange={setOrigin} total={data.wiki.length} name={ORIGIN_NAME} />
         <Chips label="태그" entries={countBy(data.wiki, (p) => p.tags)} value={tag} onChange={setTag} total={data.wiki.length} name={(v) => '#' + v} />
       </div>
       {!hits.length && <Empty total={data.wiki.length} empty="아직 위키 페이지가 없어요. 에이전트에게 ingest를 시켜 보세요." />}
@@ -560,6 +580,7 @@ function WikiList({ data, link }: { data: Prepared; link: Link }) {
               <a className="wiki-entry" {...link(pagePath(p.slug))}>
                 <span className="wiki-entry-row">
                   <strong>{p.title}</strong>
+                  {[...(origins.get(p.slug) ?? [])].map((o) => <span key={o} className="wiki-badge">{ORIGIN_NAME(o)}</span>)}
                   <span className="wiki-tags">{list(p.tags).map((t) => '#' + t).join(' ')}</span>
                   <time>{p.updated.slice(5).replace('-', '.')}</time>
                 </span>
@@ -762,6 +783,7 @@ function WikiReader({ data, slug, link, navigate }: { data: Prepared; slug: stri
   if (!page) return <Missing what="위키 페이지" back="/wiki/pages" link={link} />;
   const refs = data.wiki.filter((q: WikiPage) => q !== page && new RegExp(`\\]\\((?:\\./)?${slug}\\.md`).test(q.body));
   const from = data.sessions.filter((s) => list(s.promoted).includes(slug));
+  const fromServer = data.server.filter((s) => list(s.promoted).includes(slug));
   return (
     <article className="wiki-reader">
       <Back to="/wiki/pages" label="위키" link={link} />
@@ -773,9 +795,11 @@ function WikiReader({ data, slug, link, navigate }: { data: Prepared; slug: stri
           <a key={t} {...link('/wiki/pages?tag=' + encodeURIComponent(t))}>#{t}</a>
         ))}
       </p>
+      <ExpandPage title={page.title} markdown={`> ${page.tldr}\n\n${page.body.trim()}`} navigate={navigate} />
       <Markdown text={page.body} navigate={navigate} />
       <Bullets title="이 글을 참조하는 페이지" items={refs.map((q) => <a {...link(pagePath(q.slug))}>{q.title}</a>)} />
-      <Bullets title="이 글의 출처가 된 AI 기록" items={from.map((s) => <a {...link(logPath(s.slug))}>{s.title}</a>)} />
+      <Bullets title="이 글의 출처가 된 AI 기록 (Mac)" items={from.map((s) => <a {...link(logPath(s.slug))}>{s.title}</a>)} />
+      <Bullets title="이 글의 출처가 된 서버 AI 기록" items={fromServer.map((s) => <a {...link(serverPath(s.slug))}>{s.title}</a>)} />
     </article>
   );
 }
@@ -803,30 +827,138 @@ function SessionReader({ data, slug, link, navigate }: { data: Prepared; slug: s
           ))}
         </p>
       ) : null}
+      <ExpandPage
+        title={s.title}
+        markdown={`> ${s.tldr}\n\n${s.body.trim()}${mdList('남은 일', s.next)}${mdList('정한 것', s.decisions)}${mdList('위키 후보', s.candidates)}`}
+        navigate={navigate}
+      />
       <Markdown text={result} navigate={navigate} />
       <Bullets title="남은 일" items={list(s.next)} />
       <Bullets title="정한 것" items={list(s.decisions)} />
       <Bullets title="위키 후보" items={list(s.candidates)} />
       <Markdown text={rest} navigate={navigate} />
-      {!promoted.length && <IngestHint slug={s.slug} />}
     </article>
   );
 }
 
-/** The agent command that promotes this session into the wiki, copyable. */
-function IngestHint({ slug }: { slug: string }) {
-  const command = `/ingest sessions/${slug}.md`;
-  const [copied, setCopied] = useState(false);
+/** Markdown lists for a session's frontmatter bullets, so the copied page keeps them. */
+const mdList = (title: string, items: unknown) =>
+  list(items).length ? `\n\n## ${title}\n\n${list(items).map((i) => '- ' + i).join('\n')}` : '';
+
+/**
+ * New anotar page "AI확장: <title>" with the record folded at the top, to write the detail below.
+ * The wiki files are never touched: this only creates a page.
+ */
+function ExpandPage({ title, markdown, navigate }: { title: string; markdown: string; navigate: Navigate }) {
+  const [state, setState] = useState<'idle' | 'busy' | 'error'>('idle');
+  async function create() {
+    setState('busy');
+    try {
+      const { parsePageMarkdown } = await import('../pages/parseMarkdown');
+      // A bullet parsed from Markdown has the same props as a toggle, so it becomes the fold.
+      const [fold] = parsePageMarkdown('- 원문: ' + title).blocks as Record<string, unknown>[];
+      const blocks = [{ ...fold, type: 'toggleListItem', children: parsePageMarkdown(markdown).blocks }, ...parsePageMarkdown('').blocks];
+      const created = await fetch('/api/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: `AI확장: ${title}`.slice(0, 200) }),
+      });
+      const page = (await created.json()).item;
+      if (!created.ok || !page?.id) throw Error();
+      const saved = await fetch('/api/pages/' + page.id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: page.title, icon: page.icon ?? '', document: { schemaVersion: 1, blocks }, expectedVersion: page.version }),
+      });
+      publishRecordChange('page-create');
+      // A failed save still leaves the (empty) page; open it either way so nothing is hidden.
+      if (!saved.ok) throw Object.assign(Error(), { page: page.id });
+      navigate('/pages/' + page.id);
+    } catch (error) {
+      const page = (error as { page?: string }).page;
+      if (page) navigate('/pages/' + page);
+      setState('error');
+    }
+  }
   return (
-    <p className="wiki-linked wiki-ingest">
-      <span className="wiki-muted">위키로 옮기려면 에이전트에게</span> <code>{command}</code>
-      <button
-        type="button"
-        onClick={() => navigator.clipboard.writeText(command).then(() => setCopied(true), () => setCopied(false))}
-      >
-        {copied ? '복사됨' : '복사'}
+    <p className="wiki-linked wiki-expand">
+      <button type="button" disabled={state === 'busy'} onClick={() => void create()}>
+        <FilePlus size={13} aria-hidden /> {state === 'busy' ? '만드는 중…' : 'AI확장 페이지 만들기'}
       </button>
+      <span className="wiki-muted">
+        {state === 'error' ? '페이지를 다 만들지 못했어요. 다시 시도해 주세요.' : '이 내용을 맨 위에 접어 둔 새 페이지를 만들어요. 위키는 그대로예요.'}
+      </span>
     </p>
+  );
+}
+
+/** 서버 AI 기록 tab: anotar's AI request results, kept apart from the Mac sessions (no projects, own filters). */
+function ServerList({ data, link }: { data: Prepared; link: Link }) {
+  const [query, setQuery] = useState('');
+  const [template, setTemplate] = useState('');
+  const hits = data.server.filter(
+    (s) => (!template || s.template === template) && matches([s.title, s.tldr, s.template, s.models, s.body], query),
+  );
+  let day = '';
+  return (
+    <div className="wiki-list-view">
+      <div className="wiki-filters">
+        <SearchField value={query} onChange={setQuery} label="요청한 주제, 결과 검색" />
+        <Chips label="요청 종류" entries={countBy(data.server, (s) => s.template)} value={template} onChange={setTemplate} total={data.server.length} />
+      </div>
+      {!hits.length && (
+        <Empty total={data.server.length} empty="아직 서버 AI 기록이 없어요. anotar에서 AI 요청 결과가 나오면 다음 Mac 자동 요약 때 들어와요." />
+      )}
+      <div className="wiki-list">
+        {hits.map((s) => {
+          const heading = s.date !== day && (day = s.date);
+          return (
+            <div key={s.slug}>
+              {heading && <h2 className="wiki-group">{monthDay(s.date)} ({weekday(s.date)})</h2>}
+              <a className="wiki-entry" {...link(serverPath(s.slug))}>
+                <span className="wiki-entry-row">
+                  <strong>{s.title}</strong>
+                  {list(s.promoted).length > 0 && <span className="wiki-badge">위키 반영</span>}
+                  <span className="wiki-meta">
+                    {s.started && <time className="wiki-entry-time">{sessionTime(s, false)}</time>}
+                    <ToolDot tool="anotar" />
+                    {s.template}
+                  </span>
+                </span>
+                <span className="wiki-entry-sum">{s.tldr}</span>
+              </a>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ServerReader({ data, slug, link, navigate }: { data: Prepared; slug: string; link: Link; navigate: Navigate }) {
+  const s = data.server.find((x) => x.slug === slug);
+  if (!s) return <Missing what="서버 AI 기록" back="/wiki/server" link={link} />;
+  const promoted = list(s.promoted).map((p) => data.wiki.find((w) => w.slug === p)).filter((w): w is WikiPage => !!w);
+  return (
+    <article className="wiki-reader">
+      <Back to="/wiki/server" label="서버 AI 기록" link={link} />
+      <h1>{s.title}</h1>
+      <p className="wiki-tldr">{s.tldr}</p>
+      <p className="wiki-meta">
+        <span className="wiki-badge"><ToolDot tool="anotar" />{s.template}</span>
+        {list(s.models).join(', ')} · {s.source === 'page' ? '페이지' : '메모'}에서 요청 · {sessionTime(s) || s.date}
+      </p>
+      {promoted.length ? (
+        <p className="wiki-linked">
+          위키에 반영됨:{' '}
+          {promoted.map((w, i) => (
+            <span key={w.slug}>{i > 0 && ', '}<a {...link(pagePath(w.slug))}>{w.title}</a></span>
+          ))}
+        </p>
+      ) : null}
+      <ExpandPage title={s.title} markdown={`> ${s.tldr}\n\n${s.body.trim()}`} navigate={navigate} />
+      <Markdown text={s.body} navigate={navigate} />
+    </article>
   );
 }
 
@@ -876,7 +1008,7 @@ function SystemView({ data }: { data: Prepared }) {
   const stages: [string, number, string][] = [
     ['① 가져온 대화', c.raw, 'raw/sessions · 이 Mac에만'],
     ['② 요약 대기', c.pending, '다음 summarize.py sessions에서'],
-    ['② AI 기록', c.shown, `sessions · 숨김 ${c.hidden}`],
+    ['② AI 기록', c.shown, `sessions · 숨김 ${c.hidden} · 서버 AI ${data.server.length} (anotar)`],
     ['③ 주간 회고', data.digests.length, 'digests'],
     ['④ 위키 페이지', data.wiki.length, 'wiki'],
   ];

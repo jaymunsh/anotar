@@ -151,27 +151,32 @@ def weekly(only=None):
     weeks = {}
     for s in build.tidy_projects(build.load("sessions", build.SESSION_KEYS, "date"), config):
         if s["title"] != "(내용 없음)":
-            weeks.setdefault(monday(s["date"]), []).append(s)
+            weeks.setdefault(monday(s["date"]), []).append(("sessions", s))
+    # Server AI requests (anotar/) are their own part of the review, never mixed into a project.
+    for r in build.load("anotar", build.ANOTAR_KEYS, "date"):
+        weeks.setdefault(monday(r["date"]), []).append(("anotar", r))
     (DATA / "digests").mkdir(exist_ok=True)
     failed = 0
     for week, items in sorted(weeks.items()):
         if only and week != only:
             continue
         out = DATA / "digests" / f"{week}.md"
-        if out.exists() and all(not newer(DATA / "sessions" / f"{s['slug']}.md", out) for s in items):
+        if out.exists() and all(not newer(DATA / folder / f"{s['slug']}.md", out) for folder, s in items):
             continue
-        names = ", ".join(f"sessions/{s['slug']}.md" for s in items)
+        names = ", ".join(f"sessions/{s['slug']}.md" for folder, s in items if folder == "sessions") or "없음"
+        server = ", ".join(f"anotar/{s['slug']}.md" for folder, s in items if folder == "anotar")
         start = time.time()
         done = lambda: out.exists() and out.stat().st_mtime >= start
         attempt(lambda: f"AGENTS.md의 weekly 절차와 주간 회고 형식을 따라 {week} 주의 회고 하나만 쓴다. "
                 f"읽을 요약: {names}. 프로젝트 이름은 이 목록을 따른다: "
-                + ", ".join(sorted({s['project'] for s in items}))
+                + (", ".join(sorted({s['project'] for folder, s in items if folder == "sessions"})) or "없음")
+                + (f". 서버 AI 요청 기록(## 서버 AI 단락에만): {server}" if server else "")
                 + f". 출력: digests/{week}.md. summarized_by: {label()}. 다른 파일은 고치지 않고, build.py·git은 실행하지 않는다. 확인 질문 없이 끝낸다.",
                 TIMEOUT, done)
         ok = done()
         failed += not ok
         count(ok)
-        print(f"{'ok  ' if ok else 'FAIL'} digests/{week}.md ({len(items)}개 세션) {int(time.time() - start)}s", flush=True)
+        print(f"{'ok  ' if ok else 'FAIL'} digests/{week}.md ({len(items)}개 기록) {int(time.time() - start)}s", flush=True)
     return failed
 
 
