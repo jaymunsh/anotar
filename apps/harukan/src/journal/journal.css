@@ -191,9 +191,6 @@
 .journal-plan-miss{display:none;flex-shrink:0;margin-left:auto;margin-right:10px;padding:1px;border-radius:3px;color:var(--muted);cursor:pointer}
 .journal-plan-miss:hover{color:var(--danger);background:var(--hover)}
 @media(hover:hover){.journal-plan:hover .journal-plan-miss,.journal-plan.hover .journal-plan-miss,.journal-plan.missed .journal-plan-miss{display:inline-flex}}
-.journal-empty-hint{margin:0 0 8px;padding:8px 12px;border-radius:8px;background:var(--hover);color:var(--muted);font-size:12px}
-.journal-empty-hint a{color:var(--action);margin-left:4px}
-.journal-overview .journal-empty-hint{flex-shrink:0}
 /* 회고: the week first, then the unfinished list. */
 
 

@@ -167,7 +167,7 @@ export function makeApp(options={}) {
         res.writeHead(200,{'Content-Type':type,'Cache-Control':path.startsWith('/assets/')?'public, max-age=31536000, immutable':'no-cache'});
         return res.end(req.method==='HEAD'?undefined:await readFile(file));
       }
-      if(write&&(req.headers.origin!==origin||req.headers['sec-fetch-site']==='cross-site')) throw apiError(403,'현재 사이트에서 다시 요청해 주세요.');
+      if(write&&(req.headers.origin!==origin||req.headers['sec-fetch-site']==='cross-site')) throw apiError(403,'접속한 주소가 달라요. harukan 주소로 다시 열어 주세요.');
       if(path==='/api/site'&&req.method==='GET') return json(res,200,{legal,legalReady,registration,termsVersion,maintenance:await maintenance()});
       if(path==='/api/auth/session'&&req.method==='GET') {
         const s=session(req);
