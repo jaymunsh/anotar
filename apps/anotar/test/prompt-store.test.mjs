@@ -69,6 +69,31 @@ test('new keyword preset is backfilled into existing libraries without overwriti
   }
 });
 
+test('older libraries get one merged 리서치 preset: unchanged built-ins only', () => {
+  const db = new DatabaseSync(':memory:');
+  try {
+    createPromptStore(db);
+    // Roll back to the pre-merge built-ins: 키워드 리서치 seed and an active URL 리서치.
+    db.prepare("UPDATE prompt_templates SET name='키워드 리서치', description='주제·키워드로 자료를 찾아 핵심 3줄과 출처 정리', body=? WHERE id='research-keyword'").run(
+      '다음 주제의 관련 자료를 조사하고 한국어로 정리해 주세요.\n\n주제와 조건: {{content}}\n\n## 핵심 요약\n가장 중요한 내용을 3줄로 정리해 주세요.\n\n## 근거와 출처\n확인한 자료만 사용하고 주요 주장에 출처 링크를 붙여 주세요.\n공식·1차 자료를 우선하고 서로 다른 관점이 있으면 구분해 주세요.\n\n## 더 확인할 점\n추가 조사할 질문과 자료의 한계를 적어 주세요.\n확인하지 못한 사실은 추측해서 채우지 말고 ‘미확인’으로 표시해 주세요.',
+    );
+    db.exec("UPDATE prompt_templates SET archived=0 WHERE id='research-brief'; DELETE FROM prompt_meta WHERE key='research-merged-v1'");
+    const after = createPromptStore(db);
+    const keyword = after.getPromptTemplate('research-keyword');
+    assert.equal(keyword.name, '리서치');
+    assert.match(keyword.body, /\{\{url\}\}/);
+    assert.equal(keyword.version, 2);
+    assert.equal(after.getPromptTemplate('research-brief').archived, true);
+
+    // An edited preset is left alone.
+    const edited = after.updatePromptTemplate(draft(after.getPromptTemplate('research-brief'), { body: '내 {{url}}', archived: false }));
+    db.exec("DELETE FROM prompt_meta WHERE key='research-merged-v1'");
+    assert.deepEqual(createPromptStore(db).getPromptTemplate('research-brief'), edited);
+  } finally {
+    db.close();
+  }
+});
+
 test('a full existing library starts without inserting another preset or changing user data', () => {
   const db = new DatabaseSync(':memory:');
   try {

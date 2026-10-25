@@ -5,14 +5,14 @@ import { defaultTemplates } from '../shared/prompts.ts';
 test('template quick choices preserve edited labels and exclude archived or stale recent choices', async () => {
   const { quickRequestTemplates, templatePresentation } = await import('../src/prompts/requestPresentation.ts');
   const templates = defaultTemplates();
-  templates[0].name = '내 자료 조사';
-  templates[0].body = '# 원하는 결과\n{{content}}';
+  templates[1].name = '내 자료 조사';
+  templates[1].body = '# 원하는 결과\n{{content}}';
   const original = structuredClone(templates);
   const choices = quickRequestTemplates(templates, 'research-keyword', { free: 'travel-outline', research: 'missing' });
-  assert.ok(choices.some(t => t.id === 'research-keyword'));
-  assert.equal(choices.find(t => t.id === 'research-brief').name, '내 자료 조사');
+  assert.equal(choices.find(t => t.id === 'research-keyword').name, '내 자료 조사');
+  assert.ok(!choices.some(t => t.id === 'research-brief'), 'URL 리서치 is merged into 리서치');
   assert.ok(choices.every(t => !t.archived));
-  assert.deepEqual(templatePresentation(templates[0]).outline, ['원하는 결과']);
+  assert.deepEqual(templatePresentation(templates[1]).outline, ['원하는 결과']);
   assert.deepEqual(templates, original);
 });
 

@@ -19,6 +19,27 @@ const fields = (value) => ({
   body: value.body,
   archived: value.archived,
 });
+// The keyword preset before it absorbed URL research (research-merged-v1).
+const LEGACY_KEYWORD = {
+  name: '키워드 리서치',
+  description: '주제·키워드로 자료를 찾아 핵심 3줄과 출처 정리',
+  kind: 'research',
+  body: `다음 주제의 관련 자료를 조사하고 한국어로 정리해 주세요.
+
+주제와 조건: {{content}}
+
+## 핵심 요약
+가장 중요한 내용을 3줄로 정리해 주세요.
+
+## 근거와 출처
+확인한 자료만 사용하고 주요 주장에 출처 링크를 붙여 주세요.
+공식·1차 자료를 우선하고 서로 다른 관점이 있으면 구분해 주세요.
+
+## 더 확인할 점
+추가 조사할 질문과 자료의 한계를 적어 주세요.
+확인하지 못한 사실은 추측해서 채우지 말고 ‘미확인’으로 표시해 주세요.`,
+  archived: false,
+};
 const same = (a, b) => JSON.stringify(fields(a)) === JSON.stringify(fields(b));
 function clean(input) {
   try {
@@ -196,6 +217,17 @@ export function createPromptStore(db) {
       db.prepare('SELECT COUNT(*) AS count FROM prompt_templates').get().count < 200
     ) {
       insert(defaultTemplates().find((item) => item.id === 'research-keyword'));
+    }
+    // One 리서치 preset handles both URL and keyword: update/retire only unchanged built-ins.
+    if (!db.prepare("SELECT value FROM prompt_meta WHERE key='research-merged-v1'").get()) {
+      const seeds = defaultTemplates();
+      const keyword = get('research-keyword'),
+        brief = get('research-brief');
+      if (keyword && same(keyword, LEGACY_KEYWORD))
+        update({ ...keyword, ...fields(seeds.find((item) => item.id === 'research-keyword')), expectedVersion: keyword.version, expectedRevisionId: keyword.revisionId });
+      if (brief && same(brief, { ...seeds.find((item) => item.id === 'research-brief'), archived: false }))
+        update({ ...brief, archived: true, expectedVersion: brief.version, expectedRevisionId: brief.revisionId });
+      db.prepare("INSERT INTO prompt_meta VALUES ('research-merged-v1','1')").run();
     }
   });
   const libraryId = db.prepare("SELECT value FROM prompt_meta WHERE key='library_id'").get().value;

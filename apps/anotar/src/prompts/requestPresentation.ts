@@ -5,7 +5,7 @@ export function quickRequestTemplates(
   recent: { research?: string; free?: string } = {},
 ): PromptTemplate[] {
   const active = templates.filter(t => !t.archived);
-  const ids = [selectedId, recent.research, recent.free, 'research-keyword', 'research-brief', 'idea-outline', ...active.map(t => t.id)];
+  const ids = [selectedId, recent.research, recent.free, 'research-keyword', 'idea-outline', ...active.map(t => t.id)];
   return [...new Set(ids)].flatMap(id => {
     const found = active.find(t => t.id === id);
     return found ? [found] : [];
@@ -16,7 +16,7 @@ export function templatePresentation(template: Pick<PromptTemplate, 'kind' | 'bo
   const urlInput = /\{\{\s*url\s*\}\}/.test(template.body);
   const outline = [...template.body.matchAll(/^#{1,4}\s+(.+)$/gm)].map(m => m[1].trim()).slice(0, 4);
   return {
-    inputLabel: template.kind === 'research' ? (urlInput ? 'URL · 함께 남긴 메모' : '주제 · 조사 조건') : '글 · 메모',
+    inputLabel: template.kind === 'research' ? (urlInput ? '주제 또는 URL' : '주제 · 조사 조건') : '글 · 메모',
     outline,
     sample: template.kind === 'research'
       ? { url: urlInput ? 'https://example.com/article' : '', content: 'SQLite와 PostgreSQL의 차이를 개인 프로젝트 관점에서 조사해 주세요. 공식 문서와 운영상의 한계를 함께 확인하고 싶어요.' }

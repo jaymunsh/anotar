@@ -316,3 +316,19 @@ test('OpenCode rejects an unverified CLI version before sending request data', a
   const cwd = await readFile(bin + '.cwd', 'utf8');
   await assert.rejects(readdir(cwd), (e) => e.code === 'ENOENT');
 });
+
+test('OpenCode attaches shrunk images from its throwaway workspace, only for image models', async (t) => {
+  const { dir, bin } = await fixture(
+    t,
+    `const fs=require('node:fs');process.stdin.resume();process.stdin.on('end',()=>{const a=process.argv.slice(2);const f=a[a.indexOf('-f')+1];fs.writeFileSync(process.argv[1]+'.probe',JSON.stringify({args:a,file:fs.readFileSync(f,'utf8')}));console.log(${JSON.stringify(events('# 이미지'))});});`,
+  );
+  const env = { AI_OPENCODE_ENABLED: 'true', AI_OPENCODE_BIN: bin, AI_OPENCODE_AUTH_FILE: join(dir, 'none.json') };
+  assert.equal(createOpenCodeRunner({ ...env, AI_OPENCODE_MODEL: 'opencode/big-pickle' }).images, false);
+  const runner = createOpenCodeRunner({ ...env, AI_OPENCODE_MODEL: 'opencode/deepseek-v4.1-flash-free' });
+  assert.equal(runner.images, true);
+  const images = [{ name: 'image-1.jpg', data: Buffer.from('jpeg-bytes') }];
+  await runner.run({ job, materials: [], images }, new AbortController().signal);
+  const info = JSON.parse(await readFile(bin + '.probe', 'utf8'));
+  assert.deepEqual(info.args.slice(-2), ['-f', 'image-1.jpg']);
+  assert.equal(info.file, 'jpeg-bytes');
+});

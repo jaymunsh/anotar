@@ -391,3 +391,21 @@ test('a failed per-job adapter selection settles the job and releases queue capa
   const next=save(store,'다음 요청');worker.wake();
   await until(()=>store.getAiJob(next.latestAiJob.id),v=>v.status==='failed');
 });
+
+test('image attachments reach only an image runner; image-only research still needs a topic', async (t) => {
+  const received = [];
+  const images = [{ name: 'image-1.jpg', data: Buffer.from('x') }];
+  const { store, worker } = await fixture(
+    t,
+    { enabled: true, images: true, info: { label: 'Fixture', mode: 'test' }, run: async (args) => { received.push(args); return { markdown: '이미지 정리' }; } },
+    { loadImages: async () => images },
+  );
+  const files = [{ key: 'k', name: 'a.png', mime: 'image/png', size: 9 }];
+  const free = store.createCapture({ kind: 'file', files, aiRequest: { template: null, additional: '설명해 줘' } });
+  const research = store.createCapture({ kind: 'file', files, aiRequest: { template: researchTemplate, additional: '' } });
+  worker.start();
+  await until(() => store.getAiJob(free.latestAiJob.id), (v) => v.status === 'result_ready');
+  await until(() => store.getAiJob(research.latestAiJob.id), (v) => v.status === 'failed');
+  assert.equal(store.getAiJob(research.latestAiJob.id).errorCode, 'unsupported_input');
+  assert.deepEqual(received.map((r) => r.images), [images]);
+});

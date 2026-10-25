@@ -27,6 +27,7 @@ import { AiValidationError, AiConflictError, AiNotFoundError } from './ai/contra
 import { fetchOpenCodeModels } from './ai/modelCatalog.mjs';
 import { createAiExecutionService } from './ai/execution.mjs';
 import { createAiWorker } from './ai/worker.mjs';
+import { createImageLoader } from './ai/images.mjs';
 import { createServiceNotifier } from './serviceNotifications.mjs';
 import { PageToolsNotFoundError } from './pageTools.mjs';
 import { createAutomaticBackups } from './automaticBackups.mjs';
@@ -75,7 +76,7 @@ const backups = createAutomaticBackups({
 });
 const aiRunner = createAiExecutionService({store});
 const serviceNotifier = createServiceNotifier();
-const aiWorker = createAiWorker({ store, runner: aiRunner, notifier: serviceNotifier });
+const aiWorker = createAiWorker({ store, runner: aiRunner, notifier: serviceNotifier, loadImages: createImageLoader({ store, dataDir }) });
 const port = Number(process.env.PORT || 8787);
 const host = process.env.HOST || '127.0.0.1';
 const publicShareOrigin = (

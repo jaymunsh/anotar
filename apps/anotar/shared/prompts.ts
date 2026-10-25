@@ -43,17 +43,19 @@ URL: {{url}}
 
 자료에 접근할 수 없으면 그 사실을 먼저 알려 주세요.
 확인하지 못한 내용은 추측해서 채우지 말고 ‘미확인’으로 표시해 주세요.`,
-      archived: false,
+      archived: true,
       version: 1,
     },
     {
       id: 'research-keyword',
-      name: '키워드 리서치',
-      description: '주제·키워드로 자료를 찾아 핵심 3줄과 출처 정리',
+      name: '리서치',
+      description: '주제나 URL로 자료를 찾아 핵심 3줄과 출처 정리',
       kind: 'research',
-      body: `다음 주제의 관련 자료를 조사하고 한국어로 정리해 주세요.
+      body: `다음 주제나 URL의 자료를 조사하고 한국어로 정리해 주세요.
+URL이 있으면 그 자료를 읽고, 없으면 주제로 관련 자료를 찾아 주세요.
 
 주제와 조건: {{content}}
+URL: {{url}}
 
 ## 핵심 요약
 가장 중요한 내용을 3줄로 정리해 주세요.
@@ -64,6 +66,7 @@ URL: {{url}}
 
 ## 더 확인할 점
 추가 조사할 질문과 자료의 한계를 적어 주세요.
+자료에 접근할 수 없으면 그 사실을 먼저 알려 주세요.
 확인하지 못한 사실은 추측해서 채우지 말고 ‘미확인’으로 표시해 주세요.`,
       archived: false,
       version: 1,
@@ -116,7 +119,8 @@ export function renderPrompt(body: string, input: { url: string; content: string
     if (!value.trim()) missing.add(key);
     return value;
   });
-  return { text, variables: [...variables], missing: [...missing] };
+  // Either input is enough (리서치 takes a topic or a URL): flag blanks only when nothing is filled.
+  return { text, variables: [...variables], missing: missing.size === variables.size ? [...missing] : [] };
 }
 
 export function validateDraft(draft: PromptDraft) {

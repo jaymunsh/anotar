@@ -2,7 +2,7 @@ import { AiExecutionError, validateAiResult } from './contracts.mjs';
 import { collectResearch } from './research.mjs';
 import { collectKeywordResearch } from './discovery.mjs';
 
-export function createAiWorker({ store, runner, notifier, collect = collectResearch, timeoutMs = 120_000 }) {
+export function createAiWorker({ store, runner, notifier, collect = collectResearch, loadImages = async () => [], timeoutMs = 120_000 }) {
   let started = false,
     stopped = false,
     pumping = null,
@@ -25,7 +25,10 @@ export function createAiWorker({ store, runner, notifier, collect = collectResea
       activeRunner = runner.forJob?.(job) ?? runner;
       const run = async () => {
         if (!activeRunner.enabled) throw new AiExecutionError('runner_unavailable');
-        if (!job.request.input.content.trim() && !job.request.input.url)
+        const { content, url } = job.request.input;
+        // Images go only to a runner that reads them; keyword research still needs a typed topic.
+        const images = activeRunner.images ? await loadImages(job) : [];
+        if (!content.trim() && !url && (!images.length || job.request.kind === 'research'))
           throw new AiExecutionError('unsupported_input');
         let materials = [],
           research;
@@ -46,7 +49,7 @@ export function createAiWorker({ store, runner, notifier, collect = collectResea
         }
         signal.throwIfAborted();
         const output = await activeRunner.run(
-          { job, materials, ...(research ? { research } : {}) },
+          { job, materials, ...(research ? { research } : {}), ...(images.length ? { images } : {}) },
           signal,
         );
         signal.throwIfAborted();
